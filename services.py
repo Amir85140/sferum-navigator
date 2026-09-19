@@ -1,58 +1,72 @@
 import requests
-import time
 from typing import Dict, Optional
+import base64
 
-# ⚠️ ВСТАВЬ СЮДА СВОЙ КЛЮЧ ВМЕСТО hf_ТВОЙ_КЛЮЧ_СЮДА (кавычки оставь!)
-HF_API_TOKEN = "hf_ТВОЙ_КЛЮЧ_СЮДА"
+# ⚠️ ВСТАВЬ СЮДА СВОИ ДАННЫЕ ОТ GIGACHAT
+CLIENT_ID = "01a0bafa-206f-7e07-a2e7-df9e0acea285"
+CLIENT_SECRET = "GIGACHAT_API_PERS"
 
-API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct"
-headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+# URL для получения токена
+TOKEN_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
+# URL для запросов к GigaChat
+API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
 
 SYSTEM_PROMPT = """Ты — дружелюбный ИИ-наставник для школьников «Сферум Навигатор». 
 Твоя цель: помогать с учёбой, но НЕ давать готовых ответов на домашку. 
 Используй метод Сократа: задавай наводящие вопросы, помогай разобраться в теме.
-Отвечай кратко (2-3 предложения), понятно и поддерживающе. Отвечай только на русском языке."""
+Если ученик просит составить план, спроси, сколько у него времени и какие предметы.
+Отвечай кратко (2-4 предложения), понятно и поддерживающе. Только на русском языке."""
 
 class AIService:
     @staticmethod
+    def _get_token() -> str:
+        """Получает OAuth-токен от GigaChat"""
+        credentials = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+        headers = {
+            "Authorization": f"Basic {credentials}",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json"
+        }
+        data = {"scope": "GIGACHAT_API_PERS"}
+        
+        response = requests.post(TOKEN_URL, headers=headers, data=data, verify=False)
+        response.raise_for_status()
+        return response.json()["access_token"]
+
+    @staticmethod
     def process_message(message: str, user_context: Optional[Dict] = None) -> str:
         try:
+            # Получаем токен
+            token = AIService._get_token()
+            
             context_text = ""
             if user_context and user_context.get("last_topic"):
                 context_text = f"Ученик только что смотрел видео по теме: {user_context['last_topic']}. "
 
-            # Формат запроса для модели Qwen
-            full_prompt = f"<|im_start|>system\n{SYSTEM_PROMPT}<|im_end|>\n<|im_start|>user\n{context_text}{message}<|im_end|>\n<|im_start|>assistant\n"
-
-            payload = {
-                "inputs": full_prompt,
-                "parameters": {
-                    "max_new_tokens": 150,
-                    "temperature": 0.7,
-                    "return_full_text": False
-                }
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
             }
 
-            # Делаем запрос к нейросети
-            response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
-            
-            # ️ ЕСЛИ МОДЕЛЬ "СПИТ" (ОШИБКА 503), ЖДЕМ 20 СЕКУНД И ПРОБУЕМ СНОВА
-            if response.status_code == 503:
-                time.sleep(20) 
-                response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
-                
+            payload = {
+                "model": "GigaChat:latest",
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": f"{context_text}{message}"}
+                ],
+                "max_tokens": 200,
+                "temperature": 0.7
+            }
+
+            response = requests.post(API_URL, headers=headers, json=payload, verify=False, timeout=10)
             response.raise_for_status()
             result = response.json()
             
-            # Извлекаем текст ответа
-            if isinstance(result, list) and len(result) > 0:
-                return result[0]['generated_text'].strip()
-            else:
-                return "Нейросеть вернула странный ответ. Попробуй перефразировать вопрос."
-                
+            return result['choices'][0]['message']['content']
+            
         except Exception as e:
-            print(f"Ошибка API: {e}")
-            return "Извини, мой ИИ-мозг сейчас перегружен. Подожди 10 секунд и попробуй снова, или напиши 'помощь'."
+            print(f"Ошибка GigaChat: {e}")
+            return "Извини, ИИ сейчас недоступен. Попробуй через минуту или напиши 'помощь'."
 
 class PlannerService:
     @staticmethod
