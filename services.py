@@ -2,7 +2,7 @@ import requests
 from typing import Dict, Optional
 
 # ВСТАВЬ СЮДА СВОЙ КЛЮЧ ОТ HUGGING FACE (начинается на hf_)
-HF_API_TOKEN = "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"
+HF_API_TOKEN = "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"
 
 # Используем бесплатную и быструю модель, которая отлично знает русский язык
 API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct"
