@@ -1,20 +1,59 @@
-from datetime import datetime
-from typing import List, Dict, Optional
+import requests
+from typing import Dict, Optional
 
-# База видеоуроков (RuTube и VK)
-VIDEO_DATABASE = {
-    "Математика": {
-        "Квадратные уравнения": {"url": "https://rutube.ru/video/abc123", "duration": 15},
-        "Производные": {"url": "https://rutube.ru/video/def456", "duration": 20}
-    },
-    "Русский язык": {
-        "Синтаксис": {"url": "https://vk.com/video/ghi789", "duration": 18}
-    }
-}
+# ВСТАВЬ СЮДА СВОЙ КЛЮЧ ОТ HUGGING FACE (начинается на hf_)
+HF_API_TOKEN = "hf_ВСТАВЬ_СЮДА_СВОЙ_ДЛИННЫЙ_КЛЮЧ"
+
+# Используем бесплатную и быструю модель, которая отлично знает русский язык
+API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct"
+
+headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+
+SYSTEM_PROMPT = """Ты — дружелюбный ИИ-наставник для школьников «Сферум Навигатор». 
+Твоя цель: помогать с учёбой, но НЕ давать готовых ответов на домашку. 
+Используй метод Сократа: задавай наводящие вопросы, помогай разобраться в теме.
+Если ученик просит составить план, спроси, сколько у него времени и какие предметы.
+Отвечай кратко (максимум 3-4 предложения), понятно и поддерживающе."""
+
+class AIService:
+    @staticmethod
+    def process_message(message: str, user_context: Optional[Dict] = None) -> str:
+        """Отправляет сообщение в бесплатную нейросеть Hugging Face"""
+        try:
+            context_text = ""
+            if user_context and user_context.get("last_topic"):
+                context_text = f"Ученик только что смотрел видео по теме: {user_context['last_topic']}. "
+
+            full_prompt = f"<|system|>\n{SYSTEM_PROMPT}\n<|user|>\n{context_text}Сообщение ученика: {message}\n<|assistant|>\n"
+
+            payload = {
+                "inputs": full_prompt,
+                "parameters": {
+                    "max_new_tokens": 150, # Ограничиваем длину ответа, чтобы было быстро
+                    "temperature": 0.7,
+                    "return_full_text": False
+                }
+            }
+
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=10)
+            response.raise_for_status()
+            
+            result = response.json()
+            # Hugging Face возвращает список, берем первый элемент и текст
+            if isinstance(result, list) and len(result) > 0:
+                return result[0]['generated_text'].strip()
+            else:
+                return "Не удалось сгенерировать ответ, попробуй перефразировать вопрос."
+                
+        except Exception as e:
+            # Если нейросеть перегружена (бесплатный тариф иногда ждет), бот не падает!
+            print(f"Ошибка API: {e}")
+            return "Сейчас мой ИИ-мозг немного перегружен другими учениками. Подожди 10 секунд и попробуй снова, или напиши 'помощь'."
 
 class PlannerService:
     @staticmethod
-    def generate_plan(available_minutes: int, subjects: List[str]) -> Dict:
+    def generate_plan(available_minutes: int, subjects: list) -> Dict:
+        """Логика планировщика остается простой и надежной"""
         if available_minutes <= 0:
             return {"error": "Время не может быть отрицательным"}
         
@@ -22,23 +61,9 @@ class PlannerService:
         schedule = []
         
         for subj in subjects:
-            topic = list(VIDEO_DATABASE.get(subj, {}).keys())[0] if subj in VIDEO_DATABASE else "Общая тема"
             schedule.append({
                 "subject": subj,
-                "topic": topic,
                 "time_allocated": f"{time_per_subject} мин",
-                "video_link": VIDEO_DATABASE.get(subj, {}).get(topic, {}).get("url", "Нет видео")
+                "advice": f"Начни с самого сложного задания по предмету '{subj}'."
             })
         return {"total_time": available_minutes, "schedule": schedule}
-
-class AIService:
-    @staticmethod
-    def process_message(message: str) -> str:
-        msg = message.lower()
-        if "не понял" in msg or "объясни" in msg:
-            return "Какую тему ты смотрел? Напиши, и я объясню простыми словами."
-        if "ответ" in msg or "реши" in msg:
-            return "Я не даю готовых ответов, но помогу разобраться! Напиши условие задачи."
-        if "тест" in msg:
-            return "Отлично! Давай проверим знания. По какому предмету хочешь тест?"
-        return "Я твой ИИ-наставник. Спроси меня про домашку или попроси составить план!"
