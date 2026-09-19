@@ -4,7 +4,7 @@ import base64
 
 # ⚠️ ВСТАВЬ СЮДА СВОИ ДАННЫЕ ОТ GIGACHAT
 CLIENT_ID = "01a0bafa-206f-7e07-a2e7-df9e0acea285"
-CLIENT_SECRET = "GIGACHAT_API_PERS"
+CLIENT_SECRET = "MDFhMGJhZmEtMjA2Zi03ZTA3LWEyZTctZGY5ZTBhY2VhMjg1OmZlZmUwOTYzLWNlNDQtNGUwZS1iYWM5LWVlMTZlOGJiODc3MQ=="
 
 # URL для получения токена
 TOKEN_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
