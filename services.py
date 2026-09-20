@@ -8,7 +8,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 CLIENT_ID = "01a0bafa-206f-7e07-a2e7-df9e0acea285"
 CLIENT_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
 
-# Разные промпты для каждой идеи
 PROMPTS = {
     "planner": """Ты — умный планировщик учебного времени. 
 Когда ученик пишет сколько у него времени и какие предметы — составь подробное расписание.
@@ -115,7 +114,6 @@ class AIService:
         try:
             token = AIService._get_token()
             
-            # Выбираем промпт по feature_id
             system_prompt = PROMPTS.get(feature_id, PROMPTS["general"])
 
             response = requests.post(
