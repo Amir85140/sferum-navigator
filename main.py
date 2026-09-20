@@ -1,14 +1,50 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
+from typing import List, Optional
 import uvicorn
 from services import AIService
+import json
+from datetime import datetime
 
 app = FastAPI()
 
 class ChatRequest(BaseModel):
     message: str
+    chat_id: str
     feature_id: str = "general"
+
+class Chat:
+    def __init__(self, id: str, title: str, feature_id: str = "general"):
+        self.id = id
+        self.title = title
+        self.feature_id = feature_id
+        self.messages = []
+        self.created_at = datetime.now().isoformat()
+
+# Хранилище чатов (в памяти)
+chats = {}
+current_chat_id = None
+
+def create_chat(feature_id: str = "general", title: str = None):
+    chat_id = f"chat_{len(chats) + 1}"
+    if not title:
+        titles = {
+            "planner": "Планировщик",
+            "homework": "Помощь с ДЗ",
+            "explain": "Объяснение темы",
+            "tests": "Тесты",
+            "motivation": "Мотивация",
+            "videos": "Видеоуроки",
+            "general": "Новый чат"
+        }
+        title = titles.get(feature_id, "Новый чат")
+    chats[chat_id] = Chat(chat_id, title, feature_id)
+    return chat_id
+
+# Создаём первый чат по умолчанию
+create_chat("general", "Общий помощник")
+current_chat_id = list(chats.keys())[0]
 
 HTML = """<!DOCTYPE html>
 <html lang="ru">
@@ -18,141 +54,223 @@ HTML = """<!DOCTYPE html>
 <title>Sferum Navigator</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);height:100vh;overflow:hidden;color:#fff}
-.container{display:flex;height:100vh;padding:20px;gap:20px}
-.panel{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:20px;padding:20px;border:1px solid rgba(255,255,255,0.2);display:flex;flex-direction:column;overflow:hidden}
-.panel-title{font-size:20px;font-weight:700;margin-bottom:15px;flex-shrink:0}
-.scrollable{flex:1;overflow-y:auto;padding-right:5px}
-.history-panel{width:280px}
-.main-panel{flex:1}
-.chat-container{flex:1;overflow-y:auto;background:rgba(0,0,0,0.3);border-radius:15px;padding:15px;margin-bottom:15px}
-.input-area{flex-shrink:0;display:flex;gap:10px}
-.input-area input{flex:1;padding:14px 18px;border:none;border-radius:12px;background:rgba(255,255,255,0.2);color:#fff;font-size:16px}
-.input-area input:focus{outline:none;background:rgba(255,255,255,0.3)}
-.input-area button{padding:14px 28px;background:#ffdb4d;color:#000;border:none;border-radius:12px;font-weight:700;cursor:pointer}
-.ideas-panel{width:320px}
-.ideas-grid{display:flex;flex-direction:column;gap:10px}
-.idea-card{background:rgba(255,255,255,0.15);border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.idea-card:hover{background:rgba(255,255,255,0.25);transform:translateX(5px)}
-.idea-card.selected{background:rgba(255,219,77,0.3);border-color:#ffdb4d}
-.idea-icon{font-size:24px;flex-shrink:0}
-.idea-name{font-size:14px;font-weight:600}
-.message{margin-bottom:12px;padding:12px 16px;border-radius:12px;max-width:80%;animation:slideIn 0.3s}
-@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.user-msg{background:linear-gradient(135deg,#667eea,#764ba2);margin-left:auto;text-align:right}
-.bot-msg{background:rgba(255,255,255,0.2)}
-.status-bar{background:rgba(255,219,77,0.2);border:2px solid #ffdb4d;border-radius:12px;padding:12px 18px;margin-bottom:15px;font-weight:600;flex-shrink:0}
-.history-item{background:rgba(255,255,255,0.1);padding:10px;border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all 0.2s;flex-shrink:0}
-.history-item:hover{background:rgba(255,255,255,0.2)}
-.history-query{font-size:13px;margin-bottom:3px}
-.history-time{font-size:11px;opacity:0.7}
-.empty-state{text-align:center;padding:30px 20px;opacity:0.6}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#fff;height:100vh;overflow:hidden}
+.app{display:flex;height:100vh}
+.sidebar{width:260px;background:#171717;border-right:1px solid #2a2a2a;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{padding:12px;border-bottom:1px solid #2a2a2a}
+.new-chat-btn{width:100%;padding:10px;background:#2a2a2a;color:#fff;border:1px solid #3a3a3a;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.new-chat-btn:hover{background:#3a3a3a}
+.search-box{margin-top:10px}
+.search-box input{width:100%;padding:8px 12px;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:8px;color:#fff;font-size:13px;outline:none}
+.search-box input:focus{border-color:#5a5a5a}
+.chats-list{flex:1;overflow-y:auto;padding:8px}
+.chat-item{padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:4px;transition:.2s;display:flex;align-items:center;gap:10px}
+.chat-item:hover{background:#2a2a2a}
+.chat-item.active{background:#2a2a2a;border-left:3px solid #ffdb4d}
+.chat-icon{font-size:18px;flex-shrink:0}
+.chat-title{font-size:14px;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-time{font-size:11px;color:#666;flex-shrink:0}
+.sidebar-footer{padding:12px;border-top:1px solid #2a2a2a}
+.project-btn{width:100%;padding:10px;background:transparent;color:#999;border:1px solid #3a3a3a;border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:6px;transition:.2s;display:flex;align-items:center;gap:8px}
+.project-btn:hover{background:#2a2a2a;color:#fff}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chat-header{padding:16px 20px;border-bottom:1px solid #2a2a2a;background:#0a0a0a;display:flex;align-items:center;justify-content:space-between}
+.chat-header-title{font-size:16px;font-weight:600}
+.chat-header-feature{font-size:12px;color:#999;background:#2a2a2a;padding:4px 10px;border-radius:12px}
+.messages{flex:1;overflow-y:auto;padding:20px}
+.message{margin-bottom:16px;display:flex;animation:fadeIn 0.3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.message.user{justify-content:flex-end}
+.message-content{max-width:70%;padding:12px 16px;border-radius:12px;font-size:15px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.message.user .message-content{background:#2a2a2a;border-bottom-right-radius:4px}
+.message.bot .message-content{background:#1a1a1a;border:1px solid #2a2a2a;border-bottom-left-radius:4px}
+.input-area{padding:16px 20px;border-top:1px solid #2a2a2a;background:#0a0a0a}
+.input-wrapper{display:flex;gap:10px;max-width:800px;margin:0 auto}
+.input-wrapper input{flex:1;padding:12px 16px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;color:#fff;font-size:15px;outline:none}
+.input-wrapper input:focus{border-color:#ffdb4d}
+.input-wrapper button{padding:12px 24px;background:#ffdb4d;color:#000;border:none;border-radius:12px;font-weight:700;cursor:pointer;transition:.2s}
+.input-wrapper button:hover{background:#ffe066}
+.empty-chat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#666}
+.empty-chat-icon{font-size:64px;margin-bottom:16px}
+.empty-chat-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.empty-chat-text{font-size:14px}
 ::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:rgba(255,255,255,0.1);border-radius:3px}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.3);border-radius:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#3a3a3a}
 </style>
 </head>
 <body>
-<div class="container">
-<div class="panel history-panel">
-<div class="panel-title">📜 История</div>
-<div class="scrollable" id="historyList">
-<div class="empty-state">История пуста</div>
+<div class="app">
+<div class="sidebar">
+<div class="sidebar-header">
+<button class="new-chat-btn" onclick="newChat()">
+<span>+</span>
+<span>Новый чат</span>
+</button>
+<div class="search-box">
+<input type="text" placeholder="Поиск чатов..." id="searchInput" oninput="filterChats()">
 </div>
 </div>
-<div class="panel main-panel">
-<div class="status-bar" id="statusBar">
-<span>🎯</span>
-<span id="statusText">Режим: Общий помощник</span>
+<div class="chats-list" id="chatsList"></div>
+<div class="sidebar-footer">
+<button class="project-btn" onclick="alert('Сообщество (демо)')">
+<span></span>
+<span>Сообщество</span>
+</button>
+<button class="project-btn" onclick="alert('Coder (демо)')">
+<span>💻</span>
+<span>Coder</span>
+</button>
+<button class="project-btn" onclick="alert('Новый проект (демо)')">
+<span>🚀</span>
+<span>Новый проект</span>
+</button>
 </div>
-<div class="chat-container" id="chatBox">
-<div class="message bot-msg">Привет! Выбери режим справа и задай вопрос.</div>
 </div>
+<div class="main" id="mainArea">
+<div class="chat-header">
+<div class="chat-header-title" id="chatTitle">Общий помощник</div>
+<div class="chat-header-feature" id="chatFeature">Общий</div>
+</div>
+<div class="messages" id="messagesArea"></div>
 <div class="input-area">
-<input type="text" id="searchInput" placeholder="Напиши свой вопрос..." onkeypress="if(event.key==='Enter')handleSearch()">
-<button onclick="handleSearch()">Отправить</button>
+<div class="input-wrapper">
+<input type="text" id="messageInput" placeholder="Напиши сообщение..." onkeypress="if(event.key==='Enter')sendMessage()">
+<button onclick="sendMessage()">Отправить</button>
 </div>
-</div>
-<div class="panel ideas-panel">
-<div class="panel-title">✨ Режимы</div>
-<div class="scrollable">
-<div class="ideas-grid" id="ideasList"></div>
 </div>
 </div>
 </div>
 <script>
-const ideas=[
-{id:'planner',name:'Планировщик',icon:'📅'},
-{id:'homework',name:'Помощь с ДЗ',icon:'📝'},
-{id:'explain',name:'Объяснить тему',icon:'🎓'},
-{id:'tests',name:'Тесты',icon:'✅'},
-{id:'motivation',name:'Мотивация',icon:'💪'},
-{id:'videos',name:'Видеоуроки',icon:'🎥'},
-{id:'progress',name:'Прогресс',icon:'📊'},
-{id:'deadlines',name:'Дедлайны',icon:'⏰'},
-{id:'adaptive',name:'Адаптивность',icon:'🎯'},
-{id:'group',name:'Групповая работа',icon:'👥'},
-{id:'journal',name:'Журнал',icon:'📚'},
-{id:'gamification',name:'Геймификация',icon:'🏆'},
-{id:'personalization',name:'Персонализация',icon:''},
-{id:'offline',name:'Оффлайн',icon:'📱'},
-{id:'export',name:'Экспорт',icon:'📤'}
-];
-let history=[];
-let currentFeature='general';
+let chats = {};
+let currentChatId = null;
+let chatCounter = 0;
 
-function renderIdeas(){
-document.getElementById('ideasList').innerHTML=ideas.map(i=>`
-<div class="idea-card ${i.id===currentFeature?'selected':''}" onclick="selectIdea('${i.id}','${i.name}')">
-<div class="idea-icon">${i.icon}</div>
-<div class="idea-name">${i.name}</div>
-</div>
-`).join('');
+const features = {
+    planner: {name: 'Планировщик', icon: '📅'},
+    homework: {name: 'Помощь с ДЗ', icon: '📝'},
+    explain: {name: 'Объяснить тему', icon: '🎓'},
+    tests: {name: 'Тесты', icon: '✅'},
+    motivation: {name: 'Мотивация', icon: '💪'},
+    videos: {name: 'Видеоуроки', icon: ''},
+    general: {name: 'Общий', icon: '🤖'}
+};
+
+function init() {
+    const firstChatId = createChat('general', 'Общий помощник');
+    selectChat(firstChatId);
+    renderChats();
 }
 
-function selectIdea(id,name){
-currentFeature=id;
-document.getElementById('statusText').textContent='Режим: '+name;
-renderIdeas();
-document.getElementById('chatBox').innerHTML='<div class="message bot-msg">Теперь я в режиме "'+name+'". Чем помочь?</div>';
+function createChat(featureId, title) {
+    chatCounter++;
+    const chatId = 'chat_' + chatCounter;
+    chats[chatId] = {
+        id: chatId,
+        title: title || 'Новый чат',
+        featureId: featureId,
+        messages: [],
+        createdAt: new Date().toISOString()
+    };
+    return chatId;
 }
 
-async function handleSearch(){
-const input=document.getElementById('searchInput');
-const q=input.value.trim();
-if(!q)return;
-const chat=document.getElementById('chatBox');
-chat.innerHTML+=`<div class="message user-msg">${q}</div>`;
-input.value='';
-chat.scrollTop=chat.scrollHeight;
-history.unshift({query:q,time:new Date().toLocaleTimeString()});
-if(history.length>20)history.pop();
-renderHistory();
-try{
-const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,feature_id:currentFeature})});
-const d=await r.json();
-chat.innerHTML+=`<div class="message bot-msg">${d.response}</div>`;
-}catch(e){
-chat.innerHTML+=`<div class="message bot-msg">Ошибка: ${e.message}</div>`;
-}
-chat.scrollTop=chat.scrollHeight;
+function newChat() {
+    const featureId = prompt('Выбери режим (planner, homework, explain, tests, motivation, videos, general):', 'general');
+    if (!featureId) return;
+    const title = features[featureId]?.name || 'Новый чат';
+    const chatId = createChat(featureId, title);
+    selectChat(chatId);
+    renderChats();
 }
 
-function renderHistory(){
-const list=document.getElementById('historyList');
-if(history.length===0){
-list.innerHTML='<div class="empty-state">История пуста</div>';
-return;
-}
-list.innerHTML=history.map(h=>`
-<div class="history-item" onclick="document.getElementById('searchInput').value='${h.query}'">
-<div class="history-query">${h.query}</div>
-<div class="history-time">${h.time}</div>
-</div>
-`).join('');
+function selectChat(chatId) {
+    currentChatId = chatId;
+    const chat = chats[chatId];
+    document.getElementById('chatTitle').textContent = chat.title;
+    document.getElementById('chatFeature').textContent = features[chat.featureId]?.name || 'Общий';
+    renderMessages();
+    renderChats();
 }
 
-renderIdeas();
+function renderChats(filter = '') {
+    const list = document.getElementById('chatsList');
+    const sortedChats = Object.values(chats).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const filtered = sortedChats.filter(c => c.title.toLowerCase().includes(filter.toLowerCase()));
+    
+    list.innerHTML = filtered.map(chat => {
+        const time = new Date(chat.createdAt).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'});
+        const icon = features[chat.featureId]?.icon || '💬';
+        return `
+            <div class="chat-item ${chat.id === currentChatId ? 'active' : ''}" onclick="selectChat('${chat.id}')">
+                <div class="chat-icon">${icon}</div>
+                <div class="chat-title">${chat.title}</div>
+                <div class="chat-time">${time}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderMessages() {
+    const chat = chats[currentChatId];
+    const area = document.getElementById('messagesArea');
+    
+    if (chat.messages.length === 0) {
+        area.innerHTML = `
+            <div class="empty-chat">
+                <div class="empty-chat-icon">${features[chat.featureId]?.icon || '🤖'}</div>
+                <div class="empty-chat-title">${chat.title}</div>
+                <div class="empty-chat-text">Начни диалог, написав сообщение ниже</div>
+            </div>
+        `;
+        return;
+    }
+    
+    area.innerHTML = chat.messages.map(msg => `
+        <div class="message ${msg.role}">
+            <div class="message-content">${msg.content}</div>
+        </div>
+    `).join('');
+    
+    area.scrollTop = area.scrollHeight;
+}
+
+async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    const chat = chats[currentChatId];
+    chat.messages.push({role: 'user', content: text});
+    input.value = '';
+    renderMessages();
+    
+    try {
+        const r = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                message: text,
+                chat_id: currentChatId,
+                feature_id: chat.featureId
+            })
+        });
+        const d = await r.json();
+        chat.messages.push({role: 'bot', content: d.response});
+        renderMessages();
+    } catch (e) {
+        chat.messages.push({role: 'bot', content: 'Ошибка: ' + e.message});
+        renderMessages();
+    }
+}
+
+function filterChats() {
+    const query = document.getElementById('searchInput').value;
+    renderChats(query);
+}
+
+init();
 </script>
 </body>
 </html>
