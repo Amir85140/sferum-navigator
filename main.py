@@ -2,12 +2,10 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
 import uvicorn
 from services import PlannerService, AIService
-from datetime import datetime
 
-app = FastAPI(title="Sferum Navigator", version="3.0")
+app = FastAPI(title="Sferum Navigator", version="4.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,9 +16,6 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     message: str
-
-# Хранилище истории
-history = []
 
 @app.get("/", response_class=HTMLResponse)
 async def main_page():
@@ -203,9 +198,9 @@ async def main_page():
                 font-weight: 600;
             }
 
-            /* ПРАВАЯ ПАНЕЛЬ - КОЛЕСО ИДЕЙ */
+            /* ПРАВАЯ ПАНЕЛЬ - КОЛЕСО ИДЕЙ (как в Яндекс Музыке) */
             .wheel-panel {
-                width: 320px;
+                width: 360px;
                 background: var(--sidebar-bg);
                 border-left: 1px solid var(--border-color);
                 padding: 20px;
@@ -217,13 +212,20 @@ async def main_page():
             .wheel-title {
                 font-size: 18px;
                 font-weight: 600;
-                margin-bottom: 20px;
+                margin-bottom: 10px;
             }
 
-            .wheel-container {
+            .wheel-subtitle {
+                font-size: 13px;
+                color: var(--text-secondary);
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .wheel-wrapper {
                 position: relative;
-                width: 280px;
-                height: 280px;
+                width: 320px;
+                height: 320px;
             }
 
             .wheel {
@@ -231,7 +233,13 @@ async def main_page():
                 height: 100%;
                 border-radius: 50%;
                 position: relative;
-                transition: transform 3s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+                cursor: grab;
+                transition: transform 0.1s;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            }
+
+            .wheel:active {
+                cursor: grabbing;
             }
 
             .wheel-segment {
@@ -241,18 +249,19 @@ async def main_page():
                 transform-origin: right bottom;
                 left: 0;
                 top: 0;
-                border: 1px solid var(--border-color);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 600;
-                cursor: pointer;
-                transition: opacity 0.2s;
+                color: white;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                overflow: hidden;
             }
 
-            .wheel-segment:hover {
-                opacity: 0.8;
+            .wheel-segment span {
+                transform: rotate(12deg) translate(30px, -20px);
+                white-space: nowrap;
             }
 
             .wheel-center {
@@ -260,28 +269,51 @@ async def main_page():
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                width: 60px;
-                height: 60px;
-                background: var(--primary-color);
+                width: 70px;
+                height: 70px;
+                background: white;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: white;
-                font-weight: bold;
-                cursor: pointer;
+                font-size: 28px;
                 z-index: 10;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                pointer-events: none;
             }
 
-            .wheel-center:active {
-                transform: translate(-50%, -50%) scale(0.95);
+            .wheel-pointer {
+                position: absolute;
+                top: -10px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 0;
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-top: 25px solid var(--primary-color);
+                z-index: 20;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            }
+
+            .selected-idea {
+                margin-top: 20px;
+                padding: 15px 20px;
+                background: var(--primary-color);
+                color: white;
+                border-radius: 12px;
+                font-weight: 600;
+                text-align: center;
+                min-height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .theme-toggle {
                 position: fixed;
                 top: 20px;
-                right: 340px;
+                right: 380px;
                 background: var(--card-bg);
                 border: 1px solid var(--border-color);
                 border-radius: 50%;
@@ -301,14 +333,14 @@ async def main_page():
         <div class="container">
             <!-- ЛЕВАЯ ПАНЕЛЬ - ИСТОРИЯ -->
             <div class="sidebar">
-                <div class="sidebar-header"> История</div>
+                <div class="sidebar-header">📜 История</div>
                 <div class="history-list" id="historyList">
                     <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
                         История пуста
                     </div>
                 </div>
                 <div class="clear-history" onclick="clearHistory()">
-                    Очистить историю
+                    🗑 Очистить историю
                 </div>
             </div>
 
@@ -324,7 +356,7 @@ async def main_page():
                     
                     <div class="quick-ideas">
                         <div class="idea-chip" onclick="quickAction('planner')">
-                            <div class="idea-chip-icon"></div>
+                            <div class="idea-chip-icon">📅</div>
                             <div class="idea-chip-title">Планировщик</div>
                         </div>
                         <div class="idea-chip" onclick="quickAction('homework')">
@@ -340,7 +372,7 @@ async def main_page():
                             <div class="idea-chip-title">Тесты</div>
                         </div>
                         <div class="idea-chip" onclick="quickAction('motivation')">
-                            <div class="idea-chip-icon">💪</div>
+                            <div class="idea-chip-icon"></div>
                             <div class="idea-chip-title">Мотивация</div>
                         </div>
                         <div class="idea-chip" onclick="quickAction('videos')">
@@ -353,10 +385,15 @@ async def main_page():
 
             <!-- ПРАВАЯ ПАНЕЛЬ - КОЛЕСО ИДЕЙ -->
             <div class="wheel-panel">
-                <div class="wheel-title"> Колесо идей</div>
-                <div class="wheel-container">
+                <div class="wheel-title">🎡 Колесо идей</div>
+                <div class="wheel-subtitle">Крути колесо мышкой или пальцем</div>
+                <div class="wheel-wrapper">
+                    <div class="wheel-pointer"></div>
                     <div class="wheel" id="wheel"></div>
-                    <div class="wheel-center" onclick="spinWheel()">🎲</div>
+                    <div class="wheel-center">🎯</div>
+                </div>
+                <div class="selected-idea" id="selectedIdea">
+                    Выбери идею!
                 </div>
             </div>
         </div>
@@ -368,10 +405,25 @@ async def main_page():
                 { id: 'explain', name: 'Объяснение', color: '#45B7D1' },
                 { id: 'tests', name: 'Тесты', color: '#FFA07A' },
                 { id: 'motivation', name: 'Мотивация', color: '#98D8C8' },
-                { id: 'videos', name: 'Видео', color: '#F7DC6F' }
+                { id: 'videos', name: 'Видео', color: '#F7DC6F' },
+                { id: 'progress', name: 'Прогресс', color: '#BB8FCE' },
+                { id: 'deadlines', name: 'Дедлайны', color: '#F1948A' },
+                { id: 'adaptive', name: 'Адаптивность', color: '#82E0AA' },
+                { id: 'group', name: 'Группа', color: '#85C1E9' },
+                { id: 'journal', name: 'Журнал', color: '#F0B27A' },
+                { id: 'gamification', name: 'Геймификация', color: '#D7BDE2' },
+                { id: 'personalization', name: 'Персонализация', color: '#A9DFBF' },
+                { id: 'offline', name: 'Оффлайн', color: '#FAD7A0' },
+                { id: 'export', name: 'Экспорт', color: '#AED6F1' }
             ];
 
             let currentRotation = 0;
+            let isDragging = false;
+            let startAngle = 0;
+            let lastAngle = 0;
+            let velocity = 0;
+            let lastTime = 0;
+            let animationId = null;
 
             // Создаем колесо
             function createWheel() {
@@ -384,32 +436,125 @@ async def main_page():
                     segment.style.background = idea.color;
                     segment.style.transform = `rotate(${index * segmentAngle}deg)`;
                     segment.style.clipPath = 'polygon(0 0, 100% 0, 100% 100%)';
-                    segment.innerHTML = `<span style="transform: rotate(${segmentAngle/2}deg) translate(20px, -10px);">${idea.name}</span>`;
-                    segment.onclick = () => selectIdea(idea.id);
+                    segment.innerHTML = `<span>${idea.name}</span>`;
                     wheel.appendChild(segment);
                 });
             }
 
-            function spinWheel() {
-                currentRotation += 720 + Math.random() * 360;
-                document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+            // Получаем угол мыши относительно центра колеса
+            function getAngle(e) {
+                const wheel = document.getElementById('wheel');
+                const rect = wheel.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
                 
-                setTimeout(() => {
-                    const randomIdea = allIdeas[Math.floor(Math.random() * allIdeas.length)];
-                    selectIdea(randomIdea.id);
-                }, 3000);
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                return Math.atan2(clientY - centerY, clientX - centerX) * 180 / Math.PI;
             }
 
-            function selectIdea(id) {
-                const idea = allIdeas.find(i => i.id === id);
-                document.getElementById('searchInput').value = idea.name;
-                addToHistory(idea.name);
+            // Начало вращения
+            function startDrag(e) {
+                e.preventDefault();
+                isDragging = true;
+                startAngle = getAngle(e);
+                lastAngle = startAngle;
+                velocity = 0;
+                lastTime = Date.now();
+                
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+                
+                document.getElementById('wheel').style.transition = 'none';
             }
+
+            // Вращение
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const currentAngle = getAngle(e);
+                const delta = currentAngle - lastAngle;
+                
+                // Нормализуем угол
+                let normalizedDelta = delta;
+                if (normalizedDelta > 180) normalizedDelta -= 360;
+                if (normalizedDelta < -180) normalizedDelta += 360;
+                
+                currentRotation += normalizedDelta;
+                document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+                
+                // Вычисляем скорость
+                const now = Date.now();
+                const dt = now - lastTime;
+                if (dt > 0) {
+                    velocity = normalizedDelta / dt;
+                }
+                
+                lastAngle = currentAngle;
+                lastTime = now;
+                
+                updateSelectedIdea();
+            }
+
+            // Конец вращения
+            function endDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                // Инерция
+                if (Math.abs(velocity) > 0.1) {
+                    applyInertia();
+                }
+            }
+
+            // Применяем инерцию
+            function applyInertia() {
+                const friction = 0.95;
+                
+                function animate() {
+                    velocity *= friction;
+                    currentRotation += velocity * 16;
+                    document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+                    
+                    updateSelectedIdea();
+                    
+                    if (Math.abs(velocity) > 0.01) {
+                        animationId = requestAnimationFrame(animate);
+                    }
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+
+            // Обновляем выбранную идею
+            function updateSelectedIdea() {
+                const segmentAngle = 360 / allIdeas.length;
+                const normalizedRotation = ((currentRotation % 360) + 360) % 360;
+                const index = Math.floor((360 - normalizedRotation + segmentAngle / 2) / segmentAngle) % allIdeas.length;
+                const selectedIdea = allIdeas[index];
+                
+                document.getElementById('selectedIdea').textContent = `${selectedIdea.name}`;
+                document.getElementById('selectedIdea').style.background = selectedIdea.color;
+            }
+
+            // Обработчики событий
+            const wheel = document.getElementById('wheel');
+            wheel.addEventListener('mousedown', startDrag);
+            wheel.addEventListener('mousemove', drag);
+            wheel.addEventListener('mouseup', endDrag);
+            wheel.addEventListener('mouseleave', endDrag);
+            
+            wheel.addEventListener('touchstart', startDrag);
+            wheel.addEventListener('touchmove', drag);
+            wheel.addEventListener('touchend', endDrag);
 
             function quickAction(id) {
                 const idea = allIdeas.find(i => i.id === id);
                 document.getElementById('searchInput').value = idea.name;
-                handleSearch();
+                addToHistory(idea.name);
             }
 
             async function handleSearch() {
@@ -418,50 +563,43 @@ async def main_page():
                 if (!query) return;
 
                 addToHistory(query);
-                
-                // Здесь можно добавить обработку поиска
                 alert('Поиск: ' + query);
             }
 
             function addToHistory(query) {
-                history.unshift({
-                    query: query,
-                    time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})
-                });
-                if (history.length > 20) history.pop();
-                renderHistory();
-            }
-
-            function renderHistory() {
-                const list = document.getElementById('historyList');
-                if (history.length === 0) {
-                    list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">История пуста</div>';
-                    return;
+                const historyList = document.getElementById('historyList');
+                const time = new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+                
+                if (historyList.children.length === 1 && historyList.children[0].textContent.includes('История пуста')) {
+                    historyList.innerHTML = '';
                 }
                 
-                list.innerHTML = history.map(item => `
-                    <div class="history-item" onclick="document.getElementById('searchInput').value='${item.query}'">
-                        <div>${item.query}</div>
-                        <div class="history-time">${item.time}</div>
-                    </div>
-                `).join('');
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `<div>${query}</div><div class="history-time">${time}</div>`;
+                item.onclick = () => { document.getElementById('searchInput').value = query; };
+                
+                historyList.insertBefore(item, historyList.firstChild);
+                
+                if (historyList.children.length > 20) {
+                    historyList.removeChild(historyList.lastChild);
+                }
             }
 
             function clearHistory() {
-                history = [];
-                renderHistory();
+                document.getElementById('historyList').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">История пуста</div>';
             }
 
             function toggleTheme() {
                 document.body.classList.toggle('dark-theme');
                 const isDark = document.body.classList.contains('dark-theme');
-                document.querySelector('.theme-toggle').textContent = isDark ? '☀️' : '';
+                document.querySelector('.theme-toggle').textContent = isDark ? '☀️' : '🌙';
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             }
 
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-theme');
-                document.querySelector('.theme-toggle').textContent = '️';
+                document.querySelector('.theme-toggle').textContent = '☀️';
             }
 
             createWheel();
