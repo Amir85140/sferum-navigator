@@ -2,11 +2,12 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import uvicorn
 from services import PlannerService, AIService
+from datetime import datetime
 
-app = FastAPI(title="Sferum Navigator", version="2.0")
+app = FastAPI(title="Sferum Navigator", version="3.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,11 +18,9 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     message: str
-    feature_id: str = "general"
 
-class PlanRequest(BaseModel):
-    time: int
-    subjects: List[str]
+# Хранилище истории
+history = []
 
 @app.get("/", response_class=HTMLResponse)
 async def main_page():
@@ -30,312 +29,442 @@ async def main_page():
     <html lang="ru">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Sferum Navigator</title>
         <style>
             :root {
-                /* Светлая тема (стиль MAX) */
                 --bg-color: #F0F2F5;
-                --header-bg: #FFFFFF;
+                --sidebar-bg: #FFFFFF;
                 --text-color: #000000;
                 --text-secondary: #818C99;
-                --card-bg: #FFFFFF;
                 --primary-color: #0077FF;
-                --primary-hover: #005bb5;
-                --user-msg-bg: #CCE4FF;
-                --user-msg-text: #000000;
-                --bot-msg-bg: #FFFFFF;
-                --bot-msg-text: #000000;
                 --border-color: #E1E3E6;
-                --input-bg: #F0F2F5;
-                --shadow: 0 1px 2px rgba(0,0,0,0.08);
+                --card-bg: #FFFFFF;
+                --hover-bg: #F5F6F8;
             }
 
             body.dark-theme {
-                /* Тёмная тема */
                 --bg-color: #121212;
-                --header-bg: #1C1C1E;
+                --sidebar-bg: #1C1C1E;
                 --text-color: #FFFFFF;
                 --text-secondary: #8E8E93;
-                --card-bg: #1C1C1E;
                 --primary-color: #71AAEB;
-                --primary-hover: #5A92D6;
-                --user-msg-bg: #2B5278;
-                --user-msg-text: #FFFFFF;
-                --bot-msg-bg: #2C2D2E;
-                --bot-msg-text: #FFFFFF;
                 --border-color: #2C2D2E;
-                --input-bg: #2C2D2E;
-                --shadow: 0 1px 2px rgba(0,0,0,0.3);
+                --card-bg: #1C1C1E;
+                --hover-bg: #2C2D2E;
             }
 
-            * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-            body { 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 background: var(--bg-color);
                 color: var(--text-color);
-                min-height: 100vh;
-                transition: background 0.3s, color 0.3s;
+                height: 100vh;
+                overflow: hidden;
             }
 
-            /* Шапка в стиле MAX */
-            .header {
-                position: sticky;
-                top: 0;
-                background: var(--header-bg);
-                padding: 12px 16px;
+            .container {
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid var(--border-color);
-                z-index: 100;
-                box-shadow: var(--shadow);
+                height: 100vh;
             }
-            .header-title {
+
+            /* ЛЕВАЯ ПАНЕЛЬ - ИСТОРИЯ */
+            .sidebar {
+                width: 280px;
+                background: var(--sidebar-bg);
+                border-right: 1px solid var(--border-color);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .sidebar-header {
+                padding: 20px;
+                border-bottom: 1px solid var(--border-color);
                 font-size: 18px;
                 font-weight: 600;
             }
-            .theme-toggle {
-                background: none;
-                border: none;
-                font-size: 24px;
+
+            .history-list {
+                flex: 1;
+                overflow-y: auto;
+                padding: 10px;
+            }
+
+            .history-item {
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 8px;
                 cursor: pointer;
-                padding: 5px;
-                color: var(--text-color);
+                font-size: 14px;
+                transition: background 0.2s;
             }
 
-            /* Контейнер как мобильное приложение */
-            .app-container {
-                max-width: 480px;
-                margin: 0 auto;
-                padding: 16px;
-                min-height: calc(100vh - 57px);
+            .history-item:hover {
+                background: var(--hover-bg);
             }
 
-            /* Сетка идей */
-            .ideas-grid {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 12px;
+            .history-time {
+                font-size: 12px;
+                color: var(--text-secondary);
+                margin-top: 4px;
             }
-            .idea-card {
-                background: var(--card-bg);
-                border-radius: 12px;
-                padding: 16px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                box-shadow: var(--shadow);
-                cursor: pointer;
-                transition: transform 0.1s;
-            }
-            .idea-card:active { transform: scale(0.98); }
-            .idea-icon { font-size: 28px; }
-            .idea-info { flex: 1; }
-            .idea-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-            .idea-desc { font-size: 13px; color: var(--text-secondary); }
-            .idea-arrow { color: var(--text-secondary); font-size: 20px; }
 
-            /* Экран функции (чат) */
-            .feature-screen { display: none; flex-direction: column; height: calc(100vh - 57px); }
-            .feature-screen.active { display: flex; }
-            
-            .chat-header {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding-bottom: 12px;
-                border-bottom: 1px solid var(--border-color);
-                margin-bottom: 12px;
-            }
-            .back-btn {
-                background: none;
-                border: none;
-                font-size: 24px;
+            .clear-history {
+                padding: 12px;
+                border-top: 1px solid var(--border-color);
+                text-align: center;
                 color: var(--primary-color);
                 cursor: pointer;
+                font-size: 14px;
             }
 
-            .chat-box { 
+            /* ЦЕНТРАЛЬНАЯ ЧАСТЬ - ПОИСК */
+            .main-content {
                 flex: 1;
-                overflow-y: auto; 
-                padding: 10px 0;
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
-            }
-            .message { 
-                padding: 10px 14px; 
-                border-radius: 18px; 
-                max-width: 80%; 
-                font-size: 15px;
-                line-height: 1.4;
-                word-wrap: break-word;
-            }
-            .bot { 
-                background: var(--bot-msg-bg); 
-                color: var(--bot-msg-text);
-                align-self: flex-start;
-                border-bottom-left-radius: 4px;
-            }
-            .user { 
-                background: var(--user-msg-bg); 
-                color: var(--user-msg-text);
-                align-self: flex-end;
-                border-bottom-right-radius: 4px;
+                align-items: center;
+                justify-content: center;
+                padding: 40px;
             }
 
-            .input-area {
-                display: flex;
-                gap: 8px;
-                padding-top: 12px;
-                border-top: 1px solid var(--border-color);
+            .search-container {
+                width: 100%;
+                max-width: 600px;
             }
-            .chat-input {
-                flex: 1;
-                padding: 12px 16px;
-                border-radius: 20px;
-                border: none;
-                background: var(--input-bg);
+
+            .search-box {
+                position: relative;
+                margin-bottom: 30px;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 16px 50px 16px 20px;
+                font-size: 16px;
+                border: 2px solid var(--border-color);
+                border-radius: 12px;
+                background: var(--card-bg);
                 color: var(--text-color);
-                font-size: 15px;
                 outline: none;
+                transition: border-color 0.2s;
             }
-            .send-btn {
+
+            .search-input:focus {
+                border-color: var(--primary-color);
+            }
+
+            .search-button {
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
                 background: var(--primary-color);
-                color: white;
                 border: none;
+                border-radius: 8px;
+                padding: 8px 16px;
+                color: white;
+                cursor: pointer;
+                font-weight: 600;
+            }
+
+            .quick-ideas {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+                width: 100%;
+            }
+
+            .idea-chip {
+                padding: 15px;
+                background: var(--card-bg);
+                border: 2px solid var(--border-color);
+                border-radius: 12px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .idea-chip:hover {
+                border-color: var(--primary-color);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,119,255,0.15);
+            }
+
+            .idea-chip-icon {
+                font-size: 32px;
+                margin-bottom: 8px;
+            }
+
+            .idea-chip-title {
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+            /* ПРАВАЯ ПАНЕЛЬ - КОЛЕСО ИДЕЙ */
+            .wheel-panel {
+                width: 320px;
+                background: var(--sidebar-bg);
+                border-left: 1px solid var(--border-color);
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .wheel-title {
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 20px;
+            }
+
+            .wheel-container {
+                position: relative;
+                width: 280px;
+                height: 280px;
+            }
+
+            .wheel {
+                width: 100%;
+                height: 100%;
                 border-radius: 50%;
-                width: 44px;
-                height: 44px;
+                position: relative;
+                transition: transform 3s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            }
+
+            .wheel-segment {
+                position: absolute;
+                width: 50%;
+                height: 50%;
+                transform-origin: right bottom;
+                left: 0;
+                top: 0;
+                border: 1px solid var(--border-color);
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: opacity 0.2s;
+            }
+
+            .wheel-segment:hover {
+                opacity: 0.8;
+            }
+
+            .wheel-center {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 60px;
+                height: 60px;
+                background: var(--primary-color);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 10;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            }
+
+            .wheel-center:active {
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+
+            .theme-toggle {
+                position: fixed;
+                top: 20px;
+                right: 340px;
+                background: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 50%;
+                width: 44px;
+                height: 44px;
                 font-size: 20px;
                 cursor: pointer;
-                flex-shrink: 0;
+                z-index: 100;
             }
-            .send-btn:active { background: var(--primary-hover); }
-            
+
             .hidden { display: none !important; }
         </style>
     </head>
     <body>
-        <div class="header">
-            <div class="header-title" id="headerTitle">Sferum Navigator</div>
-            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
-        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        
+        <div class="container">
+            <!-- ЛЕВАЯ ПАНЕЛЬ - ИСТОРИЯ -->
+            <div class="sidebar">
+                <div class="sidebar-header"> История</div>
+                <div class="history-list" id="historyList">
+                    <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                        История пуста
+                    </div>
+                </div>
+                <div class="clear-history" onclick="clearHistory()">
+                    Очистить историю
+                </div>
+            </div>
 
-        <div class="app-container">
-            <!-- Главная сетка -->
-            <div id="ideasGrid" class="ideas-grid"></div>
+            <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ - ПОИСК -->
+            <div class="main-content">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchInput" 
+                               placeholder="Что тебя интересует?" 
+                               onkeypress="if(event.key==='Enter') handleSearch()">
+                        <button class="search-button" onclick="handleSearch()">Найти</button>
+                    </div>
+                    
+                    <div class="quick-ideas">
+                        <div class="idea-chip" onclick="quickAction('planner')">
+                            <div class="idea-chip-icon"></div>
+                            <div class="idea-chip-title">Планировщик</div>
+                        </div>
+                        <div class="idea-chip" onclick="quickAction('homework')">
+                            <div class="idea-chip-icon">📝</div>
+                            <div class="idea-chip-title">Помощь с ДЗ</div>
+                        </div>
+                        <div class="idea-chip" onclick="quickAction('explain')">
+                            <div class="idea-chip-icon">🎓</div>
+                            <div class="idea-chip-title">Объяснить тему</div>
+                        </div>
+                        <div class="idea-chip" onclick="quickAction('tests')">
+                            <div class="idea-chip-icon">✅</div>
+                            <div class="idea-chip-title">Тесты</div>
+                        </div>
+                        <div class="idea-chip" onclick="quickAction('motivation')">
+                            <div class="idea-chip-icon">💪</div>
+                            <div class="idea-chip-title">Мотивация</div>
+                        </div>
+                        <div class="idea-chip" onclick="quickAction('videos')">
+                            <div class="idea-chip-icon">🎥</div>
+                            <div class="idea-chip-title">Видеоуроки</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Экраны функций -->
-            <div id="featureScreens"></div>
+            <!-- ПРАВАЯ ПАНЕЛЬ - КОЛЕСО ИДЕЙ -->
+            <div class="wheel-panel">
+                <div class="wheel-title"> Колесо идей</div>
+                <div class="wheel-container">
+                    <div class="wheel" id="wheel"></div>
+                    <div class="wheel-center" onclick="spinWheel()">🎲</div>
+                </div>
+            </div>
         </div>
 
         <script>
-            // Темы
+            const allIdeas = [
+                { id: 'planner', name: 'Планировщик', color: '#FF6B6B' },
+                { id: 'homework', name: 'Помощь с ДЗ', color: '#4ECDC4' },
+                { id: 'explain', name: 'Объяснение', color: '#45B7D1' },
+                { id: 'tests', name: 'Тесты', color: '#FFA07A' },
+                { id: 'motivation', name: 'Мотивация', color: '#98D8C8' },
+                { id: 'videos', name: 'Видео', color: '#F7DC6F' }
+            ];
+
+            let currentRotation = 0;
+
+            // Создаем колесо
+            function createWheel() {
+                const wheel = document.getElementById('wheel');
+                const segmentAngle = 360 / allIdeas.length;
+                
+                allIdeas.forEach((idea, index) => {
+                    const segment = document.createElement('div');
+                    segment.className = 'wheel-segment';
+                    segment.style.background = idea.color;
+                    segment.style.transform = `rotate(${index * segmentAngle}deg)`;
+                    segment.style.clipPath = 'polygon(0 0, 100% 0, 100% 100%)';
+                    segment.innerHTML = `<span style="transform: rotate(${segmentAngle/2}deg) translate(20px, -10px);">${idea.name}</span>`;
+                    segment.onclick = () => selectIdea(idea.id);
+                    wheel.appendChild(segment);
+                });
+            }
+
+            function spinWheel() {
+                currentRotation += 720 + Math.random() * 360;
+                document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+                
+                setTimeout(() => {
+                    const randomIdea = allIdeas[Math.floor(Math.random() * allIdeas.length)];
+                    selectIdea(randomIdea.id);
+                }, 3000);
+            }
+
+            function selectIdea(id) {
+                const idea = allIdeas.find(i => i.id === id);
+                document.getElementById('searchInput').value = idea.name;
+                addToHistory(idea.name);
+            }
+
+            function quickAction(id) {
+                const idea = allIdeas.find(i => i.id === id);
+                document.getElementById('searchInput').value = idea.name;
+                handleSearch();
+            }
+
+            async function handleSearch() {
+                const input = document.getElementById('searchInput');
+                const query = input.value.trim();
+                if (!query) return;
+
+                addToHistory(query);
+                
+                // Здесь можно добавить обработку поиска
+                alert('Поиск: ' + query);
+            }
+
+            function addToHistory(query) {
+                history.unshift({
+                    query: query,
+                    time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})
+                });
+                if (history.length > 20) history.pop();
+                renderHistory();
+            }
+
+            function renderHistory() {
+                const list = document.getElementById('historyList');
+                if (history.length === 0) {
+                    list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">История пуста</div>';
+                    return;
+                }
+                
+                list.innerHTML = history.map(item => `
+                    <div class="history-item" onclick="document.getElementById('searchInput').value='${item.query}'">
+                        <div>${item.query}</div>
+                        <div class="history-time">${item.time}</div>
+                    </div>
+                `).join('');
+            }
+
+            function clearHistory() {
+                history = [];
+                renderHistory();
+            }
+
             function toggleTheme() {
                 document.body.classList.toggle('dark-theme');
                 const isDark = document.body.classList.contains('dark-theme');
-                document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌙';
+                document.querySelector('.theme-toggle').textContent = isDark ? '☀️' : '';
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             }
 
-            // Загрузка темы
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-theme');
-                document.getElementById('themeToggle').textContent = '☀️';
+                document.querySelector('.theme-toggle').textContent = '️';
             }
 
-            const ideas = [
-                { id: 'planner', icon: '', title: 'Умный планировщик', desc: 'Составление расписания' },
-                { id: 'homework', icon: '📝', title: 'Помощь с ДЗ', desc: 'Метод Сократа' },
-                { id: 'explain', icon: '🎓', title: 'Объяснение тем', desc: 'Контекстный ИИ' },
-                { id: 'videos', icon: '🎥', title: 'Видеоуроки', desc: 'RuTube и VK Видео' },
-                { id: 'tests', icon: '✅', title: 'Тесты', desc: 'Проверка знаний' },
-                { id: 'motivation', icon: '💪', title: 'Мотивация', desc: 'Поддержка и советы' },
-                { id: 'progress', icon: '📊', title: 'Прогресс', desc: 'Статистика обучения' },
-                { id: 'deadlines', icon: '', title: 'Дедлайны', desc: 'Напоминания' },
-                { id: 'adaptive', icon: '🎯', title: 'Адаптивность', desc: 'Подстройка под темп' },
-                { id: 'group', icon: '👥', title: 'Групповая работа', desc: 'Совместное обучение' },
-                { id: 'journal', icon: '📚', title: 'Интеграция с журналом', desc: 'Синхронизация оценок' },
-                { id: 'gamification', icon: '', title: 'Геймификация', desc: 'Достижения и баллы' },
-                { id: 'personalization', icon: '', title: 'Персонализация', desc: 'Рекомендации' },
-                { id: 'offline', icon: '📱', title: 'Оффлайн режим', desc: 'Работа без интернета' },
-                { id: 'export', icon: '📤', title: 'Экспорт данных', desc: 'Выгрузка результатов' }
-            ];
-
-            function renderGrid() {
-                document.getElementById('ideasGrid').innerHTML = ideas.map(idea => `
-                    <div class="idea-card" onclick="openFeature('${idea.id}')">
-                        <div class="idea-icon">${idea.icon}</div>
-                        <div class="idea-info">
-                            <div class="idea-title">${idea.title}</div>
-                            <div class="idea-desc">${idea.desc}</div>
-                        </div>
-                        <div class="idea-arrow">›</div>
-                    </div>
-                `).join('');
-            }
-
-            function openFeature(id) {
-                document.getElementById('ideasGrid').classList.add('hidden');
-                document.getElementById('headerTitle').textContent = ideas.find(i => i.id === id).title;
-                document.getElementById(`screen-${id}`).classList.add('active');
-            }
-
-            function closeFeature(id) {
-                document.getElementById(`screen-${id}`).classList.remove('active');
-                document.getElementById('ideasGrid').classList.remove('hidden');
-                document.getElementById('headerTitle').textContent = 'Sferum Navigator';
-            }
-
-            function renderScreens() {
-                document.getElementById('featureScreens').innerHTML = ideas.map(idea => `
-                    <div id="screen-${idea.id}" class="feature-screen">
-                        <div class="chat-header">
-                            <button class="back-btn" onclick="closeFeature('${idea.id}')">‹</button>
-                            <div style="font-weight:600">${idea.title}</div>
-                        </div>
-                        <div class="chat-box" id="chat-${idea.id}">
-                            <div class="message bot">Привет! Я готов помочь. Напиши свой вопрос.</div>
-                        </div>
-                        <div class="input-area">
-                            <input type="text" class="chat-input" id="input-${idea.id}" placeholder="Напиши сообщение..." onkeypress="if(event.key==='Enter') sendMessage('${idea.id}')">
-                            <button class="send-btn" onclick="sendMessage('${idea.id}')"></button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            async function sendMessage(id) {
-                const input = document.getElementById(`input-${id}`);
-                const chat = document.getElementById(`chat-${id}`);
-                const text = input.value.trim();
-                if (!text) return;
-
-                chat.innerHTML += `<div class="message user">${text}</div>`;
-                input.value = '';
-                chat.scrollTop = chat.scrollHeight;
-
-                try {
-                    const res = await fetch('/api/chat', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({message: text, feature_id: id})
-                    });
-                    const data = await res.json();
-                    chat.innerHTML += `<div class="message bot">${data.response}</div>`;
-                } catch (e) {
-                    chat.innerHTML += `<div class="message bot">Ошибка сети. Попробуй ещё раз.</div>`;
-                }
-                chat.scrollTop = chat.scrollHeight;
-            }
-
-            renderGrid();
-            renderScreens();
+            createWheel();
         </script>
     </body>
     </html>
