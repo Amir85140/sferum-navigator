@@ -11,113 +11,159 @@ class ChatRequest(BaseModel):
     feature_id: str = "general"
 
 HTML = """<!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sferum Navigator</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,sans-serif;background:#0a0a0a;color:#fff;height:100vh}
-.app{display:flex;height:100vh}
-.nav{width:70px;background:#121212;border-right:1px solid #2a2a2a}
-.history{width:280px;background:#121212;border-right:1px solid #2a2a2a;padding:20px;overflow-y:auto}
-.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px}
-.ideas{width:400px;background:#121212;border-left:1px solid #2a2a2a;padding:20px;overflow-y:auto}
-h1{font-size:36px;margin-bottom:30px;background:linear-gradient(135deg,#ffdb4d,#ff9f43);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-input{width:100%;padding:15px;border:2px solid #2a2a2a;border-radius:12px;background:#121212;color:#fff;font-size:16px;margin-bottom:15px}
-input:focus{outline:none;border-color:#ffdb4d}
-button{padding:12px 24px;background:#ffdb4d;color:#000;border:none;border-radius:12px;font-weight:700;cursor:pointer}
-button:hover{background:#ffe066}
-.chat-box{width:100%;max-width:600px;height:300px;border:2px solid #2a2a2a;border-radius:12px;padding:15px;overflow-y:auto;margin-bottom:15px;background:#121212}
-.msg{margin:10px 0;padding:12px;border-radius:10px;max-width:80%;white-space:pre-wrap;word-wrap:break-word}
-.user{background:#252525;margin-left:auto;text-align:right}
-.bot{background:#1a3a5c}
-.idea{padding:15px;margin-bottom:10px;background:#1a1a1a;border-radius:12px;cursor:pointer;transition:.2s}
-.idea:hover{background:#252525;transform:translateX(8px)}
-.idea.selected{border:2px solid #ffdb4d}
-.history-item{padding:10px;margin-bottom:8px;background:#1a1a1a;border-radius:8px;cursor:pointer}
-.history-item:hover{background:#252525}
-.current-feature{padding:10px;background:#1a3a5c;border-radius:8px;margin-bottom:15px;font-size:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#fff}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+.header{text-align:center;margin-bottom:30px}
+.header h1{font-size:48px;font-weight:900;margin-bottom:10px;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+.header p{font-size:18px;opacity:0.9}
+.main-grid{display:grid;grid-template-columns:1fr 2fr 1fr;gap:20px;margin-bottom:20px}
+.panel{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:20px;padding:20px;border:1px solid rgba(255,255,255,0.2)}
+.panel-title{font-size:20px;font-weight:700;margin-bottom:15px;display:flex;align-items:center;gap:10px}
+.ideas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.idea-card{background:rgba(255,255,255,0.15);border-radius:15px;padding:15px;cursor:pointer;transition:all 0.3s;text-align:center;border:2px solid transparent}
+.idea-card:hover{transform:translateY(-5px);background:rgba(255,255,255,0.25);border-color:#ffdb4d}
+.idea-card.selected{background:rgba(255,219,77,0.3);border-color:#ffdb4d;transform:scale(1.05)}
+.idea-icon{font-size:32px;margin-bottom:8px}
+.idea-name{font-size:14px;font-weight:600}
+.chat-container{background:rgba(0,0,0,0.3);border-radius:15px;padding:15px;min-height:400px;max-height:500px;overflow-y:auto;margin-bottom:15px}
+.message{margin-bottom:12px;padding:12px 16px;border-radius:12px;max-width:80%;animation:slideIn 0.3s}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.user-msg{background:linear-gradient(135deg,#667eea,#764ba2);margin-left:auto;text-align:right;border-bottom-right-radius:4px}
+.bot-msg{background:rgba(255,255,255,0.2);border-bottom-left-radius:4px}
+.input-area{display:flex;gap:10px;margin-bottom:15px}
+.input-area input{flex:1;padding:14px 18px;border:none;border-radius:12px;background:rgba(255,255,255,0.2);color:#fff;font-size:16px;backdrop-filter:blur(10px)}
+.input-area input::placeholder{color:rgba(255,255,255,0.6)}
+.input-area input:focus{outline:none;background:rgba(255,255,255,0.3)}
+.input-area button{padding:14px 28px;background:#ffdb4d;color:#000;border:none;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer;transition:all 0.2s}
+.input-area button:hover{background:#ffe066;transform:scale(1.05)}
+.status-bar{background:rgba(255,219,77,0.2);border:2px solid #ffdb4d;border-radius:12px;padding:12px 18px;margin-bottom:15px;font-weight:600;display:flex;align-items:center;gap:10px}
+.history-list{max-height:400px;overflow-y:auto}
+.history-item{background:rgba(255,255,255,0.1);padding:12px;border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+.history-item:hover{background:rgba(255,255,255,0.2);transform:translateX(5px)}
+.history-query{font-size:14px;margin-bottom:4px}
+.history-time{font-size:11px;opacity:0.7}
+.empty-state{text-align:center;padding:40px 20px;opacity:0.6}
+.empty-state-icon{font-size:48px;margin-bottom:10px}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,0.1);border-radius:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.3);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.5)}
 </style>
 </head>
 <body>
-<div class="app">
-<div class="nav"></div>
-<div class="history">
-<h3>📜 История</h3>
-<div id="historyList"></div>
+<div class="container">
+<div class="header">
+<h1>🚀 Sferum Navigator</h1>
+<p>Твой ИИ-наставник для учёбы</p>
 </div>
-<div class="main">
-<h1>Sferum Navigator</h1>
-<div class="current-feature" id="currentFeature"> Режим: Общий</div>
-<input type="text" id="searchInput" placeholder="Что тебя интересует?">
+<div class="main-grid">
+<div class="panel">
+<div class="panel-title">📜 История</div>
+<div class="history-list" id="historyList">
+<div class="empty-state">
+<div class="empty-state-icon">📝</div>
+<div>История пуста</div>
+</div>
+</div>
+</div>
+<div class="panel">
+<div class="status-bar" id="statusBar">
+<span>🎯</span>
+<span id="statusText">Режим: Общий помощник</span>
+</div>
+<div class="chat-container" id="chatBox">
+<div class="message bot-msg">Привет!  Выбери режим слева и задай вопрос. Я помогу с учёбой!</div>
+</div>
+<div class="input-area">
+<input type="text" id="searchInput" placeholder="Напиши свой вопрос..." onkeypress="if(event.key==='Enter')handleSearch()">
 <button onclick="handleSearch()">Отправить</button>
-<div class="chat-box" id="chatBox"></div>
 </div>
-<div class="ideas">
-<h3>✨ Идеи</h3>
-<div id="ideasList"></div>
+</div>
+<div class="panel">
+<div class="panel-title">✨ Режимы</div>
+<div class="ideas-grid" id="ideasList"></div>
+</div>
 </div>
 </div>
 <script>
 const ideas=[
-{id:'planner',name:'Планировщик'},
-{id:'homework',name:'Помощь с ДЗ'},
-{id:'explain',name:'Объяснить тему'},
-{id:'tests',name:'Тесты'},
-{id:'motivation',name:'Мотивация'},
-{id:'videos',name:'Видеоуроки'},
-{id:'progress',name:'Прогресс'},
-{id:'deadlines',name:'Дедлайны'},
-{id:'adaptive',name:'Адаптивность'},
-{id:'group',name:'Групповая работа'},
-{id:'journal',name:'Журнал'},
-{id:'gamification',name:'Геймификация'},
-{id:'personalization',name:'Персонализация'},
-{id:'offline',name:'Оффлайн'},
-{id:'export',name:'Экспорт'}
+{id:'planner',name:'Планировщик',icon:''},
+{id:'homework',name:'Помощь с ДЗ',icon:''},
+{id:'explain',name:'Объяснить тему',icon:'🎓'},
+{id:'tests',name:'Тесты',icon:'✅'},
+{id:'motivation',name:'Мотивация',icon:'💪'},
+{id:'videos',name:'Видеоуроки',icon:''},
+{id:'progress',name:'Прогресс',icon:'📊'},
+{id:'deadlines',name:'Дедлайны',icon:''},
+{id:'adaptive',name:'Адаптивность',icon:'🎯'},
+{id:'group',name:'Групповая работа',icon:'👥'},
+{id:'journal',name:'Журнал',icon:'📚'},
+{id:'gamification',name:'Геймификация',icon:'🏆'},
+{id:'personalization',name:'Персонализация',icon:'🎨'},
+{id:'offline',name:'Оффлайн',icon:'📱'},
+{id:'export',name:'Экспорт',icon:'📤'}
 ];
 let history=[];
 let currentFeature='general';
+let currentFeatureName='Общий помощник';
 
 function renderIdeas(){
-document.getElementById('ideasList').innerHTML=ideas.map(i=>`<div class="idea" id="idea-${i.id}" onclick="selectIdea('${i.id}','${i.name}')">${i.name}</div>`).join('');
+document.getElementById('ideasList').innerHTML=ideas.map(i=>`
+<div class="idea-card ${i.id===currentFeature?'selected':''}" onclick="selectIdea('${i.id}','${i.name}')">
+<div class="idea-icon">${i.icon}</div>
+<div class="idea-name">${i.name}</div>
+</div>
+`).join('');
 }
 
 function selectIdea(id,name){
-document.querySelectorAll('.idea').forEach(e=>e.classList.remove('selected'));
-document.getElementById('idea-'+id).classList.add('selected');
 currentFeature=id;
-document.getElementById('currentFeature').textContent='🎯 Режим: '+name;
-document.getElementById('chatBox').innerHTML='';
+currentFeatureName=name;
+document.getElementById('statusText').textContent='Режим: '+name;
+renderIdeas();
+document.getElementById('chatBox').innerHTML='<div class="message bot-msg">Отлично! Теперь я в режиме "'+name+'". Чем могу помочь?</div>';
 }
 
 async function handleSearch(){
 const input=document.getElementById('searchInput');
 const q=input.value.trim();
 if(!q)return;
-
 const chat=document.getElementById('chatBox');
-chat.innerHTML+=`<div class="msg user">${q}</div>`;
+chat.innerHTML+=`<div class="message user-msg">${q}</div>`;
 input.value='';
-
+chat.scrollTop=chat.scrollHeight;
 history.unshift({query:q,time:new Date().toLocaleTimeString()});
 if(history.length>20)history.pop();
 renderHistory();
-
 try{
 const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,feature_id:currentFeature})});
 const d=await r.json();
-chat.innerHTML+=`<div class="msg bot">${d.response}</div>`;
+chat.innerHTML+=`<div class="message bot-msg">${d.response}</div>`;
 }catch(e){
-chat.innerHTML+=`<div class="msg bot">Ошибка: ${e.message}</div>`;
+chat.innerHTML+=`<div class="message bot-msg">Ошибка: ${e.message}</div>`;
 }
 chat.scrollTop=chat.scrollHeight;
 }
 
 function renderHistory(){
-document.getElementById('historyList').innerHTML=history.map(h=>`<div class="history-item" onclick="document.getElementById('searchInput').value='${h.query}'">${h.query}<br><small style="color:#666">${h.time}</small></div>`).join('');
+const list=document.getElementById('historyList');
+if(history.length===0){
+list.innerHTML='<div class="empty-state"><div class="empty-state-icon"></div><div>История пуста</div></div>';
+return;
+}
+list.innerHTML=history.map(h=>`
+<div class="history-item" onclick="document.getElementById('searchInput').value='${h.query}'">
+<div class="history-query">${h.query}</div>
+<div class="history-time">${h.time}</div>
+</div>
+`).join('');
 }
 
 renderIdeas();
