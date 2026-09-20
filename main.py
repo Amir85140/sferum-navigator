@@ -38,7 +38,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .idea-card.selected{background:rgba(255,219,77,0.3);border-color:#ffdb4d}
 .idea-icon{font-size:24px;flex-shrink:0}
 .idea-name{font-size:14px;font-weight:600}
-.message{margin-bottom:12px;padding:12px 16px;border-radius:12px;max-width:80%;animation:slideIn 0.3s}
+.message{margin-bottom:12px;padding:12px 16px;border-radius:12px;max-width:80%;animation:slideIn 0.3s;white-space:pre-wrap;word-wrap:break-word}
 @keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .user-msg{background:linear-gradient(135deg,#667eea,#764ba2);margin-left:auto;text-align:right}
 .bot-msg{background:rgba(255,255,255,0.2)}
@@ -46,7 +46,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .chat-item{background:rgba(255,255,255,0.1);padding:10px;border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all 0.2s;flex-shrink:0}
 .chat-item:hover{background:rgba(255,255,255,0.2)}
 .chat-item.active{background:rgba(255,219,77,0.3);border-left:3px solid #ffdb4d}
-.chat-title{font-size:13px;margin-bottom:3px;font-weight:500}
+.chat-title{font-size:13px;margin-bottom:3px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-time{font-size:11px;opacity:0.7}
 .empty-state{text-align:center;padding:30px 20px;opacity:0.6}
 .new-chat-btn{width:100%;padding:10px;background:rgba(255,219,77,0.3);color:#fff;border:2px solid #ffdb4d;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;margin-bottom:10px;transition:.2s}
@@ -64,9 +64,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <body>
 <div class="container">
 <div class="panel history-panel">
-<div class="panel-title">
-<span>📜 Чаты</span>
-</div>
+<div class="panel-title"><span>📜 Чаты</span></div>
 <button class="new-chat-btn" onclick="newChat()">+ Новый чат</button>
 <div class="search-box">
 <input type="text" placeholder="Поиск чатов..." id="searchInput" oninput="filterChats()">
@@ -75,6 +73,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="empty-state">Нет чатов</div>
 </div>
 <div style="margin-top:10px;flex-shrink:0">
+<button class="project-btn" onclick="alert('Синхронизация с МЭШ (демо)')"> МЭШ</button>
 <button class="project-btn" onclick="alert('Сообщество (демо)')">👥 Сообщество</button>
 <button class="project-btn" onclick="alert('Coder (демо)')">💻 Coder</button>
 <button class="project-btn" onclick="alert('Новый проект (демо)')">🚀 Новый проект</button>
@@ -82,7 +81,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 <div class="panel main-panel">
 <div class="status-bar" id="statusBar">
-<span></span>
+<span>🎯</span>
 <span id="statusText">Режим: Общий помощник</span>
 </div>
 <div class="chat-container" id="chatBox">
@@ -102,21 +101,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 <script>
 const ideas=[
-{id:'planner',name:'Планировщик',icon:'📅'},
-{id:'homework',name:'Помощь с ДЗ',icon:'📝'},
-{id:'explain',name:'Объяснить тему',icon:'🎓'},
-{id:'tests',name:'Тесты',icon:'✅'},
-{id:'motivation',name:'Мотивация',icon:''},
+{id:'general',name:'Общий помощник',icon:'🤖'},
+{id:'planner',name:'Подготовка к экзаменам',icon:'📅'},
+{id:'homework',name:'Помощь с домашкой',icon:'📝'},
+{id:'explain',name:'Объяснение темы',icon:'🎓'},
+{id:'tests',name:'Проверка знаний',icon:'✅'},
+{id:'motivation',name:'Мотивация и поддержка',icon:'💪'},
 {id:'videos',name:'Видеоуроки',icon:'🎥'},
-{id:'progress',name:'Прогресс',icon:''},
-{id:'deadlines',name:'Дедлайны',icon:'⏰'},
-{id:'adaptive',name:'Адаптивность',icon:'🎯'},
+{id:'progress',name:'Мой прогресс',icon:'📊'},
+{id:'deadlines',name:'Дедлайны и напоминания',icon:'⏰'},
+{id:'adaptive',name:'Адаптивное обучение',icon:'🎯'},
 {id:'group',name:'Групповая работа',icon:'👥'},
-{id:'journal',name:'Журнал',icon:'📚'},
-{id:'gamification',name:'Геймификация',icon:'🏆'},
-{id:'personalization',name:'Персонализация',icon:''},
-{id:'offline',name:'Оффлайн',icon:'📱'},
-{id:'export',name:'Экспорт',icon:''}
+{id:'journal',name:'Оценки и МЭШ',icon:'📚'},
+{id:'gamification',name:'Достижения и уровни',icon:'🏆'},
+{id:'personalization',name:'Персональные рекомендации',icon:''},
+{id:'offline',name:'Оффлайн материалы',icon:'📱'},
+{id:'export',name:'Экспорт данных',icon:'📤'}
 ];
 
 let chats = {};
@@ -132,24 +132,17 @@ function createChat(featureId, title) {
         title: title,
         featureId: featureId,
         messages: [],
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        firstMessageSent: false
     };
     return chatId;
 }
 
 function newChat() {
-    const featureId = prompt('Выбери режим:\\nplanner, homework, explain, tests, motivation, videos, general', 'general');
+    const featureId = prompt('Выбери режим:\\ngeneral, planner, homework, explain, tests, motivation, videos, progress, deadlines, adaptive, group, journal, gamification, personalization, offline, export', 'general');
     if (!featureId) return;
-    const titles = {
-        planner: 'Планировщик',
-        homework: 'Помощь с ДЗ',
-        explain: 'Объяснение темы',
-        tests: 'Тесты',
-        motivation: 'Мотивация',
-        videos: 'Видеоуроки',
-        general: 'Общий помощник'
-    };
-    const title = titles[featureId] || 'Новый чат';
+    const idea = ideas.find(i => i.id === featureId);
+    const title = idea ? idea.name : 'Новый чат';
     const chatId = createChat(featureId, title);
     selectChat(chatId);
     renderChats();
@@ -159,15 +152,11 @@ function selectChat(chatId) {
     currentChatId = chatId;
     const chat = chats[chatId];
     currentFeature = chat.featureId;
-    document.getElementById('statusText').textContent = 'Режим: ' + getTitleById(chat.featureId);
+    const idea = ideas.find(i => i.id === chat.featureId);
+    document.getElementById('statusText').textContent = 'Режим: ' + (idea ? idea.name : 'Общий');
     renderMessages();
     renderChats();
     renderIdeas();
-}
-
-function getTitleById(id) {
-    const idea = ideas.find(i => i.id === id);
-    return idea ? idea.name : 'Общий';
 }
 
 function renderChats(filter = '') {
@@ -217,14 +206,10 @@ function renderIdeas() {
 }
 
 function selectIdea(id, name) {
-    currentFeature = id;
-    document.getElementById('statusText').textContent = 'Режим: ' + name;
-    renderIdeas();
-    if (currentChatId) {
-        chats[currentChatId].featureId = id;
-        chats[currentChatId].title = name;
-        renderChats();
-    }
+    // Создаём новый чат при выборе режима
+    const chatId = createChat(id, name);
+    selectChat(chatId);
+    renderChats();
 }
 
 async function sendMessage() {
@@ -236,6 +221,15 @@ async function sendMessage() {
     chat.messages.push({role: 'user', content: text});
     input.value = '';
     renderMessages();
+    
+    // Переименовываем чат после первого сообщения
+    if (!chat.firstMessageSent) {
+        chat.firstMessageSent = true;
+        const shortDesc = text.length > 30 ? text.substring(0, 30) + '...' : text;
+        const idea = ideas.find(i => i.id === chat.featureId);
+        chat.title = (idea ? idea.name : 'Чат') + '. ' + shortDesc;
+        renderChats();
+    }
     
     try {
         const r = await fetch('/api/chat', {
