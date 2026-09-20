@@ -4,7 +4,7 @@ from gigachat import GigaChat
 # ⚠️ ВАЖНО: Вставь свои данные в формате "Client_ID:Client_Secret"
 # Без пробелов до и после двоеточия!
 CLIENT_ID = "01a0bafa-206f-7e07-a2e7-df9e0acea285"
-CLIENT_SECRET = "MDFhMGJhZmEtMjA2Zi03ZTA3LWEyZTctZGY5ZTBhY2VhMjg1OmZlZmUwOTYzLWNlNDQtNGUwZS1iYWM5LWVlMTZlOGJiODc3MQ=="
+CLIENT_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
 
 # Собираем строку для авторизации
 CREDENTIALS = f"{CLIENT_ID}:{CLIENT_SECRET}"
