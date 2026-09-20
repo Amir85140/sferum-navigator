@@ -5,7 +5,7 @@ from pydantic import BaseModel
 import uvicorn
 from services import PlannerService, AIService
 
-app = FastAPI(title="Sferum Navigator", version="4.0")
+app = FastAPI(title="Sferum Navigator", version="5.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,6 +28,17 @@ async def main_page():
         <title>Sferum Navigator</title>
         <style>
             :root {
+                --bg-color: #0a0a0a;
+                --sidebar-bg: #121212;
+                --text-color: #FFFFFF;
+                --text-secondary: #8E8E93;
+                --primary-color: #FFCC00;
+                --border-color: #1E1E1E;
+                --card-bg: #1A1A1A;
+                --hover-bg: #252525;
+            }
+
+            body.light-theme {
                 --bg-color: #F0F2F5;
                 --sidebar-bg: #FFFFFF;
                 --text-color: #000000;
@@ -36,17 +47,6 @@ async def main_page():
                 --border-color: #E1E3E6;
                 --card-bg: #FFFFFF;
                 --hover-bg: #F5F6F8;
-            }
-
-            body.dark-theme {
-                --bg-color: #121212;
-                --sidebar-bg: #1C1C1E;
-                --text-color: #FFFFFF;
-                --text-secondary: #8E8E93;
-                --primary-color: #71AAEB;
-                --border-color: #2C2D2E;
-                --card-bg: #1C1C1E;
-                --hover-bg: #2C2D2E;
             }
 
             * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,7 +66,7 @@ async def main_page():
 
             /* ЛЕВАЯ ПАНЕЛЬ - ИСТОРИЯ */
             .sidebar {
-                width: 280px;
+                width: 260px;
                 background: var(--sidebar-bg);
                 border-right: 1px solid var(--border-color);
                 display: flex;
@@ -77,8 +77,9 @@ async def main_page():
             .sidebar-header {
                 padding: 20px;
                 border-bottom: 1px solid var(--border-color);
-                font-size: 18px;
-                font-weight: 600;
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--primary-color);
             }
 
             .history-list {
@@ -90,29 +91,36 @@ async def main_page():
             .history-item {
                 padding: 12px;
                 border-radius: 8px;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
                 cursor: pointer;
-                font-size: 14px;
+                font-size: 13px;
                 transition: background 0.2s;
+                color: var(--text-secondary);
             }
 
             .history-item:hover {
                 background: var(--hover-bg);
+                color: var(--text-color);
             }
 
             .history-time {
-                font-size: 12px;
+                font-size: 11px;
                 color: var(--text-secondary);
-                margin-top: 4px;
+                margin-top: 3px;
+                opacity: 0.7;
             }
 
             .clear-history {
                 padding: 12px;
                 border-top: 1px solid var(--border-color);
                 text-align: center;
-                color: var(--primary-color);
+                color: var(--text-secondary);
                 cursor: pointer;
-                font-size: 14px;
+                font-size: 13px;
+            }
+
+            .clear-history:hover {
+                color: var(--text-color);
             }
 
             /* ЦЕНТРАЛЬНАЯ ЧАСТЬ - ПОИСК */
@@ -132,215 +140,269 @@ async def main_page():
 
             .search-box {
                 position: relative;
-                margin-bottom: 30px;
+                margin-bottom: 40px;
             }
 
             .search-input {
                 width: 100%;
-                padding: 16px 50px 16px 20px;
-                font-size: 16px;
-                border: 2px solid var(--border-color);
-                border-radius: 12px;
+                padding: 18px 60px 18px 24px;
+                font-size: 17px;
+                border: none;
+                border-radius: 16px;
                 background: var(--card-bg);
                 color: var(--text-color);
                 outline: none;
-                transition: border-color 0.2s;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.3);
             }
 
-            .search-input:focus {
-                border-color: var(--primary-color);
+            .search-input::placeholder {
+                color: var(--text-secondary);
             }
 
             .search-button {
                 position: absolute;
-                right: 10px;
+                right: 8px;
                 top: 50%;
                 transform: translateY(-50%);
                 background: var(--primary-color);
                 border: none;
-                border-radius: 8px;
-                padding: 8px 16px;
-                color: white;
+                border-radius: 12px;
+                padding: 10px 20px;
+                color: #000;
                 cursor: pointer;
-                font-weight: 600;
+                font-weight: 700;
+                font-size: 14px;
             }
 
             .quick-ideas {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 15px;
+                gap: 12px;
                 width: 100%;
             }
 
             .idea-chip {
-                padding: 15px;
+                padding: 16px;
                 background: var(--card-bg);
-                border: 2px solid var(--border-color);
-                border-radius: 12px;
+                border: 1px solid var(--border-color);
+                border-radius: 14px;
                 text-align: center;
                 cursor: pointer;
                 transition: all 0.2s;
             }
 
             .idea-chip:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.3);
                 border-color: var(--primary-color);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0,119,255,0.15);
             }
 
             .idea-chip-icon {
-                font-size: 32px;
+                font-size: 28px;
                 margin-bottom: 8px;
             }
 
             .idea-chip-title {
-                font-size: 14px;
+                font-size: 13px;
                 font-weight: 600;
             }
 
-            /* ПРАВАЯ ПАНЕЛЬ - КОЛЕСО ИДЕЙ (как в Яндекс Музыке) */
-            .wheel-panel {
-                width: 360px;
-                background: var(--sidebar-bg);
+            /* ПРАВАЯ ПАНЕЛЬ - ЛЕНТА ИДЕЙ (как в Яндекс Музыке) */
+            .ideas-panel {
+                width: 380px;
+                background: var(--bg-color);
                 border-left: 1px solid var(--border-color);
-                padding: 20px;
                 display: flex;
                 flex-direction: column;
-                align-items: center;
-            }
-
-            .wheel-title {
-                font-size: 18px;
-                font-weight: 600;
-                margin-bottom: 10px;
-            }
-
-            .wheel-subtitle {
-                font-size: 13px;
-                color: var(--text-secondary);
-                margin-bottom: 20px;
-                text-align: center;
-            }
-
-            .wheel-wrapper {
-                position: relative;
-                width: 320px;
-                height: 320px;
-            }
-
-            .wheel {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                position: relative;
-                cursor: grab;
-                transition: transform 0.1s;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            }
-
-            .wheel:active {
-                cursor: grabbing;
-            }
-
-            .wheel-segment {
-                position: absolute;
-                width: 50%;
-                height: 50%;
-                transform-origin: right bottom;
-                left: 0;
-                top: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 10px;
-                font-weight: 600;
-                color: white;
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
                 overflow: hidden;
             }
 
-            .wheel-segment span {
-                transform: rotate(12deg) translate(30px, -20px);
+            .ideas-header {
+                padding: 24px 20px 16px;
+                font-size: 22px;
+                font-weight: 800;
+                color: var(--primary-color);
+            }
+
+            .ideas-subheader {
+                padding: 0 20px 16px;
+                font-size: 13px;
+                color: var(--text-secondary);
+            }
+
+            .ideas-list {
+                flex: 1;
+                overflow-y: auto;
+                padding: 0 10px 20px;
+            }
+
+            .idea-item {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                padding: 16px 12px;
+                border-radius: 16px;
+                cursor: pointer;
+                transition: all 0.25s;
+                margin-bottom: 4px;
+            }
+
+            .idea-item:hover {
+                background: var(--hover-bg);
+                transform: scale(1.02);
+            }
+
+            .idea-item:active {
+                transform: scale(0.98);
+            }
+
+            .idea-item.selected {
+                background: var(--hover-bg);
+                border: 1px solid var(--primary-color);
+            }
+
+            /* Иконка-пазл как в Яндекс Музыке */
+            .idea-icon-wrap {
+                width: 64px;
+                height: 64px;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            }
+
+            .idea-icon-wrap svg {
+                width: 40px;
+                height: 40px;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            }
+
+            .idea-info {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .idea-label {
+                font-size: 11px;
+                color: var(--text-secondary);
+                margin-bottom: 4px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .idea-name {
+                font-size: 16px;
+                font-weight: 700;
                 white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
-            .wheel-center {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 70px;
-                height: 70px;
-                background: white;
-                border-radius: 50%;
+            .idea-arrow {
+                color: var(--text-secondary);
+                font-size: 20px;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+
+            .idea-item:hover .idea-arrow {
+                opacity: 1;
+            }
+
+            /* Выбранная идея внизу */
+            .selected-display {
+                padding: 16px 20px;
+                border-top: 1px solid var(--border-color);
+                background: var(--sidebar-bg);
+                min-height: 70px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .selected-display-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 28px;
-                z-index: 10;
-                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-                pointer-events: none;
             }
 
-            .wheel-pointer {
-                position: absolute;
-                top: -10px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 0;
-                height: 0;
-                border-left: 15px solid transparent;
-                border-right: 15px solid transparent;
-                border-top: 25px solid var(--primary-color);
-                z-index: 20;
-                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            .selected-display-text {
+                flex: 1;
             }
 
-            .selected-idea {
-                margin-top: 20px;
-                padding: 15px 20px;
+            .selected-display-label {
+                font-size: 11px;
+                color: var(--text-secondary);
+            }
+
+            .selected-display-name {
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            .selected-display-btn {
+                padding: 8px 16px;
                 background: var(--primary-color);
-                color: white;
-                border-radius: 12px;
-                font-weight: 600;
-                text-align: center;
-                min-height: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                color: #000;
+                border: none;
+                border-radius: 20px;
+                font-weight: 700;
+                font-size: 13px;
+                cursor: pointer;
             }
 
             .theme-toggle {
                 position: fixed;
-                top: 20px;
-                right: 380px;
+                top: 16px;
+                right: 400px;
                 background: var(--card-bg);
                 border: 1px solid var(--border-color);
                 border-radius: 50%;
-                width: 44px;
-                height: 44px;
-                font-size: 20px;
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
                 cursor: pointer;
                 z-index: 100;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .hidden { display: none !important; }
+
+            /* Скроллбар */
+            .ideas-list::-webkit-scrollbar,
+            .history-list::-webkit-scrollbar {
+                width: 6px;
+            }
+            .ideas-list::-webkit-scrollbar-thumb,
+            .history-list::-webkit-scrollbar-thumb {
+                background: var(--border-color);
+                border-radius: 3px;
+            }
         </style>
     </head>
     <body>
-        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️</button>
         
         <div class="container">
             <!-- ЛЕВАЯ ПАНЕЛЬ - ИСТОРИЯ -->
             <div class="sidebar">
-                <div class="sidebar-header">📜 История</div>
+                <div class="sidebar-header"> История</div>
                 <div class="history-list" id="historyList">
-                    <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                    <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 13px;">
                         История пуста
                     </div>
                 </div>
                 <div class="clear-history" onclick="clearHistory()">
-                    🗑 Очистить историю
+                    🗑 Очистить
                 </div>
             </div>
 
@@ -356,7 +418,7 @@ async def main_page():
                     
                     <div class="quick-ideas">
                         <div class="idea-chip" onclick="quickAction('planner')">
-                            <div class="idea-chip-icon">📅</div>
+                            <div class="idea-chip-icon"></div>
                             <div class="idea-chip-title">Планировщик</div>
                         </div>
                         <div class="idea-chip" onclick="quickAction('homework')">
@@ -364,7 +426,7 @@ async def main_page():
                             <div class="idea-chip-title">Помощь с ДЗ</div>
                         </div>
                         <div class="idea-chip" onclick="quickAction('explain')">
-                            <div class="idea-chip-icon">🎓</div>
+                            <div class="idea-chip-icon"></div>
                             <div class="idea-chip-title">Объяснить тему</div>
                         </div>
                         <div class="idea-chip" onclick="quickAction('tests')">
@@ -372,189 +434,114 @@ async def main_page():
                             <div class="idea-chip-title">Тесты</div>
                         </div>
                         <div class="idea-chip" onclick="quickAction('motivation')">
-                            <div class="idea-chip-icon"></div>
+                            <div class="idea-chip-icon">💪</div>
                             <div class="idea-chip-title">Мотивация</div>
                         </div>
                         <div class="idea-chip" onclick="quickAction('videos')">
-                            <div class="idea-chip-icon">🎥</div>
+                            <div class="idea-chip-icon"></div>
                             <div class="idea-chip-title">Видеоуроки</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ПРАВАЯ ПАНЕЛЬ - КОЛЕСО ИДЕЙ -->
-            <div class="wheel-panel">
-                <div class="wheel-title">🎡 Колесо идей</div>
-                <div class="wheel-subtitle">Крути колесо мышкой или пальцем</div>
-                <div class="wheel-wrapper">
-                    <div class="wheel-pointer"></div>
-                    <div class="wheel" id="wheel"></div>
-                    <div class="wheel-center">🎯</div>
-                </div>
-                <div class="selected-idea" id="selectedIdea">
-                    Выбери идею!
+            <!-- ПРАВАЯ ПАНЕЛЬ - ЛЕНТА ИДЕЙ -->
+            <div class="ideas-panel">
+                <div class="ideas-header">Идеи для тебя</div>
+                <div class="ideas-subheader">Выбери, что хочешь попробовать</div>
+                <div class="ideas-list" id="ideasList"></div>
+                <div class="selected-display" id="selectedDisplay">
+                    <div class="selected-display-icon" id="selIcon" style="background:#333;"></div>
+                    <div class="selected-display-text">
+                        <div class="selected-display-label">Выбрано</div>
+                        <div class="selected-display-name" id="selName">Ничего не выбрано</div>
+                    </div>
+                    <button class="selected-display-btn" onclick="useSelected()">Открыть</button>
                 </div>
             </div>
         </div>
 
         <script>
             const allIdeas = [
-                { id: 'planner', name: 'Планировщик', color: '#FF6B6B' },
-                { id: 'homework', name: 'Помощь с ДЗ', color: '#4ECDC4' },
-                { id: 'explain', name: 'Объяснение', color: '#45B7D1' },
-                { id: 'tests', name: 'Тесты', color: '#FFA07A' },
-                { id: 'motivation', name: 'Мотивация', color: '#98D8C8' },
-                { id: 'videos', name: 'Видео', color: '#F7DC6F' },
-                { id: 'progress', name: 'Прогресс', color: '#BB8FCE' },
-                { id: 'deadlines', name: 'Дедлайны', color: '#F1948A' },
-                { id: 'adaptive', name: 'Адаптивность', color: '#82E0AA' },
-                { id: 'group', name: 'Группа', color: '#85C1E9' },
-                { id: 'journal', name: 'Журнал', color: '#F0B27A' },
-                { id: 'gamification', name: 'Геймификация', color: '#D7BDE2' },
-                { id: 'personalization', name: 'Персонализация', color: '#A9DFBF' },
-                { id: 'offline', name: 'Оффлайн', color: '#FAD7A0' },
-                { id: 'export', name: 'Экспорт', color: '#AED6F1' }
+                { id: 'planner', name: 'Умный планировщик', label: 'Рекомендуем', color: '#FF6B6B', icon: 'puzzle' },
+                { id: 'homework', name: 'Помощь с ДЗ', label: 'Метод Сократа', color: '#4ECDC4', icon: 'star' },
+                { id: 'explain', name: 'Объяснение тем', label: 'Контекстный ИИ', color: '#45B7D1', icon: 'puzzle' },
+                { id: 'tests', name: 'Тесты и проверка', label: 'Проверь себя', color: '#FFA07A', icon: 'star' },
+                { id: 'motivation', name: 'Мотивация', label: 'Поддержка', color: '#98D8C8', icon: 'heart' },
+                { id: 'videos', name: 'Видеоуроки', label: 'RuTube и VK', color: '#F7DC6F', icon: 'play' },
+                { id: 'progress', name: 'Прогресс обучения', label: 'Твоя статистика', color: '#BB8FCE', icon: 'chart' },
+                { id: 'deadlines', name: 'Дедлайны', label: 'Не забудь!', color: '#F1948A', icon: 'clock' },
+                { id: 'adaptive', name: 'Адаптивное обучение', label: 'Под твой темп', color: '#82E0AA', icon: 'target' },
+                { id: 'group', name: 'Групповая работа', label: 'Вместе веселее', color: '#85C1E9', icon: 'people' },
+                { id: 'journal', name: 'Интеграция с журналом', label: 'Синхронизация', color: '#F0B27A', icon: 'book' },
+                { id: 'gamification', name: 'Геймификация', label: 'Достижения', color: '#D7BDE2', icon: 'trophy' },
+                { id: 'personalization', name: 'Персонализация', label: 'Только для тебя', color: '#A9DFBF', icon: 'user' },
+                { id: 'offline', name: 'Оффлайн режим', label: 'Без интернета', color: '#FAD7A0', icon: 'download' },
+                { id: 'export', name: 'Экспорт данных', label: 'Выгрузка', color: '#AED6F1', icon: 'export' }
             ];
 
-            let currentRotation = 0;
-            let isDragging = false;
-            let startAngle = 0;
-            let lastAngle = 0;
-            let velocity = 0;
-            let lastTime = 0;
-            let animationId = null;
+            let selectedIdea = null;
 
-            // Создаем колесо
-            function createWheel() {
-                const wheel = document.getElementById('wheel');
-                const segmentAngle = 360 / allIdeas.length;
-                
-                allIdeas.forEach((idea, index) => {
-                    const segment = document.createElement('div');
-                    segment.className = 'wheel-segment';
-                    segment.style.background = idea.color;
-                    segment.style.transform = `rotate(${index * segmentAngle}deg)`;
-                    segment.style.clipPath = 'polygon(0 0, 100% 0, 100% 100%)';
-                    segment.innerHTML = `<span>${idea.name}</span>`;
-                    wheel.appendChild(segment);
-                });
+            // SVG иконки (пазлы, звёзды и т.д.)
+            const icons = {
+                puzzle: `<svg viewBox="0 0 24 24" fill="white"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7s2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>`,
+                star: `<svg viewBox="0 0 24 24" fill="white"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+                heart: `<svg viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+                play: `<svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>`,
+                chart: `<svg viewBox="0 0 24 24" fill="white"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>`,
+                clock: `<svg viewBox="0 0 24 24" fill="white"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>`,
+                target: `<svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7.51-3.49L17.5 6.5 9.99 9.99 6.5 17.5zm5.5-6.6c.61 0 1.1.49 1.1 1.1s-.49 1.1-1.1 1.1-1.1-.49-1.1-1.1.49-1.1 1.1-1.1z"/></svg>`,
+                people: `<svg viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`,
+                book: `<svg viewBox="0 0 24 24" fill="white"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>`,
+                trophy: `<svg viewBox="0 0 24 24" fill="white"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>`,
+                user: `<svg viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`,
+                download: `<svg viewBox="0 0 24 24" fill="white"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
+                export: `<svg viewBox="0 0 24 24" fill="white"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>`
+            };
+
+            function renderIdeas() {
+                const list = document.getElementById('ideasList');
+                list.innerHTML = allIdeas.map(idea => `
+                    <div class="idea-item" id="idea-${idea.id}" onclick="selectIdea('${idea.id}')">
+                        <div class="idea-icon-wrap" style="background:${idea.color};">
+                            ${icons[idea.icon] || icons.puzzle}
+                        </div>
+                        <div class="idea-info">
+                            <div class="idea-label">${idea.label}</div>
+                            <div class="idea-name">${idea.name}</div>
+                        </div>
+                        <div class="idea-arrow">›</div>
+                    </div>
+                `).join('');
             }
 
-            // Получаем угол мыши относительно центра колеса
-            function getAngle(e) {
-                const wheel = document.getElementById('wheel');
-                const rect = wheel.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
+            function selectIdea(id) {
+                // Убираем выделение со всех
+                document.querySelectorAll('.idea-item').forEach(el => el.classList.remove('selected'));
                 
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                // Выделяем выбранную
+                document.getElementById(`idea-${id}`).classList.add('selected');
                 
-                return Math.atan2(clientY - centerY, clientX - centerX) * 180 / Math.PI;
+                selectedIdea = allIdeas.find(i => i.id === id);
+                
+                // Обновляем нижнюю панель
+                document.getElementById('selIcon').style.background = selectedIdea.color;
+                document.getElementById('selIcon').innerHTML = icons[selectedIdea.icon] || icons.puzzle;
+                document.getElementById('selName').textContent = selectedIdea.name;
             }
 
-            // Начало вращения
-            function startDrag(e) {
-                e.preventDefault();
-                isDragging = true;
-                startAngle = getAngle(e);
-                lastAngle = startAngle;
-                velocity = 0;
-                lastTime = Date.now();
-                
-                if (animationId) {
-                    cancelAnimationFrame(animationId);
-                }
-                
-                document.getElementById('wheel').style.transition = 'none';
+            function useSelected() {
+                if (!selectedIdea) return;
+                document.getElementById('searchInput').value = selectedIdea.name;
+                addToHistory(selectedIdea.name);
+                handleSearch();
             }
-
-            // Вращение
-            function drag(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-                
-                const currentAngle = getAngle(e);
-                const delta = currentAngle - lastAngle;
-                
-                // Нормализуем угол
-                let normalizedDelta = delta;
-                if (normalizedDelta > 180) normalizedDelta -= 360;
-                if (normalizedDelta < -180) normalizedDelta += 360;
-                
-                currentRotation += normalizedDelta;
-                document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
-                
-                // Вычисляем скорость
-                const now = Date.now();
-                const dt = now - lastTime;
-                if (dt > 0) {
-                    velocity = normalizedDelta / dt;
-                }
-                
-                lastAngle = currentAngle;
-                lastTime = now;
-                
-                updateSelectedIdea();
-            }
-
-            // Конец вращения
-            function endDrag() {
-                if (!isDragging) return;
-                isDragging = false;
-                
-                // Инерция
-                if (Math.abs(velocity) > 0.1) {
-                    applyInertia();
-                }
-            }
-
-            // Применяем инерцию
-            function applyInertia() {
-                const friction = 0.95;
-                
-                function animate() {
-                    velocity *= friction;
-                    currentRotation += velocity * 16;
-                    document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
-                    
-                    updateSelectedIdea();
-                    
-                    if (Math.abs(velocity) > 0.01) {
-                        animationId = requestAnimationFrame(animate);
-                    }
-                }
-                
-                animationId = requestAnimationFrame(animate);
-            }
-
-            // Обновляем выбранную идею
-            function updateSelectedIdea() {
-                const segmentAngle = 360 / allIdeas.length;
-                const normalizedRotation = ((currentRotation % 360) + 360) % 360;
-                const index = Math.floor((360 - normalizedRotation + segmentAngle / 2) / segmentAngle) % allIdeas.length;
-                const selectedIdea = allIdeas[index];
-                
-                document.getElementById('selectedIdea').textContent = `${selectedIdea.name}`;
-                document.getElementById('selectedIdea').style.background = selectedIdea.color;
-            }
-
-            // Обработчики событий
-            const wheel = document.getElementById('wheel');
-            wheel.addEventListener('mousedown', startDrag);
-            wheel.addEventListener('mousemove', drag);
-            wheel.addEventListener('mouseup', endDrag);
-            wheel.addEventListener('mouseleave', endDrag);
-            
-            wheel.addEventListener('touchstart', startDrag);
-            wheel.addEventListener('touchmove', drag);
-            wheel.addEventListener('touchend', endDrag);
 
             function quickAction(id) {
                 const idea = allIdeas.find(i => i.id === id);
                 document.getElementById('searchInput').value = idea.name;
                 addToHistory(idea.name);
+                selectIdea(id);
             }
 
             async function handleSearch() {
@@ -563,15 +550,27 @@ async def main_page():
                 if (!query) return;
 
                 addToHistory(query);
-                alert('Поиск: ' + query);
+                
+                // Показываем ответ ИИ
+                try {
+                    const res = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({message: query})
+                    });
+                    const data = await res.json();
+                    alert(data.response);
+                } catch(e) {
+                    alert('Ошибка: ' + e.message);
+                }
             }
 
             function addToHistory(query) {
-                const historyList = document.getElementById('historyList');
+                const list = document.getElementById('historyList');
                 const time = new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
                 
-                if (historyList.children.length === 1 && historyList.children[0].textContent.includes('История пуста')) {
-                    historyList.innerHTML = '';
+                if (list.children.length === 1 && list.children[0].textContent.includes('История пуста')) {
+                    list.innerHTML = '';
                 }
                 
                 const item = document.createElement('div');
@@ -579,30 +578,30 @@ async def main_page():
                 item.innerHTML = `<div>${query}</div><div class="history-time">${time}</div>`;
                 item.onclick = () => { document.getElementById('searchInput').value = query; };
                 
-                historyList.insertBefore(item, historyList.firstChild);
+                list.insertBefore(item, list.firstChild);
                 
-                if (historyList.children.length > 20) {
-                    historyList.removeChild(historyList.lastChild);
+                if (list.children.length > 30) {
+                    list.removeChild(list.lastChild);
                 }
             }
 
             function clearHistory() {
-                document.getElementById('historyList').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">История пуста</div>';
+                document.getElementById('historyList').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 13px;">История пуста</div>';
             }
 
             function toggleTheme() {
-                document.body.classList.toggle('dark-theme');
-                const isDark = document.body.classList.contains('dark-theme');
-                document.querySelector('.theme-toggle').textContent = isDark ? '☀️' : '🌙';
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                document.body.classList.toggle('light-theme');
+                const isLight = document.body.classList.contains('light-theme');
+                document.getElementById('themeBtn').textContent = isLight ? '🌙' : '☀️';
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
             }
 
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-theme');
-                document.querySelector('.theme-toggle').textContent = '☀️';
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('themeBtn').textContent = '🌙';
             }
 
-            createWheel();
+            renderIdeas();
         </script>
     </body>
     </html>
