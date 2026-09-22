@@ -3,7 +3,8 @@ import time
 import json
 from services import AIService
 
-BOT_TOKEN = "f9LHodD0cOL_CTMQchAMtDovrgVanr2B904VleKpipLF22l4DnPeJKVTxWHLpDJi6VgmKRgGvRvRg4-2w8Mp"
+# ТВОЙ РАБОЧИЙ ТОКЕН СООБЩЕСТВА
+BOT_TOKEN = "vk1.a.9BNdW2YFQFAa_3mTuZxhfvJQxp8jOHrlzFYs4K9CrLASaKg8qcpDjVNKVI8TOWYUZ_fMCHmSpN_iZAZLFnyp06mGujmxXp_7k3uKACkO4oxT0yCrr8OLICeT47cCOeyHkk10uffc2dJUNl2w75qrkl15n2DB6ZZh1s8vZemIDeEcitMdI8dxV0DlYUjjB-8MjheTED6Lc1zu-1Diztlq-Q"
 API_VERSION = "5.131"
 
 MODES = {
@@ -31,10 +32,11 @@ def send_message(user_id, text, keyboard=None):
     }
     if keyboard:
         params["keyboard"] = json.dumps(keyboard)
+    
     response = requests.post(url, data=params)
     result = response.json()
     if "error" in result:
-        print(f"Ошибка отправки: {result['error']}")
+        print(f"❌ Ошибка VK API: {result['error']}")
     return result
 
 def create_main_keyboard():
@@ -58,21 +60,26 @@ def create_main_keyboard():
 def handle_message(user_id, text):
     text_lower = text.lower().strip()
     
+    # Проверка на смену режима
     for mode_id, mode_name in MODES.items():
         if mode_name.lower() in text_lower or mode_id in text_lower:
             user_modes[user_id] = mode_id
-            send_message(user_id, f"✅ Выбран режим: {mode_name}\n\nТеперь напиши свой вопрос!")
+            send_message(user_id, f"✅ Выбран режим: {mode_name}\n\nТеперь напиши свой вопрос или задачу!")
             return
     
     mode = user_modes.get(user_id, "general")
     
-    if text_lower in ["режимы", "меню", "помощь", "help", "/start"]:
+    # Вызов меню
+    if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
         keyboard = create_main_keyboard()
-        send_message(user_id, "🎯 Выбери режим:", keyboard=keyboard)
+        send_message(user_id, "🎯 Привет! Я ИИ-наставник Sferum Navigator.\nВыбери режим для работы:", keyboard=keyboard)
         return
     
+    # Отправка запроса в GigaChat
     try:
         response = AIService.process_message(text, mode)
+        
+        # VK имеет лимит 4096 символов на сообщение, разбиваем если нужно
         if len(response) > 4000:
             parts = [response[i:i+4000] for i in range(0, len(response), 4000)]
             for part in parts:
@@ -80,35 +87,36 @@ def handle_message(user_id, text):
         else:
             send_message(user_id, response)
     except Exception as e:
-        send_message(user_id, "❌ Ошибка: " + str(e))
+        send_message(user_id, f"❌ Ошибка ИИ: {str(e)}")
 
 def get_long_poll_server():
     url = "https://api.vk.com/method/messages.getLongPollServer"
     params = {
         "access_token": BOT_TOKEN,
-        "v": API_VERSION
+        "v": API_VERSION,
+        "need_pts": 1
     }
     response = requests.post(url, data=params).json()
     if "response" in response:
         return response["response"]
     else:
-        print(f"Ошибка получения сервера: {response}")
+        print(f"❌ Ошибка получения сервера: {response}")
         return None
 
 def main():
-    print(" Бот Sferum Navigator для MAX запущен!")
+    print("🚀 Бот Sferum Navigator для MAX запущен!")
     print("Ожидаю сообщения...")
     
     server_data = get_long_poll_server()
     if not server_data:
-        print(" Не удалось подключиться. Проверь токен.")
+        print("⛔ Не удалось подключиться. Проверь, включен ли Long Poll в настройках сообщества.")
         return
     
     server = server_data["server"]
     key = server_data["key"]
     ts = server_data["ts"]
     
-    print(f"✅ Подключено к серверу: {server}")
+    print(f"✅ Успешно подключено к серверу Long Poll!")
     
     while True:
         try:
@@ -124,7 +132,7 @@ def main():
                         server = server_data["server"]
                         key = server_data["key"]
                         ts = server_data["ts"]
-                        print("🔄 Переподключение...")
+                        print("🔄 Переподключение к Long Poll...")
                 elif poll_response["failed"] == 3:
                     ts = poll_response["ts"]
                 continue
@@ -136,12 +144,12 @@ def main():
                         user_id = message["from_id"]
                         text = message.get("text", "")
                         if text:
-                            print(f"[{user_id}]: {text}")
+                            print(f"📩 [{user_id}]: {text}")
                             handle_message(user_id, text)
             
             ts = poll_response.get("ts", ts)
         except Exception as e:
-            print(f"❌ Ошибка: {e}")
+            print(f"⚠️ Ошибка цикла: {e}")
             time.sleep(5)
             server_data = get_long_poll_server()
             if server_data:
