@@ -15,12 +15,12 @@ MODES = {
     "motivation": "💪 Мотивация",
     "videos": "🎥 Видеоуроки",
     "journal": "📚 Оценки и МЭШ",
-    "offline": " Оффлайн материалы"
+    "offline": "📱 Оффлайн материалы"
 }
 
 user_modes = {}
 
-def send_message(user_id, text, keyboard=None):
+def send_message(user_id, text):
     url = "https://api.vk.com/method/messages.send"
     params = {
         "access_token": BOT_TOKEN,
@@ -29,32 +29,11 @@ def send_message(user_id, text, keyboard=None):
         "random_id": int(time.time() * 1000),
         "v": API_VERSION
     }
-    if keyboard:
-        params["keyboard"] = json.dumps(keyboard)
-    
     response = requests.post(url, data=params)
     result = response.json()
     if "error" in result:
         print(f"❌ Ошибка VK API: {result['error']}")
     return result
-
-def create_main_keyboard():
-    buttons = []
-    mode_ids = list(MODES.keys())
-    for i in range(0, len(mode_ids), 2):
-        row = []
-        for mode_id in mode_ids[i:i+2]:
-            row.append({
-                "action": {
-                    "type": "text",
-                    "label": MODES[mode_id]
-                }
-            })
-        buttons.append(row)
-    return {
-        "one_time": False,
-        "buttons": buttons
-    }
 
 def handle_message(user_id, text):
     text_lower = text.lower().strip()
@@ -70,8 +49,11 @@ def handle_message(user_id, text):
     
     # Вызов меню
     if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
-        keyboard = create_main_keyboard()
-        send_message(user_id, "🎯 Привет! Я ИИ-наставник Sferum Navigator.\nВыбери режим:", keyboard=keyboard)
+        menu_text = "🎯 Привет! Я ИИ-наставник Sferum Navigator.\n\nВыбери режим, написав его название:\n\n"
+        for mode_id, mode_name in MODES.items():
+            menu_text += f"• {mode_name} (напиши: {mode_id})\n"
+        menu_text += "\nИли просто задай вопрос — я отвечу в текущем режиме."
+        send_message(user_id, menu_text)
         return
     
     # Отправка в GigaChat
@@ -101,12 +83,12 @@ def get_long_poll_server():
         return None
 
 def main():
-    print(" Бот Sferum Navigator для MAX запущен!")
+    print("🚀 Бот Sferum Navigator для MAX запущен!")
     print("Ожидаю сообщения...")
     
     server_data = get_long_poll_server()
     if not server_data:
-        print(" Не удалось подключиться.")
+        print("⛔ Не удалось подключиться.")
         return
     
     server = server_data["server"]
@@ -136,26 +118,16 @@ def main():
             
             if "updates" in poll_response:
                 for update in poll_response["updates"]:
-                    # update — это СПИСОК, где:
-                    # update[0] = тип события (4 = новое сообщение)
-                    # update[1] = флаги
-                    # update[2] = peer_id (или user_id для личных)
-                    # update[3] = timestamp
-                    # update[4] = текст сообщения
-                    
                     if not isinstance(update, list):
                         continue
                     
                     event_type = update[0]
                     
-                    # Тип 4 = новое входящее сообщение
                     if event_type == 4:
                         flags = update[1]
                         peer_id = update[3]
                         
-                        # Проверяем, что это входящее сообщение (флаг 2)
                         if flags & 2:
-                            # Текст сообщения может быть в update[5] или в update[6]
                             text = ""
                             if len(update) > 5:
                                 text = update[5] if isinstance(update[5], str) else ""
