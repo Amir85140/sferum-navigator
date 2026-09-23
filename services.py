@@ -48,20 +48,26 @@ def _get_token() -> str:
     if _token_cache["token"] and now < _token_cache["expires_at"]:
         return _token_cache["token"]
     print("🔑 Получение нового токена GigaChat...")
-    response = requests.post(
-        url="https://ngw.devices.sberbank.ru:9443/api/v2/oauth",
-        auth=HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET),
-        headers={"Content-Type": "application/x-www-form-urlencoded", "RqUID": "00000000-0000-0000-0000-000000000000"},
-        data="scope=GIGACHAT_API_PERS",
-        verify=False,
-        timeout=10
-    )
-    response.raise_for_status()
-    data = response.json()
-    _token_cache["token"] = data["access_token"]
-    _token_cache["expires_at"] = now + 1700
-    print("✅ Токен получен и закэширован")
-    return _token_cache["token"]
+    for attempt in range(3):
+        try:
+            response = requests.post(
+                url="https://ngw.devices.sberbank.ru:9443/api/v2/oauth",
+                auth=HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET),
+                headers={"Content-Type": "application/x-www-form-urlencoded", "RqUID": "00000000-0000-0000-0000-000000000000"},
+                data="scope=GIGACHAT_API_PERS",
+                verify=False,
+                timeout=15
+            )
+            response.raise_for_status()
+            data = response.json()
+            _token_cache["token"] = data["access_token"]
+            _token_cache["expires_at"] = now + 1700
+            print("✅ Токен получен и закэширован")
+            return _token_cache["token"]
+        except Exception as e:
+            print(f"⚠️ Попытка {attempt+1} получения токена не удалась: {e}")
+            time.sleep(2)
+    raise Exception("Не удалось получить токен GigaChat после 3 попыток")
 
 
 def detect_mode(text: str) -> str:
@@ -73,77 +79,80 @@ def detect_mode(text: str) -> str:
             scores[mode_id] = score
     if scores:
         best_mode = max(scores, key=scores.get)
-        print(f"🎯 Режим определён по ключевым словам: {best_mode}")
+        print(f" Режим определён по ключевым словам: {best_mode}")
         return best_mode
-    print("🤖 Определяю режим через ИИ...")
-    try:
-        token = _get_token()
-        mode_list = ", ".join(MODE_KEYWORDS.keys())
-        response = requests.post(
-            url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-            json={
-                "model": "GigaChat:latest",
-                "messages": [
-                    {"role": "system", "content": f"Ты классификатор. Определи режим по тексту. Доступные режимы: {mode_list}. Ответь ТОЛЬКО одним словом — ID режима. Если не подходит ни один — ответь 'general'."},
-                    {"role": "user", "content": text}
-                ],
-                "max_tokens": 10,
-                "temperature": 0.1
-            },
-            verify=False,
-            timeout=15
-        )
-        if response.status_code == 200:
-            result = response.json()
-            detected = result.get('choices', [{}])[0].get('message', {}).get('content', '').strip().lower()
-            if detected in MODE_KEYWORDS or detected == "general":
-                print(f"🎯 Режим определён через ИИ: {detected}")
-                return detected
-    except Exception as e:
-        print(f"️ Не удалось определить режим через ИИ: {e}")
-    print("🎯 Режим по умолчанию: general")
+    print(" Режим по умолчанию: general")
     return "general"
 
 
 class AIService:
     @staticmethod
     def process_message(message: str, feature_id: str = "general") -> str:
-        try:
-            print(f" Запрос к GigaChat (режим: {feature_id}): '{message[:50]}...'")
-            token = _get_token()
-            system_prompt = PROMPTS.get(feature_id, PROMPTS["general"])
-            response = requests.post(
-                url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
-                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-                json={
-                    "model": "GigaChat:latest",
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": message}
-                    ],
-                    "max_tokens": 300,
-                    "temperature": 0.7
-                },
-                verify=False,
-                timeout=20
-            )
-            if response.status_code != 200:
-                print(f"❌ GigaChat ошибка {response.status_code}: {response.text[:200]}")
-                return "Извини, ИИ сейчас недоступен. Попробуй через минуту."
-            result = response.json()
-            if isinstance(result, dict) and 'choices' in result and len(result['choices']) > 0:
-                content = result['choices'][0].get('message', {}).get('content', '')
-                if content:
-                    print(f"✅ Ответ получен ({len(content)} символов)")
-                    return content
-            return "Извини, не удалось получить ответ от ИИ."
-        except requests.exceptions.Timeout:
-            print("❌ Таймаут GigaChat")
-            return "Извини, ИИ не ответил вовремя. Попробуй ещё раз."
-        except Exception as e:
-            print(f"❌ Ошибка GigaChat: {e}")
-            return f"Извини, произошла ошибка: {str(e)}"
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                print(f"🤖 Запрос к GigaChat (попытка {attempt+1}/{max_retries}, режим: {feature_id})")
+                token = _get_token()
+                system_prompt = PROMPTS.get(feature_id, PROMPTS["general"])
+                
+                response = requests.post(
+                    url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                    json={
+                        "model": "GigaChat:latest",
+                        "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": message}
+                        ],
+                        "max_tokens": 500,
+                        "temperature": 0.7
+                    },
+                    verify=False,
+                    timeout=30
+                )
+                
+                if response.status_code != 200:
+                    print(f"️ GigaChat вернул {response.status_code}, пробуем ещё раз...")
+                    if attempt < max_retries - 1:
+                        time.sleep(2)
+                        continue
+                    print(f"❌ GigaChat ошибка {response.status_code} после {max_retries} попыток")
+                    return "Извини, ИИ сейчас недоступен. Попробуй через минуту."
+                
+                result = response.json()
+                
+                if isinstance(result, dict) and 'choices' in result and len(result['choices']) > 0:
+                    choice = result['choices'][0]
+                    if isinstance(choice, dict) and 'message' in choice:
+                        msg = choice['message']
+                        if isinstance(msg, dict) and 'content' in msg:
+                            content = msg['content']
+                            if content:
+                                print(f"✅ Ответ получен ({len(content)} символов)")
+                                return content
+                
+                print(f"⚠️ Неожиданный формат ответа: {str(result)[:200]}")
+                if attempt < max_retries - 1:
+                    time.sleep(1)
+                    continue
+                return "Извини, не удалось получить ответ от ИИ."
+                
+            except requests.exceptions.Timeout:
+                print(f"⚠️ Таймаут GigaChat (попытка {attempt+1})")
+                if attempt < max_retries - 1:
+                    time.sleep(2)
+                    continue
+                print("❌ Таймаут GigaChat после всех попыток")
+                return "Извини, ИИ не ответил вовремя. Попробуй ещё раз."
+            except Exception as e:
+                print(f"⚠️ Ошибка GigaChat (попытка {attempt+1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(2)
+                    continue
+                print(f"❌ Ошибка GigaChat после всех попыток: {e}")
+                return f"Извини, произошла ошибка: {str(e)}"
+        
+        return "Извини, ИИ временно недоступен. Попробуй позже."
 
 
 class PlannerService:
