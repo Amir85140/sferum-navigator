@@ -13,11 +13,11 @@ CLIENT_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
 _token_cache = {"token": None, "expires_at": 0}
 
 PROMPTS = {
-    "planner": "Ты — умный планировщик подготовки к экзаменам. Сначала спроси: к чему готовишься, в какие дни, сколько времени, какие предметы. Потом составь расписание. Отвечай структурированно, с эмодзи. На русском.",
-    "homework": "Ты — ИИ-наставник, помогающий с домашкой методом Сократа. НИКОГДА не давай готовый ответ. Задавай наводящие вопросы. На русском.",
-    "explain": "Ты — учитель, объясняющий сложные темы простым языком. Используй аналогии, примеры, разбивай на шаги. На русском.",
+    "planner": "Ты — умный планировщик подготовки к экзаменам. Помни весь разговор с учеником и учитывай то, что он уже рассказал. Отвечай структурированно, с эмодзи. На русском.",
+    "homework": "Ты — ИИ-наставник, помогающий с домашкой методом Сократа. НИКОГДА не давай готовый ответ. Задавай наводящие вопросы. Помни контекст разговора. На русском.",
+    "explain": "Ты — учитель, объясняющий сложные темы простым языком. Помни, о чём вы уже говорили, и учитывай это. На русском.",
     "tests": "Ты — генератор тестов. Создай тест из 5 вопросов с вариантами ответов. В конце напиши правильные ответы. На русском.",
-    "motivation": "Ты — дружелюбный мотиватор для школьников. Поддерживай, хвали, давай советы. На русском.",
+    "motivation": "Ты — дружелюбный мотиватор для школьников. Помни, что ученик рассказывал о себе, и поддерживай его. На русском.",
     
     "videos": """Ты — помощник по поиску видеоуроков. Дай ссылки на поиск видео по теме ученика.
 
@@ -26,19 +26,13 @@ PROMPTS = {
 - Поиск на VK Видео: https://vk.com/video?q=ТЕМА
 - Поиск на YouTube: https://www.youtube.com/results?search_query=ТЕМА
 
-Замени ТЕМА на предмет/тему ученика (например, "квадратные уравнения 9 класс").
+Замени ТЕМА на предмет/тему ученика.
 
 Формат ответа:
 🎥 Видеоуроки по теме "{тема}":
-
 1. **Поиск на RuTube**: https://rutube.ru/search/?q=...
 2. **Поиск на VK Видео**: https://vk.com/video?q=...
 3. **Поиск на YouTube**: https://www.youtube.com/results?search_query=...
-
-💡 Популярные образовательные каналы:
-• Фоксфорд (фоксфорд.ру) — уроки по всем предметам
-• Математика на канале Бориса Трушина
-• Физика на канале "Постнаука"
 
 На русском языке.""",
 
@@ -59,22 +53,17 @@ PROMPTS = {
 - Учи.ру: https://uchi.ru
 - Библиотека МЭШ: https://uchebnik.mos.ru
 - Интернетурок: https://interneturok.ru
-- Незнайка.инфо (для начальной школы): https://neznaika.info
 
 Формат ответа:
 📚 Материалы для обучения по теме "{тема}":
-
 1. **{Название ресурса}**: {ссылка}
-   📝 {краткое описание, что там есть по теме}
-
-2. **{Название ресурса}**: {ссылка}
-   📝 {описание}
+   📝 {краткое описание}
 
 На русском языке.""",
 
     "export": "Ты — помощник по экспорту данных. На русском.",
-    "photo": "Ты — ИИ-наставник, который анализирует фотографии заданий, тетрадей, учебников и расписаний. Внимательно рассмотри изображение: прочитай текст, разбери задачу или таблицу. Затем помоги ученику: объясни, реши, подскажи или дай план. Отвечай на русском.",
-    "general": "Ты — дружелюбный ИИ-наставник для школьников. Помогай с учёбой. На русском."
+    "photo": "Ты — ИИ-наставник, который анализирует фотографии заданий, тетрадей, учебников и расписаний. Внимательно рассмотри изображение: прочитай текст, разбери задачу или таблицу. Затем помоги ученику. Отвечай на русском.",
+    "general": "Ты — дружелюбный ИИ-наставник для школьников. Помни весь контекст разговора и учитывай его в ответах. Помогай с учёбой. На русском."
 }
 
 MODE_KEYWORDS = {
@@ -128,30 +117,32 @@ def detect_mode(text: str) -> str:
         best_mode = max(scores, key=scores.get)
         print(f"🎯 Режим определён по ключевым словам: {best_mode}")
         return best_mode
-    print("🎯 Режим по умолчанию: general")
     return "general"
 
 
 class AIService:
     @staticmethod
-    def process_message(message: str, feature_id: str = "general") -> str:
+    def process_message(message: str, feature_id: str = "general", history: list = None) -> str:
         max_retries = 2
         for attempt in range(max_retries):
             try:
-                print(f"🤖 Запрос к GigaChat (попытка {attempt+1}/{max_retries}, режим: {feature_id})")
+                print(f"🤖 Запрос к GigaChat (попытка {attempt+1}/{max_retries}, режим: {feature_id}, история: {len(history) if history else 0} сообщ.)")
                 token = _get_token()
                 system_prompt = PROMPTS.get(feature_id, PROMPTS["general"])
+                
+                # Собираем сообщения: системный промпт + история + текущий вопрос
+                messages = [{"role": "system", "content": system_prompt}]
+                if history:
+                    messages.extend(history)
+                messages.append({"role": "user", "content": message})
                 
                 response = requests.post(
                     url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
                     json={
                         "model": "GigaChat:latest",
-                        "messages": [
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": message}
-                        ],
-                        "max_tokens": 500,
+                        "messages": messages,
+                        "max_tokens": 600,
                         "temperature": 0.7
                     },
                     verify=False,
@@ -183,7 +174,6 @@ class AIService:
                 return "Извини, не удалось получить ответ от ИИ."
                 
             except requests.exceptions.Timeout:
-                print(f"⚠️ Таймаут GigaChat (попытка {attempt+1})")
                 if attempt < max_retries - 1:
                     time.sleep(2)
                     continue
@@ -198,8 +188,8 @@ class AIService:
         return "Извини, ИИ временно недоступен. Попробуй позже."
 
     @staticmethod
-    def process_image(image_bytes: bytes, question: str = "") -> str:
-        """Отправляет фото в GigaChat (мультимодальный запрос) и возвращает ответ"""
+    def process_image(image_bytes: bytes, question: str = "", history: list = None) -> str:
+        """Отправляет фото в GigaChat (мультимодальный запрос) с учётом истории"""
         max_retries = 2
         for attempt in range(max_retries):
             try:
@@ -212,20 +202,22 @@ class AIService:
                 user_text = question if question.strip() else "Рассмотри это изображение. Прочитай текст, разбери задачу и помоги ученику с учёбой."
                 system_prompt = PROMPTS.get("photo")
                 
+                messages = [{"role": "system", "content": system_prompt}]
+                if history:
+                    messages.extend(history)
+                
                 user_content = [
                     {"type": "text", "text": user_text},
                     {"type": "image_url", "image_url": {"url": img_data_url}}
                 ]
+                messages.append({"role": "user", "content": user_content})
                 
                 response = requests.post(
                     url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
                     json={
                         "model": "GigaChat:latest",
-                        "messages": [
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": user_content}
-                        ],
+                        "messages": messages,
                         "max_tokens": 600,
                         "temperature": 0.5
                     },
