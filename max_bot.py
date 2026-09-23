@@ -14,17 +14,17 @@ API_VERSION = "5.131"
 MODES = {
     "general": "🤖 Общий",
     "planner": "📅 Подготовка к экзаменам",
-    "homework": "📝 Помощь с домашкой",
+    "homework": " Помощь с домашкой",
     "explain": "🎓 Объяснение темы",
     "tests": "✅ Проверка знаний",
     "motivation": "💪 Мотивация",
     "videos": "🎥 Видеоуроки",
     "journal": "📚 Оценки и МЭШ",
-    "offline": "📱 Оффлайн материалы"
+    "offline": " Оффлайн материалы"
 }
 
 def send_message(peer_id, text):
-    log(f"📤 Отправка ответа пользователю {peer_id}...")
+    log(f" Отправка ответа пользователю {peer_id}...")
     url = "https://api.vk.com/method/messages.send"
     params = {
         "access_token": BOT_TOKEN,
@@ -49,7 +49,7 @@ def handle_message(peer_id, text):
     
     # Меню
     if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
-        menu = "🎯 Привет! Я сам определю режим по твоему вопросу.\n\nПросто напиши, что тебе нужно:\n"
+        menu = " Привет! Я сам определю режим по твоему вопросу.\n\nПросто напиши, что тебе нужно:\n"
         menu += "• 'Составь план подготовки к ЕГЭ по математике'\n"
         menu += "• 'Объясни фотосинтез простыми словами'\n"
         menu += "• 'Дай ссылки на видеоуроки по физике'\n"
@@ -58,12 +58,16 @@ def handle_message(peer_id, text):
         return
     
     # Автоопределение режима
-    mode = detect_mode(text)
-    log(f"🎯 ИИ выбрал режим: {MODES.get(mode, 'Общий')}")
-    
-    # Запрос к GigaChat
     try:
-        log("🤖 Запрос к GigaChat...")
+        mode = detect_mode(text)
+        log(f"🎯 ИИ выбрал режим: {MODES.get(mode, 'Общий')}")
+    except Exception as e:
+        log(f"⚠️ Ошибка определения режима: {e}, используем general")
+        mode = "general"
+    
+    # Запрос к GigaChat с гарантированным ответом
+    try:
+        log(" Запрос к GigaChat...")
         response = AIService.process_message(text, mode)
         log(f"✅ Получен ответ от ИИ ({len(response)} симв.)")
         
@@ -74,8 +78,9 @@ def handle_message(peer_id, text):
         else:
             send_message(peer_id, response)
     except Exception as e:
-        log(f"❌ Ошибка ИИ: {e}")
-        send_message(peer_id, f"Извини, произошла ошибка при обработке: {e}")
+        log(f"❌ Критическая ошибка ИИ: {e}")
+        # Fallback — всегда отвечаем пользователю
+        send_message(peer_id, "Извини, произошла ошибка при обработке запроса. Попробуй ещё раз через минуту.")
 
 def get_long_poll_server():
     url = "https://api.vk.com/method/messages.getLongPollServer"
