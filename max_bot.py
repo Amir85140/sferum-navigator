@@ -2,8 +2,8 @@ import requests
 import time
 import json
 import sys
+from services import AIService, detect_mode
 
-# Функция для гарантированного вывода в терминал
 def log(msg):
     print(msg)
     sys.stdout.flush()
@@ -11,34 +11,92 @@ def log(msg):
 BOT_TOKEN = "vk1.a.9BNdW2YFQFAa_3mTuZxhfvJQxp8jOHrlzFYs4K9CrLASaKg8qcpDjVNKVI8TOWYUZ_fMCHmSpN_iZAZLFnyp06mGujmxXp_7k3uKACkO4oxT0yCrr8OLICeT47cCOeyHkk10uffc2dJUNl2w75qrkl15n2DB6ZZh1s8vZemIDeEcitMdI8dxV0DlYUjjB-8MjheTED6Lc1zu-1Diztlq-Q"
 API_VERSION = "5.131"
 
+MODES = {
+    "general": "🤖 Общий",
+    "planner": "📅 Подготовка к экзаменам",
+    "homework": "📝 Помощь с домашкой",
+    "explain": "🎓 Объяснение темы",
+    "tests": "✅ Проверка знаний",
+    "motivation": "💪 Мотивация",
+    "videos": "🎥 Видеоуроки",
+    "journal": "📚 Оценки и МЭШ",
+    "offline": "📱 Оффлайн материалы"
+}
+
+def send_message(peer_id, text):
+    log(f"📤 Отправка ответа пользователю {peer_id}...")
+    url = "https://api.vk.com/method/messages.send"
+    params = {
+        "access_token": BOT_TOKEN,
+        "peer_id": peer_id,
+        "message": text,
+        "random_id": int(time.time() * 1000),
+        "v": API_VERSION
+    }
+    try:
+        resp = requests.post(url, data=params, timeout=10).json()
+        if "error" in resp:
+            log(f"❌ Ошибка VK: {resp['error']}")
+        else:
+            log("✅ Ответ успешно доставлен!")
+    except Exception as e:
+        log(f"⚠️ Ошибка сети VK: {e}")
+
+def handle_message(peer_id, text):
+    log(f"\n📩 ПОЛУЧЕНО от {peer_id}: '{text}'")
+    text = str(text).strip()
+    text_lower = text.lower()
+    
+    # Меню
+    if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
+        menu = "🎯 Привет! Я сам определю режим по твоему вопросу.\n\nПросто напиши, что тебе нужно:\n"
+        menu += "• 'Составь план подготовки к ЕГЭ по математике'\n"
+        menu += "• 'Объясни фотосинтез простыми словами'\n"
+        menu += "• 'Дай ссылки на видеоуроки по физике'\n"
+        menu += "• 'Я устал и не хочу учиться'"
+        send_message(peer_id, menu)
+        return
+    
+    # Автоопределение режима
+    mode = detect_mode(text)
+    log(f"🎯 ИИ выбрал режим: {MODES.get(mode, 'Общий')}")
+    
+    # Запрос к GigaChat
+    try:
+        log("🤖 Запрос к GigaChat...")
+        response = AIService.process_message(text, mode)
+        log(f"✅ Получен ответ от ИИ ({len(response)} симв.)")
+        
+        # Разбиваем длинные сообщения (лимит VK 4096)
+        if len(response) > 4000:
+            for i in range(0, len(response), 4000):
+                send_message(peer_id, response[i:i+4000])
+        else:
+            send_message(peer_id, response)
+    except Exception as e:
+        log(f"❌ Ошибка ИИ: {e}")
+        send_message(peer_id, f"Извини, произошла ошибка при обработке: {e}")
+
 def get_long_poll_server():
-    log("🔄 [Диагностика] Делаем запрос к VK за Long Poll сервером...")
     url = "https://api.vk.com/method/messages.getLongPollServer"
     params = {"access_token": BOT_TOKEN, "v": API_VERSION, "lp_version": "3"}
     try:
-        resp = requests.post(url, data=params, timeout=10).json()
-        log(f"📡 [Диагностика] Сырой ответ от VK: {resp}")
-        return resp.get("response")
+        return requests.post(url, data=params, timeout=10).json().get("response")
     except Exception as e:
-        log(f"❌ [Диагностика] Критическая ошибка запроса: {e}")
+        log(f"❌ Ошибка получения сервера: {e}")
         return None
 
 def main():
-    log("🚀 [1/4] Скрипт max_bot.py успешно стартовал!")
-    log("🚀 [2/4] Пытаемся подключиться к Long Poll...")
-    
+    log("🚀 БОТ Sferum Navigator с GigaChat запущен!")
     server_data = get_long_poll_server()
-    
     if not server_data:
-        log("⛔ [3/4] ОШИБКА: Не удалось получить данные сервера. Бот остановлен.")
+        log("⛔ ОШИБКА: Не удалось подключиться к Long Poll.")
         return
     
     server = server_data.get("server")
     key = server_data.get("key")
     ts = server_data.get("ts")
-    
-    log(f"✅ [3/4] Long Poll подключен! (server={server}, ts={ts})")
-    log("🟢 [4/4] БОТ РАБОТАЕТ И ЖДЕТ СООБЩЕНИЙ. Напиши ему что-нибудь в MAX/VK.\n")
+    log(f"✅ Long Poll подключен! Ожидаю сообщения...\n")
     
     while True:
         try:
@@ -61,17 +119,8 @@ def main():
                         flags = update[1]
                         peer_id = update[3]
                         text = str(update[5]) if update[5] else ""
-                        
                         if (flags & 2) and text:
-                            log(f"📩 ПОЛУЧЕНО СООБЩЕНИЕ от {peer_id}: '{text}'")
-                            # Здесь пока просто эхо-ответ для проверки связи
-                            requests.post("https://api.vk.com/method/messages.send", data={
-                                "access_token": BOT_TOKEN,
-                                "peer_id": peer_id,
-                                "message": f"Эхо: я получил твое сообщение '{text}'",
-                                "random_id": int(time.time() * 1000),
-                                "v": API_VERSION
-                            })
+                            handle_message(peer_id, text)
             
             ts = poll_resp.get("ts", ts)
         except Exception as e:
@@ -82,4 +131,4 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        log(f"💥 КРИТИЧЕСКИЙ СБОЙ ПРИ ЗАПУСКЕ: {e}")
+        log(f"💥 КРИТИЧЕСКИЙ СБОЙ: {e}")
