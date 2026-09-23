@@ -1,128 +1,180 @@
 import requests
+from requests.auth import HTTPBasicAuth
+from typing import Dict
+import urllib3
 import time
-import json
-from services import AIService, detect_mode
 
-BOT_TOKEN = "vk1.a.9BNdW2YFQFAa_3mTuZxhfvJQxp8jOHrlzFYs4K9CrLASaKg8qcpDjVNKVI8TOWYUZ_fMCHmSpN_iZAZLFnyp06mGujmxXp_7k3uKACkO4oxT0yCrr8OLICeT47cCOeyHkk10uffc2dJUNl2w75qrkl15n2DB6ZZh1s8vZemIDeEcitMdI8dxV0DlYUjjB-8MjheTED6Lc1zu-1Diztlq-Q"
-API_VERSION = "5.131"
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-MODES = {
-    "general": "🤖 Общий",
-    "planner": "📅 Подготовка к экзаменам",
-    "homework": "📝 Помощь с домашкой",
-    "explain": "🎓 Объяснение темы",
-    "tests": "✅ Проверка знаний",
-    "motivation": "💪 Мотивация",
-    "videos": "🎥 Видеоуроки",
-    "journal": "📚 Оценки и МЭШ",
-    "offline": "📱 Оффлайн материалы"
+CLIENT_ID = "01a0bafa-206f-7e07-a2e7-df9e0acea285"
+CLIENT_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
+
+# Кэш токена (живёт ~30 минут)
+_token_cache = {"token": None, "expires_at": 0}
+
+PROMPTS = {
+    "planner": "Ты — умный планировщик подготовки к экзаменам. Сначала спроси: к чему готовишься, в какие дни, сколько времени, какие предметы. Потом составь расписание. Отвечай структурированно, с эмодзи. На русском.",
+    "homework": "Ты — ИИ-наставник, помогающий с домашкой методом Сократа. НИКОГДА не давай готовый ответ. Задавай наводящие вопросы. На русском.",
+    "explain": "Ты — учитель, объясняющий сложные темы простым языком. Используй аналогии, примеры, разбивай на шаги. На русском.",
+    "tests": "Ты — генератор тестов. Создай тест из 5 вопросов с вариантами ответов. В конце напиши правильные ответы. На русском.",
+    "motivation": "Ты — дружелюбный мотиватор для школьников. Поддерживай, хвали, давай советы. На русском.",
+    "videos": "Ты — помощник по поиску видеоуроков. Дай ссылки на RuTube или VK Видео по теме. Формат: 🎥 Название  Ссылка 📝 Описание. На русском.",
+    "progress": "Ты — аналитик учебного прогресса. На русском.",
+    "deadlines": "Ты — помощник по дедлайнам. На русском.",
+    "adaptive": "Ты — адаптивный наставник. На русском.",
+    "group": "Ты — организатор групповой работы. На русском.",
+    "journal": "Ты — помощник по интеграции с МЭШ. Анализируй оценки. На русском.",
+    "gamification": "Ты — система геймификации. На русском.",
+    "personalization": "Ты — персональный рекомендатель. На русском.",
+    "offline": "Ты — помощник по оффлайн-обучению. Дай ссылки на материалы для скачивания. На русском.",
+    "export": "Ты — помощник по экспорту данных. На русском.",
+    "general": "Ты — дружелюбный ИИ-наставник для школьников. Помогай с учёбой. На русском."
 }
 
-user_modes = {}
+MODE_KEYWORDS = {
+    "planner": ["план", "расписан", "подготов", "экзамен", "огэ", "егэ", "контрольн", "сколько времени", "когда учить"],
+    "homework": ["домашк", "дз", "задач", "упражнен", "решить", "помоги с домаш"],
+    "explain": ["объясни", "что такое", "как работает", "расскажи про", "почему", "тема"],
+    "tests": ["тест", "проверь", "викторин", "квиз", "вопрос"],
+    "motivation": ["устал", "не хочу", "лень", "мотивац", "скучно", "тяжело", "помоги"],
+    "videos": ["видео", "урок", "посмотреть", "youtube", "rutube", "vk видео", "ссылк"],
+    "journal": ["оценк", "журнал", "мэш", "четверт", "полугод", "год", "средний балл"],
+    "offline": ["оффлайн", "скачать", "без интернета", "материал", "pdf"],
+    "gamification": ["достижен", "уровен", "балл", "ачивк", "рейтинг"],
+}
 
-def send_message(peer_id, text):
-    print(f"📤 Отправка в VK (peer_id={peer_id}): {text[:80]}...")
-    url = "https://api.vk.com/method/messages.send"
-    params = {
-        "access_token": BOT_TOKEN,
-        "peer_id": peer_id,
-        "message": text,
-        "random_id": int(time.time() * 1000),
-        "v": API_VERSION
-    }
-    try:
-        response = requests.post(url, data=params, timeout=10)
-        result = response.json()
-        if "error" in result:
-            print(f"❌ Ошибка VK: {result['error']}")
-        else:
-            print(f"✅ Успешно отправлено!")
-        return result
-    except Exception as e:
-        print(f"️ Ошибка сети VK: {e}")
 
-def handle_message(peer_id, text):
-    print(f"\n{'='*50}")
-    print(f"📩 Получено от {peer_id}: '{text}'")
+def _get_token() -> str:
+    now = time.time()
+    if _token_cache["token"] and now < _token_cache["expires_at"]:
+        return _token_cache["token"]
     
-    text = str(text).strip()
+    print("🔑 Получение нового токена GigaChat...")
+    response = requests.post(
+        url="https://ngw.devices.sberbank.ru:9443/api/v2/oauth",
+        auth=HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET),
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "RqUID": "00000000-0000-0000-0000-000000000000"
+        },
+        data="scope=GIGACHAT_API_PERS",
+        verify=False,
+        timeout=10
+    )
+    response.raise_for_status()
+    data = response.json()
+    _token_cache["token"] = data["access_token"]
+    _token_cache["expires_at"] = now + 1700
+    print("✅ Токен получен и закэширован")
+    return _token_cache["token"]
+
+
+def detect_mode(text: str) -> str:
     text_lower = text.lower()
     
-    # Меню
-    if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
-        menu = "🎯 Привет! Я сам определю режим по твоему вопросу.\n\nДоступные режимы:\n\n"
-        for mid, mname in MODES.items():
-            menu += f"• {mname}\n"
-        menu += "\nПросто напиши вопрос — я пойму, что нужно!"
-        send_message(peer_id, menu)
-        return
+    scores = {}
+    for mode_id, keywords in MODE_KEYWORDS.items():
+        score = sum(1 for kw in keywords if kw in text_lower)
+        if score > 0:
+            scores[mode_id] = score
     
-    # Автоопределение режима
-    mode = detect_mode(text)
-    print(f" Выбран режим: {MODES.get(mode, 'Общий')}")
+    if scores:
+        best_mode = max(scores, key=scores.get)
+        print(f" Режим определён по ключевым словам: {best_mode}")
+        return best_mode
     
-    # Запрос к ИИ
+    print(" Определяю режим через ИИ...")
     try:
-        response = AIService.process_message(text, mode)
-        print(f"✅ Ответ: {response[:100]}...")
+        token = _get_token()
+        mode_list = ", ".join(MODE_KEYWORDS.keys())
         
-        if len(response) > 4000:
-            for i in range(0, len(response), 4000):
-                send_message(peer_id, response[i:i+4000])
-        else:
-            send_message(peer_id, response)
+        response = requests.post(
+            url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "GigaChat:latest",
+                "messages": [
+                    {"role": "system", "content": f"Ты классификатор. Определи режим по тексту пользователя. Доступные режимы: {mode_list}. Ответь ТОЛЬКО одним словом — ID режима. Если не подходит ни один — ответь 'general'."},
+                    {"role": "user", "content": text}
+                ],
+                "max_tokens": 10,
+                "temperature": 0.1
+            },
+            verify=False,
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            detected = result.get('choices', [{}])[0].get('message', {}).get('content', '').strip().lower()
+            if detected in MODE_KEYWORDS or detected == "general":
+                print(f"🎯 Режим определён через ИИ: {detected}")
+                return detected
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
-        send_message(peer_id, f"Ошибка: {e}")
-
-def get_long_poll_server():
-    url = "https://api.vk.com/method/messages.getLongPollServer"
-    params = {"access_token": BOT_TOKEN, "v": API_VERSION, "lp_version": "3"}
-    resp = requests.post(url, data=params).json()
-    return resp.get("response")
-
-def main():
-    print("🚀 Бот запущен! Ожидаю сообщения...")
-    server_data = get_long_poll_server()
-    if not server_data:
-        print("⛔ Ошибка подключения к Long Poll!")
-        return
+        print(f"⚠️ Не удалось определить режим через ИИ: {e}")
     
-    server = server_data["server"]
-    key = server_data["key"]
-    ts = server_data["ts"]
-    print(f"✅ Long Poll подключен! ts={ts}\n")
-    
-    while True:
+    print("🎯 Режим по умолчанию: general")
+    return "general"
+
+
+class AIService:
+    @staticmethod
+    def process_message(message: str, feature_id: str = "general") -> str:
         try:
-            poll_url = f"https://{server}?act=a_check&key={key}&ts={ts}&wait=25&mode=2&version=3"
-            poll_resp = requests.get(poll_url, timeout=30).json()
+            print(f"🤖 Запрос к GigaChat (режим: {feature_id}): '{message[:50]}...'")
             
-            if "failed" in poll_resp:
-                if poll_resp["failed"] == 1: ts = poll_resp["ts"]
-                elif poll_resp["failed"] == 2:
-                    server_data = get_long_poll_server()
-                    if server_data:
-                        server, key, ts = server_data["server"], server_data["key"], server_data["ts"]
-                        print("🔄 Переподключение...")
-                elif poll_resp["failed"] == 3: ts = poll_resp["ts"]
-                continue
-            
-            if "updates" in poll_resp:
-                for update in poll_resp["updates"]:
-                    if not isinstance(update, list) or len(update) < 6:
-                        continue
-                    if update[0] == 4:  # Новое сообщение
-                        flags = update[1]
-                        peer_id = update[3]
-                        text = str(update[5]) if update[5] else ""
-                        if (flags & 2) and text:
-                            handle_message(peer_id, text)
-            
-            ts = poll_resp.get("ts", ts)
-        except Exception as e:
-            print(f"⚠️ Ошибка цикла: {e}")
-            time.sleep(5)
+            token = _get_token()
+            system_prompt = PROMPTS.get(feature_id, PROMPTS["general"])
 
-if __name__ == "__main__":
-    main()
+            response = requests.post(
+                url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "GigaChat:latest",
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": message}
+                    ],
+                    "max_tokens": 300,
+                    "temperature": 0.7
+                },
+                verify=False,
+                timeout=20
+            )
+            
+            if response.status_code != 200:
+                print(f"❌ GigaChat ошибка {response.status_code}: {response.text[:200]}")
+                return "Извини, ИИ сейчас недоступен. Попробуй через минуту."
+            
+            result = response.json()
+            
+            if isinstance(result, dict) and 'choices' in result and len(result['choices']) > 0:
+                content = result['choices'][0].get('message', {}).get('content', '')
+                if content:
+                    print(f"✅ Ответ получен ({len(content)} символов)")
+                    return content
+            
+            return "Извини, не удалось получить ответ от ИИ."
+            
+        except requests.exceptions.Timeout:
+            print("❌ Таймаут GigaChat")
+            return "Извини, ИИ не ответил вовремя. Попробуй ещё раз."
+        except Exception as e:
+            print(f"❌ Ошибка GigaChat: {e}")
+            return f"Извини, произошла ошибка: {str(e)}"
+
+
+class PlannerService:
+    @staticmethod
+    def generate_plan(available_minutes: int, subjects: list) -> Dict:
+        if available_minutes <= 0:
+            return {"error": "Время не может быть отрицательным"}
+        time_per_subject = available_minutes // len(subjects)
+        schedule = [{"subject": subj, "time_allocated": f"{time_per_subject} мин", "advice": "Начни с теории, потом реши 2 задачи."} for subj in subjects]
+        return {"total_time": available_minutes, "schedule": schedule}
