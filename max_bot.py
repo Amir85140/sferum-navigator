@@ -6,6 +6,9 @@ from services import AIService, detect_mode
 GROUP_ID = 241621560
 BOT_TOKEN = "vk1.a.9BNdW2YFQFAa_3mTuZxhfvJQxp8jOHrlzFYs4K9CrLASaKg8qcpDjVNKVI8TOWYUZ_fMCHmSpN_iZAZLFnyp06mGujmxXp_7k3uKACkO4oxT0yCrr8OLICeT47cCOeyHkk10uffc2dJUNl2w75qrkl15n2DB6ZZh1s8vZemIDeEcitMdI8dxV0DlYUjjB-8MjheTED6Lc1zu-1Diztlq-Q"
 
+# Множество для хранения ID собственных сообщений бота (защита от цикла)
+sent_message_ids = set()
+
 MODES = {
     "general": "🤖 Общий",
     "planner": "📅 Подготовка к экзаменам",
@@ -22,16 +25,22 @@ def log(msg):
     print(msg, flush=True)
 
 def send_message(vk, peer_id, text):
+    global sent_message_ids
     log(f"📤 Отправка пользователю {peer_id}...")
     try:
-        vk.messages.send(
+        msg_id = vk.messages.send(
             peer_id=peer_id,
             message=text,
             random_id=int(time.time() * 1000)
         )
-        log("✅ Доставлено!")
+        # Запоминаем ID нашего сообщения, чтобы потом его игнорировать
+        if msg_id:
+            sent_message_ids.add(msg_id)
+        log(f"✅ Доставлено! (id={msg_id})")
+        return msg_id
     except Exception as e:
         log(f"❌ Ошибка отправки: {e}")
+        return None
 
 def handle_message(vk, peer_id, text):
     if not text:
@@ -84,16 +93,25 @@ def main():
         
         for event in longpoll.listen():
             try:
-                # Обычные пользователи
+                # 1. Обычные пользователи (друзья, одноклассники, жюри)
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     obj = event.obj
                     handle_message(vk, obj.peer_id, obj.text)
                 
-                # Владелец пишет со стороны сообщества (MAX)
+                # 2. Владелец пишет со стороны сообщества (владельцев в MAX)
                 elif event.type == VkBotEventType.MESSAGE_REPLY:
                     obj = event.obj
+                    msg_id = getattr(obj, "id", None)
+                    
+                    # Если это наше собственное сообщение — пропускаем (защита от цикла)
+                    if msg_id in sent_message_ids:
+                        sent_message_ids.discard(msg_id)
+                        continue
+                    
+                    # Отвечаем только если это сообщение, набранное вручную админом
                     if getattr(obj, "out", 0) == 1 and getattr(obj, "random_id", 0) < 0:
                         handle_message(vk, obj.peer_id, obj.text)
+                        
             except Exception as e:
                 log(f"⚠️ Ошибка обработки события: {e}")
                 
