@@ -24,11 +24,11 @@ def log(msg):
 def send_message(vk, peer_id, text):
     log(f"📤 Отправка пользователю {peer_id}...")
     try:
-        vk.method("messages.send", {
-            "peer_id": peer_id,
-            "message": text,
-            "random_id": int(time.time() * 1000)
-        })
+        vk.messages.send(
+            peer_id=peer_id,
+            message=text,
+            random_id=int(time.time() * 1000)
+        )
         log("✅ Доставлено!")
     except Exception as e:
         log(f"❌ Ошибка отправки: {e}")
@@ -84,13 +84,12 @@ def main():
         
         for event in longpoll.listen():
             try:
-                # 1. Обычные пользователи (друзья, одноклассники, жюри)
+                # Обычные пользователи
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     obj = event.obj
                     handle_message(vk, obj.peer_id, obj.text)
                 
-                # 2. Владелец пишет со стороны сообщества (MAX):
-                #    out=1 и отрицательный random_id (у ответов бота он положительный)
+                # Владелец пишет со стороны сообщества (MAX)
                 elif event.type == VkBotEventType.MESSAGE_REPLY:
                     obj = event.obj
                     if getattr(obj, "out", 0) == 1 and getattr(obj, "random_id", 0) < 0:
