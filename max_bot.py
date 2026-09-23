@@ -1,13 +1,17 @@
 import vk_api
 import time
+import requests
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from services import AIService, detect_mode
 
 GROUP_ID = 241621560
 BOT_TOKEN = "vk1.a.9BNdW2YFQFAa_3mTuZxhfvJQxp8jOHrlzFYs4K9CrLASaKg8qcpDjVNKVI8TOWYUZ_fMCHmSpN_iZAZLFnyp06mGujmxXp_7k3uKACkO4oxT0yCrr8OLICeT47cCOeyHkk10uffc2dJUNl2w75qrkl15n2DB6ZZh1s8vZemIDeEcitMdI8dxV0DlYUjjB-8MjheTED6Lc1zu-1Diztlq-Q"
 
-# Множество для хранения ID собственных сообщений бота (защита от цикла)
 sent_message_ids = set()
+
+# Память разговоров: для каждого пользователя храним историю и режим
+user_data = {}  # peer_id -> {"history": [...], "mode": "general"}
+MAX_HISTORY_MESSAGES = 20  # Храним последние 20 сообщений (10 диалогов)
 
 MODES = {
     "general": "🤖 Общий",
@@ -18,11 +22,33 @@ MODES = {
     "motivation": "💪 Мотивация",
     "videos": "🎥 Видеоуроки",
     "journal": "📚 Оценки и МЭШ",
-    "offline": "📱 Оффлайн материалы"
+    "offline": "📱 Оффлайн материалы",
+    "photo": "🖼️ Фото заданий"
 }
 
 def log(msg):
     print(msg, flush=True)
+
+def get_user_data(peer_id):
+    """Получить данные пользователя (историю и режим)"""
+    if peer_id not in user_data:
+        user_data[peer_id] = {"history": [], "mode": "general"}
+    return user_data[peer_id]
+
+def add_to_history(peer_id, role, content):
+    """Добавить сообщение в историю и обрезать, если она слишком длинная"""
+    data = get_user_data(peer_id)
+    data["history"].append({"role": role, "content": content})
+    # Обрезаем историю, чтобы не превысить лимит
+    if len(data["history"]) > MAX_HISTORY_MESSAGES:
+        data["history"] = data["history"][-MAX_HISTORY_MESSAGES:]
+
+def clear_history(peer_id):
+    """Очистить историю разговора"""
+    if peer_id in user_data:
+        user_data[peer_id]["history"] = []
+        user_data[peer_id]["mode"] = "general"
+        log(f"🗑️ История очищена для {peer_id}")
 
 def send_message(vk, peer_id, text):
     global sent_message_ids
@@ -33,7 +59,6 @@ def send_message(vk, peer_id, text):
             message=text,
             random_id=int(time.time() * 1000)
         )
-        # Запоминаем ID нашего сообщения, чтобы потом его игнорировать
         if msg_id:
             sent_message_ids.add(msg_id)
         log(f"✅ Доставлено! (id={msg_id})")
@@ -42,34 +67,110 @@ def send_message(vk, peer_id, text):
         log(f"❌ Ошибка отправки: {e}")
         return None
 
-def handle_message(vk, peer_id, text):
+def extract_photo(obj):
+    """Ищет первое фото во вложениях сообщения"""
+    attachments = getattr(obj, "attachments", None)
+    if not attachments:
+        return None
+    for att in attachments:
+        if att.get("type") == "photo":
+            photo = att.get("photo")
+            if photo and "sizes" in photo:
+                largest = max(photo["sizes"], key=lambda s: s.get("width", 0) * s.get("height", 0))
+                return largest.get("url")
+    return None
+
+def download_photo(url):
+    """Скачивает фото и возвращает байты"""
+    try:
+        log(f"📥 Скачивание фото: {url[:60]}...")
+        r = requests.get(url, timeout=20)
+        r.raise_for_status()
+        log(f"📥 Скачано {len(r.content)} байт")
+        return r.content
+    except Exception as e:
+        log(f"❌ Ошибка скачивания фото: {e}")
+        return None
+
+def handle_message(vk, peer_id, text, photo_url=None):
+    log(f"\n📩 ПОЛУЧЕНО от {peer_id}: текст='{text}', фото={'да' if photo_url else 'нет'}")
+    
+    data = get_user_data(peer_id)
+    
+    # Обработка фото
+    if photo_url:
+        send_message(vk, peer_id, "🔍 Анализирую фото, подожди пару секунд...")
+        image_bytes = download_photo(photo_url)
+        if image_bytes:
+            try:
+                # Передаём историю для контекста
+                response = AIService.process_image(image_bytes, text or "", data["history"])
+                # Сохраняем в историю
+                add_to_history(peer_id, "user", f"[Фото] {text or ''}")
+                add_to_history(peer_id, "assistant", response)
+            except Exception as e:
+                log(f"❌ Ошибка ИИ при анализе фото: {e}")
+                response = "Извини, не получилось проанализировать фото. Попробуй ещё раз."
+            send_message(vk, peer_id, response)
+        else:
+            send_message(vk, peer_id, "Не смог скачать фото 😔 Попробуй отправить его ещё раз.")
+        return
+    
+    # Обычное текстовое сообщение
     if not text:
         return
     
-    log(f"\n📩 ПОЛУЧЕНО от {peer_id}: '{text}'")
     text = str(text).strip()
     text_lower = text.lower()
     
+    # Команды
+    if text_lower in ["начать", "start"]:
+        clear_history(peer_id)
+        welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
+        welcome += "Я запомню наш разговор и буду учитывать контекст.\n"
+        welcome += "Напиши 'сброс', чтобы начать заново.\n\n"
+        welcome += "Ты можешь:\n"
+        welcome += "📷 Прислать фото задания — я прочитаю и помогу.\n"
+        welcome += "💬 Или просто написать вопрос.\n\n"
+        welcome += "Примеры:\n"
+        welcome += "• 'Составь план подготовки к ЕГЭ по математике'\n"
+        welcome += "• 'Объясни фотосинтез простыми словами'\n"
+        welcome += "• Фото задачи + 'помоги решить'"
+        send_message(vk, peer_id, welcome)
+        return
+    
+    if text_lower in ["сброс", "забудь", "начать заново", "очистить", "очистка"]:
+        clear_history(peer_id)
+        send_message(vk, peer_id, "🗑️ Готово! Я забыл наш разговор. Можем начать заново. Чем помочь?")
+        return
+    
     if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
-        menu = "🎯 Привет! Я сам определю режим по твоему вопросу.\n\nПросто напиши, что тебе нужно:\n"
+        menu = "🎯 Привет! Я сам определю режим по твоему вопросу и запомню наш разговор.\n\nПросто напиши, что тебе нужно:\n"
         menu += "• 'Составь план подготовки к ЕГЭ по математике'\n"
         menu += "• 'Объясни фотосинтез простыми словами'\n"
         menu += "• 'Дай ссылки на видеоуроки по физике'\n"
-        menu += "• 'Я устал и не хочу учиться'"
+        menu += "• 'Я устал и не хочу учиться'\n"
+        menu += "📷 Или пришли фото задания — я его разберу!\n\n"
+        menu += "Команды: 'сброс' — начать заново"
         send_message(vk, peer_id, menu)
         return
     
-    try:
-        mode = detect_mode(text)
-        log(f"🎯 Режим: {MODES.get(mode, 'Общий')}")
-    except Exception as e:
-        log(f"⚠️ Ошибка определения режима: {e}")
-        mode = "general"
+    # Определяем режим (но если это продолжение разговора — оставляем текущий)
+    detected = detect_mode(text)
+    if detected != "general":
+        data["mode"] = detected
+    mode = data["mode"]
+    log(f"🎯 Режим: {MODES.get(mode, 'Общий')} (история: {len(data['history'])} сообщ.)")
     
     try:
-        log("🤖 Запрос к GigaChat...")
-        response = AIService.process_message(text, mode)
+        log("🤖 Запрос к GigaChat с историей...")
+        # Передаём историю разговора
+        response = AIService.process_message(text, mode, data["history"])
         log(f"✅ Ответ получен ({len(response)} симв.)")
+        
+        # Сохраняем в историю
+        add_to_history(peer_id, "user", text)
+        add_to_history(peer_id, "assistant", response)
         
         if len(response) > 4000:
             for i in range(0, len(response), 4000):
@@ -93,24 +194,22 @@ def main():
         
         for event in longpoll.listen():
             try:
-                # 1. Обычные пользователи (друзья, одноклассники, жюри)
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     obj = event.obj
-                    handle_message(vk, obj.peer_id, obj.text)
+                    photo_url = extract_photo(obj)
+                    handle_message(vk, obj.peer_id, obj.text, photo_url)
                 
-                # 2. Владелец пишет со стороны сообщества (владельцев в MAX)
                 elif event.type == VkBotEventType.MESSAGE_REPLY:
                     obj = event.obj
                     msg_id = getattr(obj, "id", None)
                     
-                    # Если это наше собственное сообщение — пропускаем (защита от цикла)
                     if msg_id in sent_message_ids:
                         sent_message_ids.discard(msg_id)
                         continue
                     
-                    # Отвечаем только если это сообщение, набранное вручную админом
                     if getattr(obj, "out", 0) == 1 and getattr(obj, "random_id", 0) < 0:
-                        handle_message(vk, obj.peer_id, obj.text)
+                        photo_url = extract_photo(obj)
+                        handle_message(vk, obj.peer_id, obj.text, photo_url)
                         
             except Exception as e:
                 log(f"⚠️ Ошибка обработки события: {e}")
