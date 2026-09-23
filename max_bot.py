@@ -3,9 +3,7 @@ import time
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from services import AIService, detect_mode
 
-# ID твоего сообщества (из ссылки MAX: gim241621560)
 GROUP_ID = 241621560
-
 BOT_TOKEN = "vk1.a.9BNdW2YFQFAa_3mTuZxhfvJQxp8jOHrlzFYs4K9CrLASaKg8qcpDjVNKVI8TOWYUZ_fMCHmSpN_iZAZLFnyp06mGujmxXp_7k3uKACkO4oxT0yCrr8OLICeT47cCOeyHkk10uffc2dJUNl2w75qrkl15n2DB6ZZh1s8vZemIDeEcitMdI8dxV0DlYUjjB-8MjheTED6Lc1zu-1Diztlq-Q"
 
 MODES = {
@@ -36,17 +34,21 @@ def send_message(vk, peer_id, text):
         log(f"❌ Ошибка отправки: {e}")
 
 def handle_message(vk, event):
-    peer_id = event.obj.peer_id
-    text = event.obj.text
-
+    try:
+        peer_id = event.obj.peer_id
+        text = event.obj.text
+    except:
+        # Для новой версии API структура может отличаться
+        peer_id = event.object.message.get("peer_id") if hasattr(event, 'object') else None
+        text = event.object.message.get("text", "") if hasattr(event, 'object') else ""
+    
     if not text:
         return
-
+    
     log(f"\n📩 ПОЛУЧЕНО от {peer_id}: '{text}'")
     text = text.strip()
     text_lower = text.lower()
-
-    # Меню
+    
     if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
         menu = "🎯 Привет! Я сам определю режим по твоему вопросу.\n\nПросто напиши, что тебе нужно:\n"
         menu += "• 'Составь план подготовки к ЕГЭ по математике'\n"
@@ -55,21 +57,19 @@ def handle_message(vk, event):
         menu += "• 'Я устал и не хочу учиться'"
         send_message(vk, peer_id, menu)
         return
-
-    # Автоопределение режима
+    
     try:
         mode = detect_mode(text)
         log(f"🎯 Режим: {MODES.get(mode, 'Общий')}")
     except Exception as e:
         log(f"⚠️ Ошибка определения режима: {e}")
         mode = "general"
-
-    # Запрос к GigaChat
+    
     try:
         log("🤖 Запрос к GigaChat...")
         response = AIService.process_message(text, mode)
         log(f"✅ Ответ получен ({len(response)} симв.)")
-
+        
         if len(response) > 4000:
             for i in range(0, len(response), 4000):
                 send_message(vk, peer_id, response[i:i+4000])
@@ -82,19 +82,20 @@ def handle_message(vk, event):
 def main():
     log("🚀 БОТ Sferum Navigator с GigaChat запущен!")
     log(f"📌 Group ID: {GROUP_ID}")
-
+    
     try:
-        vk_session = vk_api.VkApi(token=BOT_TOKEN)
+        vk_session = vk_api.VkApi(token=BOT_TOKEN, api_version='5.131')
         vk = vk_session.get_api()
-
-        # group_id передаём напрямую — groups.get НЕ вызываем (он и падал)
-        longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID)
-        log("✅ Bot Long Poll подключен! Ожидаю сообщения...\n")
-
+        
+        longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID, wait=20)
+        log("✅ Bot Long Poll подключен! Ожидаю сообщения...")
+        log("💡 Напиши боту 'помощь' и смотри сюда\n")
+        
         for event in longpoll.listen():
+            log(f"📡 Пришло событие: тип={event.type}, данные={event}")
             if event.type == VkBotEventType.MESSAGE_NEW:
                 handle_message(vk, event)
-
+                
     except Exception as e:
         log(f"💥 КРИТИЧЕСКАЯ ОШИБКА: {e}")
         import traceback
