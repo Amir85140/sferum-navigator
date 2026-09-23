@@ -33,20 +33,12 @@ def send_message(vk, peer_id, text):
     except Exception as e:
         log(f"❌ Ошибка отправки: {e}")
 
-def handle_message(vk, event):
-    try:
-        peer_id = event.obj.peer_id
-        text = event.obj.text
-    except:
-        # Для новой версии API структура может отличаться
-        peer_id = event.object.message.get("peer_id") if hasattr(event, 'object') else None
-        text = event.object.message.get("text", "") if hasattr(event, 'object') else ""
-    
+def handle_message(vk, peer_id, text):
     if not text:
         return
     
     log(f"\n📩 ПОЛУЧЕНО от {peer_id}: '{text}'")
-    text = text.strip()
+    text = str(text).strip()
     text_lower = text.lower()
     
     if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
@@ -88,13 +80,23 @@ def main():
         vk = vk_session.get_api()
         
         longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID, wait=20)
-        log("✅ Bot Long Poll подключен! Ожидаю сообщения...")
-        log("💡 Напиши боту 'помощь' и смотри сюда\n")
+        log("✅ Bot Long Poll подключен! Ожидаю сообщения...\n")
         
         for event in longpoll.listen():
-            log(f"📡 Пришло событие: тип={event.type}, данные={event}")
-            if event.type == VkBotEventType.MESSAGE_NEW:
-                handle_message(vk, event)
+            try:
+                # 1. Обычные пользователи (друзья, одноклассники, жюри)
+                if event.type == VkBotEventType.MESSAGE_NEW:
+                    obj = event.obj
+                    handle_message(vk, obj.peer_id, obj.text)
+                
+                # 2. Владелец пишет со стороны сообщества (MAX):
+                #    out=1 и отрицательный random_id (у ответов бота он положительный)
+                elif event.type == VkBotEventType.MESSAGE_REPLY:
+                    obj = event.obj
+                    if getattr(obj, "out", 0) == 1 and getattr(obj, "random_id", 0) < 0:
+                        handle_message(vk, obj.peer_id, obj.text)
+            except Exception as e:
+                log(f"⚠️ Ошибка обработки события: {e}")
                 
     except Exception as e:
         log(f"💥 КРИТИЧЕСКАЯ ОШИБКА: {e}")
