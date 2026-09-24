@@ -12,13 +12,14 @@ CLIENT_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
 
 _token_cache = {"token": None, "expires_at": 0}
 
+IMAGE_MODELS = ["GigaChat:latest", "GigaChat-Pro:latest", "GigaChat:latest-preview", "GigaChat-Max:latest"]
+
 PROMPTS = {
     "planner": "Ты — умный планировщик подготовки к экзаменам. Помни весь разговор с учеником и учитывай то, что он уже рассказал. Отвечай структурированно, с эмодзи. На русском.",
     "homework": "Ты — ИИ-наставник, помогающий с домашкой методом Сократа. НИКОГДА не давай готовый ответ. Задавай наводящие вопросы. Помни контекст разговора. На русском.",
     "explain": "Ты — учитель, объясняющий сложные темы простым языком. Помни, о чём вы уже говорили, и учитывай это. На русском.",
     "tests": "Ты — генератор тестов. Создай тест из 5 вопросов с вариантами ответов. В конце напиши правильные ответы. На русском.",
     "motivation": "Ты — дружелюбный мотиватор для школьников. Помни, что ученик рассказывал о себе, и поддерживай его. На русском.",
-    
     "videos": """Ты — помощник по поиску видеоуроков. Дай ссылки на поиск видео по теме ученика.
 
 ВАЖНО: Используй ТОЛЬКО эти форматы поисковых ссылок (они гарантированно работают):
@@ -35,7 +36,6 @@ PROMPTS = {
 3. **Поиск на YouTube**: https://www.youtube.com/results?search_query=...
 
 На русском языке.""",
-
     "progress": "Ты — аналитик учебного прогресса. На русском.",
     "deadlines": "Ты — помощник по дедлайнам. На русском.",
     "adaptive": "Ты — адаптивный наставник. На русском.",
@@ -43,7 +43,6 @@ PROMPTS = {
     "journal": "Ты — помощник по интеграции с МЭШ. Анализируй оценки. На русском.",
     "gamification": "Ты — система геймификации. На русском.",
     "personalization": "Ты — персональный рекомендатель. На русском.",
-    
     "offline": """Ты — помощник по оффлайн-обучению. Дай ссылки на проверенные образовательные ресурсы.
 
 ВАЖНО: Используй ТОЛЬКО эти проверенные сайты (они гарантированно работают):
@@ -60,7 +59,6 @@ PROMPTS = {
    📝 {краткое описание}
 
 На русском языке.""",
-
     "export": "Ты — помощник по экспорту данных. На русском.",
     "photo": "Ты — ИИ-наставник, который анализирует фотографии заданий, тетрадей, учебников и расписаний. Внимательно рассмотри изображение: прочитай текст, разбери задачу или таблицу. Затем помоги ученику. Отвечай на русском.",
     "general": "Ты — дружелюбный ИИ-наставник для школьников. Помни весь контекст разговора и учитывай его в ответах. Помогай с учёбой. На русском."
@@ -130,7 +128,6 @@ class AIService:
                 token = _get_token()
                 system_prompt = PROMPTS.get(feature_id, PROMPTS["general"])
                 
-                # Собираем сообщения: системный промпт + история + текущий вопрос
                 messages = [{"role": "system", "content": system_prompt}]
                 if history:
                     messages.extend(history)
@@ -189,77 +186,61 @@ class AIService:
 
     @staticmethod
     def process_image(image_bytes: bytes, question: str = "", history: list = None) -> str:
-        """Отправляет фото в GigaChat (мультимодальный запрос) с учётом истории"""
-        max_retries = 2
-        for attempt in range(max_retries):
+        """Пробует несколько моделей, чтобы найти ту, что умеет читать фото"""
+        try:
+            token = _get_token()
+        except Exception as e:
+            return f"Не удалось получить токен: {str(e)}"
+        
+        img_b64 = base64.b64encode(image_bytes).decode("utf-8")
+        img_data_url = f"data:image/jpeg;base64,{img_b64}"
+        user_text = question if question.strip() else "Рассмотри это изображение. Прочитай текст, разбери задачу и помоги ученику с учёбой."
+        system_prompt = PROMPTS.get("photo")
+        
+        user_content = [
+            {"type": "text", "text": user_text},
+            {"type": "image_url", "image_url": {"url": img_data_url}}
+        ]
+        
+        for model in IMAGE_MODELS:
             try:
-                print(f"🖼️ Анализ фото (попытка {attempt+1}/{max_retries})...")
-                token = _get_token()
-                
-                img_b64 = base64.b64encode(image_bytes).decode("utf-8")
-                img_data_url = f"data:image/jpeg;base64,{img_b64}"
-                
-                user_text = question if question.strip() else "Рассмотри это изображение. Прочитай текст, разбери задачу и помоги ученику с учёбой."
-                system_prompt = PROMPTS.get("photo")
+                print(f"🖼️ Пробуем модель {model}...")
                 
                 messages = [{"role": "system", "content": system_prompt}]
                 if history:
                     messages.extend(history)
-                
-                user_content = [
-                    {"type": "text", "text": user_text},
-                    {"type": "image_url", "image_url": {"url": img_data_url}}
-                ]
                 messages.append({"role": "user", "content": user_content})
                 
                 response = requests.post(
                     url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
                     headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
                     json={
-                        "model": "GigaChat:latest",
+                        "model": model,
                         "messages": messages,
                         "max_tokens": 600,
                         "temperature": 0.5
                     },
                     verify=False,
-                    timeout=40
+                    timeout=45
                 )
                 
-                if response.status_code != 200:
-                    err = response.text[:300]
-                    print(f"⚠️ GigaChat вернул {response.status_code}: {err}")
-                    if attempt < max_retries - 1:
-                        time.sleep(2)
-                        continue
-                    return ("🖼️ Я вижу, ты прислал фото!\n"
-                            "Однако текущая версия модели не может прочитать изображение.\n"
-                            "Попробуй перепечатать текст задания вручную — я помогу! 🙌")
-                
-                result = response.json()
-                if isinstance(result, dict) and 'choices' in result and len(result['choices']) > 0:
-                    content = result['choices'][0].get('message', {}).get('content', '')
-                    if content:
-                        print(f"✅ Фото проанализировано ({len(content)} символов)")
-                        return content
-                
-                if attempt < max_retries - 1:
-                    time.sleep(1)
-                    continue
-                return "Извини, не удалось обработать фото. Попробуй ещё раз."
-                
-            except requests.exceptions.Timeout:
-                if attempt < max_retries - 1:
-                    time.sleep(2)
-                    continue
-                return "Извини, анализ фото занял слишком много времени. Попробуй ещё раз."
+                if response.status_code == 200:
+                    result = response.json()
+                    if isinstance(result, dict) and 'choices' in result and len(result['choices']) > 0:
+                        content = result['choices'][0].get('message', {}).get('content', '')
+                        if content:
+                            print(f"✅ Модель {model} прочитала фото! ({len(content)} символов)")
+                            return content
+                else:
+                    print(f"⚠️ Модель {model} вернула {response.status_code}: {response.text[:200]}")
+                    
             except Exception as e:
-                print(f"⚠️ Ошибка анализа фото: {e}")
-                if attempt < max_retries - 1:
-                    time.sleep(2)
-                    continue
-                return f"Извини, произошла ошибка при обработке фото: {str(e)}"
+                print(f"⚠️ Модель {model} не сработала: {e}")
+                continue
         
-        return "Извини, не получилось обработать фото."
+        return ("🖼️ Я вижу, ты прислал фото!\n\n"
+                "К сожалению, на текущем тарифе модель не может прочитать изображение.\n"
+                "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
 
 
 class PlannerService:
