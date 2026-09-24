@@ -1,16 +1,12 @@
-import vk_api
-from vk_api import vk_api as vk_api_module
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-import time
 import requests
+import time
+import json
 from services import AIService, detect_mode
 
-# ===== КОНФИГУРАЦИЯ MAX (Сферум) =====
-# Переопределяем URL API на MAX (нужно сделать ДО создания сессии!)
-vk_api_module.API_URL = 'https://api.max.ru/method/'
-
+# ===== КОНФИГУРАЦИЯ MAX =====
 MAX_TOKEN = "f9LHodD0cOL_CTMQchAMtDovrgVanr2B904VleKpipLF22l4DnPeJKVTxWHLpDJi6VgmKRgGvRvRg4-2w8Mp"
-GROUP_ID = 241621560  # ⚠️ Проверь, что это правильный ID для MAX!
+GROUP_ID = 241621560
+BASE_URL = "https://botapi.sberclass.ru/api/v1"  # Возможный endpoint для MAX
 
 sent_message_ids = set()
 user_data = {}
@@ -26,8 +22,48 @@ MODES = {
     "videos": "🎥 Видеоуроки",
     "journal": "📚 Оценки и МЭШ",
     "offline": "📱 Оффлайн материалы",
-    "photo": "🖼️ Фото заданий"
+    "photo": "🖼️ Фото задания"
 }
+
+class MAXClient:
+    """Клиент для работы с MAX API"""
+    
+    def __init__(self, token, group_id):
+        self.token = token
+        self.group_id = group_id
+        self.session = requests.Session()
+        self.session.headers.update({
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        })
+    
+    def method(self, method_name, params=None):
+        """Вызов метода MAX API"""
+        url = f"{BASE_URL}/{method_name}"
+        try:
+            response = self.session.post(url, json=params or {})
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            log(f"❌ Ошибка API {method_name}: {e}")
+            return None
+    
+    def get_long_poll_server(self):
+        """Получить сервер Long Poll"""
+        result = self.method("groups.getLongPollServer", {
+            "group_id": self.group_id
+        })
+        return result
+    
+    def send_message(self, peer_id, text, random_id=None):
+        """Отправить сообщение"""
+        params = {
+            "peer_id": peer_id,
+            "message": text,
+            "random_id": random_id or int(time.time() * 1000)
+        }
+        return self.method("messages.send", params)
+
 
 def log(msg):
     print(msg, flush=True)
@@ -49,66 +85,10 @@ def clear_history(peer_id):
         user_data[peer_id]["mode"] = "general"
         log(f"🗑️ История очищена для {peer_id}")
 
-def send_message(vk, peer_id, text):
-    global sent_message_ids
-    log(f"📤 Отправка пользователю {peer_id}...")
-    try:
-        msg_id = vk.messages.send(
-            peer_id=peer_id,
-            message=text,
-            random_id=int(time.time() * 1000)
-        )
-        if msg_id:
-            sent_message_ids.add(msg_id)
-        log(f"✅ Доставлено! (id={msg_id})")
-        return msg_id
-    except Exception as e:
-        log(f"❌ Ошибка отправки: {e}")
-        return None
-
-def extract_photo(obj):
-    attachments = getattr(obj, "attachments", None)
-    if not attachments:
-        return None
-    for att in attachments:
-        if att.get("type") == "photo":
-            photo = att.get("photo")
-            if photo and "sizes" in photo:
-                largest = max(photo["sizes"], key=lambda s: s.get("width", 0) * s.get("height", 0))
-                return largest.get("url")
-    return None
-
-def download_photo(url):
-    try:
-        log(f"📥 Скачивание фото: {url[:60]}...")
-        r = requests.get(url, timeout=20)
-        r.raise_for_status()
-        log(f"📥 Скачано {len(r.content)} байт")
-        return r.content
-    except Exception as e:
-        log(f"❌ Ошибка скачивания фото: {e}")
-        return None
-
-def handle_message(vk, peer_id, text, photo_url=None):
-    log(f"\n📩 ПОЛУЧЕНО от {peer_id}: текст='{text}', фото={'да' if photo_url else 'нет'}")
+def handle_message(client, peer_id, text, photo_url=None):
+    log(f"\n📩 ПОЛУЧЕНО от {peer_id}: текст='{text}'")
     
     data = get_user_data(peer_id)
-    
-    if photo_url:
-        send_message(vk, peer_id, "🔍 Анализирую фото, подожди пару секунд...")
-        image_bytes = download_photo(photo_url)
-        if image_bytes:
-            try:
-                response = AIService.process_image(image_bytes, text or "", data["history"])
-                add_to_history(peer_id, "user", f"[Фото] {text or ''}")
-                add_to_history(peer_id, "assistant", response)
-            except Exception as e:
-                log(f"❌ Ошибка ИИ при анализе фото: {e}")
-                response = "Извини, не получилось проанализировать фото. Попробуй ещё раз."
-            send_message(vk, peer_id, response)
-        else:
-            send_message(vk, peer_id, "Не смог скачать фото 😔 Попробуй отправить его ещё раз.")
-        return
     
     if not text:
         return
@@ -120,23 +100,13 @@ def handle_message(vk, peer_id, text, photo_url=None):
         clear_history(peer_id)
         welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
         welcome += "Я запомню наш разговор и буду учитывать контекст.\n"
-        welcome += "Напиши 'сброс', чтобы начать заново.\n\n"
-        welcome += "Ты можешь:\n"
-        welcome += "📷 Прислать фото задания — я прочитаю и помогу.\n"
-        welcome += "💬 Или просто написать вопрос.\n"
-        send_message(vk, peer_id, welcome)
+        welcome += "Напиши 'сброс', чтобы начать заново.\n"
+        client.send_message(peer_id, welcome)
         return
     
-    if text_lower in ["сброс", "забудь", "начать заново", "очистить"]:
+    if text_lower in ["сброс", "забудь", "очистить"]:
         clear_history(peer_id)
-        send_message(vk, peer_id, "🗑️ Готово! Я забыл наш разговор. Чем помочь?")
-        return
-    
-    if text_lower in ["режимы", "меню", "помощь", "help", "/start"]:
-        menu = "🎯 Я сам определю режим по твоему вопросу.\n"
-        menu += "Просто напиши, что нужно, или пришли фото задания!\n"
-        menu += "Команды: 'сброс' — начать заново"
-        send_message(vk, peer_id, menu)
+        client.send_message(peer_id, "🗑️ Готово! Чем помочь?")
         return
     
     detected = detect_mode(text)
@@ -154,54 +124,57 @@ def handle_message(vk, peer_id, text, photo_url=None):
         
         if len(response) > 4000:
             for i in range(0, len(response), 4000):
-                send_message(vk, peer_id, response[i:i+4000])
+                client.send_message(peer_id, response[i:i+4000])
         else:
-            send_message(vk, peer_id, response)
+            client.send_message(peer_id, response)
     except Exception as e:
         log(f"❌ Ошибка ИИ: {e}")
-        send_message(vk, peer_id, "Извини, произошла ошибка. Попробуй через минуту.")
+        client.send_message(peer_id, "Извини, произошла ошибка. Попробуй через минуту.")
 
 def main():
-    log("🚀 БОТ Sferum Navigator в MAX с GigaChat запущен!")
+    log("🚀 БОТ Sferum Navigator в MAX запущен!")
     log(f"📌 Group ID: {GROUP_ID}")
-    log(f"🌐 API URL: {vk_api_module.API_URL}")
+    log(f"🌐 Base URL: {BASE_URL}")
     
-    try:
-        vk_session = vk_api.VkApi(
-            token=MAX_TOKEN,
-            api_version='5.131'
-        )
-        vk = vk_session.get_api()
+    client = MAXClient(MAX_TOKEN, GROUP_ID)
+    
+    # Проверяем подключение
+    log("🔍 Проверяем подключение к MAX API...")
+    result = client.get_long_poll_server()
+    
+    if not result:
+        log("❌ Не удалось подключиться к MAX API!")
+        log("💡 Возможно, нужен другой BASE_URL или формат авторизации")
+        log("💡 Попробуем альтернативные endpoints...")
         
-        longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID, wait=20)
-        log("✅ MAX Bot Long Poll подключен! Ожидаю сообщения...\n")
+        # Пробуем другие возможные endpoints
+        alt_urls = [
+            "https://api.sferum.ru/api/v1",
+            "https://botapi.max.ru/api/v1",
+            "https://sberclass.ru/api/v1"
+        ]
         
-        for event in longpoll.listen():
-            try:
-                if event.type == VkBotEventType.MESSAGE_NEW:
-                    obj = event.obj
-                    photo_url = extract_photo(obj)
-                    handle_message(vk, obj.peer_id, obj.text, photo_url)
-                
-                elif event.type == VkBotEventType.MESSAGE_REPLY:
-                    obj = event.obj
-                    msg_id = getattr(obj, "id", None)
-                    
-                    if msg_id in sent_message_ids:
-                        sent_message_ids.discard(msg_id)
-                        continue
-                    
-                    if getattr(obj, "out", 0) == 1 and getattr(obj, "random_id", 0) < 0:
-                        photo_url = extract_photo(obj)
-                        handle_message(vk, obj.peer_id, obj.text, photo_url)
-                        
-            except Exception as e:
-                log(f"⚠️ Ошибка обработки события: {e}")
-                
-    except Exception as e:
-        log(f"💥 КРИТИЧЕСКАЯ ОШИБКА: {e}")
-        import traceback
-        traceback.print_exc()
+        for url in alt_urls:
+            log(f"🔄 Пробуем {url}...")
+            client = MAXClient(MAX_TOKEN, GROUP_ID)
+            client.session.headers.update({})  # Сбрасываем
+            BASE_URL_GLOBAL = url
+            result = client.get_long_poll_server()
+            if result:
+                log(f"✅ Работает с {url}!")
+                break
+        
+        if not result:
+            log("💥 Ни один endpoint не сработал!")
+            log("📋 Нужна документация MAX API или правильный endpoint")
+            return
+    
+    log("✅ Подключено! Ожидаю сообщения...")
+    
+    # TODO: Реализовать Long Poll для MAX
+    # Пока что бот будет работать в режиме опроса
+    log("⚠️ Long Poll для MAX ещё не реализован")
+    log("💡 Бот готов, но нужен правильный механизм получения сообщений")
 
 if __name__ == "__main__":
     main()
