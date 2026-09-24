@@ -1,12 +1,16 @@
 import vk_api
+from vk_api import vk_api as vk_api_module
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import time
 import requests
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from services import AIService, detect_mode
 
-# Токен MAX (Сферум)
+# ===== КОНФИГУРАЦИЯ MAX (Сферум) =====
+# Переопределяем URL API на MAX (нужно сделать ДО создания сессии!)
+vk_api_module.API_URL = 'https://api.max.ru/method/'
+
 MAX_TOKEN = "f9LHodD0cOL_CTMQchAMtDovrgVanr2B904VleKpipLF22l4DnPeJKVTxWHLpDJi6VgmKRgGvRvRg4-2w8Mp"
-GROUP_ID = 241621560  # Проверь, может отличаться для MAX
+GROUP_ID = 241621560  # ⚠️ Проверь, что это правильный ID для MAX!
 
 sent_message_ids = set()
 user_data = {}
@@ -119,26 +123,18 @@ def handle_message(vk, peer_id, text, photo_url=None):
         welcome += "Напиши 'сброс', чтобы начать заново.\n\n"
         welcome += "Ты можешь:\n"
         welcome += "📷 Прислать фото задания — я прочитаю и помогу.\n"
-        welcome += "💬 Или просто написать вопрос.\n\n"
-        welcome += "Примеры:\n"
-        welcome += "• 'Составь план подготовки к ЕГЭ по математике'\n"
-        welcome += "• 'Объясни фотосинтез простыми словами'\n"
-        welcome += "• Фото задачи + 'помоги решить'"
+        welcome += "💬 Или просто написать вопрос.\n"
         send_message(vk, peer_id, welcome)
         return
     
-    if text_lower in ["сброс", "забудь", "начать заново", "очистить", "очистка"]:
+    if text_lower in ["сброс", "забудь", "начать заново", "очистить"]:
         clear_history(peer_id)
-        send_message(vk, peer_id, "🗑️ Готово! Я забыл наш разговор. Можем начать заново. Чем помочь?")
+        send_message(vk, peer_id, "🗑️ Готово! Я забыл наш разговор. Чем помочь?")
         return
     
-    if text_lower in ["режимы", "меню", "помощь", "help", "/start", "старт"]:
-        menu = "🎯 Привет! Я сам определю режим по твоему вопросу и запомню наш разговор.\n\nПросто напиши, что тебе нужно:\n"
-        menu += "• 'Составь план подготовки к ЕГЭ по математике'\n"
-        menu += "• 'Объясни фотосинтез простыми словами'\n"
-        menu += "• 'Дай ссылки на видеоуроки по физике'\n"
-        menu += "• 'Я устал и не хочу учиться'\n"
-        menu += "📷 Или пришли фото задания — я его разберу!\n\n"
+    if text_lower in ["режимы", "меню", "помощь", "help", "/start"]:
+        menu = "🎯 Я сам определю режим по твоему вопросу.\n"
+        menu += "Просто напиши, что нужно, или пришли фото задания!\n"
         menu += "Команды: 'сброс' — начать заново"
         send_message(vk, peer_id, menu)
         return
@@ -147,10 +143,9 @@ def handle_message(vk, peer_id, text, photo_url=None):
     if detected != "general":
         data["mode"] = detected
     mode = data["mode"]
-    log(f"🎯 Режим: {MODES.get(mode, 'Общий')} (история: {len(data['history'])} сообщ.)")
+    log(f"🎯 Режим: {MODES.get(mode, 'Общий')}")
     
     try:
-        log("🤖 Запрос к GigaChat с историей...")
         response = AIService.process_message(text, mode, data["history"])
         log(f"✅ Ответ получен ({len(response)} симв.)")
         
@@ -169,19 +164,15 @@ def handle_message(vk, peer_id, text, photo_url=None):
 def main():
     log("🚀 БОТ Sferum Navigator в MAX с GigaChat запущен!")
     log(f"📌 Group ID: {GROUP_ID}")
+    log(f"🌐 API URL: {vk_api_module.API_URL}")
     
     try:
-        # ВАЖНО: Используем токен MAX и указываем API URL для MAX
         vk_session = vk_api.VkApi(
             token=MAX_TOKEN,
-            api_version='5.131',
-            config={
-                'api_url': 'https://api.max.ru/method/'  # Endpoint для MAX
-            }
+            api_version='5.131'
         )
         vk = vk_session.get_api()
         
-        # Long Poll для MAX (может отличаться от VK)
         longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID, wait=20)
         log("✅ MAX Bot Long Poll подключен! Ожидаю сообщения...\n")
         
