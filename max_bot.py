@@ -4,11 +4,11 @@ import requests
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from services import AIService, detect_mode
 
-GROUP_ID = 241621560
-BOT_TOKEN = "vk1.a.9BNdW2YFQFAa_3mTuZxhfvJQxp8jOHrlzFYs4K9CrLASaKg8qcpDjVNKVI8TOWYUZ_fMCHmSpN_iZAZLFnyp06mGujmxXp_7k3uKACkO4oxT0yCrr8OLICeT47cCOeyHkk10uffc2dJUNl2w75qrkl15n2DB6ZZh1s8vZemIDeEcitMdI8dxV0DlYUjjB-8MjheTED6Lc1zu-1Diztlq-Q"
+# Токен MAX (Сферум)
+MAX_TOKEN = "f9LHodD0cOL_CTMQchAMtDovrgVanr2B904VleKpipLF22l4DnPeJKVTxWHLpDJi6VgmKRgGvRvRg4-2w8Mp"
+GROUP_ID = 241621560  # Проверь, может отличаться для MAX
 
 sent_message_ids = set()
-
 user_data = {}
 MAX_HISTORY_MESSAGES = 20
 
@@ -167,15 +167,23 @@ def handle_message(vk, peer_id, text, photo_url=None):
         send_message(vk, peer_id, "Извини, произошла ошибка. Попробуй через минуту.")
 
 def main():
-    log("🚀 БОТ Sferum Navigator с GigaChat запущен!")
+    log("🚀 БОТ Sferum Navigator в MAX с GigaChat запущен!")
     log(f"📌 Group ID: {GROUP_ID}")
     
     try:
-        vk_session = vk_api.VkApi(token=BOT_TOKEN, api_version='5.131')
+        # ВАЖНО: Используем токен MAX и указываем API URL для MAX
+        vk_session = vk_api.VkApi(
+            token=MAX_TOKEN,
+            api_version='5.131',
+            config={
+                'api_url': 'https://api.max.ru/method/'  # Endpoint для MAX
+            }
+        )
         vk = vk_session.get_api()
         
+        # Long Poll для MAX (может отличаться от VK)
         longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID, wait=20)
-        log("✅ Bot Long Poll подключен! Ожидаю сообщения...\n")
+        log("✅ MAX Bot Long Poll подключен! Ожидаю сообщения...\n")
         
         for event in longpoll.listen():
             try:
