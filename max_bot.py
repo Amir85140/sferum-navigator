@@ -9,9 +9,8 @@ BOT_TOKEN = "vk1.a.9BNdW2YFQFAa_3mTuZxhfvJQxp8jOHrlzFYs4K9CrLASaKg8qcpDjVNKVI8TO
 
 sent_message_ids = set()
 
-# Память разговоров: для каждого пользователя храним историю и режим
-user_data = {}  # peer_id -> {"history": [...], "mode": "general"}
-MAX_HISTORY_MESSAGES = 20  # Храним последние 20 сообщений (10 диалогов)
+user_data = {}
+MAX_HISTORY_MESSAGES = 20
 
 MODES = {
     "general": "🤖 Общий",
@@ -30,21 +29,17 @@ def log(msg):
     print(msg, flush=True)
 
 def get_user_data(peer_id):
-    """Получить данные пользователя (историю и режим)"""
     if peer_id not in user_data:
         user_data[peer_id] = {"history": [], "mode": "general"}
     return user_data[peer_id]
 
 def add_to_history(peer_id, role, content):
-    """Добавить сообщение в историю и обрезать, если она слишком длинная"""
     data = get_user_data(peer_id)
     data["history"].append({"role": role, "content": content})
-    # Обрезаем историю, чтобы не превысить лимит
     if len(data["history"]) > MAX_HISTORY_MESSAGES:
         data["history"] = data["history"][-MAX_HISTORY_MESSAGES:]
 
 def clear_history(peer_id):
-    """Очистить историю разговора"""
     if peer_id in user_data:
         user_data[peer_id]["history"] = []
         user_data[peer_id]["mode"] = "general"
@@ -68,7 +63,6 @@ def send_message(vk, peer_id, text):
         return None
 
 def extract_photo(obj):
-    """Ищет первое фото во вложениях сообщения"""
     attachments = getattr(obj, "attachments", None)
     if not attachments:
         return None
@@ -81,7 +75,6 @@ def extract_photo(obj):
     return None
 
 def download_photo(url):
-    """Скачивает фото и возвращает байты"""
     try:
         log(f"📥 Скачивание фото: {url[:60]}...")
         r = requests.get(url, timeout=20)
@@ -97,15 +90,12 @@ def handle_message(vk, peer_id, text, photo_url=None):
     
     data = get_user_data(peer_id)
     
-    # Обработка фото
     if photo_url:
         send_message(vk, peer_id, "🔍 Анализирую фото, подожди пару секунд...")
         image_bytes = download_photo(photo_url)
         if image_bytes:
             try:
-                # Передаём историю для контекста
                 response = AIService.process_image(image_bytes, text or "", data["history"])
-                # Сохраняем в историю
                 add_to_history(peer_id, "user", f"[Фото] {text or ''}")
                 add_to_history(peer_id, "assistant", response)
             except Exception as e:
@@ -116,14 +106,12 @@ def handle_message(vk, peer_id, text, photo_url=None):
             send_message(vk, peer_id, "Не смог скачать фото 😔 Попробуй отправить его ещё раз.")
         return
     
-    # Обычное текстовое сообщение
     if not text:
         return
     
     text = str(text).strip()
     text_lower = text.lower()
     
-    # Команды
     if text_lower in ["начать", "start"]:
         clear_history(peer_id)
         welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
@@ -155,7 +143,6 @@ def handle_message(vk, peer_id, text, photo_url=None):
         send_message(vk, peer_id, menu)
         return
     
-    # Определяем режим (но если это продолжение разговора — оставляем текущий)
     detected = detect_mode(text)
     if detected != "general":
         data["mode"] = detected
@@ -164,11 +151,9 @@ def handle_message(vk, peer_id, text, photo_url=None):
     
     try:
         log("🤖 Запрос к GigaChat с историей...")
-        # Передаём историю разговора
         response = AIService.process_message(text, mode, data["history"])
         log(f"✅ Ответ получен ({len(response)} симв.)")
         
-        # Сохраняем в историю
         add_to_history(peer_id, "user", text)
         add_to_history(peer_id, "assistant", response)
         
