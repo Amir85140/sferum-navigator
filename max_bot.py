@@ -1,8 +1,9 @@
 import asyncio
 import logging
+import json
+import os
 from typing import Optional, Tuple, List
 from dotenv import load_dotenv
-import os
 from maxapi import Bot, Dispatcher, F
 from maxapi.types import BotStarted, MessageCreated
 from maxapi.filters.command import CommandStart
@@ -14,6 +15,9 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=os.environ["MAX_TOKEN"])
 dp = Dispatcher()
+
+# Файл для сохранения данных пользователей (оценки, история)
+DATA_FILE = "user_data.json"
 
 user_data = {}
 MAX_HISTORY_MESSAGES = 20
@@ -27,10 +31,44 @@ MODES = {
     "languages": "🌍 Иностранные языки"
 }
 
+
+# ============================================
+# СОХРАНЕНИЕ И ЗАГРУЗКА ДАННЫХ
+# ============================================
+
+def load_user_data():
+    """Загружает данные пользователей из файла при старте"""
+    global user_data
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
+                user_data = json.load(f)
+            print(f"💾 Загружены данные {len(user_data)} пользователей из {DATA_FILE}")
+        except Exception as e:
+            print(f"⚠️ Ошибка загрузки данных: {e}")
+            user_data = {}
+    else:
+        print(f"📄 Файл {DATA_FILE} не найден — начинаем с чистого листа")
+        user_data = {}
+
+
+def save_user_data():
+    """Сохраняет данные пользователей в файл"""
+    try:
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(user_data, f, ensure_ascii=False, indent=2)
+        print(f"💾 Данные сохранены в {DATA_FILE}")
+    except Exception as e:
+        print(f"⚠️ Ошибка сохранения данных: {e}")
+
+
 def get_user_data(user_id):
+    """Получает данные пользователя, создаёт если нет"""
+    user_id = str(user_id)  # Ключи в JSON должны быть строками
     if user_id not in user_data:
         user_data[user_id] = {"history": [], "mode": "general", "grades": {}}
     return user_data[user_id]
+
 
 def add_to_history(user_id, role, content):
     data = get_user_data(user_id)
@@ -38,10 +76,13 @@ def add_to_history(user_id, role, content):
     if len(data["history"]) > MAX_HISTORY_MESSAGES:
         data["history"] = data["history"][-MAX_HISTORY_MESSAGES:]
 
+
 def clear_history(user_id):
+    user_id = str(user_id)
     if user_id in user_data:
         user_data[user_id]["history"] = []
         user_data[user_id]["mode"] = "general"
+
 
 def get_chat_id(event):
     ways = [
@@ -76,27 +117,25 @@ def get_grades_context_for_ai(chat_id: int) -> str:
 def try_auto_detect_grades(text: str, chat_id: int) -> Optional[Tuple[str, List[int]]]:
     """
     Пытается автоматически определить, рассказывает ли пользователь об оценках.
-    Если да — тихо добавляет их в дневник и возвращает (предмет, оценки).
-    Если нет — возвращает None.
-    
-    ВАЖНО: не возвращает готовое сообщение — бот ответит через GigaChat естественно!
+    Если да — тихо ДОБАВЛЯЕТ их в дневник (не перезаписывает!) и возвращает (предмет, оценки).
     """
-    # Быстрая проверка на триггеры
     if not should_check_for_grades(text):
         return None
     
-    # Умная проверка через ИИ
     is_grades, subject, grades = extract_grades_with_ai(text)
     
     if is_grades and subject and grades:
         data = get_user_data(chat_id)
         
-        # Тихо добавляем оценки в дневник
+        # ДОБАВЛЯЕМ оценки (extend), а не перезаписываем
         if subject not in data["grades"]:
             data["grades"][subject] = []
         data["grades"][subject].extend(grades)
         
-        print(f"🎯 Тихо добавлены оценки: {subject} → {grades}")
+        # СОХРАНЯЕМ в файл сразу
+        save_user_data()
+        
+        print(f"🎯 Добавлены оценки: {subject} → {grades} (всего: {len(data['grades'][subject])})")
         
         return subject, grades
     
@@ -125,6 +164,7 @@ async def handle_start(event: MessageCreated):
     if not chat_id:
         return
     clear_history(chat_id)
+    save_user_data()
     await event.message.answer("🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.")
 
 @dp.message_created(F.message.body.text)
@@ -147,11 +187,13 @@ async def handle_message(event: MessageCreated):
     # Команды управления
     if text_lower in ["начать", "старт", "start", "hello", "hi", "привет"]:
         clear_history(chat_id)
+        save_user_data()
         await event.message.answer("🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\nНапиши 'помощь', чтобы увидеть список команд.")
         return
     
     if text_lower in ["сброс", "забудь", "очистить", "reset", "clear"]:
         clear_history(chat_id)
+        save_user_data()
         await event.message.answer("🗑️ Готово! Чем помочь?")
         return
     
@@ -174,6 +216,7 @@ async def handle_message(event: MessageCreated):
         response = GradeAnalyzer.format_grades(data["grades"])
         add_to_history(chat_id, "user", text)
         add_to_history(chat_id, "assistant", response)
+        save_user_data()
         await event.message.answer(response)
         return
     
@@ -182,6 +225,7 @@ async def handle_message(event: MessageCreated):
         response = GradeAnalyzer.get_analysis(data["grades"])
         add_to_history(chat_id, "user", text)
         add_to_history(chat_id, "assistant", response)
+        save_user_data()
         await event.message.answer(response)
         return
     
@@ -218,7 +262,7 @@ async def handle_message(event: MessageCreated):
                 grades_context += grades_note_for_ai
             else:
                 grades_context = grades_note_for_ai
-            mode = "journal"  # Принудительно переключаем на режим журнала
+            mode = "journal"
         
         response = AIService.process_message(text, mode, data["history"], grades_context)
         
@@ -228,6 +272,7 @@ async def handle_message(event: MessageCreated):
         
         add_to_history(chat_id, "user", text)
         add_to_history(chat_id, "assistant", response)
+        save_user_data()
         
         if len(response) > 4000:
             for i in range(0, len(response), 4000):
@@ -239,8 +284,12 @@ async def handle_message(event: MessageCreated):
         await event.message.answer("Извини, произошла ошибка. Попробуй через минуту.")
 
 async def main():
+    # Загружаем сохранённые данные при старте
+    load_user_data()
+    
     print("🚀 БОТ Sferum Navigator запущен!")
     print("✅ Режимы: текст, контекст, языки, умный дневник оценок")
+    print("✅ Оценки сохраняются в файл и не теряются при перезапуске")
     print("Ожидаю сообщения...\n")
     await dp.start_polling(bot)
 
