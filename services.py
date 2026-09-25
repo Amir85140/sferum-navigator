@@ -126,6 +126,83 @@ def detect_image_format(image_bytes: bytes):
         return 'image.jpg', 'image/jpeg'
 
 
+def upload_file_with_retry(token: str, image_bytes: bytes, filename: str, mime_type: str, max_retries: int = 5):
+    """Загружает файл в GigaChat с ретраями и экспоненциальной задержкой"""
+    for attempt in range(max_retries):
+        try:
+            print(f"📤 Загрузка файла в GigaChat (попытка {attempt+1}/{max_retries})...")
+            
+            files = {
+                'file': (filename, image_bytes, mime_type)
+            }
+            data = {
+                'purpose': 'general'
+            }
+            
+            response = requests.post(
+                url="https://gigachat.devices.sberbank.ru/api/v1/files",
+                headers={"Authorization": f"Bearer {token}"},
+                files=files,
+                data=data,
+                verify=False,
+                timeout=60  # Увеличенный таймаут
+            )
+            
+            if response.status_code == 200:
+                file_data = response.json()
+                file_id = file_data.get('id')
+                
+                if file_id:
+                    print(f"✅ Файл загружен! ID: {file_id}")
+                    return file_id
+                else:
+                    print(f"⚠️ Не получен file_id. Ответ: {file_data}")
+            
+            elif response.status_code == 429:
+                # Rate limiting — ждём дольше
+                wait_time = min(10 * (2 ** attempt), 60)
+                print(f"⚠️ Rate limiting. Ждём {wait_time} сек...")
+                time.sleep(wait_time)
+                continue
+            
+            else:
+                print(f"⚠️ Ошибка загрузки: {response.status_code}")
+                print(f"   Ответ: {response.text[:200]}")
+                
+                # Для 5xx ошибок — ретрай
+                if response.status_code >= 500 and attempt < max_retries - 1:
+                    wait_time = 2 ** attempt
+                    print(f"   Серверная ошибка. Ждём {wait_time} сек и пробуем ещё раз...")
+                    time.sleep(wait_time)
+                    continue
+                    
+        except requests.exceptions.Timeout:
+            print(f"⏱️ Таймаут (попытка {attempt+1}/{max_retries})")
+            if attempt < max_retries - 1:
+                wait_time = min(3 * (2 ** attempt), 30)
+                print(f"   Ждём {wait_time} сек...")
+                time.sleep(wait_time)
+                continue
+                
+        except requests.exceptions.ConnectionError as e:
+            print(f"🔌 Ошибка соединения: {type(e).__name__}")
+            if attempt < max_retries - 1:
+                wait_time = min(5 * (2 ** attempt), 30)
+                print(f"   Ждём {wait_time} сек...")
+                time.sleep(wait_time)
+                continue
+                
+        except Exception as e:
+            print(f"⚠️ Неожиданная ошибка: {e}")
+            if attempt < max_retries - 1:
+                wait_time = 2 ** attempt
+                print(f"   Ждём {wait_time} сек...")
+                time.sleep(wait_time)
+                continue
+    
+    return None
+
+
 class AIService:
     @staticmethod
     def process_message(message: str, feature_id: str = "general", history: list = None) -> str:
@@ -234,50 +311,16 @@ class AIService:
             print(f"⚠️ Ошибка конвертации: {e}")
             filename, mime_type = detect_image_format(image_bytes)
         
-        # Загружаем файл в GigaChat
-        try:
-            print("📤 Загрузка файла в GigaChat...")
-            
-            files = {
-                'file': (filename, image_bytes, mime_type)
-            }
-            data = {
-                'purpose': 'general'
-            }
-            
-            response = requests.post(
-                url="https://gigachat.devices.sberbank.ru/api/v1/files",
-                headers={"Authorization": f"Bearer {token}"},
-                files=files,
-                data=data,
-                verify=False,
-                timeout=30
-            )
-            
-            if response.status_code != 200:
-                print(f"⚠️ Ошибка загрузки файла: {response.status_code}")
-                print(f"   Ответ: {response.text[:200]}")
-                return ("🖼️ Я вижу, ты прислал фото!\n\n"
-                        "К сожалению, не удалось загрузить изображение для анализа.\n"
-                        "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
-            
-            file_data = response.json()
-            file_id = file_data.get('id')
-            
-            if not file_id:
-                print(f"⚠️ Не получен file_id. Ответ: {file_data}")
-                return "Не удалось обработать фото. Попробуй ещё раз."
-            
-            print(f"✅ Файл загружен! ID: {file_id}")
-            
-        except Exception as e:
-            print(f"⚠️ Ошибка загрузки: {e}")
+        # Загружаем файл в GigaChat с ретраями
+        file_id = upload_file_with_retry(token, image_bytes, filename, mime_type, max_retries=5)
+        
+        if not file_id:
             return ("🖼️ Я вижу, ты прислал фото!\n\n"
-                    "К сожалению, произошла ошибка при загрузке.\n"
+                    "К сожалению, не удалось загрузить изображение для анализа.\n"
                     "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
         
-        # Отправляем запрос с file_id (с увеличенным таймаутом и ретраями)
-        max_retries = 2
+        # Отправляем запрос с file_id
+        max_retries = 3
         for attempt in range(max_retries):
             try:
                 messages = [{"role": "system", "content": system_prompt}]
@@ -307,7 +350,7 @@ class AIService:
                         "temperature": 0.5
                     },
                     verify=False,
-                    timeout=90  # Увеличили с 45 до 90 секунд
+                    timeout=120  # Увеличенный таймаут для анализа фото
                 )
                 
                 print(f"   Статус: {response.status_code}")
@@ -322,16 +365,30 @@ class AIService:
                 
                 print(f"⚠️ Ошибка анализа: {response.text[:200]}")
                 
-                if attempt < max_retries - 1:
-                    print("   Пробуем ещё раз через 3 секунды...")
-                    time.sleep(3)
+                # Ретрай для 5xx и 429
+                if response.status_code in [429, 500, 502, 503, 504] and attempt < max_retries - 1:
+                    wait_time = min(5 * (2 ** attempt), 30)
+                    print(f"   Ждём {wait_time} сек и пробуем ещё раз...")
+                    time.sleep(wait_time)
+                    continue
+                
+                if response.status_code >= 400 and attempt < max_retries - 1:
+                    time.sleep(2)
                     continue
                     
             except requests.exceptions.Timeout:
-                print(f"⏱️ Таймаут (попытка {attempt+1}/{max_retries})")
+                print(f"⏱️ Таймаут анализа (попытка {attempt+1}/{max_retries})")
                 if attempt < max_retries - 1:
-                    print("   Пробуем ещё раз через 5 секунд...")
-                    time.sleep(5)
+                    wait_time = min(5 * (2 ** attempt), 20)
+                    print(f"   Ждём {wait_time} сек...")
+                    time.sleep(wait_time)
+                    continue
+            except requests.exceptions.ConnectionError as e:
+                print(f"🔌 Ошибка соединения: {type(e).__name__}")
+                if attempt < max_retries - 1:
+                    wait_time = min(5 * (2 ** attempt), 20)
+                    print(f"   Ждём {wait_time} сек...")
+                    time.sleep(wait_time)
                     continue
             except Exception as e:
                 print(f"⚠️ Ошибка анализа: {e}")
@@ -340,7 +397,7 @@ class AIService:
                     continue
         
         return ("🖼️ Я вижу, ты прислал фото!\n\n"
-                "К сожалению, анализ занял слишком много времени.\n"
+                "К сожалению, анализ занял слишком много времени или произошла ошибка.\n"
                 "Попробуй отправить фото ещё раз или перепечатай текст задания! 🙌")
 
 
