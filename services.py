@@ -1,7 +1,7 @@
 import requests
 import re
 from requests.auth import HTTPBasicAuth
-from typing import Dict
+from typing import Dict, Tuple
 import urllib3
 import time
 import os
@@ -13,7 +13,6 @@ CLIENT_SECRET = os.environ.get("GIGACHAT_CLIENT_SECRET", "93e085d7-803b-4fe2-b1d
 
 _token_cache = {"token": None, "expires_at": 0}
 
-# Блок правил форматирования
 FORMATTING_RULES = """
 
 КРИТИЧЕСКИ ВАЖНЫЕ ПРАВИЛА ФОРМАТИРОВАНИЯ:
@@ -36,7 +35,6 @@ FORMATTING_RULES = """
 ✅ Хорошо: x² + y/2 = 0, 📌 Заголовок, важный текст
 """
 
-# Блок для работы с языками
 LANGUAGE_RULES = """
 
 ЯЗЫКОВОЕ ПОВЕДЕНИЕ:
@@ -187,32 +185,145 @@ EN_TO_RU = {
 
 RU_TO_EN = {v: k for k, v in EN_TO_RU.items()}
 
+# Словари частых слов для распознавания языка
+ENGLISH_COMMON_WORDS = {
+    'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
+    'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
+    'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
+    'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what',
+    'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me',
+    'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take',
+    'people', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other',
+    'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also',
+    'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way',
+    'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us',
+    'hello', 'hi', 'hey', 'thanks', 'please', 'sorry', 'yes', 'no', 'ok',
+    'how', 'are', 'you', 'what', 'where', 'when', 'why', 'which', 'whose', 'whom',
+    'am', 'is', 'was', 'were', 'been', 'being', 'has', 'had', 'having',
+    'does', 'did', 'doing', 'done', 'will', 'would', 'should', 'could', 'might',
+    'must', 'shall', 'can', 'may', 'need', 'dare', 'ought', 'used',
+    'math', 'maths', 'mathematics', 'physics', 'chemistry', 'biology', 'history', 'science',
+    'english', 'german', 'french', 'spanish', 'russian', 'chinese', 'japanese',
+    'translate', 'translation', 'grammar', 'vocabulary', 'word', 'sentence', 'text',
+    'help', 'please', 'thank', 'sorry', 'excuse', 'welcome',
+    'student', 'school', 'teacher', 'class', 'lesson', 'homework', 'exam', 'test',
+    'book', 'page', 'chapter', 'exercise', 'problem', 'solution', 'answer', 'question',
+    'today', 'tomorrow', 'yesterday', 'week', 'month', 'year', 'hour', 'minute',
+    'big', 'small', 'good', 'bad', 'nice', 'beautiful', 'ugly', 'fast', 'slow',
+    'love', 'like', 'hate', 'want', 'need', 'have', 'has', 'had',
+    'go', 'going', 'went', 'gone', 'come', 'coming', 'came',
+    'see', 'seeing', 'saw', 'seen', 'look', 'looking', 'looked',
+    'think', 'thinking', 'thought', 'know', 'knowing', 'knew', 'known',
+    'say', 'saying', 'said', 'tell', 'telling', 'told',
+    'make', 'making', 'made', 'do', 'doing', 'did', 'done',
+    'find', 'finding', 'found', 'give', 'giving', 'gave', 'given',
+    'take', 'taking', 'took', 'taken', 'get', 'getting', 'got', 'gotten',
+    'very', 'really', 'quite', 'rather', 'pretty', 'fairly', 'extremely',
+    'always', 'never', 'sometimes', 'often', 'usually', 'rarely', 'seldom',
+    'here', 'there', 'everywhere', 'nowhere', 'somewhere', 'anywhere',
+    'much', 'many', 'few', 'little', 'some', 'any', 'all', 'none',
+    'more', 'less', 'most', 'least', 'better', 'worse', 'best', 'worst'
+}
 
-def fix_keyboard_layout(text: str) -> str:
-    """Исправляет текст, набранный в неправильной раскладке"""
-    # Проверяем, содержит ли текст в основном латиницу (вероятно, забыли переключить на русский)
+RUSSIAN_COMMON_WORDS = {
+    'и', 'в', 'не', 'на', 'я', 'быть', 'с', 'он', 'а', 'это',
+    'как', 'то', 'что', 'этот', 'по', 'но', 'они', 'к', 'у', 'ты',
+    'из', 'мы', 'за', 'вы', 'так', 'же', 'от', 'о', 'весь', 'при',
+    'она', 'для', 'один', 'тот', 'когда', 'также', 'или', 'нет', 'бы', 'был',
+    'до', 'его', 'себя', 'вот', 'уже', 'да', 'было', 'если', 'ещё', 'были',
+    'чтобы', 'там', 'через', 'будет', 'ну', 'всё', 'только', 'была', 'быть', 'были',
+    'тебя', 'их', 'кто', 'даже', 'под', 'была', 'мне', 'так', 'все', 'наш',
+    'тут', 'время', 'теперь', 'потом', 'очень', 'можно', 'после', 'более', 'над',
+    'при', 'эти', 'между', 'надо', 'лишь', 'них', 'перед', 'того', 'ли', 'раз',
+    'здесь', 'куда', 'почему', 'зато', 'потому', 'чуть', 'разве', 'тоже',
+    'привет', 'здравствуй', 'спасибо', 'пожалуйста', 'извини', 'да', 'нет',
+    'как', 'дела', 'ты', 'я', 'он', 'она', 'мы', 'вы', 'они',
+    'хорошо', 'плохо', 'отлично', 'замечательно', 'ужасно',
+    'математика', 'физика', 'химия', 'биология', 'история', 'география',
+    'русский', 'английский', 'немецкий', 'французский', 'испанский',
+    'перевод', 'переведи', 'графика', 'слово', 'предложение', 'текст',
+    'ученик', 'школа', 'учитель', 'класс', 'урок', 'домашка', 'экзамен',
+    'книга', 'страница', 'глава', 'упражнение', 'задача', 'решение', 'ответ',
+    'сегодня', 'завтра', 'вчера', 'неделя', 'месяц', 'год', 'час', 'минута',
+    'большой', 'маленький', 'хороший', 'плохой', 'красивый',
+    'любить', 'нравиться', 'хотеть', 'мочь', 'должен',
+    'идти', 'ходить', 'приходить', 'уходить',
+    'видеть', 'смотреть', 'понимать', 'знать',
+    'говорить', 'рассказывать', 'спрашивать',
+    'делать', 'сделать', 'решать', 'решить',
+    'находить', 'давать', 'брать', 'получать'
+}
+
+
+def count_language_matches(text: str, word_set: set) -> int:
+    """Считает сколько слов из текста есть в словаре языка"""
+    words = re.findall(r'[a-zA-Zа-яА-ЯёЁ]+', text.lower())
+    return sum(1 for word in words if word in word_set)
+
+
+def detect_real_language(text: str) -> Tuple[str, str]:
+    """
+    Определяет настоящий язык текста.
+    Возвращает: (исправленный_текст, язык)
+    """
+    text_lower = text.lower()
+    
+    # Считаем латиницу и кириллицу
     latin_chars = sum(1 for c in text if c.isascii() and c.isalpha())
     cyrillic_chars = sum(1 for c in text if '\u0400' <= c <= '\u04FF')
     
-    # Если больше латиницы — пробуем конвертировать в русский
+    # Если в основном латиница
     if latin_chars > cyrillic_chars and latin_chars > 0:
-        converted = ''.join(EN_TO_RU.get(c, c) for c in text)
-        # Проверяем, что результат содержит русские слова (хотя бы 2-3 буквы подряд)
-        if re.search(r'[а-яёА-ЯЁ]{3,}', converted):
-            print(f"🔄 Конвертация раскладки: '{text[:30]}...' → '{converted[:30]}...'")
-            return converted
+        # Считаем сколько английских слов есть в оригинале
+        en_score_original = count_language_matches(text, ENGLISH_COMMON_WORDS)
+        
+        # Пробуем конвертировать в русский
+        converted_to_ru = ''.join(EN_TO_RU.get(c, c) for c in text)
+        ru_score_converted = count_language_matches(converted_to_ru, RUSSIAN_COMMON_WORDS)
+        
+        # Если английский имеет больше совпадений — оставляем как есть
+        if en_score_original > ru_score_converted:
+            print(f"🌍 Определён язык: английский ({en_score_original} совпадений)")
+            return text, "english"
+        
+        # Если русский после конвертации имеет больше — значит это неправильная раскладка
+        if ru_score_converted > en_score_original and ru_score_converted >= 2:
+            print(f"⌨️ Исправлена раскладка EN→RU ({ru_score_converted} совпадений)")
+            return converted_to_ru, "russian"
+        
+        # Не можем определить — оставляем как есть
+        return text, "unknown"
     
-    # Если больше кириллицы — пробуем конвертировать в английский
+    # Если в основном кириллица
     elif cyrillic_chars > latin_chars and cyrillic_chars > 0:
-        converted = ''.join(RU_TO_EN.get(c, c) for c in text)
-        if re.search(r'[a-zA-Z]{3,}', converted):
-            print(f"🔄 Конвертация раскладки (RU→EN): '{text[:30]}...' → '{converted[:30]}...'")
-            return converted
+        # Считаем сколько русских слов есть в оригинале
+        ru_score_original = count_language_matches(text, RUSSIAN_COMMON_WORDS)
+        
+        # Пробуем конвертировать в английский
+        converted_to_en = ''.join(RU_TO_EN.get(c, c) for c in text)
+        en_score_converted = count_language_matches(converted_to_en, ENGLISH_COMMON_WORDS)
+        
+        # Если русский имеет больше совпадений — оставляем
+        if ru_score_original >= en_score_converted:
+            return text, "russian"
+        
+        # Если английский после конвертации имеет больше — это неправильная раскладка
+        if en_score_converted > ru_score_original and en_score_converted >= 2:
+            print(f"⌨️ Исправлена раскладка RU→EN ({en_score_converted} совпадений)")
+            return converted_to_en, "english"
+        
+        return text, "unknown"
     
-    return text
+    # Нет букв — возвращаем как есть
+    return text, "unknown"
 
 
-# === Блоки для конвертации LaTeX ===
+def fix_keyboard_layout(text: str) -> str:
+    """Умное исправление раскладки клавиатуры с определением языка"""
+    fixed_text, language = detect_real_language(text)
+    return fixed_text
+
+
 SUPERSCRIPT_MAP = {
     '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
     '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
@@ -236,12 +347,6 @@ GREEK_LETTERS = {
     r'\pi': 'π', r'\rho': 'ρ', r'\sigma': 'σ', r'\tau': 'τ',
     r'\upsilon': 'υ', r'\phi': 'φ', r'\varphi': 'φ', r'\chi': 'χ',
     r'\psi': 'ψ', r'\omega': 'ω',
-    r'\Alpha': 'Α', r'\Beta': 'Β', r'\Gamma': 'Γ', r'\Delta': 'Δ',
-    r'\Epsilon': 'Ε', r'\Zeta': 'Ζ', r'\Eta': 'Η', r'\Theta': 'Θ',
-    r'\Iota': 'Ι', r'\Kappa': 'Κ', r'\Lambda': 'Λ', r'\Mu': 'Μ',
-    r'\Nu': 'Ν', r'\Xi': 'Ξ', r'\Pi': 'Π', r'\Rho': 'Ρ',
-    r'\Sigma': 'Σ', r'\Tau': 'Τ', r'\Upsilon': 'Υ', r'\Phi': 'Φ',
-    r'\Chi': 'Χ', r'\Psi': 'Ψ', r'\Omega': 'Ω'
 }
 
 MATH_SYMBOLS = {
@@ -281,23 +386,18 @@ def to_subscript(text: str) -> str:
 
 
 def format_latex_to_unicode(text: str) -> str:
-    """Конвертирует LaTeX и Markdown в читаемый Unicode-формат"""
-    
-    # Убираем Markdown
     text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
     text = re.sub(r'(?<!\w)_(.+?)_(?!\w)', r'\1', text)
     text = re.sub(r'^#{1,3}\s*(.+)$', r'📌 \1', text, flags=re.MULTILINE)
     text = re.sub(r'^[-*]{3,}$', '', text, flags=re.MULTILINE)
     text = re.sub(r'`([^`]+)`', r'\1', text)
     
-    # Убираем LaTeX-скобки
     text = re.sub(r'\$\$(.+?)\$\$', r'\1', text, flags=re.DOTALL)
     text = re.sub(r'\$(.+?)\$', r'\1', text)
     text = re.sub(r'\\left([(\[{|])', r'\1', text)
     text = re.sub(r'\\right([)\]}|])', r'\1', text)
     text = re.sub(r'\\text\{([^}]*)\}', r'\1', text)
     
-    # Конвертируем \frac{a}{b}
     def replace_frac(match):
         num = match.group(1).strip()
         den = match.group(2).strip()
@@ -313,7 +413,6 @@ def format_latex_to_unicode(text: str) -> str:
             break
         text = new_text
     
-    # Конвертируем \sqrt
     for _ in range(3):
         new_text = re.sub(r'\\sqrt\[([^\]]+)\]\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}', 
                          lambda m: f"{to_superscript(m.group(1))}√({format_latex_to_unicode(m.group(2))})", text)
@@ -323,7 +422,6 @@ def format_latex_to_unicode(text: str) -> str:
             break
         text = new_text
     
-    # Конвертируем степени
     def replace_superscript_braces(match):
         return match.group(1) + to_superscript(match.group(2))
     
@@ -334,7 +432,6 @@ def format_latex_to_unicode(text: str) -> str:
     text = re.sub(r'(\([^)]+\))\^([0-9a-zA-Z])', 
                  lambda m: m.group(1) + to_superscript(m.group(2)), text)
     
-    # Конвертируем индексы
     def replace_subscript_braces(match):
         return match.group(1) + to_subscript(match.group(2))
     
@@ -342,14 +439,12 @@ def format_latex_to_unicode(text: str) -> str:
     text = re.sub(r'([a-zA-Zα-ωΑ-Ω]+)_([0-9a-zA-Z])', 
                  lambda m: m.group(1) + to_subscript(m.group(2)), text)
     
-    # Греческие буквы и символы
     for latex in sorted(GREEK_LETTERS.keys(), key=len, reverse=True):
         text = text.replace(latex, GREEK_LETTERS[latex])
     
     for latex in sorted(MATH_SYMBOLS.keys(), key=len, reverse=True):
         text = text.replace(latex, MATH_SYMBOLS[latex])
     
-    # Очистка
     text = re.sub(r'\\(?![nrt])', '', text)
     text = re.sub(r'  +', ' ', text)
     text = re.sub(r'\n{3,}', '\n\n', text)
