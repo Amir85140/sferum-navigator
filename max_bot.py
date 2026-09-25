@@ -8,7 +8,6 @@ from maxapi.filters.command import CommandStart
 from services import AIService, detect_mode
 
 load_dotenv()
-
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=os.environ["MAX_TOKEN"])
@@ -18,16 +17,11 @@ user_data = {}
 MAX_HISTORY_MESSAGES = 20
 
 MODES = {
-    "general": "🤖 Общий",
-    "planner": "📅 Подготовка к экзаменам",
-    "homework": "📝 Помощь с домашкой",
-    "explain": "🎓 Объяснение темы",
-    "tests": "✅ Проверка знаний",
-    "motivation": "💪 Мотивация",
-    "videos": "🎥 Видеоуроки",
-    "journal": "📚 Оценки и МЭШ",
-    "offline": "📱 Оффлайн материалы",
-    "photo": "🖼️ Фото заданий"
+    "general": "🤖 Общий", "planner": "📅 Подготовка к экзаменам",
+    "homework": "📝 Помощь с домашкой", "explain": "🎓 Объяснение темы",
+    "tests": "✅ Проверка знаний", "motivation": "💪 Мотивация",
+    "videos": "🎥 Видеоуроки", "journal": "📚 Оценки и МЭШ",
+    "offline": "📱 Оффлайн материалы", "photo": "🖼️ Фото заданий"
 }
 
 def get_user_data(user_id):
@@ -46,6 +40,25 @@ def clear_history(user_id):
         user_data[user_id]["history"] = []
         user_data[user_id]["mode"] = "general"
 
+def get_chat_id(event):
+    """Пробует разные способы получить chat_id"""
+    ways = [
+        ("recipient.chat_id", lambda e: e.recipient.chat_id),
+        ("message.recipient.chat_id", lambda e: e.message.recipient.chat_id),
+        ("chat.chat_id", lambda e: e.chat.chat_id),
+        ("message.chat_id", lambda e: e.message.chat_id),
+        ("sender.user_id", lambda e: e.sender.user_id),
+        ("user.user_id", lambda e: e.user.user_id),
+    ]
+    for name, func in ways:
+        try:
+            result = func(event)
+            print(f"✅ Найден chat_id через {name}: {result}")
+            return result
+        except Exception as e:
+            pass
+    return None
+
 @dp.bot_started()
 async def bot_started(event: BotStarted):
     welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
@@ -58,20 +71,23 @@ async def bot_started(event: BotStarted):
 
 @dp.message_created(CommandStart())
 async def handle_start(event: MessageCreated):
-    chat_id = event.message.chat.chat_id
+    chat_id = get_chat_id(event)
+    if not chat_id:
+        print("❌ Не удалось получить chat_id")
+        return
     clear_history(chat_id)
-    welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
-    welcome += "Я запомню наш разговор и буду учитывать контекст.\n"
-    welcome += "Напиши 'сброс', чтобы начать заново.\n"
-    await event.message.answer(welcome)
+    await event.message.answer("🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.")
 
 @dp.message_created(F.message.body.text)
 async def handle_message(event: MessageCreated):
     text = event.message.body.text
-    chat_id = event.message.chat.chat_id
+    chat_id = get_chat_id(event)
+    
+    if not chat_id:
+        print(f"❌ Не удалось получить chat_id")
+        return
     
     if not text:
-        await event.message.answer("Отправь текст или фото задания!")
         return
     
     text = text.strip()
@@ -79,22 +95,12 @@ async def handle_message(event: MessageCreated):
     
     if text_lower in ["начать", "старт", "start"]:
         clear_history(chat_id)
-        welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
-        welcome += "Я запомню наш разговор и буду учитывать контекст.\n"
-        welcome += "Напиши 'сброс', чтобы начать заново.\n"
-        await event.message.answer(welcome)
+        await event.message.answer("🎯 Привет! Я Sferum Navigator.")
         return
     
     if text_lower in ["сброс", "забудь", "очистить"]:
         clear_history(chat_id)
         await event.message.answer("🗑️ Готово! Чем помочь?")
-        return
-    
-    if text_lower in ["помощь", "меню", "режимы"]:
-        menu = "🎯 Я сам определю режим по твоему вопросу.\n"
-        menu += "Просто напиши, что нужно, или пришли фото задания!\n"
-        menu += "Команды: 'сброс' — начать заново"
-        await event.message.answer(menu)
         return
     
     detected = detect_mode(text)
@@ -115,15 +121,12 @@ async def handle_message(event: MessageCreated):
                 await event.message.answer(response[i:i+4000])
         else:
             await event.message.answer(response)
-            
     except Exception as e:
         print(f"❌ Ошибка ИИ: {e}")
-        await event.message.answer("Извини, произошла ошибка. Попробуй через минуту.")
+        await event.message.answer("Извини, произошла ошибка.")
 
 async def main():
-    print("🚀 БОТ Sferum Navigator с GigaChat запущен!")
-    print("✅ Подключено к MAX!")
-    print("Ожидаю сообщения...\n")
+    print("🚀 БОТ Sferum Navigator запущен!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
