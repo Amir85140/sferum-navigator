@@ -175,7 +175,8 @@ class AIService:
                 
             except requests.exceptions.Timeout:
                 if attempt < max_retries - 1:
-                    time.sleep(2)
+                    print(f"⏱️ Таймаут (попытка {attempt+1}), пробуем ещё раз...")
+                    time.sleep(3)
                     continue
                 return "Извини, ИИ не ответил вовремя. Попробуй ещё раз."
             except Exception as e:
@@ -198,10 +199,16 @@ class AIService:
         user_text = question if question.strip() else "Рассмотри это изображение. Прочитай текст, разбери задачу и помоги ученику с учёбой."
         system_prompt = PROMPTS.get("photo")
         
-        # Конвертируем изображение в JPEG (GigaChat не поддерживает WEBP/PNG)
+        # Конвертируем изображение в JPEG и сжимаем
         try:
-            print("🔄 Конвертация изображения в JPEG...")
+            print("🔄 Конвертация и сжатие изображения...")
             img = Image.open(io.BytesIO(image_bytes))
+            
+            # Уменьшаем размер если слишком большое
+            max_size = 1024
+            if max(img.size) > max_size:
+                img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+                print(f"   Уменьшено до {img.size}")
             
             # Если изображение с прозрачностью (RGBA) — конвертируем в RGB
             if img.mode in ('RGBA', 'LA', 'P'):
@@ -213,9 +220,9 @@ class AIService:
             elif img.mode != 'RGB':
                 img = img.convert('RGB')
             
-            # Сохраняем в JPEG
+            # Сохраняем в JPEG с более сильным сжатием
             buffer = io.BytesIO()
-            img.save(buffer, format='JPEG', quality=85)
+            img.save(buffer, format='JPEG', quality=75, optimize=True)
             image_bytes = buffer.getvalue()
             
             print(f"✅ Конвертировано в JPEG ({len(image_bytes)} байт)")
@@ -269,58 +276,72 @@ class AIService:
                     "К сожалению, произошла ошибка при загрузке.\n"
                     "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
         
-        # Отправляем запрос с file_id
-        try:
-            messages = [{"role": "system", "content": system_prompt}]
-            if history:
-                messages.extend(history)
-            
-            user_message = {
-                "role": "user",
-                "content": user_text,
-                "attachments": [
-                    {
-                        "file_id": file_id
-                    }
-                ]
-            }
-            messages.append(user_message)
-            
-            print(f"🤖 Отправка запроса с файлом...")
-            
-            response = requests.post(
-                url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
-                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-                json={
-                    "model": "GigaChat:latest",
-                    "messages": messages,
-                    "max_tokens": 600,
-                    "temperature": 0.5
-                },
-                verify=False,
-                timeout=45
-            )
-            
-            print(f"   Статус: {response.status_code}")
-            
-            if response.status_code == 200:
-                result = response.json()
-                if 'choices' in result and len(result['choices']) > 0:
-                    content = result['choices'][0].get('message', {}).get('content', '')
-                    if content:
-                        print(f"✅ Фото проанализировано! ({len(content)} символов)")
-                        return content
-            
-            print(f"⚠️ Ошибка анализа: {response.text[:200]}")
-            return ("🖼️ Я вижу, ты прислал фото!\n\n"
-                    "К сожалению, не удалось проанализировать изображение.\n"
-                    "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
-            
-        except Exception as e:
-            print(f"⚠️ Ошибка анализа: {e}")
-            return ("🖼️ Я вижу, ты прислал фото!\n\n"
-                    "К сожалению, произошла ошибка при анализе.\n"
-                    "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
+        # Отправляем запрос с file_id (с увеличенным таймаутом и ретраями)
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                messages = [{"role": "system", "content": system_prompt}]
+                if history:
+                    messages.extend(history)
+                
+                user_message = {
+                    "role": "user",
+                    "content": user_text,
+                    "attachments": [
+                        {
+                            "file_id": file_id
+                        }
+                    ]
+                }
+                messages.append(user_message)
+                
+                print(f"🤖 Отправка запроса с файлом (попытка {attempt+1}/{max_retries})...")
+                
+                response = requests.post(
+                    url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                    json={
+                        "model": "GigaChat:latest",
+                        "messages": messages,
+                        "max_tokens": 600,
+                        "temperature": 0.5
+                    },
+                    verify=False,
+                    timeout=90  # Увеличили с 45 до 90 секунд
+                )
+                
+                print(f"   Статус: {response.status_code}")
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if 'choices' in result and len(result['choices']) > 0:
+                        content = result['choices'][0].get('message', {}).get('content', '')
+                        if content:
+                            print(f"✅ Фото проанализировано! ({len(content)} символов)")
+                            return content
+                
+                print(f"⚠️ Ошибка анализа: {response.text[:200]}")
+                
+                if attempt < max_retries - 1:
+                    print("   Пробуем ещё раз через 3 секунды...")
+                    time.sleep(3)
+                    continue
+                    
+            except requests.exceptions.Timeout:
+                print(f"⏱️ Таймаут (попытка {attempt+1}/{max_retries})")
+                if attempt < max_retries - 1:
+                    print("   Пробуем ещё раз через 5 секунд...")
+                    time.sleep(5)
+                    continue
+            except Exception as e:
+                print(f"⚠️ Ошибка анализа: {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(3)
+                    continue
+        
+        return ("🖼️ Я вижу, ты прислал фото!\n\n"
+                "К сожалению, анализ занял слишком много времени.\n"
+                "Попробуй отправить фото ещё раз или перепечатай текст задания! 🙌")
 
 
 class PlannerService:
