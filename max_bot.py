@@ -5,7 +5,7 @@ import os
 from maxapi import Bot, Dispatcher, F
 from maxapi.types import BotStarted, MessageCreated
 from maxapi.filters.command import CommandStart
-from services import AIService, detect_mode
+from services import AIService, detect_mode, fix_keyboard_layout
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +21,8 @@ MODES = {
     "homework": "📝 Помощь с домашкой", "explain": "🎓 Объяснение темы",
     "tests": "✅ Проверка знаний", "motivation": "💪 Мотивация",
     "videos": "🎥 Видеоуроки", "journal": "📚 Оценки и МЭШ",
-    "offline": "📱 Оффлайн материалы", "context": "🔗 Контекст"
+    "offline": "📱 Оффлайн материалы", "context": "🔗 Контекст",
+    "languages": "🌍 Иностранные языки"
 }
 
 def get_user_data(user_id):
@@ -57,14 +58,18 @@ def get_chat_id(event):
 
 @dp.bot_started()
 async def bot_started(event: BotStarted):
-    welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
+    welcome = "🎯 Привет! / Hello! / Hallo! / Bonjour!\n\n"
+    welcome += "Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
     welcome += "Я запомню наш разговор и буду учитывать контекст.\n"
     welcome += "Напиши 'сброс', чтобы начать заново.\n\n"
     welcome += "Ты можешь:\n"
     welcome += "📝 Попросить помощи с домашкой\n"
     welcome += "📅 Составить план подготовки к экзаменам\n"
     welcome += "🎓 Объяснить сложную тему\n"
-    welcome += "💬 Или просто задать вопрос.\n"
+    welcome += "🌍 Практиковать иностранные языки\n"
+    welcome += "💬 Или просто задать вопрос.\n\n"
+    welcome += "✨ Пиши на любом языке — я пойму!\n"
+    welcome += "⌨️ Забыл переключить раскладку? Я исправлю!"
     await bot.send_message(chat_id=event.chat_id, text=welcome)
 
 @dp.message_created(CommandStart())
@@ -85,10 +90,16 @@ async def handle_message(event: MessageCreated):
     if not chat_id or not text:
         return
     
+    # АВТОИСПРАВЛЕНИЕ РАСКЛАДКИ КЛАВИАТУРЫ
+    original_text = text
+    text = fix_keyboard_layout(text)
+    if text != original_text:
+        print(f"⌨️ Исправлена раскладка: '{original_text}' → '{text}'")
+    
     text = text.strip()
     text_lower = text.lower()
     
-    if text_lower in ["начать", "старт", "start"]:
+    if text_lower in ["начать", "старт", "start", "hello", "hi", "привет"]:
         clear_history(chat_id)
         welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
         welcome += "Я запомню наш разговор и буду учитывать контекст.\n"
@@ -96,15 +107,17 @@ async def handle_message(event: MessageCreated):
         await event.message.answer(welcome)
         return
     
-    if text_lower in ["сброс", "забудь", "очистить"]:
+    if text_lower in ["сброс", "забудь", "очистить", "reset", "clear"]:
         clear_history(chat_id)
         await event.message.answer("🗑️ Готово! Чем помочь?")
         return
     
-    if text_lower in ["помощь", "меню", "режимы"]:
+    if text_lower in ["помощь", "меню", "режимы", "help", "menu"]:
         menu = "🎯 Я сам определю режим по твоему вопросу.\n"
         menu += "Просто напиши, что нужно!\n"
-        menu += "Команды: 'сброс' — начать заново"
+        menu += "Команды: 'сброс' — начать заново\n"
+        menu += "🌍 Пиши на любом языке — я пойму!\n"
+        menu += "⌨️ Забыл переключить раскладку? Я исправлю!"
         await event.message.answer(menu)
         return
     
@@ -119,7 +132,10 @@ async def handle_message(event: MessageCreated):
     print(f"🎯 Режим: {MODES.get(mode, 'Общий')} (история: {len(data['history'])} сообщ.)")
     
     try:
+        # Отправляем исправленный текст в GigaChat
         response = AIService.process_message(text, mode, data["history"])
+        
+        # В историю сохраняем исправленный текст
         add_to_history(chat_id, "user", text)
         add_to_history(chat_id, "assistant", response)
         
@@ -134,7 +150,7 @@ async def handle_message(event: MessageCreated):
 
 async def main():
     print("🚀 БОТ Sferum Navigator запущен!")
-    print("✅ Режим: текст с пониманием контекста")
+    print("✅ Режим: текст с контекстом, языками и автоисправлением раскладки")
     print("Ожидаю сообщения...\n")
     await dp.start_polling(bot)
 
