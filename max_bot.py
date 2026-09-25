@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Optional, Tuple, List
 from dotenv import load_dotenv
 import os
 from maxapi import Bot, Dispatcher, F
@@ -72,11 +73,13 @@ def get_grades_context_for_ai(chat_id: int) -> str:
     return context
 
 
-def try_auto_detect_grades(text: str, chat_id: int) -> str:
+def try_auto_detect_grades(text: str, chat_id: int) -> Optional[Tuple[str, List[int]]]:
     """
     Пытается автоматически определить, рассказывает ли пользователь об оценках.
-    Если да — добавляет их в дневник и возвращает сообщение-подтверждение.
+    Если да — тихо добавляет их в дневник и возвращает (предмет, оценки).
     Если нет — возвращает None.
+    
+    ВАЖНО: не возвращает готовое сообщение — бот ответит через GigaChat естественно!
     """
     # Быстрая проверка на триггеры
     if not should_check_for_grades(text):
@@ -87,13 +90,15 @@ def try_auto_detect_grades(text: str, chat_id: int) -> str:
     
     if is_grades and subject and grades:
         data = get_user_data(chat_id)
-        confirmation = GradeAnalyzer.add_grades(data["grades"], subject, grades)
         
-        # Сохраняем в историю
-        add_to_history(chat_id, "user", text)
-        add_to_history(chat_id, "assistant", confirmation)
+        # Тихо добавляем оценки в дневник
+        if subject not in data["grades"]:
+            data["grades"][subject] = []
+        data["grades"][subject].extend(grades)
         
-        return confirmation
+        print(f"🎯 Тихо добавлены оценки: {subject} → {grades}")
+        
+        return subject, grades
     
     return None
 
@@ -163,7 +168,7 @@ async def handle_message(event: MessageCreated):
         await event.message.answer(menu)
         return
     
-    # Команды просмотра дневника (только просмотр, без ручного добавления)
+    # Команды просмотра дневника
     if text_lower in ["мои оценки", "оценки", "покажи оценки", "дневник", "журнал"]:
         data = get_user_data(chat_id)
         response = GradeAnalyzer.format_grades(data["grades"])
@@ -180,12 +185,14 @@ async def handle_message(event: MessageCreated):
         await event.message.answer(response)
         return
     
-    # АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ОЦЕНОК ЧЕРЕЗ ИИ
-    auto_grade_response = try_auto_detect_grades(text, chat_id)
-    if auto_grade_response:
-        print(f"🎯 Автоматически обнаружены оценки!")
-        await event.message.answer(auto_grade_response)
-        return
+    # АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ОЦЕНОК ЧЕРЕЗ ИИ (тихое добавление)
+    grades_info = try_auto_detect_grades(text, chat_id)
+    added_grades_note = ""
+    
+    if grades_info:
+        subject, grades = grades_info
+        grades_str = ", ".join(str(g) for g in grades)
+        added_grades_note = f"\n\n💾 P.S. Я сохранил твою оценку ({grades_str} по предмету '{subject}') в дневник. Напиши 'мои оценки', чтобы посмотреть все."
     
     # Определяем режим
     data = get_user_data(chat_id)
@@ -203,7 +210,21 @@ async def handle_message(event: MessageCreated):
         if mode == "journal":
             grades_context = get_grades_context_for_ai(chat_id)
         
+        # Если были добавлены оценки — добавляем контекст для ИИ
+        if grades_info:
+            subject, grades = grades_info
+            grades_note_for_ai = f"\n\nВАЖНО: Ученик только что рассказал что получил оценки {grades} по предмету '{subject}'. Я (бот) сохранил их в его дневник. Ответь дружелюбно: поздравь, спроси о деталях, поддержи. Не упоминай явно 'я сохранил оценку' — я добавлю P.S. отдельно."
+            if grades_context:
+                grades_context += grades_note_for_ai
+            else:
+                grades_context = grades_note_for_ai
+            mode = "journal"  # Принудительно переключаем на режим журнала
+        
         response = AIService.process_message(text, mode, data["history"], grades_context)
+        
+        # Добавляем P.S. про сохранение оценки
+        if added_grades_note:
+            response += added_grades_note
         
         add_to_history(chat_id, "user", text)
         add_to_history(chat_id, "assistant", response)
