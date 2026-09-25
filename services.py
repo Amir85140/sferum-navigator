@@ -6,6 +6,8 @@ import urllib3
 import time
 import os
 import puremagic
+from PIL import Image
+import io
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -196,8 +198,34 @@ class AIService:
         user_text = question if question.strip() else "Рассмотри это изображение. Прочитай текст, разбери задачу и помоги ученику с учёбой."
         system_prompt = PROMPTS.get("photo")
         
-        # Определяем формат
-        filename, mime_type = detect_image_format(image_bytes)
+        # Конвертируем изображение в JPEG (GigaChat не поддерживает WEBP/PNG)
+        try:
+            print("🔄 Конвертация изображения в JPEG...")
+            img = Image.open(io.BytesIO(image_bytes))
+            
+            # Если изображение с прозрачностью (RGBA) — конвертируем в RGB
+            if img.mode in ('RGBA', 'LA', 'P'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                img = background
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # Сохраняем в JPEG
+            buffer = io.BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            image_bytes = buffer.getvalue()
+            
+            print(f"✅ Конвертировано в JPEG ({len(image_bytes)} байт)")
+            
+            filename = 'image.jpg'
+            mime_type = 'image/jpeg'
+            
+        except Exception as e:
+            print(f"⚠️ Ошибка конвертации: {e}")
+            filename, mime_type = detect_image_format(image_bytes)
         
         # Загружаем файл в GigaChat
         try:
