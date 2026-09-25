@@ -1,13 +1,9 @@
 import requests
-import base64
 from requests.auth import HTTPBasicAuth
 from typing import Dict
 import urllib3
 import time
 import os
-import puremagic
-from PIL import Image
-import io
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -42,7 +38,6 @@ PROMPTS = {
 - Интернетурок: https://interneturok.ru
 
 На русском языке.""",
-    "photo": "Ты — ИИ-наставник, который анализирует фотографии заданий, тетрадей, учебников и расписаний. Внимательно рассмотри изображение: прочитай текст, разбери задачу или таблицу. Помоги ученику методом Сократа — задавай наводящие вопросы, не давай готовых ответов. Отвечай на русском.",
     "general": "Ты — дружелюбный ИИ-наставник для школьников. Помни весь контекст разговора и учитывай его в ответах. Помогай с учёбой. На русском."
 }
 
@@ -97,110 +92,6 @@ def detect_mode(text: str) -> str:
         print(f"🎯 Режим определён по ключевым словам: {best_mode}")
         return best_mode
     return "general"
-
-
-def detect_image_format(image_bytes: bytes):
-    """Автоматически определяет формат изображения"""
-    try:
-        magic_result = puremagic.from_string(image_bytes)
-        
-        format_map = {
-            'jpeg': ('image.jpg', 'image/jpeg'),
-            'jpg': ('image.jpg', 'image/jpeg'),
-            'png': ('image.png', 'image/png'),
-            'webp': ('image.webp', 'image/webp'),
-            'gif': ('image.gif', 'image/gif'),
-            'bmp': ('image.bmp', 'image/bmp'),
-        }
-        
-        for ext, (filename, mime) in format_map.items():
-            if ext in magic_result.lower():
-                print(f"🔍 Определён формат: {ext.upper()} ({mime})")
-                return filename, mime
-        
-        print(f"⚠️ Формат не определён ({magic_result}), используем JPEG")
-        return 'image.jpg', 'image/jpeg'
-        
-    except Exception as e:
-        print(f"⚠️ Ошибка определения формата: {e}, используем JPEG")
-        return 'image.jpg', 'image/jpeg'
-
-
-def upload_file_with_retry(token: str, image_bytes: bytes, filename: str, mime_type: str, max_retries: int = 5):
-    """Загружает файл в GigaChat с ретраями и экспоненциальной задержкой"""
-    for attempt in range(max_retries):
-        try:
-            print(f"📤 Загрузка файла в GigaChat (попытка {attempt+1}/{max_retries})...")
-            
-            files = {
-                'file': (filename, image_bytes, mime_type)
-            }
-            data = {
-                'purpose': 'general'
-            }
-            
-            response = requests.post(
-                url="https://gigachat.devices.sberbank.ru/api/v1/files",
-                headers={"Authorization": f"Bearer {token}"},
-                files=files,
-                data=data,
-                verify=False,
-                timeout=60  # Увеличенный таймаут
-            )
-            
-            if response.status_code == 200:
-                file_data = response.json()
-                file_id = file_data.get('id')
-                
-                if file_id:
-                    print(f"✅ Файл загружен! ID: {file_id}")
-                    return file_id
-                else:
-                    print(f"⚠️ Не получен file_id. Ответ: {file_data}")
-            
-            elif response.status_code == 429:
-                # Rate limiting — ждём дольше
-                wait_time = min(10 * (2 ** attempt), 60)
-                print(f"⚠️ Rate limiting. Ждём {wait_time} сек...")
-                time.sleep(wait_time)
-                continue
-            
-            else:
-                print(f"⚠️ Ошибка загрузки: {response.status_code}")
-                print(f"   Ответ: {response.text[:200]}")
-                
-                # Для 5xx ошибок — ретрай
-                if response.status_code >= 500 and attempt < max_retries - 1:
-                    wait_time = 2 ** attempt
-                    print(f"   Серверная ошибка. Ждём {wait_time} сек и пробуем ещё раз...")
-                    time.sleep(wait_time)
-                    continue
-                    
-        except requests.exceptions.Timeout:
-            print(f"⏱️ Таймаут (попытка {attempt+1}/{max_retries})")
-            if attempt < max_retries - 1:
-                wait_time = min(3 * (2 ** attempt), 30)
-                print(f"   Ждём {wait_time} сек...")
-                time.sleep(wait_time)
-                continue
-                
-        except requests.exceptions.ConnectionError as e:
-            print(f"🔌 Ошибка соединения: {type(e).__name__}")
-            if attempt < max_retries - 1:
-                wait_time = min(5 * (2 ** attempt), 30)
-                print(f"   Ждём {wait_time} сек...")
-                time.sleep(wait_time)
-                continue
-                
-        except Exception as e:
-            print(f"⚠️ Неожиданная ошибка: {e}")
-            if attempt < max_retries - 1:
-                wait_time = 2 ** attempt
-                print(f"   Ждём {wait_time} сек...")
-                time.sleep(wait_time)
-                continue
-    
-    return None
 
 
 class AIService:
@@ -264,141 +155,6 @@ class AIService:
                 return f"Извини, произошла ошибка: {str(e)}"
         
         return "Извини, ИИ временно недоступен. Попробуй позже."
-
-    @staticmethod
-    def process_image(image_bytes: bytes, question: str = "", history: list = None) -> str:
-        """Анализ фото через GigaChat с предварительной загрузкой файла"""
-        try:
-            token = _get_token()
-        except Exception as e:
-            return f"Не удалось получить токен: {str(e)}"
-        
-        user_text = question if question.strip() else "Рассмотри это изображение. Прочитай текст, разбери задачу и помоги ученику с учёбой."
-        system_prompt = PROMPTS.get("photo")
-        
-        # Конвертируем изображение в JPEG и сжимаем
-        try:
-            print("🔄 Конвертация и сжатие изображения...")
-            img = Image.open(io.BytesIO(image_bytes))
-            
-            # Уменьшаем размер если слишком большое
-            max_size = 1024
-            if max(img.size) > max_size:
-                img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
-                print(f"   Уменьшено до {img.size}")
-            
-            # Если изображение с прозрачностью (RGBA) — конвертируем в RGB
-            if img.mode in ('RGBA', 'LA', 'P'):
-                background = Image.new('RGB', img.size, (255, 255, 255))
-                if img.mode == 'P':
-                    img = img.convert('RGBA')
-                background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
-                img = background
-            elif img.mode != 'RGB':
-                img = img.convert('RGB')
-            
-            # Сохраняем в JPEG с более сильным сжатием
-            buffer = io.BytesIO()
-            img.save(buffer, format='JPEG', quality=75, optimize=True)
-            image_bytes = buffer.getvalue()
-            
-            print(f"✅ Конвертировано в JPEG ({len(image_bytes)} байт)")
-            
-            filename = 'image.jpg'
-            mime_type = 'image/jpeg'
-            
-        except Exception as e:
-            print(f"⚠️ Ошибка конвертации: {e}")
-            filename, mime_type = detect_image_format(image_bytes)
-        
-        # Загружаем файл в GigaChat с ретраями
-        file_id = upload_file_with_retry(token, image_bytes, filename, mime_type, max_retries=5)
-        
-        if not file_id:
-            return ("🖼️ Я вижу, ты прислал фото!\n\n"
-                    "К сожалению, не удалось загрузить изображение для анализа.\n"
-                    "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
-        
-        # Отправляем запрос с file_id
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                messages = [{"role": "system", "content": system_prompt}]
-                if history:
-                    messages.extend(history)
-                
-                user_message = {
-                    "role": "user",
-                    "content": user_text,
-                    "attachments": [
-                        {
-                            "file_id": file_id
-                        }
-                    ]
-                }
-                messages.append(user_message)
-                
-                print(f"🤖 Отправка запроса с файлом (попытка {attempt+1}/{max_retries})...")
-                
-                response = requests.post(
-                    url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
-                    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-                    json={
-                        "model": "GigaChat:latest",
-                        "messages": messages,
-                        "max_tokens": 600,
-                        "temperature": 0.5
-                    },
-                    verify=False,
-                    timeout=120  # Увеличенный таймаут для анализа фото
-                )
-                
-                print(f"   Статус: {response.status_code}")
-                
-                if response.status_code == 200:
-                    result = response.json()
-                    if 'choices' in result and len(result['choices']) > 0:
-                        content = result['choices'][0].get('message', {}).get('content', '')
-                        if content:
-                            print(f"✅ Фото проанализировано! ({len(content)} символов)")
-                            return content
-                
-                print(f"⚠️ Ошибка анализа: {response.text[:200]}")
-                
-                # Ретрай для 5xx и 429
-                if response.status_code in [429, 500, 502, 503, 504] and attempt < max_retries - 1:
-                    wait_time = min(5 * (2 ** attempt), 30)
-                    print(f"   Ждём {wait_time} сек и пробуем ещё раз...")
-                    time.sleep(wait_time)
-                    continue
-                
-                if response.status_code >= 400 and attempt < max_retries - 1:
-                    time.sleep(2)
-                    continue
-                    
-            except requests.exceptions.Timeout:
-                print(f"⏱️ Таймаут анализа (попытка {attempt+1}/{max_retries})")
-                if attempt < max_retries - 1:
-                    wait_time = min(5 * (2 ** attempt), 20)
-                    print(f"   Ждём {wait_time} сек...")
-                    time.sleep(wait_time)
-                    continue
-            except requests.exceptions.ConnectionError as e:
-                print(f"🔌 Ошибка соединения: {type(e).__name__}")
-                if attempt < max_retries - 1:
-                    wait_time = min(5 * (2 ** attempt), 20)
-                    print(f"   Ждём {wait_time} сек...")
-                    time.sleep(wait_time)
-                    continue
-            except Exception as e:
-                print(f"⚠️ Ошибка анализа: {e}")
-                if attempt < max_retries - 1:
-                    time.sleep(3)
-                    continue
-        
-        return ("🖼️ Я вижу, ты прислал фото!\n\n"
-                "К сожалению, анализ занял слишком много времени или произошла ошибка.\n"
-                "Попробуй отправить фото ещё раз или перепечатай текст задания! 🙌")
 
 
 class PlannerService:
