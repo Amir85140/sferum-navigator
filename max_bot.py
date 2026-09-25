@@ -1,12 +1,12 @@
 import asyncio
 import logging
-import re
 from dotenv import load_dotenv
 import os
 from maxapi import Bot, Dispatcher, F
 from maxapi.types import BotStarted, MessageCreated
 from maxapi.filters.command import CommandStart
-from services import AIService, detect_mode, fix_keyboard_layout, GradeAnalyzer
+from services import (AIService, detect_mode, fix_keyboard_layout, 
+                      GradeAnalyzer, should_check_for_grades, extract_grades_with_ai)
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -58,46 +58,6 @@ def get_chat_id(event):
     return None
 
 
-def handle_grade_command(text: str, chat_id: int) -> str:
-    """Обрабатывает команды, связанные с оценками"""
-    data = get_user_data(chat_id)
-    text_lower = text.lower().strip()
-    
-    # Команда: показать все оценки
-    if text_lower in ["мои оценки", "оценки", "покажи оценки", "дневник", "журнал"]:
-        return GradeAnalyzer.format_grades(data["grades"])
-    
-    # Команда: анализ успеваемости
-    if text_lower in ["анализ оценок", "анализ успеваемости", "проанализируй оценки", "как моя успеваемость"]:
-        return GradeAnalyzer.get_analysis(data["grades"])
-    
-    # Команда: удалить предмет
-    if text_lower.startswith("удали предмет"):
-        subject = text_lower.replace("удали предмет", "").strip()
-        if not subject:
-            return "❓ Укажи предмет: 'удали предмет математика'"
-        return GradeAnalyzer.delete_subject(data["grades"], subject)
-    
-    # Команда: добавить оценку (разные форматы)
-    add_patterns = [
-        "добавь оценку", "добавить оценку", "запиши оценку", "записать оценку",
-        "новая оценка", "получил оценку", "получила оценку"
-    ]
-    
-    if any(text_lower.startswith(p) for p in add_patterns):
-        subject, grades = GradeAnalyzer.parse_grades(text)
-        
-        if not subject:
-            return "❓ Не смог определить предмет.\nПример: 'добавь оценку математика 5'"
-        
-        if not grades:
-            return "❓ Не нашёл оценки (от 1 до 5).\nПример: 'добавь оценку математика 5'"
-        
-        return GradeAnalyzer.add_grades(data["grades"], subject, grades)
-    
-    return None
-
-
 def get_grades_context_for_ai(chat_id: int) -> str:
     """Формирует контекст оценок для ИИ"""
     data = get_user_data(chat_id)
@@ -112,26 +72,46 @@ def get_grades_context_for_ai(chat_id: int) -> str:
     return context
 
 
+def try_auto_detect_grades(text: str, chat_id: int) -> str:
+    """
+    Пытается автоматически определить, рассказывает ли пользователь об оценках.
+    Если да — добавляет их в дневник и возвращает сообщение-подтверждение.
+    Если нет — возвращает None.
+    """
+    # Быстрая проверка на триггеры
+    if not should_check_for_grades(text):
+        return None
+    
+    # Умная проверка через ИИ
+    is_grades, subject, grades = extract_grades_with_ai(text)
+    
+    if is_grades and subject and grades:
+        data = get_user_data(chat_id)
+        confirmation = GradeAnalyzer.add_grades(data["grades"], subject, grades)
+        
+        # Сохраняем в историю
+        add_to_history(chat_id, "user", text)
+        add_to_history(chat_id, "assistant", confirmation)
+        
+        return confirmation
+    
+    return None
+
+
 @dp.bot_started()
 async def bot_started(event: BotStarted):
-    welcome = "🎯 Привет! / Hello! / Hallo! / Bonjour!\n\n"
-    welcome += "Я Sferum Navigator — ИИ-наставник для учёбы.\n"
-    welcome += "Я запомню наш разговор и буду учитывать контекст.\n"
-    welcome += "Напиши 'сброс', чтобы начать заново.\n\n"
+    welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
+    welcome += "✨ Я запомню наш разговор и буду учитывать контекст.\n"
+    welcome += "📝 Напиши 'сброс', чтобы начать заново.\n\n"
     welcome += "📌 Что я умею:\n"
     welcome += "📝 Помощь с домашкой (метод Сократа)\n"
     welcome += "📅 Планирование подготовки к ОГЭ/ЕГЭ\n"
     welcome += "🎓 Объяснение сложных тем простым языком\n"
     welcome += "🌍 Практика иностранных языков и переводы\n"
-    welcome += "📚 Дневник оценок (аналог МЭШ)\n"
+    welcome += "📚 Умный дневник оценок — просто расскажи о своих оценках, я сам добавлю!\n"
     welcome += "✅ Проверка знаний через тесты и квизы\n"
     welcome += "🎥 Поиск видеоуроков\n"
-    welcome += "💪 Мотивация и поддержка при выгорании\n\n"
-    welcome += "📊 Команды дневника оценок:\n"
-    welcome += "• 'добавь оценку математика 5' — добавить оценку\n"
-    welcome += "• 'мои оценки' — посмотреть все оценки\n"
-    welcome += "• 'анализ успеваемости' — подробный анализ\n"
-    welcome += "• 'удали предмет физика' — удалить предмет"
+    welcome += "💪 Мотивация и поддержка при выгорании"
     await bot.send_message(chat_id=event.chat_id, text=welcome)
 
 @dp.message_created(CommandStart())
@@ -140,8 +120,7 @@ async def handle_start(event: MessageCreated):
     if not chat_id:
         return
     clear_history(chat_id)
-    welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы."
-    await event.message.answer(welcome)
+    await event.message.answer("🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.")
 
 @dp.message_created(F.message.body.text)
 async def handle_message(event: MessageCreated):
@@ -160,12 +139,10 @@ async def handle_message(event: MessageCreated):
     text = text.strip()
     text_lower = text.lower()
     
-    # Проверка команд управления
+    # Команды управления
     if text_lower in ["начать", "старт", "start", "hello", "hi", "привет"]:
         clear_history(chat_id)
-        welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n"
-        welcome += "Напиши 'помощь', чтобы увидеть список команд."
-        await event.message.answer(welcome)
+        await event.message.answer("🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\nНапиши 'помощь', чтобы увидеть список команд.")
         return
     
     if text_lower in ["сброс", "забудь", "очистить", "reset", "clear"]:
@@ -178,19 +155,36 @@ async def handle_message(event: MessageCreated):
         menu += "Просто напиши, что нужно!\n"
         menu += "Команды: 'сброс' — начать заново\n"
         menu += "🌍 Пиши на любом языке — я пойму!\n\n"
-        menu += "📊 Команды дневника оценок:\n"
-        menu += "• 'добавь оценку математика 5'\n"
-        menu += "• 'мои оценки'\n"
-        menu += "• 'анализ успеваемости'"
+        menu += "📚 Дневник оценок:\n"
+        menu += "Просто расскажи о своих оценках — я сам добавлю!\n"
+        menu += "Например: 'получил пятёрку по математике'\n"
+        menu += "'мои оценки' — посмотреть все\n"
+        menu += "'анализ успеваемости' — подробный разбор"
         await event.message.answer(menu)
         return
     
-    # Обработка команд для оценок
-    grade_response = handle_grade_command(text, chat_id)
-    if grade_response:
+    # Явные команды для дневника
+    if text_lower in ["мои оценки", "оценки", "покажи оценки", "дневник", "журнал"]:
+        data = get_user_data(chat_id)
+        response = GradeAnalyzer.format_grades(data["grades"])
         add_to_history(chat_id, "user", text)
-        add_to_history(chat_id, "assistant", grade_response)
-        await event.message.answer(grade_response)
+        add_to_history(chat_id, "assistant", response)
+        await event.message.answer(response)
+        return
+    
+    if text_lower in ["анализ оценок", "анализ успеваемости", "как моя успеваемость"]:
+        data = get_user_data(chat_id)
+        response = GradeAnalyzer.get_analysis(data["grades"])
+        add_to_history(chat_id, "user", text)
+        add_to_history(chat_id, "assistant", response)
+        await event.message.answer(response)
+        return
+    
+    # АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ОЦЕНОК ЧЕРЕЗ ИИ
+    auto_grade_response = try_auto_detect_grades(text, chat_id)
+    if auto_grade_response:
+        print(f"🎯 Автоматически обнаружены оценки!")
+        await event.message.answer(auto_grade_response)
         return
     
     # Определяем режим
@@ -205,7 +199,6 @@ async def handle_message(event: MessageCreated):
     print(f"🎯 Режим: {MODES.get(mode, 'Общий')}")
     
     try:
-        # Получаем контекст оценок для режима журнала
         grades_context = ""
         if mode == "journal":
             grades_context = get_grades_context_for_ai(chat_id)
@@ -226,7 +219,7 @@ async def handle_message(event: MessageCreated):
 
 async def main():
     print("🚀 БОТ Sferum Navigator запущен!")
-    print("✅ Режимы: текст, контекст, языки, дневник оценок (МЭШ)")
+    print("✅ Режимы: текст, контекст, языки, умный дневник оценок")
     print("Ожидаю сообщения...\n")
     await dp.start_polling(bot)
 
