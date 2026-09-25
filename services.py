@@ -5,6 +5,7 @@ from typing import Dict
 import urllib3
 import time
 import os
+import puremagic
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -21,7 +22,7 @@ PROMPTS = {
     "motivation": "Ты — дружелюбный мотиватор для школьников. Помни, что ученик рассказывал о себе, и поддерживай его. На русском.",
     "videos": """Ты — помощник по поиску видеоуроков. Дай ссылки на поиск видео по теме ученика.
 
-ВАЖНО: Используй ТОЛЬКО эти форматы поисковых ссылок (они гарантированно работают):
+ВАЖНО: Используй ТОЛЬКО эти форматы поисковых ссылок:
 - Поиск на RuTube: https://rutube.ru/search/?q=ТЕМА
 - Поиск на VK Видео: https://vk.com/video?q=ТЕМА
 - Поиск на YouTube: https://www.youtube.com/results?search_query=ТЕМА
@@ -96,13 +97,40 @@ def detect_mode(text: str) -> str:
     return "general"
 
 
+def detect_image_format(image_bytes: bytes):
+    """Автоматически определяет формат изображения"""
+    try:
+        magic_result = puremagic.from_string(image_bytes)
+        
+        format_map = {
+            'jpeg': ('image.jpg', 'image/jpeg'),
+            'jpg': ('image.jpg', 'image/jpeg'),
+            'png': ('image.png', 'image/png'),
+            'webp': ('image.webp', 'image/webp'),
+            'gif': ('image.gif', 'image/gif'),
+            'bmp': ('image.bmp', 'image/bmp'),
+        }
+        
+        for ext, (filename, mime) in format_map.items():
+            if ext in magic_result.lower():
+                print(f"🔍 Определён формат: {ext.upper()} ({mime})")
+                return filename, mime
+        
+        print(f"⚠️ Формат не определён ({magic_result}), используем JPEG")
+        return 'image.jpg', 'image/jpeg'
+        
+    except Exception as e:
+        print(f"⚠️ Ошибка определения формата: {e}, используем JPEG")
+        return 'image.jpg', 'image/jpeg'
+
+
 class AIService:
     @staticmethod
     def process_message(message: str, feature_id: str = "general", history: list = None) -> str:
         max_retries = 2
         for attempt in range(max_retries):
             try:
-                print(f"🤖 Запрос к GigaChat (попытка {attempt+1}/{max_retries}, режим: {feature_id}, история: {len(history) if history else 0} сообщ.)")
+                print(f"🤖 Запрос к GigaChat (режим: {feature_id}, история: {len(history) if history else 0} сообщ.)")
                 token = _get_token()
                 system_prompt = PROMPTS.get(feature_id, PROMPTS["general"])
                 
@@ -125,7 +153,6 @@ class AIService:
                 )
                 
                 if response.status_code != 200:
-                    print(f"⚠️ GigaChat вернул {response.status_code}, пробуем ещё раз...")
                     if attempt < max_retries - 1:
                         time.sleep(2)
                         continue
@@ -134,14 +161,10 @@ class AIService:
                 result = response.json()
                 
                 if isinstance(result, dict) and 'choices' in result and len(result['choices']) > 0:
-                    choice = result['choices'][0]
-                    if isinstance(choice, dict) and 'message' in choice:
-                        msg = choice['message']
-                        if isinstance(msg, dict) and 'content' in msg:
-                            content = msg['content']
-                            if content:
-                                print(f"✅ Ответ получен ({len(content)} символов)")
-                                return content
+                    content = result['choices'][0].get('message', {}).get('content', '')
+                    if content:
+                        print(f"✅ Ответ получен ({len(content)} символов)")
+                        return content
                 
                 if attempt < max_retries - 1:
                     time.sleep(1)
@@ -154,7 +177,7 @@ class AIService:
                     continue
                 return "Извини, ИИ не ответил вовремя. Попробуй ещё раз."
             except Exception as e:
-                print(f"⚠️ Ошибка GigaChat (попытка {attempt+1}): {e}")
+                print(f"⚠️ Ошибка GigaChat: {e}")
                 if attempt < max_retries - 1:
                     time.sleep(2)
                     continue
@@ -173,12 +196,15 @@ class AIService:
         user_text = question if question.strip() else "Рассмотри это изображение. Прочитай текст, разбери задачу и помоги ученику с учёбой."
         system_prompt = PROMPTS.get("photo")
         
-        # ШАГ 1: Загружаем файл в GigaChat
+        # Определяем формат
+        filename, mime_type = detect_image_format(image_bytes)
+        
+        # Загружаем файл в GigaChat
         try:
             print("📤 Загрузка файла в GigaChat...")
             
             files = {
-                'file': ('image.jpg', image_bytes, 'image/jpeg')
+                'file': (filename, image_bytes, mime_type)
             }
             data = {
                 'purpose': 'general'
@@ -204,8 +230,7 @@ class AIService:
             file_id = file_data.get('id')
             
             if not file_id:
-                print("⚠️ Не получен file_id")
-                print(f"   Ответ сервера: {file_data}")
+                print(f"⚠️ Не получен file_id. Ответ: {file_data}")
                 return "Не удалось обработать фото. Попробуй ещё раз."
             
             print(f"✅ Файл загружен! ID: {file_id}")
@@ -216,7 +241,7 @@ class AIService:
                     "К сожалению, произошла ошибка при загрузке.\n"
                     "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
         
-        # ШАГ 2: Отправляем запрос с file_id
+        # Отправляем запрос с file_id
         try:
             messages = [{"role": "system", "content": system_prompt}]
             if history:
@@ -265,8 +290,6 @@ class AIService:
             
         except Exception as e:
             print(f"⚠️ Ошибка анализа: {e}")
-            import traceback
-            traceback.print_exc()
             return ("🖼️ Я вижу, ты прислал фото!\n\n"
                     "К сожалению, произошла ошибка при анализе.\n"
                     "Но ты можешь перепечатать текст задания сюда — и я помогу его решить! 🙌")
