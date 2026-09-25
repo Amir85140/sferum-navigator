@@ -42,6 +42,7 @@ def clear_history(user_id):
         user_data[user_id]["mode"] = "general"
 
 def get_chat_id(event):
+    """Пробует разные способы получить chat_id"""
     ways = [
         ("recipient.chat_id", lambda e: e.recipient.chat_id),
         ("message.recipient.chat_id", lambda e: e.message.recipient.chat_id),
@@ -57,18 +58,16 @@ def get_chat_id(event):
     return None
 
 def extract_photo_url(event):
-    """Достаёт ссылку на фото из сообщения"""
+    """Достаёт ссылку на фото из сообщения MAX"""
     try:
-        # Пробуем разные пути к вложениям
+        # Ищем вложения в разных местах
         attachments = None
         
-        # Вариант 1: message.body.attachments
         try:
             attachments = event.message.body.attachments
         except Exception:
             pass
         
-        # Вариант 2: message.attachments
         if attachments is None:
             try:
                 attachments = event.message.attachments
@@ -76,41 +75,48 @@ def extract_photo_url(event):
                 pass
         
         if not attachments:
+            print("❌ Вложений не найдено")
             return None
         
         print(f"📷 Найдено вложений: {len(attachments)}")
         
-        # Ищем первое фото
         for att in attachments:
             try:
-                # Выводим для диагностики
-                print(f"   Вложение: {att}")
+                att_type = getattr(att, 'type', 'unknown')
+                print(f"   Тип вложения: {att_type}")
                 
-                # Пробуем разные способы получить ссылку
-                for attr in ['url', 'image', 'photo', 'file', 'thumbnail']:
+                # Пропускаем не-фото
+                if att_type != 'image':
+                    continue
+                
+                # ГЛАВНЫЙ ПУТЬ: payload.url (именно так устроен MAX API)
+                try:
+                    payload = att.payload
+                    url = payload.url
+                    if url and isinstance(url, str) and url.startswith('http'):
+                        print(f"   ✅ URL найден через payload.url: {url[:60]}...")
+                        return url
+                except Exception as e:
+                    print(f"   ⚠️ payload.url не работает: {e}")
+                
+                # Запасные пути (на всякий случай)
+                for path in ['url', 'image', 'photo', 'file']:
                     try:
-                        obj = getattr(att, attr, None)
-                        if obj is not None:
-                            if isinstance(obj, str) and obj.startswith('http'):
-                                return obj
-                            # Если это объект с полями
-                            for sub in ['url', 'big', 'medium', 'small']:
-                                try:
-                                    url = getattr(obj, sub, None)
-                                    if url and isinstance(url, str):
-                                        return url
-                                except Exception:
-                                    pass
+                        url = getattr(att, path, None)
+                        if url and isinstance(url, str) and url.startswith('http'):
+                            print(f"   ✅ URL найден через {path}: {url[:60]}...")
+                            return url
                     except Exception:
                         pass
                         
             except Exception as e:
-                print(f"   ⚠️ Ошибка при разборе вложения: {e}")
+                print(f"   ⚠️ Ошибка разбора вложения: {e}")
                 continue
         
+        print("❌ Не удалось найти URL фото ни одним способом")
         return None
     except Exception as e:
-        print(f"⚠️ Ошибка при извлечении фото: {e}")
+        print(f"⚠️ Критическая ошибка extract_photo_url: {e}")
         return None
 
 def download_photo(url):
@@ -141,17 +147,75 @@ async def handle_start(event: MessageCreated):
     if not chat_id:
         return
     clear_history(chat_id)
-    await event.message.answer("🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.")
+    welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы."
+    await event.message.answer(welcome)
 
-@dp.message_created(F.message.body.text)
-async def handle_message(event: MessageCreated):
-    text = event.message.body.text
+@dp.message_created(F.message.body.attachments)
+async def handle_photo(event: MessageCreated):
+    """Обработчик сообщений с фото (должен идти ПЕРЕД текстовым!)"""
     chat_id = get_chat_id(event)
-    
     if not chat_id:
         return
     
-    if not text:
+    # Пытаемся получить подпись к фото
+    caption = ""
+    try:
+        if event.message.body.text:
+            caption = event.message.body.text
+    except Exception:
+        pass
+    
+    print(f"\n🖼️ ПОЛУЧЕНО ФОТО!")
+    print(f"   Подпись: '{caption}'")
+    
+    # Сообщаем пользователю, что начали обработку
+    await event.message.answer("🔍 Анализирую фото, подожди 5-10 секунд...")
+    
+    # Достаём URL фото
+    photo_url = extract_photo_url(event)
+    
+    if not photo_url:
+        await event.message.answer("😔 Не смог найти фото в сообщении. Попробуй отправить его ещё раз.")
+        return
+    
+    # Скачиваем фото
+    image_bytes = download_photo(photo_url)
+    
+    if not image_bytes:
+        await event.message.answer("😔 Не смог скачать фото. Попробуй отправить его ещё раз.")
+        return
+    
+    # Анализируем через GigaChat
+    try:
+        data = get_user_data(chat_id)
+        # Принудительно ставим режим "photo"
+        data["mode"] = "photo"
+        
+        response = AIService.process_image(image_bytes, caption, data["history"])
+        
+        # Сохраняем в историю
+        add_to_history(chat_id, "user", f"[Фото] {caption}")
+        add_to_history(chat_id, "assistant", response)
+        
+        # Отправляем ответ (разбиваем если длинный)
+        if len(response) > 4000:
+            for i in range(0, len(response), 4000):
+                await event.message.answer(response[i:i+4000])
+        else:
+            await event.message.answer(response)
+    except Exception as e:
+        print(f"❌ Ошибка анализа фото: {e}")
+        import traceback
+        traceback.print_exc()
+        await event.message.answer("Извини, не получилось проанализировать фото. Попробуй ещё раз.")
+
+@dp.message_created(F.message.body.text)
+async def handle_message(event: MessageCreated):
+    """Обработчик обычных текстовых сообщений"""
+    text = event.message.body.text
+    chat_id = get_chat_id(event)
+    
+    if not chat_id or not text:
         return
     
     text = text.strip()
@@ -159,12 +223,22 @@ async def handle_message(event: MessageCreated):
     
     if text_lower in ["начать", "старт", "start"]:
         clear_history(chat_id)
-        await event.message.answer("🎯 Привет! Я Sferum Navigator.")
+        welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
+        welcome += "Я запомню наш разговор и буду учитывать контекст.\n"
+        welcome += "Напиши 'сброс', чтобы начать заново.\n"
+        await event.message.answer(welcome)
         return
     
     if text_lower in ["сброс", "забудь", "очистить"]:
         clear_history(chat_id)
         await event.message.answer("🗑️ Готово! Чем помочь?")
+        return
+    
+    if text_lower in ["помощь", "меню", "режимы"]:
+        menu = "🎯 Я сам определю режим по твоему вопросу.\n"
+        menu += "Просто напиши, что нужно, или пришли фото задания!\n"
+        menu += "Команды: 'сброс' — начать заново"
+        await event.message.answer(menu)
         return
     
     detected = detect_mode(text)
@@ -187,61 +261,12 @@ async def handle_message(event: MessageCreated):
             await event.message.answer(response)
     except Exception as e:
         print(f"❌ Ошибка ИИ: {e}")
-        await event.message.answer("Извини, произошла ошибка.")
-
-@dp.message_created(F.message.body.attachments)
-async def handle_photo(event: MessageCreated):
-    """Обработчик сообщений с фото"""
-    chat_id = get_chat_id(event)
-    if not chat_id:
-        return
-    
-    # Если есть текст вместе с фото
-    try:
-        caption = event.message.body.text
-    except Exception:
-        caption = ""
-    
-    print(f"\n🖼️ ПОЛУЧЕНО ФОТО!")
-    print(f"   Подпись: '{caption}'")
-    
-    # Отправляем сообщение о начале обработки
-    await event.message.answer("🔍 Анализирую фото, подожди 5-10 секунд...")
-    
-    # Извлекаем ссылку на фото
-    photo_url = extract_photo_url(event)
-    
-    if not photo_url:
-        await event.message.answer("😔 Не смог найти фото в сообщении. Попробуй отправить его ещё раз.")
-        return
-    
-    # Скачиваем фото
-    image_bytes = download_photo(photo_url)
-    
-    if not image_bytes:
-        await event.message.answer("😔 Не смог скачать фото. Попробуй отправить его ещё раз.")
-        return
-    
-    # Отправляем в GigaChat для анализа
-    try:
-        data = get_user_data(chat_id)
-        response = AIService.process_image(image_bytes, caption, data["history"])
-        
-        add_to_history(chat_id, "user", f"[Фото] {caption}")
-        add_to_history(chat_id, "assistant", response)
-        
-        if len(response) > 4000:
-            for i in range(0, len(response), 4000):
-                await event.message.answer(response[i:i+4000])
-        else:
-            await event.message.answer(response)
-    except Exception as e:
-        print(f"❌ Ошибка анализа фото: {e}")
-        await event.message.answer("Извини, не получилось проанализировать фото. Попробуй ещё раз.")
+        await event.message.answer("Извини, произошла ошибка. Попробуй через минуту.")
 
 async def main():
     print("🚀 БОТ Sferum Navigator запущен!")
     print("✅ Режимы: текст + фото")
+    print("Ожидаю сообщения...\n")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
