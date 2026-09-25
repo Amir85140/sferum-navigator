@@ -1,5 +1,6 @@
 import requests
 import re
+import json
 from requests.auth import HTTPBasicAuth
 from typing import Dict, List, Tuple, Optional
 import urllib3
@@ -15,14 +16,14 @@ _token_cache = {"token": None, "expires_at": 0}
 
 FORMATTING_RULES = """
 
-КРИТИЧЕСКИ ВАЖНЫЕ ПРАВИЛА ФОРМАТИРОВАНИЯ:
-- НЕ используй LaTeX ($...$, $$...$$, \\frac, \\sqrt, \\alpha)
-- НЕ используй Markdown (**жирный**, ### заголовки, --- разделители)
-- Для степеней пиши: x², x³, 10⁸⁰ (Unicode)
-- Для индексов пиши: x₁, a₂ (Unicode)
-- Для дробей пиши: a/b или (a)/(b)
-- Для списков: цифры "1.", "2." или символы "•", "►"
-- Для выделения: эмодзи (📌, ✨, ⚡)
+ПРАВИЛА ФОРМАТИРОВАНИЯ:
+- НЕ используй LaTeX ($...$, \\frac, \\sqrt)
+- НЕ используй Markdown (**жирный**, ### заголовки)
+- Для степеней: x², x³, 10⁸⁰ (Unicode)
+- Для индексов: x₁, a₂ (Unicode)
+- Для дробей: a/b
+- Для списков: "1.", "2.", "•"
+- Для выделения: эмодзи 📌✨⚡
 """
 
 LANGUAGE_RULES = """
@@ -30,7 +31,7 @@ LANGUAGE_RULES = """
 ЯЗЫКОВОЕ ПОВЕДЕНИЕ:
 - Ты понимаешь ВСЕ языки мира
 - ВСЕГДА отвечай на том языке, на котором пишет ученик
-- Помогай с изучением иностранных языков: перевод, грамматика, практика
+- Помогай с изучением иностранных языков
 """
 
 PROMPTS = {
@@ -91,8 +92,50 @@ PROMPTS = {
 {LANGUAGE_RULES}""",
 }
 
+# Промпт для ИЗВЛЕЧЕНИЯ ОЦЕНОК из текста
+GRADE_EXTRACTION_PROMPT = """Ты — система извлечения школьных оценок из текста.
+
+Твоя задача: проанализировать сообщение ученика и определить:
+1. Говорит ли ученик о своих оценках/результатах?
+2. Если да — извлеки предмет и оценки.
+
+ПРАВИЛА:
+- Оценки могут быть числами от 1 до 5
+- Также могут быть словами: "пятёрка", "четвёрка", "тройка", "двойка", "единица"
+- Предмет может быть назван явно ("по математике") или подразумеваться из контекста
+- Если предмет не назван явно — верни "Неизвестный предмет"
+- Если это НЕ про оценки — верни пустой результат
+
+Отвечай СТРОГО в формате JSON без лишнего текста:
+{
+  "is_grades": true,
+  "subject": "Название предмета",
+  "grades": [5, 4, 3],
+  "confidence": 0.9
+}
+
+Если это НЕ про оценки:
+{
+  "is_grades": false,
+  "confidence": 0.1
+}
+
+Примеры:
+Ввод: "получил пятёрку по математике"
+Вывод: {"is_grades": true, "subject": "Математика", "grades": [5], "confidence": 0.95}
+
+Ввод: "поставили 4 и 5 за контрольную по физике"
+Вывод: {"is_grades": true, "subject": "Физика", "grades": [4, 5], "confidence": 0.9}
+
+Ввод: "объясни фотосинтез"
+Вывод: {"is_grades": false, "confidence": 0.1}
+
+Ввод: "мне сегодня поставили тройку"
+Вывод: {"is_grades": true, "subject": "Неизвестный предмет", "grades": [3], "confidence": 0.85}
+"""
+
 MODE_KEYWORDS = {
-    "planner": ["план", "расписан", "подготов", "экзамен", "огэ", "егэ", "контрольн", "сколько времени"],
+    "planner": ["план", "расписан", "подготов", "экзамен", "огэ", "егэ", "контрольн"],
     "homework": ["домашк", "дз", "задач", "упражнен", "решить", "уравнен"],
     "explain": ["объясни", "что такое", "как работает", "расскажи про"],
     "tests": ["тест", "проверь", "викторин", "квиз"],
@@ -101,8 +144,17 @@ MODE_KEYWORDS = {
     "journal": ["оценк", "журнал", "мэш", "дневник", "четверт", "полугод", "средний балл", "успеваемост"],
     "offline": ["оффлайн", "скачать", "без интернета", "материал", "сайт", "ресурс"],
     "context": ["почему", "зачем", "что именно", "знаешь", "понимаешь", "уточни"],
-    "languages": ["перевод", "переведи", "translate", "английский", "немецкий", "французский", "грамматик"],
+    "languages": ["перевод", "переведи", "английский", "немецкий", "французский", "грамматик"],
 }
+
+# Быстрые триггеры для проверки на оценки (без вызова ИИ)
+GRADE_QUICK_TRIGGERS = [
+    'оценк', 'получил', 'получила', 'поставили', 'поставил', 'поставила',
+    'заработал', 'заработала', 'за контрольную', 'за тест', 'за диктант',
+    'пятёрк', 'четвёрк', 'тройк', 'двойк', 'единиц',
+    '5 за', '4 за', '3 за', '2 за',
+    'написал на', 'написала на', 'получилось', 'не получилось'
+]
 
 # Маппинги раскладок
 EN_TO_RU = {
@@ -123,24 +175,16 @@ RU_TO_EN = {v: k for k, v in EN_TO_RU.items()}
 ENGLISH_COMMON_WORDS = {
     'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
     'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
-    'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
     'hello', 'hi', 'hey', 'thanks', 'please', 'sorry', 'yes', 'no', 'ok',
-    'how', 'are', 'you', 'what', 'where', 'when', 'why', 'which',
-    'am', 'is', 'was', 'were', 'been', 'has', 'had',
-    'does', 'did', 'will', 'would', 'should', 'could',
+    'how', 'are', 'you', 'what', 'where', 'when', 'why',
     'math', 'physics', 'chemistry', 'biology', 'history',
     'english', 'german', 'french', 'russian',
-    'translate', 'grammar', 'word', 'help', 'student', 'school',
-    'today', 'tomorrow', 'week', 'month', 'year',
-    'big', 'small', 'good', 'bad', 'nice',
-    'love', 'like', 'want', 'need', 'go', 'come', 'see', 'think', 'know'
+    'translate', 'grammar', 'word', 'help', 'student', 'school'
 }
 
 RUSSIAN_COMMON_WORDS = {
     'и', 'в', 'не', 'на', 'я', 'быть', 'с', 'он', 'а', 'это',
     'как', 'то', 'что', 'этот', 'по', 'но', 'они', 'к', 'у', 'ты',
-    'из', 'мы', 'за', 'вы', 'так', 'же', 'от', 'о', 'весь', 'при',
-    'она', 'для', 'один', 'тот', 'когда', 'или', 'нет',
     'привет', 'спасибо', 'пожалуйста', 'хорошо', 'плохо',
     'математика', 'физика', 'химия', 'биология', 'история',
     'русский', 'английский', 'школа', 'учитель', 'класс', 'урок'
@@ -163,11 +207,9 @@ def detect_real_language(text: str) -> Tuple[str, str]:
         
         if en_score_original > ru_score_converted:
             return text, "english"
-        
         if ru_score_converted > en_score_original and ru_score_converted >= 2:
             print(f"⌨️ Исправлена раскладка EN→RU")
             return converted_to_ru, "russian"
-        
         return text, "unknown"
     
     elif cyrillic_chars > latin_chars and cyrillic_chars > 0:
@@ -177,11 +219,9 @@ def detect_real_language(text: str) -> Tuple[str, str]:
         
         if ru_score_original >= en_score_converted:
             return text, "russian"
-        
         if en_score_converted > ru_score_original and en_score_converted >= 2:
             print(f"⌨️ Исправлена раскладка RU→EN")
             return converted_to_en, "english"
-        
         return text, "unknown"
     
     return text, "unknown"
@@ -210,10 +250,8 @@ SUBSCRIPT_MAP = {
 
 GREEK_LETTERS = {
     r'\alpha': 'α', r'\beta': 'β', r'\gamma': 'γ', r'\delta': 'δ',
-    r'\epsilon': 'ε', r'\zeta': 'ζ', r'\eta': 'η', r'\theta': 'θ',
-    r'\iota': 'ι', r'\kappa': 'κ', r'\lambda': 'λ', r'\mu': 'μ',
-    r'\nu': 'ν', r'\xi': 'ξ', r'\pi': 'π', r'\rho': 'ρ',
-    r'\sigma': 'σ', r'\tau': 'τ', r'\phi': 'φ', r'\omega': 'ω'
+    r'\epsilon': 'ε', r'\theta': 'θ', r'\lambda': 'λ', r'\mu': 'μ',
+    r'\pi': 'π', r'\sigma': 'σ', r'\phi': 'φ', r'\omega': 'ω'
 }
 
 MATH_SYMBOLS = {
@@ -226,33 +264,22 @@ MATH_SYMBOLS = {
 
 
 def to_superscript(text: str) -> str:
-    result = ""
-    for char in text:
-        result += SUPERSCRIPT_MAP.get(char, char)
-    return result
+    return "".join(SUPERSCRIPT_MAP.get(c, c) for c in text)
 
 
 def to_subscript(text: str) -> str:
-    result = ""
-    for char in text:
-        result += SUBSCRIPT_MAP.get(char, char)
-    return result
+    return "".join(SUBSCRIPT_MAP.get(c, c) for c in text)
 
 
 def format_latex_to_unicode(text: str) -> str:
     """Конвертирует LaTeX и Markdown в читаемый Unicode-формат"""
-    
-    # Убираем Markdown
     text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
     text = re.sub(r'(?<!\w)_(.+?)_(?!\w)', r'\1', text)
     text = re.sub(r'^#{1,3}\s*(.+)$', r'📌 \1', text, flags=re.MULTILINE)
     text = re.sub(r'^[-*]{3,}$', '', text, flags=re.MULTILINE)
-    
-    # Убираем $...$ и $$...$$
     text = re.sub(r'\$\$(.+?)\$\$', r'\1', text, flags=re.DOTALL)
     text = re.sub(r'\$(.+?)\$', r'\1', text)
     
-    # \frac{a}{b} → (a)/(b)
     for _ in range(5):
         new_text = re.sub(
             r'\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}',
@@ -263,7 +290,6 @@ def format_latex_to_unicode(text: str) -> str:
             break
         text = new_text
     
-    # \sqrt{...} → √(...)
     for _ in range(3):
         new_text = re.sub(r'\\sqrt\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}', 
                          lambda m: f"√({m.group(1)})", text)
@@ -271,28 +297,22 @@ def format_latex_to_unicode(text: str) -> str:
             break
         text = new_text
     
-    # Степени: (x+1)^{2} → (x+1)², x^2 → x²
     text = re.sub(r'(\([^)]+\))\^\{([^}]+)\}', 
                  lambda m: m.group(1) + to_superscript(m.group(2)), text)
     text = re.sub(r'([a-zA-Z0-9]+)\^\{([^}]+)\}', 
                  lambda m: m.group(1) + to_superscript(m.group(2)), text)
     text = re.sub(r'([a-zA-Z0-9]+)\^([0-9a-zA-Z])', 
                  lambda m: m.group(1) + to_superscript(m.group(2)), text)
-    
-    # Индексы: x_{i} → xᵢ
     text = re.sub(r'([a-zA-Z]+)_\{([^}]+)\}', 
                  lambda m: m.group(1) + to_subscript(m.group(2)), text)
     text = re.sub(r'([a-zA-Z]+)_([0-9a-zA-Z])', 
                  lambda m: m.group(1) + to_subscript(m.group(2)), text)
     
-    # Греческие буквы и символы
     for latex in sorted(GREEK_LETTERS.keys(), key=len, reverse=True):
         text = text.replace(latex, GREEK_LETTERS[latex])
-    
     for latex in sorted(MATH_SYMBOLS.keys(), key=len, reverse=True):
         text = text.replace(latex, MATH_SYMBOLS[latex])
     
-    # Убираем оставшиеся обратные слеши
     text = re.sub(r'\\(?![nrt])', '', text)
     text = re.sub(r'  +', ' ', text)
     text = re.sub(r'\n{3,}', '\n\n', text)
@@ -319,7 +339,6 @@ def _get_token() -> str:
             data = response.json()
             _token_cache["token"] = data["access_token"]
             _token_cache["expires_at"] = now + 1700
-            print("✅ Токен получен и закэширован")
             return _token_cache["token"]
         except Exception as e:
             print(f"⚠️ Попытка {attempt+1} получения токена не удалась: {e}")
@@ -331,7 +350,7 @@ def detect_mode(text: str, has_history: bool = False) -> str:
     text_lower = text.lower().strip()
     
     if has_history and len(text_lower) < 30:
-        context_keywords = ["почему", "зачем", "что", "как", "когда", "где", "знаешь", "понимаешь"]
+        context_keywords = ["почему", "зачем", "что", "как", "когда", "где", "знаешь"]
         if any(kw in text_lower for kw in context_keywords):
             return "context"
     
@@ -351,55 +370,105 @@ def detect_mode(text: str, has_history: bool = False) -> str:
     return "general"
 
 
+def should_check_for_grades(text: str) -> bool:
+    """Быстрая проверка: похоже ли сообщение на рассказ об оценках"""
+    text_lower = text.lower()
+    
+    # Проверяем триггерные слова
+    for trigger in GRADE_QUICK_TRIGGERS:
+        if trigger in text_lower:
+            return True
+    
+    # Проверяем паттерны: "получил 5", "поставили 4"
+    if re.search(r'(получил|получила|поставили|заработал|заработала)\s+[1-5]', text_lower):
+        return True
+    
+    # Проверяем слова-оценки
+    if re.search(r'(пятёрк|четвёрк|тройк|двойк|единиц)', text_lower):
+        return True
+    
+    return False
+
+
+def extract_grades_with_ai(text: str) -> Tuple[bool, Optional[str], List[int]]:
+    """
+    Использует GigaChat для извлечения оценок из текста.
+    Возвращает: (это оценки?, предмет, список оценок)
+    """
+    try:
+        token = _get_token()
+        
+        messages = [
+            {"role": "system", "content": GRADE_EXTRACTION_PROMPT},
+            {"role": "user", "content": text}
+        ]
+        
+        print(f"🔍 Проверка сообщения на оценки через ИИ...")
+        
+        response = requests.post(
+            url="https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={
+                "model": "GigaChat:latest",
+                "messages": messages,
+                "max_tokens": 200,
+                "temperature": 0.1  # Низкая температура для точности
+            },
+            verify=False,
+            timeout=20
+        )
+        
+        if response.status_code != 200:
+            print(f"⚠️ Ошибка ИИ: {response.status_code}")
+            return False, None, []
+        
+        result = response.json()
+        
+        if 'choices' in result and len(result['choices']) > 0:
+            content = result['choices'][0].get('message', {}).get('content', '').strip()
+            
+            # Пытаемся извлечь JSON из ответа
+            try:
+                # Ищем JSON в тексте (может быть обёрнут в ``` или другой текст)
+                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                if json_match:
+                    data = json.loads(json_match.group())
+                    
+                    is_grades = data.get('is_grades', False)
+                    confidence = data.get('confidence', 0)
+                    
+                    # Только если уверенность высокая
+                    if is_grades and confidence >= 0.7:
+                        subject = data.get('subject', 'Неизвестный предмет')
+                        grades = data.get('grades', [])
+                        
+                        # Валидация оценок
+                        grades = [g for g in grades if isinstance(g, int) and 1 <= g <= 5]
+                        
+                        if grades:
+                            print(f"✅ ИИ определил оценки: {subject} → {grades}")
+                            return True, subject, grades
+                    
+                    print(f"ℹ️ ИИ: это не оценки (уверенность: {confidence})")
+                    return False, None, []
+                    
+            except (json.JSONDecodeError, KeyError, ValueError) as e:
+                print(f"⚠️ Ошибка парсинга ответа ИИ: {e}")
+                print(f"   Ответ: {content[:200]}")
+                return False, None, []
+        
+        return False, None, []
+        
+    except Exception as e:
+        print(f"⚠️ Ошибка extract_grades_with_ai: {e}")
+        return False, None, []
+
+
 # ============================================
 # АНАЛИЗАТОР ОЦЕНОК
 # ============================================
 
 class GradeAnalyzer:
-    SUBJECT_ALIASES = {
-        'матем': 'Математика', 'алгебр': 'Математика', 'геометр': 'Математика',
-        'русск': 'Русский язык', 'литер': 'Литература',
-        'англ': 'Английский язык', 'ингл': 'Английский язык',
-        'нем': 'Немецкий язык', 'физ': 'Физика', 'хим': 'Химия',
-        'биолог': 'Биология', 'био': 'Биология', 'истор': 'История',
-        'географ': 'География', 'гео': 'География',
-        'информ': 'Информатика', 'инфа': 'Информатика',
-        'общество': 'Обществознание', 'физр': 'Физкультура',
-        'музык': 'Музыка', 'изо': 'ИЗО', 'изобраз': 'ИЗО',
-        'технолог': 'Технология', 'труд': 'Технология',
-        'экологи': 'Экология'
-    }
-    
-    @staticmethod
-    def normalize_subject(subject: str) -> str:
-        subject_lower = subject.lower().strip()
-        for alias, canonical in GradeAnalyzer.SUBJECT_ALIASES.items():
-            if alias in subject_lower:
-                return canonical
-        return subject.strip().capitalize()
-    
-    @staticmethod
-    def parse_grades(text: str) -> Tuple[Optional[str], List[int]]:
-        text_lower = text.lower()
-        grades = re.findall(r'\b([1-5])\b', text)
-        grades = [int(g) for g in grades if 1 <= int(g) <= 5]
-        
-        if not grades:
-            return None, []
-        
-        subject = None
-        for alias, canonical in GradeAnalyzer.SUBJECT_ALIASES.items():
-            if alias in text_lower:
-                subject = canonical
-                break
-        
-        if not subject:
-            match = re.search(r'([а-яёa-z]+)[\s:]+[1-5]', text_lower)
-            if match:
-                subject = GradeAnalyzer.normalize_subject(match.group(1))
-        
-        return subject, grades
-    
     @staticmethod
     def add_grades(user_grades: dict, subject: str, new_grades: List[int]) -> str:
         if subject not in user_grades:
@@ -413,7 +482,7 @@ class GradeAnalyzer:
         
         emoji = "🎉" if avg >= 4.5 else "👍" if avg >= 3.5 else "💪"
         
-        msg = f"{emoji} Оценки добавлены!\n"
+        msg = f"{emoji} Я заметил, что ты рассказываешь про оценки, и добавил их в твой дневник!\n\n"
         msg += f"📚 {subject}: +{grades_str}\n"
         msg += f"📊 Всего оценок: {total}, средний балл: {avg:.2f}\n\n"
         msg += "Напиши 'мои оценки', чтобы увидеть все."
@@ -423,7 +492,7 @@ class GradeAnalyzer:
     @staticmethod
     def format_grades(user_grades: dict) -> str:
         if not user_grades:
-            return "📭 У тебя пока нет оценок.\nДобавь их командой: 'добавь оценку математика 5'"
+            return "📭 У тебя пока нет оценок.\nПросто расскажи мне о своих оценках — я сам добавлю!"
         
         msg = "📊 ТВОИ ОЦЕНКИ (аналог МЭШ)\n"
         msg += "━" * 25 + "\n\n"
@@ -496,7 +565,7 @@ class GradeAnalyzer:
         if weak:
             msg += f"1. Сосредоточься на: {', '.join(weak)}\n"
             msg += "2. Попроси помощи у учителя\n"
-            msg += "3. Напиши 'план подготовки по [предмет]' — составлю план!\n"
+            msg += "3. Напиши 'план подготовки по [предмет]'!\n"
         elif average:
             msg += f"1. Подтяни: {', '.join(average)} до 4.5+\n"
             msg += "2. Решай больше задач и упражнений\n"
@@ -505,17 +574,6 @@ class GradeAnalyzer:
             msg += "2. Пробуй задачи повышенной сложности"
         
         return msg
-    
-    @staticmethod
-    def delete_subject(user_grades: dict, subject_query: str) -> str:
-        subject_query = GradeAnalyzer.normalize_subject(subject_query)
-        
-        for subject in list(user_grades.keys()):
-            if subject.lower() == subject_query.lower():
-                del user_grades[subject]
-                return f"🗑️ Предмет '{subject}' удалён из дневника."
-        
-        return f"❓ Предмет '{subject_query}' не найден в твоём дневнике."
 
 
 # ============================================
@@ -565,7 +623,6 @@ class AIService:
                 if isinstance(result, dict) and 'choices' in result and len(result['choices']) > 0:
                     content = result['choices'][0].get('message', {}).get('content', '')
                     if content:
-                        # КРИТИЧЕСКИ ВАЖНО: конвертируем LaTeX в Unicode
                         content = format_latex_to_unicode(content)
                         print(f"✅ Ответ получен ({len(content)} символов)")
                         return content
@@ -577,10 +634,9 @@ class AIService:
                 
             except requests.exceptions.Timeout:
                 if attempt < max_retries - 1:
-                    print(f"⏱️ Таймаут, пробуем ещё раз...")
                     time.sleep(3)
                     continue
-                return "Извини, ИИ не ответил вовремя. Попробуй ещё раз."
+                return "Извини, ИИ не ответил вовремя."
             except Exception as e:
                 print(f"⚠️ Ошибка GigaChat: {e}")
                 if attempt < max_retries - 1:
