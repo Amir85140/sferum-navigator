@@ -21,7 +21,7 @@ MODES = {
     "homework": "📝 Помощь с домашкой", "explain": "🎓 Объяснение темы",
     "tests": "✅ Проверка знаний", "motivation": "💪 Мотивация",
     "videos": "🎥 Видеоуроки", "journal": "📚 Оценки и МЭШ",
-    "offline": "📱 Оффлайн материалы"
+    "offline": "📱 Оффлайн материалы", "context": "🔗 Контекст"
 }
 
 def get_user_data(user_id):
@@ -41,7 +41,6 @@ def clear_history(user_id):
         user_data[user_id]["mode"] = "general"
 
 def get_chat_id(event):
-    """Пробует разные способы получить chat_id"""
     ways = [
         ("recipient.chat_id", lambda e: e.recipient.chat_id),
         ("message.recipient.chat_id", lambda e: e.message.recipient.chat_id),
@@ -109,13 +108,15 @@ async def handle_message(event: MessageCreated):
         await event.message.answer(menu)
         return
     
-    detected = detect_mode(text)
     data = get_user_data(chat_id)
+    has_history = len(data["history"]) > 0
+    
+    detected = detect_mode(text, has_history)
     if detected != "general":
         data["mode"] = detected
     mode = data["mode"]
     
-    print(f"🎯 Режим: {MODES.get(mode, 'Общий')}")
+    print(f"🎯 Режим: {MODES.get(mode, 'Общий')} (история: {len(data['history'])} сообщ.)")
     
     try:
         response = AIService.process_message(text, mode, data["history"])
@@ -133,7 +134,7 @@ async def handle_message(event: MessageCreated):
 
 async def main():
     print("🚀 БОТ Sferum Navigator запущен!")
-    print("✅ Режим: текст")
+    print("✅ Режим: текст с пониманием контекста")
     print("Ожидаю сообщения...\n")
     await dp.start_polling(bot)
 
