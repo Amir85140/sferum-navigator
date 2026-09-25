@@ -1,6 +1,27 @@
+# Переменные окружения (НИКОГДА не коммитим токены!)
 .env
+
+# Python
 __pycache__/
-*.pyc
-*.pyo
-.DS_Store
+*.py[cod]
+*$py.class
+*.so
+.Python
 venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
