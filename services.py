@@ -1,10 +1,11 @@
 import requests
 import re
 from requests.auth import HTTPBasicAuth
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple, Optional
 import urllib3
 import time
 import os
+from datetime import datetime
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -29,10 +30,6 @@ FORMATTING_RULES = """
 - Для списков: цифры "1.", "2." или символы "•", "►"
 - Для выделения: эмодзи (📌, ✨, ⚡) вместо жирного текста
 - Для разделителей: просто пустые строки
-
-ПРИМЕРЫ:
-❌ Плохо: $x^2 + \\frac{y}{2} = 0$, ### Заголовок, **жирный**
-✅ Хорошо: x² + y/2 = 0, 📌 Заголовок, важный текст
 """
 
 LANGUAGE_RULES = """
@@ -40,9 +37,6 @@ LANGUAGE_RULES = """
 ЯЗЫКОВОЕ ПОВЕДЕНИЕ:
 - Ты понимаешь ВСЕ языки мира: русский, английский, немецкий, французский, испанский, китайский, японский и любые другие
 - ВСЕГДА отвечай на том языке, на котором пишет ученик
-- Если ученик пишет на английском — отвечай на английском
-- Если ученик пишет на русском — отвечай на русском
-- Если ученик пишет на нескольких языках — отвечай на основном языке сообщения
 - Если ученик попросит перевести — переведи на указанный язык
 - Помогай с изучением иностранных языков: перевод, грамматика, практика
 """
@@ -51,7 +45,6 @@ PROMPTS = {
     "planner": f"""Ты — умный планировщик подготовки к экзаменам. 
 
 ВАЖНО: Ты помнишь ВЕСЬ разговор с учеником. Всегда учитывай контекст предыдущих сообщений.
-Если ученик задаёт короткие вопросы типа "почему?", "зачем?", "что именно?" — смотри на предыдущее сообщение и отвечай в контексте.
 {FORMATTING_RULES}
 {LANGUAGE_RULES}
 Отвечай структурированно, с эмодзи.""",
@@ -62,21 +55,16 @@ PROMPTS = {
 - НИКОГДА не давай готовый ответ
 - Задавай наводящие вопросы
 - Ты помнишь ВЕСЬ разговор с учеником
-- Если ученик спрашивает "почему?", "зачем?", "что именно?" — смотри на предыдущее сообщение и отвечай в контексте
-- Помогай с иностранными языками: перевод, грамматика, упражнения
 {FORMATTING_RULES}
 {LANGUAGE_RULES}""",
 
     "explain": f"""Ты — учитель, объясняющий сложные темы простым языком.
 
 ВАЖНО: Ты помнишь ВЕСЬ разговор с учеником. Всегда учитывай контекст предыдущих сообщений.
-Если ученик задаёт короткие вопросы типа "почему?", "зачем?", "что именно?" — смотри на предыдущее сообщение и отвечай в контексте.
 {FORMATTING_RULES}
 {LANGUAGE_RULES}""",
 
     "tests": f"""Ты — генератор тестов. Создай тест из 5 вопросов с вариантами ответов. В конце напиши правильные ответы.
-
-ВАЖНО: Ты помнишь ВЕСЬ разговор с учеником. Учитывай контекст предыдущих сообщений.
 {FORMATTING_RULES}
 {LANGUAGE_RULES}""",
 
@@ -84,14 +72,10 @@ PROMPTS = {
 
 ВАЖНО: 
 - Ты помнишь ВЕСЬ разговор с учеником
-- Всегда учитывай контекст предыдущих сообщений
-- Если ученик хвалит тебя ("ты молодец", "спасибо") и потом спрашивает "знаешь почему?" — отвечай в контексте его похвалы
 - Задавай уточняющие вопросы, если контекст неясен
 {LANGUAGE_RULES}""",
 
     "videos": f"""Ты — помощник по поиску видеоуроков. Дай ссылки на поиск видео по теме ученика.
-
-ВАЖНО: Ты помнишь ВЕСЬ разговор с учеником. Учитывай контекст предыдущих сообщений.
 
 Используй ТОЛЬКО эти форматы поисковых ссылок:
 - Поиск на RuTube: https://rutube.ru/search/?q=ТЕМА
@@ -102,14 +86,25 @@ PROMPTS = {
 Замени ТЕМА на предмет/тему ученика.
 {LANGUAGE_RULES}""",
 
-    "journal": f"""Ты — помощник по интеграции с МЭШ. Анализируй оценки.
+    "journal": f"""Ты — умный помощник по анализу школьных оценок и успеваемости.
 
-ВАЖНО: Ты помнишь ВЕСЬ разговор с учеником. Учитывай контекст предыдущих сообщений.
+Ты умеешь:
+- Анализировать оценки по предметам
+- Считать средний балл
+- Находить слабые и сильные предметы
+- Давать рекомендации по улучшению успеваемости
+- Помогать планировать подготовку по проблемным предметам
+- Отвечать на вопросы о динамике оценок
+
+ВАЖНО: 
+- Используй данные об оценках из контекста разговора
+- Если ученик только что добавил оценки через команды — анализируй их
+- Отвечай дружелюбно и поддерживающе, но честно
+- Предлагай конкретные шаги для улучшения
+{FORMATTING_RULES}
 {LANGUAGE_RULES}""",
 
     "offline": f"""Ты — помощник по оффлайн-обучению. Дай ссылки на проверенные образовательные ресурсы.
-
-ВАЖНО: Ты помнишь ВЕСЬ разговор с учеником. Учитывай контекст предыдущих сообщений.
 
 Используй ТОЛЬКО эти проверенные сайты:
 - Фоксфорд: https://foxford.ru
@@ -125,14 +120,9 @@ PROMPTS = {
 
 КРИТИЧЕСКИ ВАЖНО: Ученик задаёт вопрос, который относится к предыдущему сообщению в разговоре.
 Внимательно прочитай историю разговора и пойми, о чём именно спрашивает ученик.
-
-Примеры:
-- Если ученик сказал "Ты молодец!" и потом спрашивает "Знаешь почему?" — он спрашивает, почему ты молодец
-- Если ученик сказал "Мне не нравится математика" и потом спрашивает "Почему?" — он спрашивает, почему ему не нравится математика
-- Если ученик задал вопрос и потом спрашивает "Что именно?" — он просит уточнить
 {FORMATTING_RULES}
 {LANGUAGE_RULES}
-Отвечай в контексте предыдущего разговора. Задавай уточняющие вопросы, если контекст неясен.""",
+Отвечай в контексте предыдущего разговора.""",
 
     "languages": f"""Ты — эксперт по иностранным языкам: английскому, немецкому, французскому, испанскому, китайскому и другим.
 
@@ -141,15 +131,12 @@ PROMPTS = {
 - Объяснять грамматику простыми словами
 - Проверять орфографию и пунктуацию
 - Предлагать упражнения для практики
-- Объяснять идиомы и сленг
-- Помогать с произношением (писать транслитерацию)
 {FORMATTING_RULES}
 {LANGUAGE_RULES}""",
 
     "general": f"""Ты — дружелюбный ИИ-наставник для школьников.
 
 ВАЖНО: Ты помнишь ВЕСЬ разговор с учеником. Всегда учитывай контекст предыдущих сообщений.
-Если ученик задаёт короткие вопросы типа "почему?", "зачем?", "что именно?" — смотри на предыдущее сообщение и отвечай в контексте.
 {FORMATTING_RULES}
 {LANGUAGE_RULES}
 Помогай с учёбой.""",
@@ -162,13 +149,13 @@ MODE_KEYWORDS = {
     "tests": ["тест", "проверь", "викторин", "квиз", "test", "quiz"],
     "motivation": ["устал", "не хочу", "лень", "мотивац", "скучно", "тяжело", "tired", "bored"],
     "videos": ["видео", "урок", "посмотреть", "ролик", "ютуб", "youtube", "rutube", "ссылк", "video", "lesson"],
-    "journal": ["оценк", "журнал", "мэш", "четверт", "полугод", "grade", "mark"],
+    "journal": ["оценк", "журнал", "мэш", "дневник", "четверт", "полугод", "средний балл", "успеваемост", "предмет", "grade", "mark", "average"],
     "offline": ["оффлайн", "скачать", "без интернета", "материал", "сайт", "ресурс", "учебник", "resource"],
     "context": ["почему", "зачем", "что именно", "знаешь", "понимаешь", "объясни", "уточни", "why", "what"],
     "languages": ["перевод", "переведи", "translate", "english", "deutsch", "немецкий", "английский", "французский", "french", "испанский", "spanish", "язык", "grammar", "грамматик", "word"],
 }
 
-# Маппинги раскладок клавиатуры
+# Маппинги раскладок
 EN_TO_RU = {
     'q': 'й', 'w': 'ц', 'e': 'у', 'r': 'к', 't': 'е', 'y': 'н', 'u': 'г',
     'i': 'ш', 'o': 'щ', 'p': 'з', '[': 'х', ']': 'ъ', 'a': 'ф', 's': 'ы',
@@ -185,7 +172,6 @@ EN_TO_RU = {
 
 RU_TO_EN = {v: k for k, v in EN_TO_RU.items()}
 
-# Словари частых слов для распознавания языка
 ENGLISH_COMMON_WORDS = {
     'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
     'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
@@ -193,264 +179,296 @@ ENGLISH_COMMON_WORDS = {
     'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what',
     'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me',
     'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take',
-    'people', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other',
-    'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also',
-    'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way',
-    'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us',
     'hello', 'hi', 'hey', 'thanks', 'please', 'sorry', 'yes', 'no', 'ok',
-    'how', 'are', 'you', 'what', 'where', 'when', 'why', 'which', 'whose', 'whom',
-    'am', 'is', 'was', 'were', 'been', 'being', 'has', 'had', 'having',
-    'does', 'did', 'doing', 'done', 'will', 'would', 'should', 'could', 'might',
-    'must', 'shall', 'can', 'may', 'need', 'dare', 'ought', 'used',
-    'math', 'maths', 'mathematics', 'physics', 'chemistry', 'biology', 'history', 'science',
-    'english', 'german', 'french', 'spanish', 'russian', 'chinese', 'japanese',
-    'translate', 'translation', 'grammar', 'vocabulary', 'word', 'sentence', 'text',
-    'help', 'please', 'thank', 'sorry', 'excuse', 'welcome',
-    'student', 'school', 'teacher', 'class', 'lesson', 'homework', 'exam', 'test',
-    'book', 'page', 'chapter', 'exercise', 'problem', 'solution', 'answer', 'question',
-    'today', 'tomorrow', 'yesterday', 'week', 'month', 'year', 'hour', 'minute',
-    'big', 'small', 'good', 'bad', 'nice', 'beautiful', 'ugly', 'fast', 'slow',
-    'love', 'like', 'hate', 'want', 'need', 'have', 'has', 'had',
-    'go', 'going', 'went', 'gone', 'come', 'coming', 'came',
-    'see', 'seeing', 'saw', 'seen', 'look', 'looking', 'looked',
-    'think', 'thinking', 'thought', 'know', 'knowing', 'knew', 'known',
-    'say', 'saying', 'said', 'tell', 'telling', 'told',
-    'make', 'making', 'made', 'do', 'doing', 'did', 'done',
-    'find', 'finding', 'found', 'give', 'giving', 'gave', 'given',
-    'take', 'taking', 'took', 'taken', 'get', 'getting', 'got', 'gotten',
-    'very', 'really', 'quite', 'rather', 'pretty', 'fairly', 'extremely',
-    'always', 'never', 'sometimes', 'often', 'usually', 'rarely', 'seldom',
-    'here', 'there', 'everywhere', 'nowhere', 'somewhere', 'anywhere',
-    'much', 'many', 'few', 'little', 'some', 'any', 'all', 'none',
-    'more', 'less', 'most', 'least', 'better', 'worse', 'best', 'worst'
+    'how', 'are', 'you', 'what', 'where', 'when', 'why', 'which',
+    'am', 'is', 'was', 'were', 'been', 'being', 'has', 'had',
+    'does', 'did', 'doing', 'done', 'will', 'would', 'should', 'could',
+    'math', 'physics', 'chemistry', 'biology', 'history', 'science',
+    'english', 'german', 'french', 'spanish', 'russian',
+    'translate', 'translation', 'grammar', 'vocabulary', 'word',
+    'help', 'thank', 'welcome', 'student', 'school', 'teacher',
+    'class', 'lesson', 'homework', 'exam', 'test', 'book',
+    'today', 'tomorrow', 'yesterday', 'week', 'month', 'year',
+    'big', 'small', 'good', 'bad', 'nice', 'beautiful',
+    'love', 'like', 'hate', 'want', 'need', 'have',
+    'go', 'going', 'went', 'come', 'see', 'look',
+    'think', 'know', 'say', 'tell', 'make', 'do',
+    'find', 'give', 'take', 'get', 'very', 'really'
 }
 
 RUSSIAN_COMMON_WORDS = {
     'и', 'в', 'не', 'на', 'я', 'быть', 'с', 'он', 'а', 'это',
     'как', 'то', 'что', 'этот', 'по', 'но', 'они', 'к', 'у', 'ты',
     'из', 'мы', 'за', 'вы', 'так', 'же', 'от', 'о', 'весь', 'при',
-    'она', 'для', 'один', 'тот', 'когда', 'также', 'или', 'нет', 'бы', 'был',
-    'до', 'его', 'себя', 'вот', 'уже', 'да', 'было', 'если', 'ещё', 'были',
-    'чтобы', 'там', 'через', 'будет', 'ну', 'всё', 'только', 'была', 'быть', 'были',
-    'тебя', 'их', 'кто', 'даже', 'под', 'была', 'мне', 'так', 'все', 'наш',
-    'тут', 'время', 'теперь', 'потом', 'очень', 'можно', 'после', 'более', 'над',
-    'при', 'эти', 'между', 'надо', 'лишь', 'них', 'перед', 'того', 'ли', 'раз',
-    'здесь', 'куда', 'почему', 'зато', 'потому', 'чуть', 'разве', 'тоже',
-    'привет', 'здравствуй', 'спасибо', 'пожалуйста', 'извини', 'да', 'нет',
-    'как', 'дела', 'ты', 'я', 'он', 'она', 'мы', 'вы', 'они',
-    'хорошо', 'плохо', 'отлично', 'замечательно', 'ужасно',
-    'математика', 'физика', 'химия', 'биология', 'история', 'география',
-    'русский', 'английский', 'немецкий', 'французский', 'испанский',
-    'перевод', 'переведи', 'графика', 'слово', 'предложение', 'текст',
-    'ученик', 'школа', 'учитель', 'класс', 'урок', 'домашка', 'экзамен',
-    'книга', 'страница', 'глава', 'упражнение', 'задача', 'решение', 'ответ',
-    'сегодня', 'завтра', 'вчера', 'неделя', 'месяц', 'год', 'час', 'минута',
+    'она', 'для', 'один', 'тот', 'когда', 'также', 'или', 'нет',
+    'до', 'его', 'себя', 'вот', 'уже', 'да', 'было', 'если', 'ещё',
+    'чтобы', 'там', 'через', 'будет', 'ну', 'всё', 'только',
+    'привет', 'здравствуй', 'спасибо', 'пожалуйста', 'извини',
+    'хорошо', 'плохо', 'отлично', 'замечательно',
+    'математика', 'физика', 'химия', 'биология', 'история',
+    'русский', 'английский', 'немецкий', 'французский',
+    'перевод', 'ученик', 'школа', 'учитель', 'класс', 'урок',
+    'домашка', 'экзамен', 'книга', 'задача', 'решение', 'ответ',
+    'сегодня', 'завтра', 'вчера', 'неделя', 'месяц', 'год',
     'большой', 'маленький', 'хороший', 'плохой', 'красивый',
     'любить', 'нравиться', 'хотеть', 'мочь', 'должен',
-    'идти', 'ходить', 'приходить', 'уходить',
-    'видеть', 'смотреть', 'понимать', 'знать',
-    'говорить', 'рассказывать', 'спрашивать',
-    'делать', 'сделать', 'решать', 'решить',
-    'находить', 'давать', 'брать', 'получать'
+    'идти', 'видеть', 'понимать', 'знать', 'говорить', 'делать'
 }
 
 
 def count_language_matches(text: str, word_set: set) -> int:
-    """Считает сколько слов из текста есть в словаре языка"""
     words = re.findall(r'[a-zA-Zа-яА-ЯёЁ]+', text.lower())
     return sum(1 for word in words if word in word_set)
 
 
 def detect_real_language(text: str) -> Tuple[str, str]:
-    """
-    Определяет настоящий язык текста.
-    Возвращает: (исправленный_текст, язык)
-    """
     text_lower = text.lower()
-    
-    # Считаем латиницу и кириллицу
     latin_chars = sum(1 for c in text if c.isascii() and c.isalpha())
     cyrillic_chars = sum(1 for c in text if '\u0400' <= c <= '\u04FF')
     
-    # Если в основном латиница
     if latin_chars > cyrillic_chars and latin_chars > 0:
-        # Считаем сколько английских слов есть в оригинале
         en_score_original = count_language_matches(text, ENGLISH_COMMON_WORDS)
-        
-        # Пробуем конвертировать в русский
         converted_to_ru = ''.join(EN_TO_RU.get(c, c) for c in text)
         ru_score_converted = count_language_matches(converted_to_ru, RUSSIAN_COMMON_WORDS)
         
-        # Если английский имеет больше совпадений — оставляем как есть
         if en_score_original > ru_score_converted:
-            print(f"🌍 Определён язык: английский ({en_score_original} совпадений)")
             return text, "english"
         
-        # Если русский после конвертации имеет больше — значит это неправильная раскладка
         if ru_score_converted > en_score_original and ru_score_converted >= 2:
-            print(f"⌨️ Исправлена раскладка EN→RU ({ru_score_converted} совпадений)")
+            print(f"⌨️ Исправлена раскладка EN→RU")
             return converted_to_ru, "russian"
         
-        # Не можем определить — оставляем как есть
         return text, "unknown"
     
-    # Если в основном кириллица
     elif cyrillic_chars > latin_chars and cyrillic_chars > 0:
-        # Считаем сколько русских слов есть в оригинале
         ru_score_original = count_language_matches(text, RUSSIAN_COMMON_WORDS)
-        
-        # Пробуем конвертировать в английский
         converted_to_en = ''.join(RU_TO_EN.get(c, c) for c in text)
         en_score_converted = count_language_matches(converted_to_en, ENGLISH_COMMON_WORDS)
         
-        # Если русский имеет больше совпадений — оставляем
         if ru_score_original >= en_score_converted:
             return text, "russian"
         
-        # Если английский после конвертации имеет больше — это неправильная раскладка
         if en_score_converted > ru_score_original and en_score_converted >= 2:
-            print(f"⌨️ Исправлена раскладка RU→EN ({en_score_converted} совпадений)")
+            print(f"⌨️ Исправлена раскладка RU→EN")
             return converted_to_en, "english"
         
         return text, "unknown"
     
-    # Нет букв — возвращаем как есть
     return text, "unknown"
 
 
 def fix_keyboard_layout(text: str) -> str:
-    """Умное исправление раскладки клавиатуры с определением языка"""
     fixed_text, language = detect_real_language(text)
     return fixed_text
 
 
-SUPERSCRIPT_MAP = {
-    '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
-    '+': '⁺', '-': '⁻', '=': '⁼', '(': '⁽', ')': '⁾',
-    'n': 'ⁿ', 'i': 'ⁱ', 'a': 'ᵃ', 'b': 'ᵇ', 'c': 'ᶜ',
-    'x': 'ˣ', 'y': 'ʸ'
-}
+# ============================================
+# МОДУЛЬ АНАЛИЗА ОЦЕНОК (МЭШ-подобный дневник)
+# ============================================
 
-SUBSCRIPT_MAP = {
-    '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
-    '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
-    '+': '₊', '-': '₋', '=': '₌', '(': '₍', ')': '₎',
-    'a': 'ₐ', 'e': 'ₑ', 'o': 'ₒ', 'x': 'ₓ', 'i': 'ᵢ', 'n': 'ₙ'
-}
-
-GREEK_LETTERS = {
-    r'\alpha': 'α', r'\beta': 'β', r'\gamma': 'γ', r'\delta': 'δ',
-    r'\epsilon': 'ε', r'\varepsilon': 'ε', r'\zeta': 'ζ', r'\eta': 'η',
-    r'\theta': 'θ', r'\vartheta': 'ϑ', r'\iota': 'ι', r'\kappa': 'κ',
-    r'\lambda': 'λ', r'\mu': 'μ', r'\nu': 'ν', r'\xi': 'ξ',
-    r'\pi': 'π', r'\rho': 'ρ', r'\sigma': 'σ', r'\tau': 'τ',
-    r'\upsilon': 'υ', r'\phi': 'φ', r'\varphi': 'φ', r'\chi': 'χ',
-    r'\psi': 'ψ', r'\omega': 'ω',
-}
-
-MATH_SYMBOLS = {
-    r'\pm': '±', r'\mp': '∓', r'\times': '×', r'\div': '÷',
-    r'\cdot': '·', r'\leq': '≤', r'\le': '≤', r'\geq': '≥', r'\ge': '≥',
-    r'\neq': '≠', r'\ne': '≠', r'\approx': '≈', r'\equiv': '≡',
-    r'\infty': '∞', r'\partial': '∂', r'\nabla': '∇',
-    r'\forall': '∀', r'\exists': '∃', r'\in': '∈', r'\notin': '∉',
-    r'\subset': '⊂', r'\supset': '⊃', r'\cup': '∪', r'\cap': '∩',
-    r'\emptyset': '∅', r'\sum': '∑', r'\prod': '∏',
-    r'\int': '∫', r'\oint': '∮',
-    r'\rightarrow': '→', r'\to': '→', r'\leftarrow': '←',
-    r'\uparrow': '↑', r'\downarrow': '↓', r'\leftrightarrow': '↔',
-    r'\degree': '°', r'\circ': '°', r'\bullet': '•',
-    r'\ldots': '...', r'\cdots': '...', r'\dots': '...'
-}
-
-
-def to_superscript(text: str) -> str:
-    result = ""
-    for char in text:
-        if char in SUPERSCRIPT_MAP:
-            result += SUPERSCRIPT_MAP[char]
+class GradeAnalyzer:
+    """Анализатор школьных оценок (аналог МЭШ-дневника)"""
+    
+    # Нормализация названий предметов
+    SUBJECT_ALIASES = {
+        'матем': 'Математика', 'математик': 'Математика', 'алгебр': 'Математика', 
+        'геометр': 'Математика', 'math': 'Математика',
+        'русск': 'Русский язык', 'русский': 'Русский язык', 'russian': 'Русский язык',
+        'литер': 'Литература', 'литра': 'Литература',
+        'англ': 'Английский язык', 'английск': 'Английский язык', 'ингл': 'Английский язык',
+        'английский': 'Английский язык', 'english': 'Английский язык',
+        'нем': 'Немецкий язык', 'немецк': 'Немецкий язык', 'герман': 'Немецкий язык',
+        'физ': 'Физика', 'физика': 'Физика', 'physics': 'Физика',
+        'хим': 'Химия', 'химия': 'Химия', 'chemistry': 'Химия',
+        'биолог': 'Биология', 'био': 'Биология', 'biology': 'Биология',
+        'истор': 'История', 'история': 'История', 'history': 'История',
+        'географ': 'География', 'гео': 'География', 'geography': 'География',
+        'информ': 'Информатика', 'инфа': 'Информатика', 'программир': 'Информатика',
+        'компьютер': 'Информатика', 'informatics': 'Информатика',
+        'общество': 'Обществознание', 'обществознан': 'Обществознание',
+        'физр': 'Физкультура', 'физкультур': 'Физкультура', 'физкультура': 'Физкультура',
+        'спорт': 'Физкультура', 'pe': 'Физкультура',
+        'музык': 'Музыка', 'музыка': 'Музыка', 'музы': 'Музыка',
+        'изобраз': 'ИЗО', 'изо': 'ИЗО', 'рисован': 'ИЗО',
+        'технолог': 'Технология', 'труд': 'Технология',
+        'экологи': 'Экология', 'экология': 'Экология',
+    }
+    
+    @staticmethod
+    def normalize_subject(subject: str) -> str:
+        """Нормализует название предмета"""
+        subject_lower = subject.lower().strip()
+        for alias, canonical in GradeAnalyzer.SUBJECT_ALIASES.items():
+            if alias in subject_lower:
+                return canonical
+        # Если не нашли — возвращаем с заглавной буквы
+        return subject.strip().capitalize()
+    
+    @staticmethod
+    def parse_grades(text: str) -> Tuple[Optional[str], List[int]]:
+        """Парсит оценки из текста. Возвращает (предмет, список_оценок)"""
+        text_lower = text.lower()
+        
+        # Ищем все числа от 1 до 5 (оценки)
+        grades = re.findall(r'\b([1-5])\b', text)
+        grades = [int(g) for g in grades if 1 <= int(g) <= 5]
+        
+        if not grades:
+            return None, []
+        
+        # Ищем название предмета
+        subject = None
+        for alias, canonical in GradeAnalyzer.SUBJECT_ALIASES.items():
+            if alias in text_lower:
+                subject = canonical
+                break
+        
+        # Если предмета нет, пытаемся найти первое существительное перед оценками
+        if not subject:
+            # Ищем паттерн: "предмет оценка" или "предмет: оценка"
+            match = re.search(r'([а-яёa-z]+)[\s:]+[1-5]', text_lower)
+            if match:
+                subject = GradeAnalyzer.normalize_subject(match.group(1))
+        
+        return subject, grades
+    
+    @staticmethod
+    def add_grades(user_grades: dict, subject: str, new_grades: List[int]) -> str:
+        """Добавляет оценки и возвращает сообщение-подтверждение"""
+        if subject not in user_grades:
+            user_grades[subject] = []
+        
+        user_grades[subject].extend(new_grades)
+        
+        grades_str = ", ".join(str(g) for g in new_grades)
+        total = len(user_grades[subject])
+        avg = sum(user_grades[subject]) / total
+        
+        emoji = "🎉" if avg >= 4.5 else "👍" if avg >= 3.5 else "💪"
+        
+        msg = f"{emoji} Оценки добавлены!\n"
+        msg += f"📚 {subject}: +{grades_str}\n"
+        msg += f"📊 Всего оценок: {total}, средний балл: {avg:.2f}\n\n"
+        msg += "Напиши 'мои оценки', чтобы увидеть все."
+        
+        return msg
+    
+    @staticmethod
+    def format_grades(user_grades: dict) -> str:
+        """Форматирует все оценки в красивое сообщение"""
+        if not user_grades:
+            return "📭 У тебя пока нет оценок.\nДобавь их командой: 'добавь оценку математика 5'"
+        
+        msg = "📊 ТВОИ ОЦЕНКИ (аналог МЭШ)\n"
+        msg += "━" * 25 + "\n\n"
+        
+        total_sum = 0
+        total_count = 0
+        
+        for subject, grades in sorted(user_grades.items()):
+            if not grades:
+                continue
+            avg = sum(grades) / len(grades)
+            total_sum += sum(grades)
+            total_count += len(grades)
+            
+            # Эмодзи в зависимости от среднего балла
+            if avg >= 4.5:
+                emoji = "🌟"
+            elif avg >= 4.0:
+                emoji = "✅"
+            elif avg >= 3.5:
+                emoji = "👌"
+            else:
+                emoji = "⚠️"
+            
+            grades_str = " ".join(str(g) for g in grades)
+            msg += f"{emoji} {subject}\n"
+            msg += f"   Оценки: {grades_str}\n"
+            msg += f"   Средний: {avg:.2f}\n\n"
+        
+        if total_count > 0:
+            overall_avg = total_sum / total_count
+            msg += "━" * 25 + "\n"
+            msg += f"📈 ОБЩИЙ СРЕДНИЙ БАЛЛ: {overall_avg:.2f}\n\n"
+            
+            # Находим лучший и худший предметы
+            subject_avgs = {s: sum(g)/len(g) for s, g in user_grades.items() if g}
+            if subject_avgs:
+                best = max(subject_avgs, key=subject_avgs.get)
+                worst = min(subject_avgs, key=subject_avgs.get)
+                msg += f"💪 Лучший предмет: {best} ({subject_avgs[best]:.2f})\n"
+                msg += f"📚 Нужно подтянуть: {worst} ({subject_avgs[worst]:.2f})\n"
+        
+        return msg
+    
+    @staticmethod
+    def get_analysis(user_grades: dict) -> str:
+        """Возвращает подробный анализ успеваемости"""
+        if not user_grades:
+            return "📭 Нет данных для анализа. Добавь оценки командой: 'добавь оценку математика 5'"
+        
+        msg = "🎓 АНАЛИЗ УСПЕВАЕМОСТИ\n"
+        msg += "━" * 25 + "\n\n"
+        
+        # Считаем средний балл по каждому предмету
+        subject_avgs = {}
+        for subject, grades in user_grades.items():
+            if grades:
+                subject_avgs[subject] = sum(grades) / len(grades)
+        
+        if not subject_avgs:
+            return "📭 Нет данных для анализа."
+        
+        overall_avg = sum(subject_avgs.values()) / len(subject_avgs)
+        msg += f"📊 Общий средний балл: {overall_avg:.2f}\n\n"
+        
+        # Категории предметов
+        excellent = [s for s, a in subject_avgs.items() if a >= 4.5]
+        good = [s for s, a in subject_avgs.items() if 4.0 <= a < 4.5]
+        average = [s for s, a in subject_avgs.items() if 3.5 <= a < 4.0]
+        weak = [s for s, a in subject_avgs.items() if a < 3.5]
+        
+        if excellent:
+            msg += f"🌟 Отлично (4.5+): {', '.join(excellent)}\n"
+        if good:
+            msg += f"✅ Хорошо (4.0-4.5): {', '.join(good)}\n"
+        if average:
+            msg += f"👌 Нормально (3.5-4.0): {', '.join(average)}\n"
+        if weak:
+            msg += f"⚠️ Требует внимания (<3.5): {', '.join(weak)}\n"
+        
+        msg += "\n💡 РЕКОМЕНДАЦИИ:\n"
+        
+        if weak:
+            msg += f"1. Сосредоточься на: {', '.join(weak)}\n"
+            msg += "2. Попроси помощи у учителя или одноклассников\n"
+            msg += "3. Напиши мне 'план подготовки по [предмет]' — составлю план!\n"
+        elif average:
+            msg += f"1. Подтяни: {', '.join(average)} до 4.5+\n"
+            msg += "2. Решай больше задач и упражнений\n"
         else:
-            result += char
-    return result
+            msg += "1. Так держать! 🎉\n"
+            msg += "2. Пробуй задачи повышенной сложности для развития"
+        
+        return msg
+    
+    @staticmethod
+    def delete_subject(user_grades: dict, subject_query: str) -> str:
+        """Удаляет предмет из дневника"""
+        subject_query = GradeAnalyzer.normalize_subject(subject_query)
+        
+        for subject in list(user_grades.keys()):
+            if subject.lower() == subject_query.lower():
+                del user_grades[subject]
+                return f"🗑️ Предмет '{subject}' удалён из дневника."
+        
+        return f"❓ Предмет '{subject_query}' не найден в твоём дневнике."
 
 
-def to_subscript(text: str) -> str:
-    result = ""
-    for char in text:
-        if char in SUBSCRIPT_MAP:
-            result += SUBSCRIPT_MAP[char]
-        else:
-            result += char
-    return result
-
-
-def format_latex_to_unicode(text: str) -> str:
-    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
-    text = re.sub(r'(?<!\w)_(.+?)_(?!\w)', r'\1', text)
-    text = re.sub(r'^#{1,3}\s*(.+)$', r'📌 \1', text, flags=re.MULTILINE)
-    text = re.sub(r'^[-*]{3,}$', '', text, flags=re.MULTILINE)
-    text = re.sub(r'`([^`]+)`', r'\1', text)
-    
-    text = re.sub(r'\$\$(.+?)\$\$', r'\1', text, flags=re.DOTALL)
-    text = re.sub(r'\$(.+?)\$', r'\1', text)
-    text = re.sub(r'\\left([(\[{|])', r'\1', text)
-    text = re.sub(r'\\right([)\]}|])', r'\1', text)
-    text = re.sub(r'\\text\{([^}]*)\}', r'\1', text)
-    
-    def replace_frac(match):
-        num = match.group(1).strip()
-        den = match.group(2).strip()
-        num = format_latex_to_unicode(num)
-        den = format_latex_to_unicode(den)
-        if re.match(r'^[a-zA-Z0-9α-ωΑ-Ω]+$', num) and re.match(r'^[a-zA-Z0-9α-ωΑ-Ω]+$', den):
-            return f"{num}/{den}"
-        return f"({num})/({den})"
-    
-    for _ in range(5):
-        new_text = re.sub(r'\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}', replace_frac, text)
-        if new_text == text:
-            break
-        text = new_text
-    
-    for _ in range(3):
-        new_text = re.sub(r'\\sqrt\[([^\]]+)\]\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}', 
-                         lambda m: f"{to_superscript(m.group(1))}√({format_latex_to_unicode(m.group(2))})", text)
-        new_text = re.sub(r'\\sqrt\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}', 
-                         lambda m: f"√({format_latex_to_unicode(m.group(1))})", new_text)
-        if new_text == text:
-            break
-        text = new_text
-    
-    def replace_superscript_braces(match):
-        return match.group(1) + to_superscript(match.group(2))
-    
-    text = re.sub(r'(\([^)]+\))\^\{([^}]+)\}', replace_superscript_braces, text)
-    text = re.sub(r'([a-zA-Z0-9α-ωΑ-Ω]+)\^\{([^}]+)\}', replace_superscript_braces, text)
-    text = re.sub(r'([a-zA-Z0-9α-ωΑ-Ω]+)\^([0-9a-zA-Z])', 
-                 lambda m: m.group(1) + to_superscript(m.group(2)), text)
-    text = re.sub(r'(\([^)]+\))\^([0-9a-zA-Z])', 
-                 lambda m: m.group(1) + to_superscript(m.group(2)), text)
-    
-    def replace_subscript_braces(match):
-        return match.group(1) + to_subscript(match.group(2))
-    
-    text = re.sub(r'([a-zA-Zα-ωΑ-Ω]+)_\{([^}]+)\}', replace_subscript_braces, text)
-    text = re.sub(r'([a-zA-Zα-ωΑ-Ω]+)_([0-9a-zA-Z])', 
-                 lambda m: m.group(1) + to_subscript(m.group(2)), text)
-    
-    for latex in sorted(GREEK_LETTERS.keys(), key=len, reverse=True):
-        text = text.replace(latex, GREEK_LETTERS[latex])
-    
-    for latex in sorted(MATH_SYMBOLS.keys(), key=len, reverse=True):
-        text = text.replace(latex, MATH_SYMBOLS[latex])
-    
-    text = re.sub(r'\\(?![nrt])', '', text)
-    text = re.sub(r'  +', ' ', text)
-    text = re.sub(r'\n{3,}', '\n\n', text)
-    
-    return text.strip()
-
+# ============================================
+# ОСНОВНОЙ СЕРВИС ИИ
+# ============================================
 
 def _get_token() -> str:
     now = time.time()
@@ -507,13 +525,18 @@ def detect_mode(text: str, has_history: bool = False) -> str:
 
 class AIService:
     @staticmethod
-    def process_message(message: str, feature_id: str = "general", history: list = None) -> str:
+    def process_message(message: str, feature_id: str = "general", history: list = None, 
+                       grades_context: str = "") -> str:
         max_retries = 2
         for attempt in range(max_retries):
             try:
                 print(f"🤖 Запрос к GigaChat (режим: {feature_id}, история: {len(history) if history else 0})")
                 token = _get_token()
                 system_prompt = PROMPTS.get(feature_id, PROMPTS["general"])
+                
+                # Если есть данные об оценках — добавляем в контекст
+                if grades_context and feature_id == "journal":
+                    system_prompt += f"\n\n📊 ТЕКУЩИЕ ОЦЕНКИ УЧЕНИКА:\n{grades_context}"
                 
                 messages = [{"role": "system", "content": system_prompt}]
                 if history:
