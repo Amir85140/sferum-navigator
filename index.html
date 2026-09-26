@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sferum Navigator Mini</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 16px; }
+  .card { background: #fff; border-radius: 20px; padding: 20px; max-width: 480px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+  h1 { font-size: 22px; color: #333; text-align: center; }
+  .subtitle { text-align: center; color: #888; font-size: 13px; margin: 6px 0 16px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab { flex: 1; padding: 10px; border: none; border-radius: 12px; background: #f0f0f5; color: #555; font-size: 14px; cursor: pointer; transition: .2s; }
+  .tab.active { background: #667eea; color: #fff; font-weight: 600; }
+  .page { display: none; }
+  .page.active { display: block; }
+  label { display: block; font-size: 13px; color: #666; margin: 10px 0 4px; }
+  select, input { width: 100%; padding: 12px; border: 2px solid #e0e0e8; border-radius: 12px; font-size: 15px; outline: none; }
+  select:focus, input:focus { border-color: #667eea; }
+  .btn { width: 100%; margin-top: 14px; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+  .btn:active { transform: scale(.98); }
+  .plan-item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 14px; color: #444; }
+  .quiz-q { font-size: 18px; font-weight: 600; color: #333; margin: 10px 0; text-align: center; }
+  .quiz-opt { display: block; width: 100%; margin-top: 8px; padding: 13px; border: 2px solid #e0e0e8; border-radius: 12px; background: #fff; font-size: 16px; cursor: pointer; }
+  .quiz-opt.correct { background: #d4f7d4; border-color: #4caf50; }
+  .quiz-opt.wrong { background: #fdd; border-color: #e57373; }
+  .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 10px; }
+  .about { font-size: 14px; color: #555; line-height: 1.6; }
+  .about li { margin: 6px 0 6px 18px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎯 Sferum Navigator</h1>
+  <div class="subtitle">Мини-приложение ИИ-наставника</div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showPage('plan', this)">📅 План</button>
+    <button class="tab" onclick="showPage('quiz', this)">✅ Тренажёр</button>
+    <button class="tab" onclick="showPage('about', this)">ℹ️ О боте</button>
+  </div>
+
+  <!-- СТРАНИЦА: ПЛАНИРОВЩИК -->
+  <div id="plan" class="page active">
+    <label>Предмет</label>
+    <select id="subject">
+      <option>Математика</option><option>Русский язык</option>
+      <option>Физика</option><option>Химия</option>
+      <option>Биология</option><option>История</option>
+      <option>Английский язык</option><option>Информатика</option>
+    </select>
+    <label>Недель до экзамена</label>
+    <input type="number" id="weeks" value="8" min="1" max="52">
+    <label>Минут в день</label>
+    <input type="number" id="minutes" value="60" min="10" max="480" step="10">
+    <button class="btn" onclick="buildPlan()">Составить план</button>
+    <div id="planResult"></div>
+  </div>
+
+  <!-- СТРАНИЦА: ТРЕНАЖЁР -->
+  <div id="quiz" class="page">
+    <div class="quiz-q" id="quizQ">Нажми "Новый вопрос"</div>
+    <div id="quizOpts"></div>
+    <button class="btn" onclick="newQuestion()">🎲 Новый вопрос</button>
+    <div class="score" id="score">Счёт: 0 / 0</div>
+  </div>
+
+  <!-- СТРАНИЦА: О БОТЕ -->
+  <div id="about" class="page">
+    <div class="about">
+      <b>Sferum Navigator</b> — ИИ-наставник на базе GigaChat в мессенджере MAX.
+      <ul>
+        <li>📝 Помощь с домашкой методом Сократа</li>
+        <li>🎓 Объяснение сложных тем простым языком</li>
+        <li>🌍 Практика иностранных языков</li>
+        <li>🧠 Помнит контекст разговора</li>
+        <li>⌨️ Понимает текст в любой раскладке</li>
+      </ul>
+      Напиши боту в MAX — и он поможет с учёбой!
+    </div>
+  </div>
+</div>
+
+<script>
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ===== ПЛАНИРОВЩИК =====
+function buildPlan() {
+  const subject = document.getElementById('subject').value;
+  const weeks = parseInt(document.getElementById('weeks').value) || 8;
+  const minutes = parseInt(document.getElementById('minutes').value) || 60;
+  const stages = [
+    ['📖 Теория и конспекты', Math.ceil(weeks * 0.4)],
+    ['✏️ Практика и задачи', Math.ceil(weeks * 0.35)],
+    ['🧪 Пробные варианты', Math.ceil(weeks * 0.15)],
+    ['🔄 Повторение и отдых', Math.max(1, weeks - Math.ceil(weeks*0.4) - Math.ceil(weeks*0.35) - Math.ceil(weeks*0.15))]
+  ];
+  let html = '';
+  let week = 1;
+  stages.forEach(([name, w]) => {
+    html += '<div class="plan-item"><b>' + name + '</b><br>Недели ' + week + '–' + (week + w - 1) + ' · ' + minutes + ' мин/день</div>';
+    week += w;
+  });
+  html += '<div class="plan-item">💪 Итого: ' + weeks + ' недель по ' + minutes + ' мин. Регулярность важнее интенсивности!</div>';
+  document.getElementById('planResult').innerHTML = html;
+}
+
+// ===== ТРЕНАЖЁР =====
+let correct = 0, total = 0, currentAnswer = null;
+function newQuestion() {
+  const a = Math.floor(Math.random() * 9) + 2;
+  const b = Math.floor(Math.random() * 9) + 2;
+  currentAnswer = a * b;
+  total++;
+  document.getElementById('quizQ').textContent = a + ' × ' + b + ' = ?';
+  const opts = new Set([currentAnswer]);
+  while (opts.size < 4) {
+    opts.add(currentAnswer + Math.floor(Math.random() * 19) - 9);
+  }
+  const shuffled = [...opts].sort(() => Math.random() - 0.5);
+  const box = document.getElementById('quizOpts');
+  box.innerHTML = '';
+  shuffled.forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = v;
+    btn.onclick = () => check(btn, v);
+    box.appendChild(btn);
+  });
+  updateScore();
+}
+function check(btn, v) {
+  document.querySelectorAll('.quiz-opt').forEach(b => b.onclick = null);
+  if (v === currentAnswer) { btn.classList.add('correct'); correct++; }
+  else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-opt').forEach(b => {
+      if (parseInt(b.textContent) === currentAnswer) b.classList.add('correct');
+    });
+  }
+  updateScore();
+}
+function updateScore() {
+  document.getElementById('score').textContent = 'Счёт: ' + correct + ' / ' + Math.max(total - 1, 0);
+}
+newQuestion();
+</script>
+</body>
+</html>
