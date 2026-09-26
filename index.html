@@ -181,12 +181,19 @@
 </div>
 
 <script>
+// ===== НАСТРОЙКИ =====
 const GIGA_CLIENT_ID = '01a0bafa-206f-7e07-a2e7-df9e0acea285';
 const GIGA_CLIENT_SECRET = '93e085d7-803b-4fe2-b1da-468aff78a450';
 const CHAT_SYSTEM = 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. НЕ используй LaTeX и Markdown. Для степеней пиши x², для дробей a/b. Отвечай на языке ученика.';
+
+// ⚠️ ВСТАВЬ СЮДА имя своего codespace (команда: echo $CODESPACE_NAME)
+const CODESPACE = 'ВСТАВЬ_ИМЯ_ИЗ_ТЕРМИНАЛА';
+const PROXY_BASE = 'https://' + CODESPACE + '-8000.app.github.dev';
+
+// Сначала свой прокси (гарантированно), потом запасные
 const PROXIES = [
+  u => PROXY_BASE + '/proxy?url=' + encodeURIComponent(u),
   u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
-  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
   u => u
 ];
 
@@ -299,7 +306,7 @@ async function sendChat() {
     chatHistory.push({ role: 'assistant', content });
   } catch (e) {
     wait.remove();
-    addMsg('😔 Браузер не пустил запрос (CORS). В боте MAX чат работает!', 'bot');
+    addMsg('😔 Не удалось связаться с GigaChat. Проверь, что прокси запущен (proxy_server.py) и порт 8000 открыт!', 'bot');
   }
 }
 function clearChat() {
@@ -308,7 +315,7 @@ function clearChat() {
   addMsg('Привет! Я ИИ-наставник. Спроси меня о чём угодно 🎓', 'bot');
 }
 
-// ===== ПЛАН (ИИ основной, локальный fallback) =====
+// ===== ПЛАН =====
 async function buildPlan(btn) {
   const subject = document.getElementById('pSubject').value;
   const weeks = document.getElementById('pWeeks').value;
@@ -328,7 +335,7 @@ async function buildPlan(btn) {
   } finally { aiState(btn, false); }
 }
 
-// ===== ТРЕНАЖЁР (ИИ режим по умолчанию) =====
+// ===== ТРЕНАЖЁР =====
 const ENG_WORDS = [
   ['book','книга'],['cat','кошка'],['dog','собака'],['school','школа'],['teacher','учитель'],
   ['friend','друг'],['water','вода'],['sun','солнце'],['house','дом'],['apple','яблоко']
@@ -397,7 +404,7 @@ function checkAnswer(btn, v) {
   setTimeout(newQuestion, 900);
 }
 
-// ===== ДНЕВНИК (ИИ-анализ) =====
+// ===== ДНЕВНИК =====
 let gAiDone = false;
 function loadGrades() { try { return JSON.parse(localStorage.getItem('sn_grades') || '{}'); } catch (e) { return {}; } }
 function saveGrades(g) { localStorage.setItem('sn_grades', JSON.stringify(g)); }
@@ -436,11 +443,11 @@ async function gradesByAI(btn) {
     document.getElementById('gAi').innerHTML = '<div class="item ai">🤖 <b>Анализ от ИИ:</b>\n' + escapeHtml(cleanAiText(res)) + '</div>';
     gAiDone = true;
   } catch (e) {
-    document.getElementById('gAi').innerHTML = '<div class="item">😔 ИИ-анализ недоступен из браузера (CORS).</div>';
+    document.getElementById('gAi').innerHTML = '<div class="item">😔 ИИ-анализ недоступен. Проверь прокси (proxy_server.py, порт 8000).</div>';
   } finally { aiState(btn, false); }
 }
 
-// ===== КАРТОЧКИ (ИИ-генерация) =====
+// ===== КАРТОЧКИ =====
 let flashPair = null, flashFlipped = false, aiCards = [];
 function currentCards() { return aiCards.length ? aiCards : ENG_WORDS; }
 function nextCard() {
@@ -465,11 +472,11 @@ async function flashByAI(btn) {
       nextCard();
     }
   } catch (e) {
-    if (!aiCards.length) document.getElementById('flashCard').textContent = '😔 ИИ недоступен (CORS) — нажми, чтобы использовать стандартные карточки';
+    if (!aiCards.length) document.getElementById('flashCard').textContent = '😔 ИИ недоступен — использую стандартные карточки';
   } finally { aiState(btn, false); }
 }
 
-// ===== РАСКЛАДКА (ИИ основной, карта fallback) =====
+// ===== РАСКЛАДКА =====
 const EN_RU = {'q':'й','w':'ц','e':'у','r':'к','t':'е','y':'н','u':'г','i':'ш','o':'щ','p':'з','[':'х',']':'ъ','a':'ф','s':'ы','d':'в','f':'а','g':'п','h':'р','j':'о','k':'л','l':'д',';':'ж','\'':'э','z':'я','x':'ч','c':'с','v':'м','b':'и','n':'т','m':'ь',',':'б','.':'ю','/':'.'};
 const RU_EN = {}; for (const k in EN_RU) RU_EN[EN_RU[k]] = k;
 async function fixLayout(btn) {
@@ -487,7 +494,7 @@ async function fixLayout(btn) {
   } finally { aiState(btn, false); }
 }
 
-// ===== ВИДЕО (ссылки + ИИ-объяснение) =====
+// ===== ВИДЕО =====
 async function buildVideo(btn) {
   const topicRaw = document.getElementById('vTopic').value.trim() || 'математика';
   const topic = encodeURIComponent(topicRaw);
@@ -500,11 +507,11 @@ async function buildVideo(btn) {
     const res = await askAI('Кратко (3–4 предложения) объясни школьнику тему «' + topicRaw + '» простыми словами с примером. Без Markdown и LaTeX.');
     document.getElementById('vAi').innerHTML = '<div class="item ai">🎓 <b>Объяснение от ИИ:</b>\n' + escapeHtml(cleanAiText(res)) + '</div>';
   } catch (e) {
-    document.getElementById('vAi').innerHTML = '<div class="item">😔 ИИ-объяснение недоступно (CORS). Смотри видео по ссылкам выше.</div>';
+    document.getElementById('vAi').innerHTML = '<div class="item">😔 ИИ-объяснение недоступно. Смотри видео по ссылкам выше.</div>';
   }
 }
 
-// ===== МОТИВАЦИЯ (ИИ при входе) =====
+// ===== МОТИВАЦИЯ =====
 let motivationLoaded = false;
 const QUOTES = [
   'Ошибка — это не провал, а подсказка, куда двигаться дальше. 🌱',
@@ -522,7 +529,7 @@ async function motivationByAI(btn) {
   } finally { aiState(btn, false); }
 }
 
-// ===== О БОТЕ (ИИ-рассказ) =====
+// ===== О БОТЕ =====
 async function askAbout(btn) {
   aiState(btn, true);
   try {
