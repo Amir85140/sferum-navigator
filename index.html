@@ -2,89 +2,51 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sferum Navigator Mini</title>
-<!-- MAX Bridge SDK для интеграции с мессенджером -->
-<script src="https://unpkg.com/@max/web-app-sdk@latest/dist/max-web-app.js" onerror="console.log('MAX SDK не загрузился, работаем без него')"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; }
-  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 12px; color: #333; transition: background .3s; }
-  .card { background: #fff; border-radius: 20px; padding: 18px; max-width: 480px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); min-height: 90vh; transition: background .3s; }
-  h1 { font-size: 21px; color: #333; text-align: center; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 12px; }
+  .card { background: #fff; border-radius: 20px; padding: 18px; max-width: 480px; margin: 0 auto; min-height: 90vh; }
+  h1 { font-size: 21px; text-align: center; }
   .subtitle { text-align: center; color: #888; font-size: 13px; margin: 4px 0 14px; }
-  .back { background: #f0f0f5; border: none; border-radius: 10px; padding: 10px 14px; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: #555; min-height: 44px; }
+  .back { background: #f0f0f5; border: none; border-radius: 10px; padding: 10px 14px; font-size: 15px; cursor: pointer; margin-bottom: 12px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tile { background: #f7f7fc; border: none; border-radius: 16px; padding: 18px 10px; cursor: pointer; text-align: center; transition: .15s; min-height: 90px; }
-  .tile:active { transform: scale(.96); background: #eeeef8; }
+  .tile { background: #f7f7fc; border: none; border-radius: 16px; padding: 18px 10px; cursor: pointer; text-align: center; min-height: 90px; }
+  .tile:active { transform: scale(.96); }
   .tile .ico { font-size: 30px; display: block; margin-bottom: 8px; }
-  .tile .ttl { font-size: 14px; font-weight: 600; color: #444; }
+  .tile .ttl { font-size: 14px; font-weight: 600; }
   .page { display: none; }
   .page.active { display: block; }
-  label { display: block; font-size: 14px; color: #666; margin: 12px 0 5px; }
-  select, input, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e8; border-radius: 12px; font-size: 16px; outline: none; min-height: 44px; transition: border-color .2s; }
-  select:focus, input:focus, textarea:focus { border-color: #667eea; }
-  .btn { width: 100%; margin-top: 12px; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; transition: transform .1s; }
+  label { display: block; font-size: 14px; margin: 12px 0 5px; }
+  select, input, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e8; border-radius: 12px; font-size: 16px; min-height: 48px; }
+  .btn { width: 100%; margin-top: 12px; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; }
   .btn:active { transform: scale(.98); }
-  .btn:disabled { opacity: .6; }
   .btn.gray { background: #e8e8f0; color: #555; }
-  .item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 15px; color: #444; white-space: pre-wrap; line-height: 1.5; }
+  .item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 12px; margin-top: 10px; font-size: 15px; white-space: pre-wrap; }
   .item.ai { border-left-color: #f7971e; }
-  .quiz-q { font-size: 19px; font-weight: 700; color: #333; margin: 14px 0; text-align: center; min-height: 48px; }
-  .quiz-opt { display: block; width: 100%; margin-top: 8px; padding: 14px; border: 2px solid #e0e0e8; border-radius: 12px; background: #fff; font-size: 16px; cursor: pointer; min-height: 48px; transition: all .15s; }
+  .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0; text-align: center; min-height: 48px; }
+  .quiz-opt { display: block; width: 100%; margin-top: 8px; padding: 14px; border: 2px solid #e0e0e8; border-radius: 12px; background: #fff; font-size: 16px; cursor: pointer; min-height: 48px; }
   .quiz-opt.correct { background: #d4f7d4; border-color: #4caf50; }
   .quiz-opt.wrong { background: #fdd; border-color: #e57373; }
-  .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 12px; font-size: 15px; }
+  .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 12px; }
   .flash { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-radius: 16px; padding: 40px 20px; text-align: center; font-size: 24px; font-weight: 700; cursor: pointer; margin-top: 12px; min-height: 150px; display: flex; align-items: center; justify-content: center; }
-  .grade-row { display: flex; justify-content: space-between; align-items: center; background: #f7f7fc; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 14px; min-height: 48px; }
-  .grade-row button { background: #fdd; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; min-height: 36px; font-size: 14px; }
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: #f7f7fc; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 14px; }
+  .grade-row button { background: #fdd; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
   .avg { text-align: center; font-size: 36px; font-weight: 800; color: #667eea; margin: 12px 0; }
-  .link-item { display: block; background: #f7f7fc; border-radius: 10px; padding: 14px; margin-top: 8px; text-decoration: none; color: #667eea; font-weight: 600; font-size: 15px; text-align: center; min-height: 48px; }
-  .quote { background: #f7f7fc; border-radius: 16px; padding: 24px 20px; font-size: 17px; color: #444; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; }
-  .about { font-size: 15px; color: #555; line-height: 1.6; }
+  .link-item { display: block; background: #f7f7fc; border-radius: 10px; padding: 14px; margin-top: 8px; text-decoration: none; color: #667eea; font-weight: 600; text-align: center; }
+  .quote { background: #f7f7fc; border-radius: 16px; padding: 24px 20px; font-size: 17px; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; }
+  .about { font-size: 15px; line-height: 1.6; }
   .about li { margin: 8px 0 8px 20px; }
   .chat-box { height: 52vh; overflow-y: auto; background: #f7f7fc; border-radius: 12px; padding: 12px; margin-top: 10px; }
-  .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
   .msg.user { background: #667eea; color: #fff; margin-left: auto; }
-  .msg.bot { background: #fff; color: #333; border: 1px solid #e0e0e8; }
+  .msg.bot { background: #fff; border: 1px solid #e0e0e8; }
   .chat-input { display: flex; gap: 8px; margin-top: 10px; }
   .chat-input input { flex: 1; }
   .chat-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
   .legal { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e0e0e8; font-size: 13px; text-align: center; }
   .legal a { color: #667eea; text-decoration: none; margin: 0 8px; }
-  .badge { display: inline-block; background: #f7971e; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
-
-  /* ТЁМНАЯ ТЕМА (подхватывает из MAX и системных настроек) */
-  body.dark { background: linear-gradient(135deg, #1e1e2e 0%, #2d1b4e 100%); }
-  body.dark .card { background: #2a2a3a; }
-  body.dark h1 { color: #fff; }
-  body.dark .subtitle, body.dark label { color: #bbb; }
-  body.dark .back, body.dark .tile, body.dark .item, body.dark .grade-row, body.dark .link-item, body.dark .chat-box, body.dark .quote { background: #3a3a4a; color: #e0e0e0; }
-  body.dark .tile .ttl { color: #e0e0e0; }
-  body.dark select, body.dark input, body.dark textarea { background: #3a3a4a; color: #fff; border-color: #555; }
-  body.dark .msg.bot { background: #3a3a4a; color: #e0e0e0; border-color: #555; }
-  body.dark .btn.gray { background: #3a3a4a; color: #e0e0e0; }
-  body.dark .grade-row button { background: #5a3a3a; color: #fff; }
-  body.dark .quiz-opt { background: #3a3a4a; color: #e0e0e0; border-color: #555; }
-  body.dark .quiz-opt.correct { background: #2a4a2a; color: #fff; }
-  body.dark .quiz-opt.wrong { background: #4a2a2a; color: #fff; }
-  body.dark .about { color: #ccc; }
-  body.dark .legal { border-top-color: #444; }
-
-  @media (prefers-color-scheme: dark) {
-    body:not(.light) { background: linear-gradient(135deg, #1e1e2e 0%, #2d1b4e 100%); }
-    body:not(.light) .card { background: #2a2a3a; }
-    body:not(.light) h1 { color: #fff; }
-    body:not(.light) .subtitle, body:not(.light) label { color: #bbb; }
-    body:not(.light) .back, body:not(.light) .tile, body:not(.light) .item, body:not(.light) .grade-row, body:not(.light) .link-item, body:not(.light) .chat-box, body:not(.light) .quote { background: #3a3a4a; color: #e0e0e0; }
-    body:not(.light) .tile .ttl { color: #e0e0e0; }
-    body:not(.light) select, body:not(.light) input, body:not(.light) textarea { background: #3a3a4a; color: #fff; border-color: #555; }
-    body:not(.light) .msg.bot { background: #3a3a4a; color: #e0e0e0; border-color: #555; }
-    body:not(.light) .btn.gray { background: #3a3a4a; color: #e0e0e0; }
-    body:not(.light) .grade-row button { background: #5a3a3a; color: #fff; }
-    body:not(.light) .quiz-opt { background: #3a3a4a; color: #e0e0e0; border-color: #555; }
-    body:not(.light) .about { color: #ccc; }
-    body:not(.light) .legal { border-top-color: #444; }
-  }
 </style>
 </head>
 <body>
@@ -92,7 +54,7 @@
 
   <div id="home" class="page active">
     <h1>🎯 Sferum Navigator</h1>
-    <div class="subtitle">ИИ-наставник для учёбы <span class="badge">MAX</span></div>
+    <div class="subtitle">ИИ-наставник · работает оффлайн</div>
     <div class="grid">
       <button class="tile" onclick="go('chat')"><span class="ico">🤖</span><span class="ttl">Чат с ИИ</span></button>
       <button class="tile" onclick="go('plan')"><span class="ico">📅</span><span class="ttl">План</span></button>
@@ -109,13 +71,12 @@
   <div id="chat" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🤖 Чат с ИИ</h1>
-    <div class="subtitle">Спроси что-нибудь про учёбу</div>
     <div class="chat-box" id="chatBox"></div>
     <div class="chat-input">
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
       <button class="btn" onclick="sendChat()">➤</button>
     </div>
-    <button class="btn gray" onclick="clearChat()">🗑 Очистить чат</button>
+    <button class="btn gray" onclick="clearChat()">🗑 Очистить</button>
   </div>
 
   <div id="plan" class="page">
@@ -127,21 +88,20 @@
       <option>Химия</option><option>Биология</option><option>История</option>
       <option>Обществознание</option><option>Английский язык</option><option>Информатика</option>
     </select>
-    <label>Недель до экзамена</label>
+    <label>Недель</label>
     <input type="number" id="pWeeks" value="8" min="1" max="52">
     <label>Минут в день</label>
-    <input type="number" id="pMinutes" value="60" min="10" max="480" step="10">
-    <button class="btn" onclick="buildPlan()">✨ Составить план (ИИ)</button>
+    <input type="number" id="pMinutes" value="60" min="10" max="480">
+    <button class="btn" onclick="buildPlan()">✨ Составить план</button>
     <div id="planResult"></div>
   </div>
 
   <div id="quiz" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>✅ Тренажёр</h1>
-    <div class="subtitle">Вопросы по школьным предметам</div>
     <div class="quiz-q" id="quizQ">—</div>
     <div id="quizOpts"></div>
-    <button class="btn gray" onclick="newQuestion()">🎲 Следующий вопрос</button>
+    <button class="btn gray" onclick="newQuestion()">🎲 Следующий</button>
     <div class="score" id="score">Счёт: 0 / 0</div>
   </div>
 
@@ -151,43 +111,41 @@
     <div class="avg" id="gAvg">—</div>
     <div id="gList"></div>
     <label>Предмет</label>
-    <input type="text" id="gSubject" placeholder="Например: Математика">
-    <label>Оценка (1–5)</label>
+    <input type="text" id="gSubject" placeholder="Математика">
+    <label>Оценка</label>
     <select id="gValue"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
-    <button class="btn" onclick="addGrade()">➕ Добавить оценку</button>
-    <button class="btn" onclick="gradesAI()">🤖 Анализ успеваемости (ИИ)</button>
-    <button class="btn gray" onclick="clearGrades()">🗑 Очистить всё</button>
+    <button class="btn" onclick="addGrade()">➕ Добавить</button>
+    <button class="btn" onclick="gradesAI()">🤖 Анализ</button>
+    <button class="btn gray" onclick="clearGrades()">🗑 Очистить</button>
     <div id="gAi"></div>
   </div>
 
   <div id="flash" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🎴 Карточки слов</h1>
-    <div class="subtitle">Нажми на карточку, чтобы перевернуть</div>
     <label>Тема</label>
     <select id="fTopic" onchange="setFlashTopic()">
       <option value="школа">Школа</option><option value="еда">Еда</option>
       <option value="путешествия">Путешествия</option><option value="животные">Животные</option>
     </select>
     <div class="flash" id="flashCard" onclick="flipCard()">—</div>
-    <button class="btn" onclick="nextCard()">➡️ Следующая карточка</button>
+    <button class="btn" onclick="nextCard()">➡️ Следующая</button>
   </div>
 
   <div id="layout" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>⌨️ Исправление текста</h1>
-    <div class="subtitle">Поймёт смысл даже в неправильной раскладке</div>
-    <textarea id="lInput" rows="4" placeholder="Например: ghbdtn rfr ltkf"></textarea>
-    <button class="btn" onclick="fixLayout()">🤖 Исправить (ИИ)</button>
-    <textarea id="lOutput" rows="4" readonly placeholder="Результат появится здесь"></textarea>
+    <textarea id="lInput" rows="4" placeholder="ghbdtn rfr ltkf"></textarea>
+    <button class="btn" onclick="fixLayout()">🤖 Исправить</button>
+    <textarea id="lOutput" rows="4" readonly placeholder="Результат"></textarea>
   </div>
 
   <div id="video" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🎥 Видеоуроки</h1>
-    <label>Тема или предмет</label>
-    <input type="text" id="vTopic" placeholder="Например: дроби, фотосинтез">
-    <button class="btn" onclick="buildVideo()">🤖 Найти и объяснить (ИИ)</button>
+    <label>Тема</label>
+    <input type="text" id="vTopic" placeholder="фотосинтез">
+    <button class="btn" onclick="buildVideo()">🤖 Найти и объяснить</button>
     <div id="vAi"></div>
     <div id="videoResult"></div>
   </div>
@@ -195,345 +153,226 @@
   <div id="motivation" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>💪 Мотивация</h1>
-    <label>Как ты себя чувствуешь?</label>
+    <label>Настроение</label>
     <select id="mMood">
       <option value="tired">Устал</option><option value="worried">Переживаю</option>
       <option value="lazy">Лень</option><option value="ok">Нормально</option>
     </select>
-    <button class="btn" onclick="motivationAI()">🤖 Поддержи меня (ИИ)</button>
-    <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
+    <button class="btn" onclick="motivationAI()">🤖 Поддержи</button>
+    <div class="quote" id="quoteBox">Выбери настроение 👆</div>
   </div>
 
   <div id="about" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>ℹ️ О боте</h1>
     <div class="about">
-      <b>Sferum Navigator</b> — ИИ-наставник для школьников в мессенджере MAX на базе GigaChat.
+      <b>Sferum Navigator</b> — ИИ-наставник в MAX.
       <ul>
-        <li>🤖 Встроенный ИИ работает без интернета</li>
-        <li>💬 Большой GigaChat в чате с ботом</li>
-        <li>📝 Метод Сократа в домашке</li>
+        <li>🤖 Встроенный ИИ без интернета</li>
+        <li>💬 Большой GigaChat в боте</li>
+        <li>📝 Метод Сократа</li>
         <li>⌨️ Понимает любую раскладку</li>
-        <li>📱 Открыт через кнопку меню MAX</li>
       </ul>
-      <p style="margin-top: 12px; color: #888; font-size: 13px;">Версия 1.0 · 27.09.2026</p>
     </div>
     <div class="legal">
-      <a href="terms.html">Пользовательское соглашение</a> ·
-      <a href="privacy.html">Политика конфиденциальности</a>
+      <a href="terms.html">Соглашение</a> ·
+      <a href="privacy.html">Конфиденциальность</a>
     </div>
   </div>
 
 </div>
 
 <script>
-// ===== MAX BRIDGE (интеграция с мессенджером) =====
-function initMaxBridge() {
-  try {
-    if (window.WebApp) {
-      if (typeof window.WebApp.ready === 'function') window.WebApp.ready();
-      // Определяем тему MAX
-      const isDark = (window.WebApp.colorScheme === 'dark') || 
-                     (window.WebApp.themeParams && window.WebApp.themeParams.bg_color && 
-                      window.WebApp.themeParams.bg_color.toLowerCase() !== '#ffffff');
-      if (isDark) {
-        document.body.classList.add('dark');
-      } else if (window.WebApp.colorScheme === 'light') {
-        document.body.classList.add('light');
-      }
-      // Main Button (кнопка внизу экрана MAX)
-      if (window.WebApp.MainButton && typeof window.WebApp.MainButton.setText === 'function') {
-        window.WebApp.MainButton.setText('Готово');
-        window.WebApp.MainButton.show();
-        window.WebApp.MainButton.onClick(() => {
-          if (typeof window.WebApp.close === 'function') window.WebApp.close();
-        });
-      }
-      // Back Button
-      if (window.WebApp.BackButton && typeof window.WebApp.BackButton.show === 'function') {
-        window.WebApp.BackButton.onClick(() => go('home'));
-      }
-      console.log('✅ MAX Bridge подключён');
-    } else {
-      console.log('ℹ️ MAX Bridge не загружен — работаем в обычном режиме');
-    }
-  } catch (e) {
-    console.log('MAX Bridge init error:', e);
-  }
-}
-
-// ===== ДИПЛИНКИ (прямой переход к нужной вкладке) =====
-function handleDeeplinks() {
-  // 1. Из URL (?startapp=plan)
-  const params = new URLSearchParams(window.location.search);
-  let target = params.get('startapp');
-  
-  // 2. Из MAX Bridge (start_param)
-  if (!target && window.WebApp && window.WebApp.initDataUnsafe && window.WebApp.initDataUnsafe.start_param) {
-    target = window.WebApp.initDataUnsafe.start_param;
-  }
-  
-  const valid = ['chat','plan','quiz','grades','flash','layout','video','motivation','about'];
-  if (target && valid.includes(target)) {
-    setTimeout(() => go(target), 200);
-  }
-}
-
-// ===== ВСТРОЕННЫЙ ИИ-ДВИЖОК =====
-const CHAT_KB = [
-  [['привет','здравств','hi','hello'], 'Привет! 👋 Я встроенный ИИ-наставник. Работаю без интернета. Чем помочь с учёбой?'],
-  [['как дела','как ты'], 'Отлично! 😊 Готов разбирать задачи. А у тебя как?'],
-  [['математ','алгебр','геометр'], 'Математика — моя стихия! 📐 Спрашивай про дроби, уравнения, площади.'],
-  [['физи'], 'Физика — про то, как устроен мир. ⚡ Скорость, сила, энергия — что разбираем?'],
-  [['хим'], 'Химия — о веществах и реакциях. 🧪 Таблица Менделеева или уравнения?'],
-  [['биолог'], 'Биология — о живом. 🌱 Фотосинтез, клетки, анатомия — объясню просто!'],
-  [['англ','english'], 'English! 🇬🇧 Открой «Карточки» или спрашивай правило.'],
-  [['истор'], 'История — не даты, а причины. 🏛 Какую эпоху разбираем?'],
-  [['домаш','дз','задач'], 'Давай разберём вместе! 📝 Я задаю наводящие вопросы — так ты научишься быстрее.'],
-  [['экзамен','огэ','егэ'], 'Экзамен — марафон, не спринт. 🏃 Открой «План» — составлю подготовку.'],
-  [['устал','лень','не хочу','тяжело'], 'Понимаю. 😔 Загляни в «Мотивацию» — подберу поддержку.'],
-  [['спасибо','благодар'], 'Всегда пожалуйста! 😊 Обращайся ещё.'],
-  [['кто ты','что ты'], 'Я — встроенный ИИ-модуль. В боте MAX живёт большой GigaChat!'],
-  [['видео','урок'], 'Открой «Видеоуроки» — дам ссылки и кратко объясню тему.'],
-  [['оценк','дневник'], 'В «Дневнике» веду оценки и анализирую успеваемость.'],
+// ===== ВСТРОЕННЫЙ ИИ (работает оффлайн) =====
+const KB = [
+  [['привет','hi','hello'], 'Привет! 👋 Я ИИ-наставник. Спроси про учёбу!'],
+  [['как дела'], 'Отлично! 😊 Готов помогать. А у тебя?'],
+  [['математ','алгебр'], 'Математика — моя стихия! 📐 Спрашивай про дроби, уравнения.'],
+  [['физи'], 'Физика — как устроен мир. ⚡ Скорость, сила, энергия?'],
+  [['хим'], 'Химия — о веществах. 🧪 Таблица Менделеева или реакции?'],
+  [['биолог'], 'Биология — о живом. 🌱 Фотосинтез, клетки?'],
+  [['англ','english'], 'English! 🇬🇧 Карточки слов или грамматика?'],
+  [['истор'], 'История — причины, не даты. 🏛 Какая эпоха?'],
+  [['домаш','дз'], 'Давай разберём! 📝 Пиши условие — задам наводящие вопросы.'],
+  [['экзамен','огэ','егэ'], 'Экзамен — марафон. 🏃 Открой «План» — составлю подготовку.'],
+  [['устал','лень'], 'Понимаю. 😔 Загляни в «Мотивацию».'],
+  [['спасибо'], 'Всегда пожалуйста! 😊'],
+  [['кто ты'], 'Я — встроенный ИИ. В боте MAX — большой GigaChat!'],
 ];
-let lastBotTopic = '';
-
-function chatReply(text) {
-  const t = text.toLowerCase();
-  for (const [kws, ans] of CHAT_KB) {
-    if (kws.some(k => t.includes(k))) {
-      lastBotTopic = kws[0];
-      return ans;
-    }
+let lastTopic = '';
+function chatReply(t) {
+  const low = t.toLowerCase();
+  for (const [kws, ans] of KB) {
+    if (kws.some(k => low.includes(k))) { lastTopic = kws[0]; return ans; }
   }
-  if (/^(почему|зачем|что именно)/.test(t) && lastBotTopic) {
-    return 'Хороший вопрос! 🤔 Он связан с «' + lastBotTopic + '». Расскажи подробнее — разберём.';
-  }
-  return 'Интересный вопрос! 🤔 Спроси про школьные предметы, экзамены, мотивацию — или напиши боту в MAX: там большой GigaChat!';
+  if (/^(почему|зачем)/.test(low) && lastTopic) return 'Хороший вопрос! 🤔 Связан с «' + lastTopic + '». Расскажи подробнее.';
+  return 'Интересный вопрос! 🤔 Спроси про предметы, экзамены — или напиши боту в MAX!';
 }
 
-const SUBJECT_TOPICS = {
-  'Математика': ['дроби и проценты','уравнения и неравенства','геометрия','функции','текстовые задачи','вероятность'],
-  'Русский язык': ['орфография','пунктуация','сочинение','грамматика','средства выразительности','пробные варианты'],
-  'Физика': ['механика','энергия','давление','электричество','оптика','пробные варианты'],
-  'Химия': ['таблица Менделеева','валентность','реакции','кислоты','растворы','пробные варианты'],
-  'Биология': ['клетка','фотосинтез','анатомия','генетика','экосистемы','пробные варианты'],
-  'История': ['древняя русь','московское царство','империя','XIX век','XX век','пробные варианты'],
-  'Обществознание': ['человек и общество','экономика','право','политика','мораль','пробные варианты'],
-  'Английский язык': ['времена','лексика','чтение','аудирование','эссе','пробные варианты'],
-  'Информатика': ['системы счисления','логика','программирование','файлы','сети','пробные варианты'],
+const TOPICS = {
+  'Математика': ['дроби','уравнения','геометрия','функции','задачи','вероятность'],
+  'Русский язык': ['орфография','пунктуация','сочинение','грамматика','выразительность','пробники'],
+  'Физика': ['механика','энергия','давление','электричество','оптика','пробники'],
+  'Химия': ['таблица','валентность','реакции','кислоты','растворы','пробники'],
+  'Биология': ['клетка','фотосинтез','анатомия','генетика','экосистемы','пробники'],
+  'История': ['древняя русь','царство','империя','XIX век','XX век','пробники'],
+  'Обществознание': ['общество','экономика','право','политика','мораль','пробники'],
+  'Английский язык': ['времена','лексика','чтение','аудирование','эссе','пробники'],
+  'Информатика': ['счисления','логика','программирование','файлы','сети','пробники'],
 };
-
 function buildPlan() {
-  const subject = document.getElementById('pSubject').value;
-  const weeks = parseInt(document.getElementById('pWeeks').value) || 8;
-  const minutes = parseInt(document.getElementById('pMinutes').value) || 60;
-  const topics = SUBJECT_TOPICS[subject] || SUBJECT_TOPICS['Математика'];
-  let html = '<div class="item ai">✨ <b>План: ' + subject + '</b> · ' + weeks + ' нед · ' + minutes + ' мин/день</div>';
-  for (let w = 1; w <= weeks; w++) {
-    const topic = topics[(w - 1) % topics.length];
-    const phase = w <= weeks * 0.5 ? '📖 теория' : (w <= weeks * 0.8 ? '✏️ практика' : '🧪 повторение');
-    html += '<div class="item">Неделя ' + w + ': ' + topic + ' · ' + phase + '</div>';
+  const s = document.getElementById('pSubject').value;
+  const w = +document.getElementById('pWeeks').value || 8;
+  const m = +document.getElementById('pMinutes').value || 60;
+  const t = TOPICS[s] || TOPICS['Математика'];
+  let h = '<div class="item ai">✨ План: ' + s + ' · ' + w + ' нед · ' + m + ' мин/день</div>';
+  for (let i = 1; i <= w; i++) {
+    const topic = t[(i-1) % t.length];
+    const phase = i <= w*0.5 ? '📖 теория' : (i <= w*0.8 ? '✏️ практика' : '🧪 повторение');
+    h += '<div class="item">Неделя ' + i + ': ' + topic + ' · ' + phase + '</div>';
   }
-  html += '<div class="item">💪 Каждые 25 минут делай паузу 5 минут — запомнится лучше!</div>';
-  document.getElementById('planResult').innerHTML = html;
+  document.getElementById('planResult').innerHTML = h;
 }
 
-const QUESTION_BANK = [
-  {q:'Сколько будет 7 × 8?', o:['54','56','58','64'], a:'56'},
-  {q:'Столица России?', o:['Санкт-Петербург','Москва','Казань','Новосибирск'], a:'Москва'},
+const Q = [
+  {q:'7 × 8 = ?', o:['54','56','58','64'], a:'56'},
+  {q:'Столица РФ?', o:['СПб','Москва','Казань','Сочи'], a:'Москва'},
   {q:'Формула воды?', o:['CO2','H2O','O2','NaCl'], a:'H2O'},
-  {q:'Автор «Евгения Онегина»?', o:['Лермонтов','Пушкин','Гоголь','Толстой'], a:'Пушкин'},
-  {q:'Перевод «cat»:', o:['собака','кошка','птица','рыба'], a:'кошка'},
-  {q:'Скорость света:', o:['300 тыс. км/с','150 тыс. км/с','1 млн км/с','30 тыс. км/с'], a:'300 тыс. км/с'},
-  {q:'Континентов на Земле?', o:['5','6','7','8'], a:'7'},
+  {q:'Автор Онегина?', o:['Лермонтов','Пушкин','Гоголь','Толстой'], a:'Пушкин'},
+  {q:'cat = ?', o:['собака','кошка','птица','рыба'], a:'кошка'},
+  {q:'Скорость света:', o:['300 тыс','150 тыс','1 млн','30 тыс'], a:'300 тыс'},
+  {q:'Континентов?', o:['5','6','7','8'], a:'7'},
   {q:'121 / 11 = ?', o:['10','11','12','13'], a:'11'},
-  {q:'Что выделяют растения при фотосинтезе?', o:['CO2','азот','кислород','водород'], a:'кислород'},
-  {q:'Самое большое море?', o:['Каспийское','Средиземное','Чёрное','Балтийское'], a:'Средиземное'},
-  {q:'Сколько планет в Солнечной системе?', o:['7','8','9','10'], a:'8'},
-  {q:'Химический символ золота?', o:['Go','Au','Ag','Gd'], a:'Au'},
+  {q:'Выделяют растения:', o:['CO2','азот','кислород','H2'], a:'кислород'},
+  {q:'Планет в Солнечной?', o:['7','8','9','10'], a:'8'},
+  {q:'Символ золота?', o:['Go','Au','Ag','Gd'], a:'Au'},
+  {q:'9 × 6 = ?', o:['48','54','56','64'], a:'54'},
 ];
-let qCorrect = 0, qTotal = 0, qAnswer = null, qIndex = -1;
-
+let qC = 0, qT = 0, qA = null, qI = -1;
 function newQuestion() {
-  let i;
-  do { i = Math.floor(Math.random() * QUESTION_BANK.length); } while (i === qIndex);
-  qIndex = i;
-  const item = QUESTION_BANK[i];
-  qAnswer = item.a;
-  document.getElementById('quizQ').textContent = item.q;
-  const box = document.getElementById('quizOpts');
-  box.innerHTML = '';
-  [...item.o].sort(() => Math.random() - 0.5).forEach(v => {
-    const b = document.createElement('button');
-    b.className = 'quiz-opt'; b.textContent = v;
-    b.onclick = () => checkAnswer(b, v);
-    box.appendChild(b);
+  let i; do { i = Math.floor(Math.random()*Q.length); } while (i === qI);
+  qI = i; const x = Q[i]; qA = x.a;
+  document.getElementById('quizQ').textContent = x.q;
+  const b = document.getElementById('quizOpts'); b.innerHTML = '';
+  [...x.o].sort(() => Math.random()-0.5).forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt'; btn.textContent = v;
+    btn.onclick = () => checkAnswer(btn, v);
+    b.appendChild(btn);
   });
 }
 function checkAnswer(btn, v) {
-  qTotal++;
+  qT++;
   document.querySelectorAll('.quiz-opt').forEach(b => b.onclick = null);
-  if (v === qAnswer) { btn.classList.add('correct'); qCorrect++; }
-  else {
-    btn.classList.add('wrong');
-    document.querySelectorAll('.quiz-opt').forEach(b => { if (b.textContent === qAnswer) b.classList.add('correct'); });
-  }
-  document.getElementById('score').textContent = 'Счёт: ' + qCorrect + ' / ' + qTotal;
+  if (v === qA) btn.classList.add('correct'), qC++;
+  else { btn.classList.add('wrong'); document.querySelectorAll('.quiz-opt').forEach(b => { if (b.textContent === qA) b.classList.add('correct'); }); }
+  document.getElementById('score').textContent = 'Счёт: ' + qC + ' / ' + qT;
   setTimeout(newQuestion, 900);
 }
 
-function loadGrades() { try { return JSON.parse(localStorage.getItem('sn_grades') || '{}'); } catch (e) { return {}; } }
-function saveGrades(g) { localStorage.setItem('sn_grades', JSON.stringify(g)); }
-function renderGrades() {
-  const g = loadGrades();
-  let html = '', all = [];
-  for (const subj in g) {
-    const arr = g[subj]; all = all.concat(arr);
-    const avg = arr.reduce((a,b)=>a+b,0)/arr.length;
-    html += '<div class="grade-row"><span><b>' + subj + '</b>: ' + arr.join(' ') + ' (ср. ' + avg.toFixed(2) + ')</span><button onclick="delSubject(\'' + subj.replace(/'/g,'') + '\')">✕</button></div>';
+function loadG() { try { return JSON.parse(localStorage.getItem('g') || '{}'); } catch(e) { return {}; } }
+function saveG(g) { localStorage.setItem('g', JSON.stringify(g)); }
+function renderG() {
+  const g = loadG(); let h = '', all = [];
+  for (const s in g) { const a = g[s]; all = all.concat(a); const avg = a.reduce((x,y)=>x+y,0)/a.length;
+    h += '<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s+'\')">✕</button></div>';
   }
-  document.getElementById('gList').innerHTML = html || '<div class="item">Пока нет оценок. Добавь первую! 👇</div>';
+  document.getElementById('gList').innerHTML = h || '<div class="item">Добавь первую оценку 👆</div>';
   document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
 }
 function addGrade() {
-  const subj = document.getElementById('gSubject').value.trim();
-  const val = parseInt(document.getElementById('gValue').value);
-  if (!subj) { alert('Напиши название предмета'); return; }
-  const g = loadGrades();
-  if (!g[subj]) g[subj] = [];
-  g[subj].push(val);
-  saveGrades(g); renderGrades(); gradesAI();
+  const s = document.getElementById('gSubject').value.trim();
+  const v = +document.getElementById('gValue').value;
+  if (!s) return alert('Напиши предмет');
+  const g = loadG(); if (!g[s]) g[s] = []; g[s].push(v);
+  saveG(g); renderG(); gradesAI();
 }
-function delSubject(subj) { const g = loadGrades(); delete g[subj]; saveGrades(g); renderGrades(); }
-function clearGrades() { if (confirm('Удалить все оценки?')) { localStorage.removeItem('sn_grades'); renderGrades(); document.getElementById('gAi').innerHTML = ''; } }
+function delG(s) { const g = loadG(); delete g[s]; saveG(g); renderG(); }
+function clearGrades() { if (confirm('Удалить все?')) { localStorage.removeItem('g'); renderG(); document.getElementById('gAi').innerHTML=''; } }
 function gradesAI() {
-  const g = loadGrades();
-  const keys = Object.keys(g);
-  if (!keys.length) { document.getElementById('gAi').innerHTML = '<div class="item">Сначала добавь хотя бы одну оценку 👆</div>'; return; }
-  const avgs = {};
-  for (const s in g) avgs[s] = g[s].reduce((a,b)=>a+b,0)/g[s].length;
-  const best = Object.keys(avgs).reduce((a,b)=>avgs[a]>avgs[b]?a:b);
-  const worst = Object.keys(avgs).reduce((a,b)=>avgs[a]<avgs[b]?a:b);
-  const overall = Object.values(avgs).reduce((a,b)=>a+b,0)/Object.values(avgs).length;
-  let txt = '🤖 Анализ ИИ:\n';
-  txt += 'Общий средний: ' + overall.toFixed(2) + '.\n';
-  txt += '💪 Сильная сторона: ' + best + ' (' + avgs[best].toFixed(2) + ').\n';
-  txt += '📚 Требует внимания: ' + worst + ' (' + avgs[worst].toFixed(2) + ').\n';
-  txt += overall >= 4.5 ? '🌟 Держи темп и добавляй сложные задачи!' :
-        (overall >= 3.5 ? '✅ 20 минут в день по слабым темам — и будет 4.5+.' :
-        '💪 Начни с базовых тем по «' + worst + '».');
-  document.getElementById('gAi').innerHTML = '<div class="item ai">' + txt + '</div>';
+  const g = loadG(); const k = Object.keys(g);
+  if (!k.length) { document.getElementById('gAi').innerHTML = '<div class="item">Сначала добавь оценку 👆</div>'; return; }
+  const av = {}; for (const s in g) av[s] = g[s].reduce((a,b)=>a+b,0)/g[s].length;
+  const best = k.reduce((a,b)=>av[a]>av[b]?a:b);
+  const worst = k.reduce((a,b)=>av[a]<av[b]?a:b);
+  const overall = Object.values(av).reduce((a,b)=>a+b,0)/k.length;
+  let t = '🤖 Анализ:\nОбщий: '+overall.toFixed(2)+'\n💪 Сильный: '+best+' ('+av[best].toFixed(2)+')\n📚 Слабый: '+worst+' ('+av[worst].toFixed(2)+')\n';
+  t += overall >= 4.5 ? '🌟 Держи темп!' : (overall >= 3.5 ? '✅ 20 мин/день по слабым — будет 4.5+.' : '💪 Начни с базовых тем.');
+  document.getElementById('gAi').innerHTML = '<div class="item ai">'+t+'</div>';
 }
 
-const CARD_TOPICS = {
+const CARDS = {
   'школа': [['book','книга'],['teacher','учитель'],['lesson','урок'],['homework','домашка'],['grade','оценка'],['desk','парта']],
   'еда': [['apple','яблоко'],['bread','хлеб'],['milk','молоко'],['cheese','сыр'],['juice','сок'],['cake','торт']],
   'путешествия': [['ticket','билет'],['hotel','отель'],['map','карта'],['beach','пляж'],['flight','рейс'],['luggage','багаж']],
   'животные': [['cat','кошка'],['dog','собака'],['bird','птица'],['horse','лошадь'],['bear','медведь'],['fox','лиса']],
 };
-let flashCards = CARD_TOPICS['школа'], flashPair = null, flashFlipped = false;
-function setFlashTopic() {
-  flashCards = CARD_TOPICS[document.getElementById('fTopic').value] || CARD_TOPICS['школа'];
-  nextCard();
-}
-function nextCard() {
-  flashPair = flashCards[Math.floor(Math.random()*flashCards.length)];
-  flashFlipped = false;
-  document.getElementById('flashCard').textContent = flashPair[0];
-}
-function flipCard() {
-  if (!flashPair) return;
-  flashFlipped = !flashFlipped;
-  document.getElementById('flashCard').textContent = flashFlipped ? flashPair[1] : flashPair[0];
-}
+let fc = CARDS['школа'], fp = null, ff = false;
+function setFlashTopic() { fc = CARDS[document.getElementById('fTopic').value] || CARDS['школа']; nextCard(); }
+function nextCard() { fp = fc[Math.floor(Math.random()*fc.length)]; ff = false; document.getElementById('flashCard').textContent = fp[0]; }
+function flipCard() { if (!fp) return; ff = !ff; document.getElementById('flashCard').textContent = ff ? fp[1] : fp[0]; }
 
-const EN_RU = {'q':'й','w':'ц','e':'у','r':'к','t':'е','y':'н','u':'г','i':'ш','o':'щ','p':'з','[':'х',']':'ъ','a':'ф','s':'ы','d':'в','f':'а','g':'п','h':'р','j':'о','k':'л','l':'д',';':'ж','\'':'э','z':'я','x':'ч','c':'с','v':'м','b':'и','n':'т','m':'ь',',':'б','.':'ю','/':'.'};
-const RU_EN = {}; for (const k in EN_RU) RU_EN[EN_RU[k]] = k;
+const MAP = {'q':'й','w':'ц','e':'у','r':'к','t':'е','y':'н','u':'г','i':'ш','o':'щ','p':'з','[':'х',']':'ъ','a':'ф','s':'ы','d':'в','f':'а','g':'п','h':'р','j':'о','k':'л','l':'д',';':'ж','\'':'э','z':'я','x':'ч','c':'с','v':'м','b':'и','n':'т','m':'ь',',':'б','.':'ю','/':'.'};
+const RMAP = {}; for (const k in MAP) RMAP[MAP[k]] = k;
 function fixLayout() {
-  const text = document.getElementById('lInput').value;
-  const latin = (text.match(/[a-zA-Z]/g)||[]).length;
-  const cyr = (text.match(/[а-яА-ЯёЁ]/g)||[]).length;
-  const map = latin >= cyr ? EN_RU : RU_EN;
-  document.getElementById('lOutput').value = text.split('').map(c => map[c] || c).join('');
+  const t = document.getElementById('lInput').value;
+  const l = (t.match(/[a-zA-Z]/g)||[]).length, c = (t.match(/[а-яё]/gi)||[]).length;
+  const m = l >= c ? MAP : RMAP;
+  document.getElementById('lOutput').value = t.split('').map(x => m[x] || x).join('');
 }
 
-const EXPLAIN_KB = [
-  ['фотосинтез', 'Фотосинтез — растения из света, воды и CO₂ делают сахар и выделяют кислород. 🌱 Лист на солнце = мини-фабрика еды.'],
-  ['дроб', 'Дробь — часть целого. 1/2 — половина. 🍕 Пицца на 4 куска, взял 1 = 1/4.'],
-  ['уравнен', 'Уравнение — равенство с неизвестным. Решить = найти значение. x+2=5 → x=3.'],
-  ['глагол', 'Глагол — часть речи, обозначающая действие: бежать, думать. ✍️'],
-  ['атом', 'Атом — ядро (протоны+нейтроны) и электроны вокруг. ⚛️'],
-  ['процент', 'Процент — сотая часть. 50% от 200 = 100. 💯'],
+const EX = [
+  ['фотосинтез','Фотосинтез — растения из света и CO₂ делают сахар и O₂. 🌱'],
+  ['дроб','Дробь — часть целого. 1/2 = половина. 🍕'],
+  ['уравнен','Уравнение — равенство с неизвестным. x+2=5 → x=3.'],
+  ['глагол','Глагол — действие: бежать, думать. ✍️'],
+  ['атом','Атом — ядро + электроны. ⚛️'],
 ];
 function buildVideo() {
-  const topicRaw = document.getElementById('vTopic').value.trim() || 'математика';
-  const topic = encodeURIComponent(topicRaw);
-  const t = topicRaw.toLowerCase();
-  let explain = 'Тема «' + topicRaw + '»: начни с определения, разбери примеры, реши задачу сам.';
-  for (const [k, v] of EXPLAIN_KB) if (t.includes(k)) { explain = v; break; }
-  document.getElementById('vAi').innerHTML = '<div class="item ai">🎓 <b>Объяснение:</b>\n' + explain + '</div>';
+  const r = document.getElementById('vTopic').value.trim() || 'математика';
+  const t = encodeURIComponent(r);
+  let e = 'Тема «'+r+'»: начни с определения, примеры, задача.';
+  for (const [k,v] of EX) if (r.toLowerCase().includes(k)) { e = v; break; }
+  document.getElementById('vAi').innerHTML = '<div class="item ai">🎓 '+e+'</div>';
   document.getElementById('videoResult').innerHTML =
-    '<a class="link-item" target="_blank" href="https://rutube.ru/search/?q=' + topic + '">▶️ RuTube</a>' +
-    '<a class="link-item" target="_blank" href="https://vk.com/video?q=' + topic + '">▶️ VK Видео</a>' +
-    '<a class="link-item" target="_blank" href="https://www.youtube.com/results?search_query=' + topic + '">▶️ YouTube</a>';
+    '<a class="link-item" target="_blank" href="https://rutube.ru/search/?q='+t+'">▶️ RuTube</a>'+
+    '<a class="link-item" target="_blank" href="https://vk.com/video?q='+t+'">▶️ VK Видео</a>'+
+    '<a class="link-item" target="_blank" href="https://www.youtube.com/results?search_query='+t+'">▶️ YouTube</a>';
 }
 
-const SUPPORT = {
-  tired: ['Отдых — часть учёбы, а не награда. 😴 20 минут тишины — и вернёшься сильнее.'],
-  worried: ['Волнение — значит, не всё равно. Открой «План» — и страх станет расписанием.'],
-  lazy: ['Лень — сигнал: задача слишком большая. 🧩 Разрежь на 10-минутные кусочки.'],
-  ok: ['Отличное состояние! 🚀 Учи новое — мозг свежий. Поставь рекорд в тренажёре!'],
+const SUP = {
+  tired: ['Отдых — часть учёбы. 😴 20 мин тишины — и вернёшься сильнее.'],
+  worried: ['Волнение — значит, не всё равно. Открой «План» — страх станет расписанием.'],
+  lazy: ['Лень — задача большая. 🧩 Разрежь на 10-мин кусочки.'],
+  ok: ['Отличное состояние! 🚀 Поставь рекорд в тренажёре!'],
 };
 function motivationAI() {
-  const mood = document.getElementById('mMood').value;
-  const arr = SUPPORT[mood];
-  document.getElementById('quoteBox').textContent = arr[Math.floor(Math.random()*arr.length)];
+  const m = document.getElementById('mMood').value;
+  document.getElementById('quoteBox').textContent = SUP[m][Math.floor(Math.random()*SUP[m].length)];
 }
 
-// ===== ЧАТ =====
-function addMsg(text, cls) {
-  const box = document.getElementById('chatBox');
-  const div = document.createElement('div');
-  div.className = 'msg ' + cls; div.textContent = text;
-  box.appendChild(div); box.scrollTop = box.scrollHeight;
-  return div;
+function addMsg(t, c) {
+  const b = document.getElementById('chatBox');
+  const d = document.createElement('div');
+  d.className = 'msg '+c; d.textContent = t;
+  b.appendChild(d); b.scrollTop = b.scrollHeight;
 }
 function sendChat() {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  addMsg(text, 'user');
-  setTimeout(() => addMsg(chatReply(text), 'bot'), 300);
+  const i = document.getElementById('chatInput');
+  const t = i.value.trim(); if (!t) return;
+  i.value = ''; addMsg(t, 'user');
+  setTimeout(() => addMsg(chatReply(t), 'bot'), 300);
 }
 function clearChat() {
   document.getElementById('chatBox').innerHTML = '';
   addMsg('Привет! Я ИИ-наставник. Спроси про учёбу 🎓', 'bot');
 }
-
 function go(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  // Обновляем Back Button в MAX
-  try {
-    if (window.WebApp && window.WebApp.BackButton) {
-      if (id === 'home') window.WebApp.BackButton.hide();
-      else window.WebApp.BackButton.show();
-    }
-  } catch(e) {}
 }
 
-// ===== СТАРТ =====
-window.addEventListener('DOMContentLoaded', () => {
-  initMaxBridge();
-  handleDeeplinks();
-  renderGrades();
-  nextCard();
-  newQuestion();
-  clearChat();
-});
+renderG(); nextCard(); newQuestion(); clearChat();
 </script>
 </body>
 </html>
