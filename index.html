@@ -38,6 +38,14 @@
   .quote { background: #f7f7fc; border-radius: 16px; padding: 24px 18px; font-size: 16px; color: #444; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; }
   .about { font-size: 14px; color: #555; line-height: 1.6; }
   .about li { margin: 6px 0 6px 18px; }
+  /* ЧАТ */
+  .chat-box { height: 52vh; overflow-y: auto; background: #f7f7fc; border-radius: 12px; padding: 10px; margin-top: 10px; }
+  .msg { max-width: 85%; padding: 8px 12px; border-radius: 12px; margin-top: 6px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.user { background: #667eea; color: #fff; margin-left: auto; }
+  .msg.bot { background: #fff; color: #333; border: 1px solid #e0e0e8; }
+  .chat-input { display: flex; gap: 8px; margin-top: 10px; }
+  .chat-input input { flex: 1; }
+  .chat-input .btn { width: auto; padding: 11px 18px; margin-top: 0; }
 </style>
 </head>
 <body>
@@ -48,6 +56,7 @@
     <h1>🎯 Sferum Navigator</h1>
     <div class="subtitle">Мини-приложение ИИ-наставника</div>
     <div class="grid">
+      <button class="tile" onclick="go('chat')"><span class="ico">🤖</span><span class="ttl">Чат с ИИ</span></button>
       <button class="tile" onclick="go('plan')"><span class="ico">📅</span><span class="ttl">План к ОГЭ/ЕГЭ</span></button>
       <button class="tile" onclick="go('quiz')"><span class="ico">✅</span><span class="ttl">Тренажёр</span></button>
       <button class="tile" onclick="go('grades')"><span class="ico">📚</span><span class="ttl">Дневник оценок</span></button>
@@ -57,6 +66,19 @@
       <button class="tile" onclick="go('motivation')"><span class="ico">💪</span><span class="ttl">Мотивация</span></button>
       <button class="tile" onclick="go('about')"><span class="ico">ℹ️</span><span class="ttl">О боте</span></button>
     </div>
+  </div>
+
+  <!-- ЧАТ С GIGACHAT -->
+  <div id="chat" class="page">
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>🤖 Чат с ИИ</h1>
+    <div class="subtitle">GigaChat прямо в мини-приложении</div>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="chat-input">
+      <input id="chatInput" placeholder="Спроси что-нибудь..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn" onclick="sendChat()">➤</button>
+    </div>
+    <button class="btn gray" onclick="clearChat()">🗑 Очистить чат</button>
   </div>
 
   <!-- ПЛАНИРОВЩИК -->
@@ -113,7 +135,7 @@
     <h1>🎴 Карточки слов</h1>
     <div class="subtitle">Нажми на карточку, чтобы увидеть перевод</div>
     <div class="flash" id="flashCard" onclick="flipCard()">—</div>
-    <button class="btn" onclick="nextCard(false)">➡️ Следующая карточка</button>
+    <button class="btn" onclick="nextCard()">➡️ Следующая карточка</button>
   </div>
 
   <!-- РАСКЛАДКА -->
@@ -151,12 +173,12 @@
     <div class="about">
       <b>Sferum Navigator</b> — ИИ-наставник на базе GigaChat в мессенджере MAX.
       <ul>
+        <li>🤖 Чат с ИИ прямо в мини-приложении</li>
         <li>📝 Помощь с домашкой методом Сократа</li>
         <li>🎓 Объяснение сложных тем простым языком</li>
         <li>🌍 Практика иностранных языков</li>
         <li>🧠 Помнит контекст разговора</li>
         <li>⌨️ Понимает текст в любой раскладке</li>
-        <li>📱 Это мини-приложение с инструментами</li>
       </ul>
       Напиши боту в MAX — и он поможет с учёбой!
     </div>
@@ -165,10 +187,119 @@
 </div>
 
 <script>
+// ===== НАСТРОЙКИ GIGACHAT (ТОЛЬКО ДЛЯ ДЕМО НА КОНКУРС!) =====
+const GIGA_CLIENT_ID = '01a0bafa-206f-7e07-a2e7-df9e0acea285';
+const GIGA_CLIENT_SECRET = '93e085d7-803b-4fe2-b1da-468aff78a450';
+const CHAT_SYSTEM = 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. НЕ используй LaTeX и Markdown. Для степеней пиши x², для дробей a/b. Отвечай на языке ученика.';
+
+// CORS-прокси (перебираются по очереди)
+const PROXIES = [
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => u
+];
+
 // ===== НАВИГАЦИЯ =====
 function go(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+// ===== ЧАТ С GIGACHAT =====
+let chatHistory = [];
+let gigachatToken = null, tokenExpires = 0;
+
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+async function fetchWithProxies(url, options) {
+  let lastErr;
+  for (const wrap of PROXIES) {
+    try {
+      const res = await fetch(wrap(url), options);
+      if (res.ok) return await res.json();
+      lastErr = new Error('HTTP ' + res.status);
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr;
+}
+
+async function getToken() {
+  if (gigachatToken && Date.now() < tokenExpires) return gigachatToken;
+  const auth = 'Basic ' + btoa(GIGA_CLIENT_ID + ':' + GIGA_CLIENT_SECRET);
+  const data = await fetchWithProxies('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
+    method: 'POST',
+    headers: { 'Authorization': auth, 'Content-Type': 'application/x-www-form-urlencoded', 'RqUID': uuid() },
+    body: 'scope=GIGACHAT_API_PERS'
+  });
+  gigachatToken = data.access_token;
+  tokenExpires = Date.now() + 1700 * 1000;
+  return gigachatToken;
+}
+
+function addMsg(text, cls) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = 'msg ' + cls;
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function sup(s) {
+  const map = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(s).split('').map(c => map[c] || c).join('');
+}
+
+function cleanAiText(t) {
+  return t
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/^#{1,3}\s*/gm, '📌 ')
+    .replace(/\$\$(.+?)\$\$/g, '$1')
+    .replace(/\$(.+?)\$/g, '$1')
+    .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '($1)/($2)')
+    .replace(/\\sqrt\{([^}]*)\}/g, '√($1)')
+    .replace(/\^\{?(\d+)\}?/g, (m, d) => sup(d))
+    .replace(/\\[a-zA-Z]+/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addMsg(text, 'user');
+  chatHistory.push({ role: 'user', content: text });
+  const wait = addMsg('⏳ Думаю...', 'bot');
+  try {
+    const token = await getToken();
+    const messages = [{ role: 'system', content: CHAT_SYSTEM }].concat(chatHistory.slice(-10));
+    const data = await fetchWithProxies('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'GigaChat:latest', messages, max_tokens: 600, temperature: 0.7 })
+    });
+    const content = cleanAiText(data.choices[0].message.content);
+    wait.remove();
+    addMsg(content, 'bot');
+    chatHistory.push({ role: 'assistant', content });
+  } catch (e) {
+    wait.remove();
+    addMsg('😔 Браузер не пустил запрос к GigaChat (ограничение CORS). В боте MAX чат работает — продолжим там!', 'bot');
+  }
+}
+
+function clearChat() {
+  chatHistory = [];
+  document.getElementById('chatBox').innerHTML = '';
+  addMsg('Привет! Я ИИ-наставник. Спроси меня о чём угодно 🎓', 'bot');
 }
 
 // ===== ПЛАНИРОВЩИК =====
@@ -242,7 +373,7 @@ function checkAnswer(btn, v) {
   setTimeout(newQuestion, 900);
 }
 
-// ===== ДНЕВНИК ОЦЕНОК (хранится в телефоне) =====
+// ===== ДНЕВНИК ОЦЕНОК =====
 function loadGrades() {
   try { return JSON.parse(localStorage.getItem('sn_grades') || '{}'); } catch (e) { return {}; }
 }
@@ -329,6 +460,7 @@ renderGrades();
 nextCard();
 newQuestion();
 newQuote();
+clearChat();
 </script>
 </body>
 </html>
