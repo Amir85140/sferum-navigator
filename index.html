@@ -6,68 +6,148 @@
 <title>Sferum Navigator Mini</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; }
-  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 16px; }
-  .card { background: #fff; border-radius: 20px; padding: 20px; max-width: 480px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
-  h1 { font-size: 22px; color: #333; text-align: center; }
-  .subtitle { text-align: center; color: #888; font-size: 13px; margin: 6px 0 16px; }
-  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-  .tab { flex: 1; padding: 10px; border: none; border-radius: 12px; background: #f0f0f5; color: #555; font-size: 14px; cursor: pointer; transition: .2s; }
-  .tab.active { background: #667eea; color: #fff; font-weight: 600; }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 12px; }
+  .card { background: #fff; border-radius: 20px; padding: 18px; max-width: 480px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); min-height: 90vh; }
+  h1 { font-size: 21px; color: #333; text-align: center; }
+  .subtitle { text-align: center; color: #888; font-size: 12px; margin: 4px 0 14px; }
+  .back { background: #f0f0f5; border: none; border-radius: 10px; padding: 8px 14px; font-size: 14px; cursor: pointer; margin-bottom: 12px; color: #555; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tile { background: #f7f7fc; border: none; border-radius: 16px; padding: 16px 10px; cursor: pointer; text-align: center; transition: .15s; }
+  .tile:active { transform: scale(.96); background: #eeeef8; }
+  .tile .ico { font-size: 28px; display: block; margin-bottom: 6px; }
+  .tile .ttl { font-size: 13px; font-weight: 600; color: #444; }
   .page { display: none; }
   .page.active { display: block; }
   label { display: block; font-size: 13px; color: #666; margin: 10px 0 4px; }
-  select, input { width: 100%; padding: 12px; border: 2px solid #e0e0e8; border-radius: 12px; font-size: 15px; outline: none; }
-  select:focus, input:focus { border-color: #667eea; }
-  .btn { width: 100%; margin-top: 14px; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+  select, input, textarea { width: 100%; padding: 11px; border: 2px solid #e0e0e8; border-radius: 12px; font-size: 15px; outline: none; }
+  select:focus, input:focus, textarea:focus { border-color: #667eea; }
+  .btn { width: 100%; margin-top: 12px; padding: 13px; border: none; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
   .btn:active { transform: scale(.98); }
-  .plan-item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 14px; color: #444; }
-  .quiz-q { font-size: 18px; font-weight: 600; color: #333; margin: 10px 0; text-align: center; }
+  .btn.gray { background: #e8e8f0; color: #555; }
+  .item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 14px; color: #444; }
+  .quiz-q { font-size: 20px; font-weight: 700; color: #333; margin: 14px 0; text-align: center; }
   .quiz-opt { display: block; width: 100%; margin-top: 8px; padding: 13px; border: 2px solid #e0e0e8; border-radius: 12px; background: #fff; font-size: 16px; cursor: pointer; }
   .quiz-opt.correct { background: #d4f7d4; border-color: #4caf50; }
   .quiz-opt.wrong { background: #fdd; border-color: #e57373; }
   .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 10px; }
+  .flash { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-radius: 16px; padding: 40px 20px; text-align: center; font-size: 24px; font-weight: 700; cursor: pointer; margin-top: 12px; min-height: 140px; display: flex; align-items: center; justify-content: center; }
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: #f7f7fc; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 14px; }
+  .grade-row button { background: #fdd; border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+  .avg { text-align: center; font-size: 34px; font-weight: 800; color: #667eea; margin: 10px 0; }
+  .link-item { display: block; background: #f7f7fc; border-radius: 10px; padding: 12px; margin-top: 8px; text-decoration: none; color: #667eea; font-weight: 600; font-size: 14px; text-align: center; }
+  .quote { background: #f7f7fc; border-radius: 16px; padding: 24px 18px; font-size: 16px; color: #444; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; }
   .about { font-size: 14px; color: #555; line-height: 1.6; }
   .about li { margin: 6px 0 6px 18px; }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>🎯 Sferum Navigator</h1>
-  <div class="subtitle">Мини-приложение ИИ-наставника</div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="showPage('plan', this)">📅 План</button>
-    <button class="tab" onclick="showPage('quiz', this)">✅ Тренажёр</button>
-    <button class="tab" onclick="showPage('about', this)">ℹ️ О боте</button>
+  <!-- ГЛАВНАЯ -->
+  <div id="home" class="page active">
+    <h1>🎯 Sferum Navigator</h1>
+    <div class="subtitle">Мини-приложение ИИ-наставника</div>
+    <div class="grid">
+      <button class="tile" onclick="go('plan')"><span class="ico">📅</span><span class="ttl">План к ОГЭ/ЕГЭ</span></button>
+      <button class="tile" onclick="go('quiz')"><span class="ico">✅</span><span class="ttl">Тренажёр</span></button>
+      <button class="tile" onclick="go('grades')"><span class="ico">📚</span><span class="ttl">Дневник оценок</span></button>
+      <button class="tile" onclick="go('flash')"><span class="ico">🎴</span><span class="ttl">Карточки слов</span></button>
+      <button class="tile" onclick="go('layout')"><span class="ico">⌨️</span><span class="ttl">Раскладка</span></button>
+      <button class="tile" onclick="go('video')"><span class="ico">🎥</span><span class="ttl">Видеоуроки</span></button>
+      <button class="tile" onclick="go('motivation')"><span class="ico">💪</span><span class="ttl">Мотивация</span></button>
+      <button class="tile" onclick="go('about')"><span class="ico">ℹ️</span><span class="ttl">О боте</span></button>
+    </div>
   </div>
 
-  <!-- СТРАНИЦА: ПЛАНИРОВЩИК -->
-  <div id="plan" class="page active">
+  <!-- ПЛАНИРОВЩИК -->
+  <div id="plan" class="page">
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>📅 План подготовки</h1>
     <label>Предмет</label>
-    <select id="subject">
-      <option>Математика</option><option>Русский язык</option>
-      <option>Физика</option><option>Химия</option>
-      <option>Биология</option><option>История</option>
-      <option>Английский язык</option><option>Информатика</option>
+    <select id="pSubject">
+      <option>Математика</option><option>Русский язык</option><option>Физика</option>
+      <option>Химия</option><option>Биология</option><option>История</option>
+      <option>Обществознание</option><option>Английский язык</option><option>Информатика</option>
     </select>
     <label>Недель до экзамена</label>
-    <input type="number" id="weeks" value="8" min="1" max="52">
+    <input type="number" id="pWeeks" value="8" min="1" max="52">
     <label>Минут в день</label>
-    <input type="number" id="minutes" value="60" min="10" max="480" step="10">
+    <input type="number" id="pMinutes" value="60" min="10" max="480" step="10">
     <button class="btn" onclick="buildPlan()">Составить план</button>
     <div id="planResult"></div>
   </div>
 
-  <!-- СТРАНИЦА: ТРЕНАЖЁР -->
+  <!-- ТРЕНАЖЁР -->
   <div id="quiz" class="page">
-    <div class="quiz-q" id="quizQ">Нажми "Новый вопрос"</div>
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>✅ Тренажёр</h1>
+    <label>Режим</label>
+    <select id="qMode" onchange="newQuestion()">
+      <option value="mult">Таблица умножения</option>
+      <option value="add">Сложение и вычитание</option>
+      <option value="eng">Английские слова</option>
+    </select>
+    <div class="quiz-q" id="quizQ">—</div>
     <div id="quizOpts"></div>
-    <button class="btn" onclick="newQuestion()">🎲 Новый вопрос</button>
+    <button class="btn gray" onclick="newQuestion()">🎲 Пропустить</button>
     <div class="score" id="score">Счёт: 0 / 0</div>
   </div>
 
-  <!-- СТРАНИЦА: О БОТЕ -->
+  <!-- ДНЕВНИК ОЦЕНОК -->
+  <div id="grades" class="page">
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>📚 Дневник оценок</h1>
+    <div class="avg" id="gAvg">—</div>
+    <div id="gList"></div>
+    <label>Предмет</label>
+    <input type="text" id="gSubject" placeholder="Например: Математика">
+    <label>Оценка (1–5)</label>
+    <select id="gValue"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+    <button class="btn" onclick="addGrade()">➕ Добавить оценку</button>
+    <button class="btn gray" onclick="clearGrades()">🗑 Очистить всё</button>
+  </div>
+
+  <!-- КАРТОЧКИ СЛОВ -->
+  <div id="flash" class="page">
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>🎴 Карточки слов</h1>
+    <div class="subtitle">Нажми на карточку, чтобы увидеть перевод</div>
+    <div class="flash" id="flashCard" onclick="flipCard()">—</div>
+    <button class="btn" onclick="nextCard(false)">➡️ Следующая карточка</button>
+  </div>
+
+  <!-- РАСКЛАДКА -->
+  <div id="layout" class="page">
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>⌨️ Конвертер раскладки</h1>
+    <div class="subtitle">Забыл переключить язык? Вставь текст сюда</div>
+    <textarea id="lInput" rows="4" placeholder="Например: ghbdtn rfr ltkf"></textarea>
+    <button class="btn" onclick="fixLayout()">🔄 Исправить</button>
+    <textarea id="lOutput" rows="4" readonly placeholder="Результат появится здесь"></textarea>
+  </div>
+
+  <!-- ВИДЕОУРОКИ -->
+  <div id="video" class="page">
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>🎥 Видеоуроки</h1>
+    <label>Тема или предмет</label>
+    <input type="text" id="vTopic" placeholder="Например: дроби, фотосинтез">
+    <button class="btn" onclick="buildVideoLinks()">🔎 Найти уроки</button>
+    <div id="videoResult"></div>
+  </div>
+
+  <!-- МОТИВАЦИЯ -->
+  <div id="motivation" class="page">
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>💪 Мотивация</h1>
+    <div class="quote" id="quoteBox">Нажми кнопку ниже 👇</div>
+    <button class="btn" onclick="newQuote()">✨ Вдохнови меня</button>
+  </div>
+
+  <!-- О БОТЕ -->
   <div id="about" class="page">
+    <button class="back" onclick="go('home')">← Назад</button>
+    <h1>ℹ️ О боте</h1>
     <div class="about">
       <b>Sferum Navigator</b> — ИИ-наставник на базе GigaChat в мессенджере MAX.
       <ul>
@@ -76,80 +156,179 @@
         <li>🌍 Практика иностранных языков</li>
         <li>🧠 Помнит контекст разговора</li>
         <li>⌨️ Понимает текст в любой раскладке</li>
+        <li>📱 Это мини-приложение с инструментами</li>
       </ul>
       Напиши боту в MAX — и он поможет с учёбой!
     </div>
   </div>
+
 </div>
 
 <script>
-function showPage(id, btn) {
+// ===== НАВИГАЦИЯ =====
+function go(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
 }
 
 // ===== ПЛАНИРОВЩИК =====
 function buildPlan() {
-  const subject = document.getElementById('subject').value;
-  const weeks = parseInt(document.getElementById('weeks').value) || 8;
-  const minutes = parseInt(document.getElementById('minutes').value) || 60;
-  const stages = [
-    ['📖 Теория и конспекты', Math.ceil(weeks * 0.4)],
-    ['✏️ Практика и задачи', Math.ceil(weeks * 0.35)],
-    ['🧪 Пробные варианты', Math.ceil(weeks * 0.15)],
-    ['🔄 Повторение и отдых', Math.max(1, weeks - Math.ceil(weeks*0.4) - Math.ceil(weeks*0.35) - Math.ceil(weeks*0.15))]
-  ];
-  let html = '';
-  let week = 1;
-  stages.forEach(([name, w]) => {
-    html += '<div class="plan-item"><b>' + name + '</b><br>Недели ' + week + '–' + (week + w - 1) + ' · ' + minutes + ' мин/день</div>';
-    week += w;
+  const subject = document.getElementById('pSubject').value;
+  const weeks = parseInt(document.getElementById('pWeeks').value) || 8;
+  const minutes = parseInt(document.getElementById('pMinutes').value) || 60;
+  const t = Math.ceil(weeks * 0.4), p = Math.ceil(weeks * 0.35), v = Math.ceil(weeks * 0.15);
+  const r = Math.max(1, weeks - t - p - v);
+  let w = 1, html = '<div class="item"><b>🎯 ' + subject + '</b> · ' + weeks + ' недель · ' + minutes + ' мин/день</div>';
+  [['📖 Теория и конспекты', t], ['✏️ Практика и задачи', p], ['🧪 Пробные варианты', v], ['🔄 Повторение', r]].forEach(([n, d]) => {
+    html += '<div class="item"><b>' + n + '</b><br>Недели ' + w + '–' + (w + d - 1) + '</div>'; w += d;
   });
-  html += '<div class="plan-item">💪 Итого: ' + weeks + ' недель по ' + minutes + ' мин. Регулярность важнее интенсивности!</div>';
+  html += '<div class="item">💪 Регулярность важнее интенсивности!</div>';
   document.getElementById('planResult').innerHTML = html;
 }
 
 // ===== ТРЕНАЖЁР =====
-let correct = 0, total = 0, currentAnswer = null;
+const ENG_WORDS = [
+  ['book','книга'],['cat','кошка'],['dog','собака'],['school','школа'],['teacher','учитель'],
+  ['friend','друг'],['water','вода'],['sun','солнце'],['house','дом'],['apple','яблоко'],
+  ['learn','учить'],['read','читать'],['write','писать'],['speak','говорить'],['think','думать']
+];
+let qCorrect = 0, qTotal = 0, qAnswer = null;
+
 function newQuestion() {
-  const a = Math.floor(Math.random() * 9) + 2;
-  const b = Math.floor(Math.random() * 9) + 2;
-  currentAnswer = a * b;
-  total++;
-  document.getElementById('quizQ').textContent = a + ' × ' + b + ' = ?';
-  const opts = new Set([currentAnswer]);
-  while (opts.size < 4) {
-    opts.add(currentAnswer + Math.floor(Math.random() * 19) - 9);
+  const mode = document.getElementById('qMode').value;
+  let question, answer, options = [];
+  if (mode === 'mult') {
+    const a = 2 + Math.floor(Math.random() * 9), b = 2 + Math.floor(Math.random() * 9);
+    question = a + ' × ' + b + ' = ?'; answer = String(a * b);
+    const set = new Set([answer]);
+    while (set.size < 4) set.add(String(a * b + Math.floor(Math.random() * 19) - 9));
+    options = [...set];
+  } else if (mode === 'add') {
+    const a = 10 + Math.floor(Math.random() * 90), b = 5 + Math.floor(Math.random() * 60);
+    const plus = Math.random() > 0.5;
+    question = plus ? a + ' + ' + b + ' = ?' : a + ' − ' + b + ' = ?';
+    answer = String(plus ? a + b : a - b);
+    const set = new Set([answer]);
+    while (set.size < 4) set.add(String(parseInt(answer) + Math.floor(Math.random() * 21) - 10));
+    options = [...set];
+  } else {
+    const pair = ENG_WORDS[Math.floor(Math.random() * ENG_WORDS.length)];
+    question = pair[0] + ' — это...?'; answer = pair[1];
+    const set = new Set([answer]);
+    while (set.size < 4) set.add(ENG_WORDS[Math.floor(Math.random() * ENG_WORDS.length)][1]);
+    options = [...set];
   }
-  const shuffled = [...opts].sort(() => Math.random() - 0.5);
+  qAnswer = answer;
+  document.getElementById('quizQ').textContent = question;
   const box = document.getElementById('quizOpts');
   box.innerHTML = '';
-  shuffled.forEach(v => {
-    const btn = document.createElement('button');
-    btn.className = 'quiz-opt';
-    btn.textContent = v;
-    btn.onclick = () => check(btn, v);
-    box.appendChild(btn);
+  options.sort(() => Math.random() - 0.5).forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'quiz-opt'; b.textContent = v;
+    b.onclick = () => checkAnswer(b, v);
+    box.appendChild(b);
   });
-  updateScore();
 }
-function check(btn, v) {
+
+function checkAnswer(btn, v) {
+  qTotal++;
   document.querySelectorAll('.quiz-opt').forEach(b => b.onclick = null);
-  if (v === currentAnswer) { btn.classList.add('correct'); correct++; }
+  if (v === qAnswer) { btn.classList.add('correct'); qCorrect++; }
   else {
     btn.classList.add('wrong');
-    document.querySelectorAll('.quiz-opt').forEach(b => {
-      if (parseInt(b.textContent) === currentAnswer) b.classList.add('correct');
-    });
+    document.querySelectorAll('.quiz-opt').forEach(b => { if (b.textContent === qAnswer) b.classList.add('correct'); });
   }
-  updateScore();
+  document.getElementById('score').textContent = 'Счёт: ' + qCorrect + ' / ' + qTotal;
+  setTimeout(newQuestion, 900);
 }
-function updateScore() {
-  document.getElementById('score').textContent = 'Счёт: ' + correct + ' / ' + Math.max(total - 1, 0);
+
+// ===== ДНЕВНИК ОЦЕНОК (хранится в телефоне) =====
+function loadGrades() {
+  try { return JSON.parse(localStorage.getItem('sn_grades') || '{}'); } catch (e) { return {}; }
 }
+function saveGrades(g) { localStorage.setItem('sn_grades', JSON.stringify(g)); }
+
+function renderGrades() {
+  const g = loadGrades();
+  const list = document.getElementById('gList');
+  let html = '', all = [];
+  for (const subj in g) {
+    const arr = g[subj]; all = all.concat(arr);
+    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+    html += '<div class="grade-row"><span><b>' + subj + '</b>: ' + arr.join(' ') + ' (ср. ' + avg.toFixed(2) + ')</span><button onclick="delSubject(\'' + subj.replace(/'/g, "") + '\')">✕</button></div>';
+  }
+  list.innerHTML = html || '<div class="item">Пока нет оценок. Добавь первую! 👇</div>';
+  document.getElementById('gAvg').textContent = all.length ? (all.reduce((a, b) => a + b, 0) / all.length).toFixed(2) : '—';
+}
+function addGrade() {
+  const subj = document.getElementById('gSubject').value.trim();
+  const val = parseInt(document.getElementById('gValue').value);
+  if (!subj) { alert('Напиши название предмета'); return; }
+  const g = loadGrades();
+  if (!g[subj]) g[subj] = [];
+  g[subj].push(val);
+  saveGrades(g); renderGrades();
+}
+function delSubject(subj) {
+  const g = loadGrades(); delete g[subj]; saveGrades(g); renderGrades();
+}
+function clearGrades() {
+  if (confirm('Удалить все оценки?')) { localStorage.removeItem('sn_grades'); renderGrades(); }
+}
+
+// ===== КАРТОЧКИ СЛОВ =====
+let flashPair = null, flashFlipped = false;
+function nextCard() {
+  flashPair = ENG_WORDS[Math.floor(Math.random() * ENG_WORDS.length)];
+  flashFlipped = false;
+  document.getElementById('flashCard').textContent = flashPair[0];
+}
+function flipCard() {
+  if (!flashPair) return;
+  flashFlipped = !flashFlipped;
+  document.getElementById('flashCard').textContent = flashFlipped ? flashPair[1] : flashPair[0];
+}
+
+// ===== РАСКЛАДКА =====
+const EN_RU = {'q':'й','w':'ц','e':'у','r':'к','t':'е','y':'н','u':'г','i':'ш','o':'щ','p':'з','[':'х',']':'ъ','a':'ф','s':'ы','d':'в','f':'а','g':'п','h':'р','j':'о','k':'л','l':'д',';':'ж','\'':'э','z':'я','x':'ч','c':'с','v':'м','b':'и','n':'т','m':'ь',',':'б','.':'ю','/':'.'};
+const RU_EN = {}; for (const k in EN_RU) RU_EN[EN_RU[k]] = k;
+function fixLayout() {
+  const text = document.getElementById('lInput').value;
+  const latin = (text.match(/[a-zA-Z]/g) || []).length;
+  const cyr = (text.match(/[а-яА-ЯёЁ]/g) || []).length;
+  const map = latin >= cyr ? EN_RU : RU_EN;
+  document.getElementById('lOutput').value = text.split('').map(c => map[c] || c).join('');
+}
+
+// ===== ВИДЕОУРОКИ =====
+function buildVideoLinks() {
+  const topic = encodeURIComponent(document.getElementById('vTopic').value.trim() || 'математика');
+  document.getElementById('videoResult').innerHTML =
+    '<a class="link-item" target="_blank" href="https://rutube.ru/search/?q=' + topic + '">▶️ RuTube: уроки по теме</a>' +
+    '<a class="link-item" target="_blank" href="https://vk.com/video?q=' + topic + '">▶️ VK Видео: уроки по теме</a>' +
+    '<a class="link-item" target="_blank" href="https://www.youtube.com/results?search_query=' + topic + '">▶️ YouTube: уроки по теме</a>';
+}
+
+// ===== МОТИВАЦИЯ =====
+const QUOTES = [
+  'Ошибка — это не провал, а подсказка, куда двигаться дальше. 🌱',
+  '15 минут сегодня сильнее, чем 3 часа «с понедельника». ⏰',
+  'Ты не обязан быть лучшим. Ты обязан быть лучше, чем вчера. 💪',
+  'Сложная тема становится простой, когда её объясняют по частям. 🧩',
+  'Отдых — это часть учёбы, а не награда за неё. 😴',
+  'Каждый эксперт когда-то был новичком, который не сдался. 🚀',
+  'Не сравнивай себя с другими. Сравнивай себя с собой вчера. 📈',
+  'Маленькие шаги каждый день приводят к большим вершинам. 🏔'
+];
+function newQuote() {
+  document.getElementById('quoteBox').textContent = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+}
+
+// ===== СТАРТ =====
+renderGrades();
+nextCard();
 newQuestion();
+newQuote();
 </script>
 </body>
 </html>
