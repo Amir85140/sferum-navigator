@@ -59,6 +59,45 @@ def get_chat_id(event):
     return None
 
 
+async def send_mini_app(event):
+    """
+    Отправляет мини-приложение максимально "как в Telegram":
+    1) Пробует web_app-кнопку (открытие внутри MAX)
+    2) Если не поддерживается — link-кнопку (встроенный браузер MAX)
+    3) Если и это не вышло — просто ссылку текстом
+    """
+    # Попытка 1: web_app кнопка (настоящее мини-приложение внутри MAX)
+    try:
+        from maxapi.types import InlineKeyboardButton
+        from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
+        builder = InlineKeyboardBuilder()
+        builder.row(InlineKeyboardButton(text="🚀 Открыть в MAX", web_app={"url": MINI_APP_LINK}))
+        await event.message.answer("📱 Мини-приложение Sferum Navigator:", attachments=[builder.as_markup()])
+        print("✅ Отправлено через web_app-кнопку (внутри MAX)")
+        return
+    except Exception as e:
+        print(f"⚠️ web_app-кнопка не поддержалась: {type(e).__name__}")
+    
+    # Попытка 2: link-кнопка (откроется во встроенном браузере MAX)
+    try:
+        from maxapi.types import InlineKeyboardButton
+        from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
+        builder = InlineKeyboardBuilder()
+        builder.row(InlineKeyboardButton(text="🚀 Открыть приложение", url=MINI_APP_LINK))
+        await event.message.answer("📱 Мини-приложение Sferum Navigator:", attachments=[builder.as_markup()])
+        print("✅ Отправлено через link-кнопку (встроенный браузер)")
+        return
+    except Exception as e:
+        print(f"⚠️ link-кнопка не поддержалась: {type(e).__name__}")
+    
+    # Попытка 3: просто ссылка
+    msg = "📱 Мини-приложение Sferum Navigator!\n\n"
+    msg += MINI_APP_LINK + "\n\n"
+    msg += "Внутри: планировщик подготовки и тренажёр."
+    await event.message.answer(msg)
+    print("✅ Отправлено просто ссылкой")
+
+
 @dp.bot_started()
 async def bot_started(event: BotStarted):
     welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
@@ -122,20 +161,7 @@ async def handle_message(event: MessageCreated):
     
     # Команда открытия мини-приложения
     if text_lower in ["мини", "приложение", "мини приложение", "mini", "app"]:
-        msg = "📱 Открываю мини-приложение Sferum Navigator!\n\n"
-        msg += MINI_APP_LINK + "\n\n"
-        msg += "Внутри: планировщик подготовки и тренажёр таблицы умножения."
-        
-        # Пробуем отправить с inline-кнопкой (если MAX поддерживает)
-        try:
-            from maxapi.types import InlineKeyboardButton
-            from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
-            builder = InlineKeyboardBuilder()
-            builder.row(InlineKeyboardButton(text="🚀 Открыть приложение", url=MINI_APP_LINK))
-            await event.message.answer(msg, attachments=[builder.as_markup()])
-        except Exception as e:
-            print(f"⚠️ Кнопка не поддерживается ({e}), отправляю ссылкой")
-            await event.message.answer(msg)
+        await send_mini_app(event)
         return
     
     # Определяем режим
