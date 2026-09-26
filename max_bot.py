@@ -16,6 +16,9 @@ dp = Dispatcher()
 user_data = {}
 MAX_HISTORY_MESSAGES = 20
 
+# Ссылка на мини-приложение (GitHub Pages)
+MINI_APP_LINK = "https://amir85140.github.io/sferum-navigator/"
+
 MODES = {
     "general": "🤖 Общий", "planner": "📅 Подготовка к экзаменам",
     "homework": "📝 Помощь с домашкой", "explain": "🎓 Объяснение темы",
@@ -68,7 +71,8 @@ async def bot_started(event: BotStarted):
     welcome += "🌍 Практика иностранных языков и переводы\n"
     welcome += "✅ Проверка знаний через тесты и квизы\n"
     welcome += "🎥 Поиск видеоуроков\n"
-    welcome += "💪 Мотивация и поддержка при выгорании"
+    welcome += "💪 Мотивация и поддержка при выгорании\n"
+    welcome += "📱 Мини-приложение: напиши 'мини'"
     await bot.send_message(chat_id=event.chat_id, text=welcome)
 
 @dp.message_created(CommandStart())
@@ -87,7 +91,7 @@ async def handle_message(event: MessageCreated):
     if not chat_id or not text:
         return
     
-    # Автоисправление раскладки
+    # Автоисправление раскладки клавиатуры
     original_text = text
     text = fix_keyboard_layout(text)
     if text != original_text:
@@ -111,8 +115,27 @@ async def handle_message(event: MessageCreated):
         menu = "🎯 Я сам определю режим по твоему вопросу.\n"
         menu += "Просто напиши, что нужно!\n"
         menu += "Команды: 'сброс' — начать заново\n"
-        menu += "🌍 Пиши на любом языке — я пойму!"
+        menu += "🌍 Пиши на любом языке — я пойму!\n"
+        menu += "📱 'мини' — открыть мини-приложение"
         await event.message.answer(menu)
+        return
+    
+    # Команда открытия мини-приложения
+    if text_lower in ["мини", "приложение", "мини приложение", "mini", "app"]:
+        msg = "📱 Открываю мини-приложение Sferum Navigator!\n\n"
+        msg += MINI_APP_LINK + "\n\n"
+        msg += "Внутри: планировщик подготовки и тренажёр таблицы умножения."
+        
+        # Пробуем отправить с inline-кнопкой (если MAX поддерживает)
+        try:
+            from maxapi.types import InlineKeyboardButton
+            from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
+            builder = InlineKeyboardBuilder()
+            builder.row(InlineKeyboardButton(text="🚀 Открыть приложение", url=MINI_APP_LINK))
+            await event.message.answer(msg, attachments=[builder.as_markup()])
+        except Exception as e:
+            print(f"⚠️ Кнопка не поддерживается ({e}), отправляю ссылкой")
+            await event.message.answer(msg)
         return
     
     # Определяем режим
@@ -143,7 +166,7 @@ async def handle_message(event: MessageCreated):
 
 async def main():
     print("🚀 БОТ Sferum Navigator запущен!")
-    print("✅ Режимы: текст, контекст, языки")
+    print("✅ Режимы: текст, контекст, языки, мини-приложение")
     print("Ожидаю сообщения...\n")
     await dp.start_polling(bot)
 
