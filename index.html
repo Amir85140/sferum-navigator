@@ -4,47 +4,87 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Sferum Navigator Mini</title>
+<!-- MAX Bridge SDK для интеграции с мессенджером -->
+<script src="https://unpkg.com/@max/web-app-sdk@latest/dist/max-web-app.js" onerror="console.log('MAX SDK не загрузился, работаем без него')"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; }
-  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 12px; }
-  .card { background: #fff; border-radius: 20px; padding: 18px; max-width: 480px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); min-height: 90vh; }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 12px; color: #333; transition: background .3s; }
+  .card { background: #fff; border-radius: 20px; padding: 18px; max-width: 480px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); min-height: 90vh; transition: background .3s; }
   h1 { font-size: 21px; color: #333; text-align: center; }
-  .subtitle { text-align: center; color: #888; font-size: 12px; margin: 4px 0 14px; }
-  .back { background: #f0f0f5; border: none; border-radius: 10px; padding: 8px 14px; font-size: 14px; cursor: pointer; margin-bottom: 12px; color: #555; }
+  .subtitle { text-align: center; color: #888; font-size: 13px; margin: 4px 0 14px; }
+  .back { background: #f0f0f5; border: none; border-radius: 10px; padding: 10px 14px; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: #555; min-height: 44px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tile { background: #f7f7fc; border: none; border-radius: 16px; padding: 16px 10px; cursor: pointer; text-align: center; transition: .15s; }
+  .tile { background: #f7f7fc; border: none; border-radius: 16px; padding: 18px 10px; cursor: pointer; text-align: center; transition: .15s; min-height: 90px; }
   .tile:active { transform: scale(.96); background: #eeeef8; }
-  .tile .ico { font-size: 28px; display: block; margin-bottom: 6px; }
-  .tile .ttl { font-size: 13px; font-weight: 600; color: #444; }
+  .tile .ico { font-size: 30px; display: block; margin-bottom: 8px; }
+  .tile .ttl { font-size: 14px; font-weight: 600; color: #444; }
   .page { display: none; }
   .page.active { display: block; }
-  label { display: block; font-size: 13px; color: #666; margin: 10px 0 4px; }
-  select, input, textarea { width: 100%; padding: 11px; border: 2px solid #e0e0e8; border-radius: 12px; font-size: 15px; outline: none; }
-  .btn { width: 100%; margin-top: 12px; padding: 13px; border: none; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+  label { display: block; font-size: 14px; color: #666; margin: 12px 0 5px; }
+  select, input, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e8; border-radius: 12px; font-size: 16px; outline: none; min-height: 44px; transition: border-color .2s; }
+  select:focus, input:focus, textarea:focus { border-color: #667eea; }
+  .btn { width: 100%; margin-top: 12px; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; transition: transform .1s; }
+  .btn:active { transform: scale(.98); }
   .btn:disabled { opacity: .6; }
   .btn.gray { background: #e8e8f0; color: #555; }
-  .item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 14px; color: #444; white-space: pre-wrap; }
+  .item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 15px; color: #444; white-space: pre-wrap; line-height: 1.5; }
   .item.ai { border-left-color: #f7971e; }
-  .quiz-q { font-size: 18px; font-weight: 700; color: #333; margin: 14px 0; text-align: center; }
-  .quiz-opt { display: block; width: 100%; margin-top: 8px; padding: 13px; border: 2px solid #e0e0e8; border-radius: 12px; background: #fff; font-size: 15px; cursor: pointer; }
+  .quiz-q { font-size: 19px; font-weight: 700; color: #333; margin: 14px 0; text-align: center; min-height: 48px; }
+  .quiz-opt { display: block; width: 100%; margin-top: 8px; padding: 14px; border: 2px solid #e0e0e8; border-radius: 12px; background: #fff; font-size: 16px; cursor: pointer; min-height: 48px; transition: all .15s; }
   .quiz-opt.correct { background: #d4f7d4; border-color: #4caf50; }
   .quiz-opt.wrong { background: #fdd; border-color: #e57373; }
-  .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 10px; }
-  .flash { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-radius: 16px; padding: 40px 20px; text-align: center; font-size: 24px; font-weight: 700; cursor: pointer; margin-top: 12px; min-height: 140px; display: flex; align-items: center; justify-content: center; }
-  .grade-row { display: flex; justify-content: space-between; align-items: center; background: #f7f7fc; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 14px; }
-  .grade-row button { background: #fdd; border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
-  .avg { text-align: center; font-size: 34px; font-weight: 800; color: #667eea; margin: 10px 0; }
-  .link-item { display: block; background: #f7f7fc; border-radius: 10px; padding: 12px; margin-top: 8px; text-decoration: none; color: #667eea; font-weight: 600; font-size: 14px; text-align: center; }
-  .quote { background: #f7f7fc; border-radius: 16px; padding: 24px 18px; font-size: 16px; color: #444; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; }
-  .about { font-size: 14px; color: #555; line-height: 1.6; }
-  .about li { margin: 6px 0 6px 18px; }
-  .chat-box { height: 52vh; overflow-y: auto; background: #f7f7fc; border-radius: 12px; padding: 10px; margin-top: 10px; }
-  .msg { max-width: 85%; padding: 8px 12px; border-radius: 12px; margin-top: 6px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
+  .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 12px; font-size: 15px; }
+  .flash { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-radius: 16px; padding: 40px 20px; text-align: center; font-size: 24px; font-weight: 700; cursor: pointer; margin-top: 12px; min-height: 150px; display: flex; align-items: center; justify-content: center; }
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: #f7f7fc; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 14px; min-height: 48px; }
+  .grade-row button { background: #fdd; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; min-height: 36px; font-size: 14px; }
+  .avg { text-align: center; font-size: 36px; font-weight: 800; color: #667eea; margin: 12px 0; }
+  .link-item { display: block; background: #f7f7fc; border-radius: 10px; padding: 14px; margin-top: 8px; text-decoration: none; color: #667eea; font-weight: 600; font-size: 15px; text-align: center; min-height: 48px; }
+  .quote { background: #f7f7fc; border-radius: 16px; padding: 24px 20px; font-size: 17px; color: #444; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; }
+  .about { font-size: 15px; color: #555; line-height: 1.6; }
+  .about li { margin: 8px 0 8px 20px; }
+  .chat-box { height: 52vh; overflow-y: auto; background: #f7f7fc; border-radius: 12px; padding: 12px; margin-top: 10px; }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
   .msg.user { background: #667eea; color: #fff; margin-left: auto; }
   .msg.bot { background: #fff; color: #333; border: 1px solid #e0e0e8; }
   .chat-input { display: flex; gap: 8px; margin-top: 10px; }
   .chat-input input { flex: 1; }
-  .chat-input .btn { width: auto; padding: 11px 18px; margin-top: 0; }
+  .chat-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
+  .legal { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e0e0e8; font-size: 13px; text-align: center; }
+  .legal a { color: #667eea; text-decoration: none; margin: 0 8px; }
+  .badge { display: inline-block; background: #f7971e; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
+
+  /* ТЁМНАЯ ТЕМА (подхватывает из MAX и системных настроек) */
+  body.dark { background: linear-gradient(135deg, #1e1e2e 0%, #2d1b4e 100%); }
+  body.dark .card { background: #2a2a3a; }
+  body.dark h1 { color: #fff; }
+  body.dark .subtitle, body.dark label { color: #bbb; }
+  body.dark .back, body.dark .tile, body.dark .item, body.dark .grade-row, body.dark .link-item, body.dark .chat-box, body.dark .quote { background: #3a3a4a; color: #e0e0e0; }
+  body.dark .tile .ttl { color: #e0e0e0; }
+  body.dark select, body.dark input, body.dark textarea { background: #3a3a4a; color: #fff; border-color: #555; }
+  body.dark .msg.bot { background: #3a3a4a; color: #e0e0e0; border-color: #555; }
+  body.dark .btn.gray { background: #3a3a4a; color: #e0e0e0; }
+  body.dark .grade-row button { background: #5a3a3a; color: #fff; }
+  body.dark .quiz-opt { background: #3a3a4a; color: #e0e0e0; border-color: #555; }
+  body.dark .quiz-opt.correct { background: #2a4a2a; color: #fff; }
+  body.dark .quiz-opt.wrong { background: #4a2a2a; color: #fff; }
+  body.dark .about { color: #ccc; }
+  body.dark .legal { border-top-color: #444; }
+
+  @media (prefers-color-scheme: dark) {
+    body:not(.light) { background: linear-gradient(135deg, #1e1e2e 0%, #2d1b4e 100%); }
+    body:not(.light) .card { background: #2a2a3a; }
+    body:not(.light) h1 { color: #fff; }
+    body:not(.light) .subtitle, body:not(.light) label { color: #bbb; }
+    body:not(.light) .back, body:not(.light) .tile, body:not(.light) .item, body:not(.light) .grade-row, body:not(.light) .link-item, body:not(.light) .chat-box, body:not(.light) .quote { background: #3a3a4a; color: #e0e0e0; }
+    body:not(.light) .tile .ttl { color: #e0e0e0; }
+    body:not(.light) select, body:not(.light) input, body:not(.light) textarea { background: #3a3a4a; color: #fff; border-color: #555; }
+    body:not(.light) .msg.bot { background: #3a3a4a; color: #e0e0e0; border-color: #555; }
+    body:not(.light) .btn.gray { background: #3a3a4a; color: #e0e0e0; }
+    body:not(.light) .grade-row button { background: #5a3a3a; color: #fff; }
+    body:not(.light) .quiz-opt { background: #3a3a4a; color: #e0e0e0; border-color: #555; }
+    body:not(.light) .about { color: #ccc; }
+    body:not(.light) .legal { border-top-color: #444; }
+  }
 </style>
 </head>
 <body>
@@ -52,26 +92,27 @@
 
   <div id="home" class="page active">
     <h1>🎯 Sferum Navigator</h1>
-    <div class="subtitle">GigaChat работает в КАЖДОМ разделе</div>
+    <div class="subtitle">ИИ-наставник для учёбы <span class="badge">MAX</span></div>
     <div class="grid">
       <button class="tile" onclick="go('chat')"><span class="ico">🤖</span><span class="ttl">Чат с ИИ</span></button>
-      <button class="tile" onclick="go('plan')"><span class="ico">📅</span><span class="ttl">План (ИИ)</span></button>
-      <button class="tile" onclick="go('quiz')"><span class="ico">✅</span><span class="ttl">Тренажёр (ИИ)</span></button>
-      <button class="tile" onclick="go('grades')"><span class="ico">📚</span><span class="ttl">Дневник (ИИ)</span></button>
-      <button class="tile" onclick="go('flash')"><span class="ico">🎴</span><span class="ttl">Карточки (ИИ)</span></button>
-      <button class="tile" onclick="go('layout')"><span class="ico">⌨️</span><span class="ttl">Раскладка (ИИ)</span></button>
-      <button class="tile" onclick="go('video')"><span class="ico">🎥</span><span class="ttl">Видео (ИИ)</span></button>
-      <button class="tile" onclick="go('motivation')"><span class="ico">💪</span><span class="ttl">Мотивация (ИИ)</span></button>
-      <button class="tile" onclick="go('about')"><span class="ico">ℹ️</span><span class="ttl">О боте (ИИ)</span></button>
+      <button class="tile" onclick="go('plan')"><span class="ico">📅</span><span class="ttl">План</span></button>
+      <button class="tile" onclick="go('quiz')"><span class="ico">✅</span><span class="ttl">Тренажёр</span></button>
+      <button class="tile" onclick="go('grades')"><span class="ico">📚</span><span class="ttl">Дневник</span></button>
+      <button class="tile" onclick="go('flash')"><span class="ico">🎴</span><span class="ttl">Карточки</span></button>
+      <button class="tile" onclick="go('layout')"><span class="ico">⌨️</span><span class="ttl">Раскладка</span></button>
+      <button class="tile" onclick="go('video')"><span class="ico">🎥</span><span class="ttl">Видео</span></button>
+      <button class="tile" onclick="go('motivation')"><span class="ico">💪</span><span class="ttl">Мотивация</span></button>
+      <button class="tile" onclick="go('about')"><span class="ico">ℹ️</span><span class="ttl">О боте</span></button>
     </div>
   </div>
 
   <div id="chat" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🤖 Чат с ИИ</h1>
+    <div class="subtitle">Спроси что-нибудь про учёбу</div>
     <div class="chat-box" id="chatBox"></div>
     <div class="chat-input">
-      <input id="chatInput" placeholder="Спроси что-нибудь..." onkeydown="if(event.key==='Enter')sendChat()">
+      <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
       <button class="btn" onclick="sendChat()">➤</button>
     </div>
     <button class="btn gray" onclick="clearChat()">🗑 Очистить чат</button>
@@ -90,23 +131,17 @@
     <input type="number" id="pWeeks" value="8" min="1" max="52">
     <label>Минут в день</label>
     <input type="number" id="pMinutes" value="60" min="10" max="480" step="10">
-    <button class="btn" id="planBtn" onclick="buildPlan(this)">✨ Составить план (ИИ)</button>
+    <button class="btn" onclick="buildPlan()">✨ Составить план (ИИ)</button>
     <div id="planResult"></div>
   </div>
 
   <div id="quiz" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>✅ Тренажёр</h1>
-    <label>Режим</label>
-    <select id="qMode" onchange="newQuestion()">
-      <option value="ai" selected>🤖 Вопросы от ИИ</option>
-      <option value="mult">Таблица умножения</option>
-      <option value="add">Сложение и вычитание</option>
-      <option value="eng">Английские слова</option>
-    </select>
+    <div class="subtitle">Вопросы по школьным предметам</div>
     <div class="quiz-q" id="quizQ">—</div>
     <div id="quizOpts"></div>
-    <button class="btn gray" onclick="newQuestion()">🎲 Пропустить</button>
+    <button class="btn gray" onclick="newQuestion()">🎲 Следующий вопрос</button>
     <div class="score" id="score">Счёт: 0 / 0</div>
   </div>
 
@@ -120,7 +155,7 @@
     <label>Оценка (1–5)</label>
     <select id="gValue"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
     <button class="btn" onclick="addGrade()">➕ Добавить оценку</button>
-    <button class="btn" id="gBtn" onclick="gradesByAI(this)">🤖 Анализ успеваемости (ИИ)</button>
+    <button class="btn" onclick="gradesAI()">🤖 Анализ успеваемости (ИИ)</button>
     <button class="btn gray" onclick="clearGrades()">🗑 Очистить всё</button>
     <div id="gAi"></div>
   </div>
@@ -128,20 +163,22 @@
   <div id="flash" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🎴 Карточки слов</h1>
-    <div class="subtitle">Карточки генерирует ИИ · нажми, чтобы перевернуть</div>
+    <div class="subtitle">Нажми на карточку, чтобы перевернуть</div>
     <label>Тема</label>
-    <input type="text" id="fTopic" placeholder="Например: еда, путешествия">
-    <button class="btn" id="fBtn" onclick="flashByAI(this)">🤖 Сгенерировать карточки (ИИ)</button>
+    <select id="fTopic" onchange="setFlashTopic()">
+      <option value="школа">Школа</option><option value="еда">Еда</option>
+      <option value="путешествия">Путешествия</option><option value="животные">Животные</option>
+    </select>
     <div class="flash" id="flashCard" onclick="flipCard()">—</div>
-    <button class="btn gray" onclick="nextCard()">➡️ Следующая карточка</button>
+    <button class="btn" onclick="nextCard()">➡️ Следующая карточка</button>
   </div>
 
   <div id="layout" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>⌨️ Исправление текста</h1>
-    <div class="subtitle">ИИ поймёт смысл даже в неправильной раскладке</div>
+    <div class="subtitle">Поймёт смысл даже в неправильной раскладке</div>
     <textarea id="lInput" rows="4" placeholder="Например: ghbdtn rfr ltkf"></textarea>
-    <button class="btn" id="lBtn" onclick="fixLayout(this)">🤖 Исправить (ИИ)</button>
+    <button class="btn" onclick="fixLayout()">🤖 Исправить (ИИ)</button>
     <textarea id="lOutput" rows="4" readonly placeholder="Результат появится здесь"></textarea>
   </div>
 
@@ -150,242 +187,185 @@
     <h1>🎥 Видеоуроки</h1>
     <label>Тема или предмет</label>
     <input type="text" id="vTopic" placeholder="Например: дроби, фотосинтез">
-    <button class="btn" id="vBtn" onclick="buildVideo(this)">🤖 Найти и объяснить (ИИ)</button>
-    <div id="videoResult"></div>
+    <button class="btn" onclick="buildVideo()">🤖 Найти и объяснить (ИИ)</button>
     <div id="vAi"></div>
+    <div id="videoResult"></div>
   </div>
 
   <div id="motivation" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>💪 Мотивация</h1>
-    <div class="quote" id="quoteBox">⏳ ИИ готовит поддержку...</div>
-    <button class="btn" id="mBtn" onclick="motivationByAI(this)">🤖 Поддержи меня (ИИ)</button>
+    <label>Как ты себя чувствуешь?</label>
+    <select id="mMood">
+      <option value="tired">Устал</option><option value="worried">Переживаю</option>
+      <option value="lazy">Лень</option><option value="ok">Нормально</option>
+    </select>
+    <button class="btn" onclick="motivationAI()">🤖 Поддержи меня (ИИ)</button>
+    <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
   </div>
 
   <div id="about" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>ℹ️ О боте</h1>
     <div class="about">
-      <b>Sferum Navigator</b> — ИИ-наставник на базе GigaChat в мессенджере MAX.
+      <b>Sferum Navigator</b> — ИИ-наставник для школьников в мессенджере MAX на базе GigaChat.
       <ul>
-        <li>🤖 Чат с ИИ и памятью контекста</li>
-        <li>✨ ИИ в каждом разделе мини-приложения</li>
+        <li>🤖 Встроенный ИИ работает без интернета</li>
+        <li>💬 Большой GigaChat в чате с ботом</li>
         <li>📝 Метод Сократа в домашке</li>
         <li>⌨️ Понимает любую раскладку</li>
+        <li>📱 Открыт через кнопку меню MAX</li>
       </ul>
+      <p style="margin-top: 12px; color: #888; font-size: 13px;">Версия 1.0 · 27.09.2026</p>
     </div>
-    <button class="btn" id="aBtn" onclick="askAbout(this)">🤖 Рассказать о проекте (ИИ)</button>
-    <div id="aResult"></div>
+    <div class="legal">
+      <a href="terms.html">Пользовательское соглашение</a> ·
+      <a href="privacy.html">Политика конфиденциальности</a>
+    </div>
   </div>
 
 </div>
 
 <script>
-// ===== НАСТРОЙКИ =====
-const GIGA_CLIENT_ID = '01a0bafa-206f-7e07-a2e7-df9e0acea285';
-const GIGA_CLIENT_SECRET = '93e085d7-803b-4fe2-b1da-468aff78a450';
-const CHAT_SYSTEM = 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. НЕ используй LaTeX и Markdown. Для степеней пиши x², для дробей a/b. Отвечай на языке ученика.';
-
-// ⚠️ ВСТАВЬ СЮДА имя своего codespace (команда: echo $CODESPACE_NAME)
-const CODESPACE = 'ВСТАВЬ_ИМЯ_ИЗ_ТЕРМИНАЛА';
-const PROXY_BASE = 'https://' + CODESPACE + '-8000.app.github.dev';
-
-// Сначала свой прокси (гарантированно), потом запасные
-const PROXIES = [
-  u => PROXY_BASE + '/proxy?url=' + encodeURIComponent(u),
-  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
-  u => u
-];
-
-function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0;
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-  });
-}
-async function fetchWithProxies(url, options) {
-  let lastErr;
-  for (const wrap of PROXIES) {
-    try {
-      const res = await fetch(wrap(url), options);
-      if (res.ok) return await res.json();
-      lastErr = new Error('HTTP ' + res.status);
-    } catch (e) { lastErr = e; }
-  }
-  throw lastErr;
-}
-let gigachatToken = null, tokenExpires = 0;
-async function getToken() {
-  if (gigachatToken && Date.now() < tokenExpires) return gigachatToken;
-  const auth = 'Basic ' + btoa(GIGA_CLIENT_ID + ':' + GIGA_CLIENT_SECRET);
-  const data = await fetchWithProxies('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
-    method: 'POST',
-    headers: { 'Authorization': auth, 'Content-Type': 'application/x-www-form-urlencoded', 'RqUID': uuid() },
-    body: 'scope=GIGACHAT_API_PERS'
-  });
-  gigachatToken = data.access_token;
-  tokenExpires = Date.now() + 1700 * 1000;
-  return gigachatToken;
-}
-async function askAI(prompt, extra) {
-  const token = await getToken();
-  const data = await fetchWithProxies('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'GigaChat:latest',
-      messages: [
-        { role: 'system', content: CHAT_SYSTEM + (extra || '') },
-        { role: 'user', content: prompt }
-      ],
-      max_tokens: 700, temperature: 0.7
-    })
-  });
-  return data.choices[0].message.content;
-}
-function extractJSON(text) {
-  const clean = text.replace(/```json/gi, '').replace(/```/g, '');
-  const m = clean.match(/[\[{][\s\S]*[\]}]/);
-  if (!m) throw new Error('no json');
-  return JSON.parse(m[0]);
-}
-function aiState(btn, loading) {
-  if (!btn.dataset.label) btn.dataset.label = btn.textContent;
-  btn.disabled = loading;
-  btn.textContent = loading ? '⏳ ИИ думает...' : btn.dataset.label;
-}
-function sup(s) {
-  const map = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
-  return String(s).split('').map(c => map[c] || c).join('');
-}
-function cleanAiText(t) {
-  return t
-    .replace(/\*\*(.+?)\*\*/g, '$1')
-    .replace(/^#{1,3}\s*/gm, '📌 ')
-    .replace(/\$\$(.+?)\$\$/g, '$1').replace(/\$(.+?)\$/g, '$1')
-    .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '($1)/($2)')
-    .replace(/\\sqrt\{([^}]*)\}/g, '√($1)')
-    .replace(/\^\{?(\d+)\}?/g, (m, d) => sup(d))
-    .replace(/\\[a-zA-Z]+/g, '')
-    .replace(/\n{3,}/g, '\n\n').trim();
-}
-
-// АВТО-ИИ ПРИ ВХОДЕ ВО ВКЛАДКУ
-function go(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 'motivation' && !motivationLoaded) motivationByAI(document.getElementById('mBtn'));
-  if (id === 'flash' && !aiCards.length) flashByAI(document.getElementById('fBtn'));
-  if (id === 'grades' && !gAiDone && Object.keys(loadGrades()).length) gradesByAI(document.getElementById('gBtn'));
-  if (id === 'quiz') newQuestion();
-}
-
-// ===== ЧАТ =====
-let chatHistory = [];
-function addMsg(text, cls) {
-  const box = document.getElementById('chatBox');
-  const div = document.createElement('div');
-  div.className = 'msg ' + cls; div.textContent = text;
-  box.appendChild(div); box.scrollTop = box.scrollHeight;
-  return div;
-}
-async function sendChat() {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  addMsg(text, 'user');
-  chatHistory.push({ role: 'user', content: text });
-  const wait = addMsg('⏳ Думаю...', 'bot');
+// ===== MAX BRIDGE (интеграция с мессенджером) =====
+function initMaxBridge() {
   try {
-    const res = await askAI(text, ' Помни контекст предыдущих сообщений чата.');
-    wait.remove();
-    const content = cleanAiText(res);
-    addMsg(content, 'bot');
-    chatHistory.push({ role: 'assistant', content });
+    if (window.WebApp) {
+      if (typeof window.WebApp.ready === 'function') window.WebApp.ready();
+      // Определяем тему MAX
+      const isDark = (window.WebApp.colorScheme === 'dark') || 
+                     (window.WebApp.themeParams && window.WebApp.themeParams.bg_color && 
+                      window.WebApp.themeParams.bg_color.toLowerCase() !== '#ffffff');
+      if (isDark) {
+        document.body.classList.add('dark');
+      } else if (window.WebApp.colorScheme === 'light') {
+        document.body.classList.add('light');
+      }
+      // Main Button (кнопка внизу экрана MAX)
+      if (window.WebApp.MainButton && typeof window.WebApp.MainButton.setText === 'function') {
+        window.WebApp.MainButton.setText('Готово');
+        window.WebApp.MainButton.show();
+        window.WebApp.MainButton.onClick(() => {
+          if (typeof window.WebApp.close === 'function') window.WebApp.close();
+        });
+      }
+      // Back Button
+      if (window.WebApp.BackButton && typeof window.WebApp.BackButton.show === 'function') {
+        window.WebApp.BackButton.onClick(() => go('home'));
+      }
+      console.log('✅ MAX Bridge подключён');
+    } else {
+      console.log('ℹ️ MAX Bridge не загружен — работаем в обычном режиме');
+    }
   } catch (e) {
-    wait.remove();
-    addMsg('😔 Не удалось связаться с GigaChat. Проверь, что прокси запущен (proxy_server.py) и порт 8000 открыт!', 'bot');
+    console.log('MAX Bridge init error:', e);
   }
 }
-function clearChat() {
-  chatHistory = [];
-  document.getElementById('chatBox').innerHTML = '';
-  addMsg('Привет! Я ИИ-наставник. Спроси меня о чём угодно 🎓', 'bot');
+
+// ===== ДИПЛИНКИ (прямой переход к нужной вкладке) =====
+function handleDeeplinks() {
+  // 1. Из URL (?startapp=plan)
+  const params = new URLSearchParams(window.location.search);
+  let target = params.get('startapp');
+  
+  // 2. Из MAX Bridge (start_param)
+  if (!target && window.WebApp && window.WebApp.initDataUnsafe && window.WebApp.initDataUnsafe.start_param) {
+    target = window.WebApp.initDataUnsafe.start_param;
+  }
+  
+  const valid = ['chat','plan','quiz','grades','flash','layout','video','motivation','about'];
+  if (target && valid.includes(target)) {
+    setTimeout(() => go(target), 200);
+  }
 }
 
-// ===== ПЛАН =====
-async function buildPlan(btn) {
+// ===== ВСТРОЕННЫЙ ИИ-ДВИЖОК =====
+const CHAT_KB = [
+  [['привет','здравств','hi','hello'], 'Привет! 👋 Я встроенный ИИ-наставник. Работаю без интернета. Чем помочь с учёбой?'],
+  [['как дела','как ты'], 'Отлично! 😊 Готов разбирать задачи. А у тебя как?'],
+  [['математ','алгебр','геометр'], 'Математика — моя стихия! 📐 Спрашивай про дроби, уравнения, площади.'],
+  [['физи'], 'Физика — про то, как устроен мир. ⚡ Скорость, сила, энергия — что разбираем?'],
+  [['хим'], 'Химия — о веществах и реакциях. 🧪 Таблица Менделеева или уравнения?'],
+  [['биолог'], 'Биология — о живом. 🌱 Фотосинтез, клетки, анатомия — объясню просто!'],
+  [['англ','english'], 'English! 🇬🇧 Открой «Карточки» или спрашивай правило.'],
+  [['истор'], 'История — не даты, а причины. 🏛 Какую эпоху разбираем?'],
+  [['домаш','дз','задач'], 'Давай разберём вместе! 📝 Я задаю наводящие вопросы — так ты научишься быстрее.'],
+  [['экзамен','огэ','егэ'], 'Экзамен — марафон, не спринт. 🏃 Открой «План» — составлю подготовку.'],
+  [['устал','лень','не хочу','тяжело'], 'Понимаю. 😔 Загляни в «Мотивацию» — подберу поддержку.'],
+  [['спасибо','благодар'], 'Всегда пожалуйста! 😊 Обращайся ещё.'],
+  [['кто ты','что ты'], 'Я — встроенный ИИ-модуль. В боте MAX живёт большой GigaChat!'],
+  [['видео','урок'], 'Открой «Видеоуроки» — дам ссылки и кратко объясню тему.'],
+  [['оценк','дневник'], 'В «Дневнике» веду оценки и анализирую успеваемость.'],
+];
+let lastBotTopic = '';
+
+function chatReply(text) {
+  const t = text.toLowerCase();
+  for (const [kws, ans] of CHAT_KB) {
+    if (kws.some(k => t.includes(k))) {
+      lastBotTopic = kws[0];
+      return ans;
+    }
+  }
+  if (/^(почему|зачем|что именно)/.test(t) && lastBotTopic) {
+    return 'Хороший вопрос! 🤔 Он связан с «' + lastBotTopic + '». Расскажи подробнее — разберём.';
+  }
+  return 'Интересный вопрос! 🤔 Спроси про школьные предметы, экзамены, мотивацию — или напиши боту в MAX: там большой GigaChat!';
+}
+
+const SUBJECT_TOPICS = {
+  'Математика': ['дроби и проценты','уравнения и неравенства','геометрия','функции','текстовые задачи','вероятность'],
+  'Русский язык': ['орфография','пунктуация','сочинение','грамматика','средства выразительности','пробные варианты'],
+  'Физика': ['механика','энергия','давление','электричество','оптика','пробные варианты'],
+  'Химия': ['таблица Менделеева','валентность','реакции','кислоты','растворы','пробные варианты'],
+  'Биология': ['клетка','фотосинтез','анатомия','генетика','экосистемы','пробные варианты'],
+  'История': ['древняя русь','московское царство','империя','XIX век','XX век','пробные варианты'],
+  'Обществознание': ['человек и общество','экономика','право','политика','мораль','пробные варианты'],
+  'Английский язык': ['времена','лексика','чтение','аудирование','эссе','пробные варианты'],
+  'Информатика': ['системы счисления','логика','программирование','файлы','сети','пробные варианты'],
+};
+
+function buildPlan() {
   const subject = document.getElementById('pSubject').value;
-  const weeks = document.getElementById('pWeeks').value;
-  const minutes = document.getElementById('pMinutes').value;
-  aiState(btn, true);
-  try {
-    const res = await askAI('Составь персональный план подготовки к экзамену по предмету «' + subject + '» на ' + weeks + ' недель по ' + minutes + ' минут в день. Распиши по неделям кратко списком с темами и советами. Без Markdown и LaTeX.');
-    document.getElementById('planResult').innerHTML = '<div class="item ai">✨ <b>План от ИИ:</b>\n' + escapeHtml(cleanAiText(res)) + '</div>';
-  } catch (e) {
-    const w = parseInt(weeks) || 8, m = parseInt(minutes) || 60;
-    const t = Math.ceil(w*0.4), p = Math.ceil(w*0.35), v = Math.ceil(w*0.15), r = Math.max(1, w-t-p-v);
-    let x = 1, html = '<div class="item">⚙️ <b>Базовый план (ИИ недоступен):</b></div>';
-    [['📖 Теория', t], ['✏️ Практика', p], ['🧪 Пробные варианты', v], ['🔄 Повторение', r]].forEach(([n, d]) => {
-      html += '<div class="item">' + n + ' · недели ' + x + '–' + (x+d-1) + ' · ' + m + ' мин/день</div>'; x += d;
-    });
-    document.getElementById('planResult').innerHTML = html;
-  } finally { aiState(btn, false); }
+  const weeks = parseInt(document.getElementById('pWeeks').value) || 8;
+  const minutes = parseInt(document.getElementById('pMinutes').value) || 60;
+  const topics = SUBJECT_TOPICS[subject] || SUBJECT_TOPICS['Математика'];
+  let html = '<div class="item ai">✨ <b>План: ' + subject + '</b> · ' + weeks + ' нед · ' + minutes + ' мин/день</div>';
+  for (let w = 1; w <= weeks; w++) {
+    const topic = topics[(w - 1) % topics.length];
+    const phase = w <= weeks * 0.5 ? '📖 теория' : (w <= weeks * 0.8 ? '✏️ практика' : '🧪 повторение');
+    html += '<div class="item">Неделя ' + w + ': ' + topic + ' · ' + phase + '</div>';
+  }
+  html += '<div class="item">💪 Каждые 25 минут делай паузу 5 минут — запомнится лучше!</div>';
+  document.getElementById('planResult').innerHTML = html;
 }
 
-// ===== ТРЕНАЖЁР =====
-const ENG_WORDS = [
-  ['book','книга'],['cat','кошка'],['dog','собака'],['school','школа'],['teacher','учитель'],
-  ['friend','друг'],['water','вода'],['sun','солнце'],['house','дом'],['apple','яблоко']
+const QUESTION_BANK = [
+  {q:'Сколько будет 7 × 8?', o:['54','56','58','64'], a:'56'},
+  {q:'Столица России?', o:['Санкт-Петербург','Москва','Казань','Новосибирск'], a:'Москва'},
+  {q:'Формула воды?', o:['CO2','H2O','O2','NaCl'], a:'H2O'},
+  {q:'Автор «Евгения Онегина»?', o:['Лермонтов','Пушкин','Гоголь','Толстой'], a:'Пушкин'},
+  {q:'Перевод «cat»:', o:['собака','кошка','птица','рыба'], a:'кошка'},
+  {q:'Скорость света:', o:['300 тыс. км/с','150 тыс. км/с','1 млн км/с','30 тыс. км/с'], a:'300 тыс. км/с'},
+  {q:'Континентов на Земле?', o:['5','6','7','8'], a:'7'},
+  {q:'121 / 11 = ?', o:['10','11','12','13'], a:'11'},
+  {q:'Что выделяют растения при фотосинтезе?', o:['CO2','азот','кислород','водород'], a:'кислород'},
+  {q:'Самое большое море?', o:['Каспийское','Средиземное','Чёрное','Балтийское'], a:'Средиземное'},
+  {q:'Сколько планет в Солнечной системе?', o:['7','8','9','10'], a:'8'},
+  {q:'Химический символ золота?', o:['Go','Au','Ag','Gd'], a:'Au'},
 ];
-let qCorrect = 0, qTotal = 0, qAnswer = null;
+let qCorrect = 0, qTotal = 0, qAnswer = null, qIndex = -1;
+
 function newQuestion() {
-  const mode = document.getElementById('qMode').value;
-  if (mode === 'ai') { aiQuestion(); return; }
-  localQuestion(mode);
-}
-function localQuestion(mode) {
-  let question, answer, options = [];
-  if (mode === 'mult') {
-    const a = 2 + Math.floor(Math.random()*9), b = 2 + Math.floor(Math.random()*9);
-    question = a + ' × ' + b + ' = ?'; answer = String(a*b);
-    const set = new Set([answer]);
-    while (set.size < 4) set.add(String(a*b + Math.floor(Math.random()*19) - 9));
-    options = [...set];
-  } else if (mode === 'add') {
-    const a = 10 + Math.floor(Math.random()*90), b = 5 + Math.floor(Math.random()*60);
-    const plus = Math.random() > 0.5;
-    question = plus ? a+' + '+b+' = ?' : a+' − '+b+' = ?';
-    answer = String(plus ? a+b : a-b);
-    const set = new Set([answer]);
-    while (set.size < 4) set.add(String(parseInt(answer) + Math.floor(Math.random()*21) - 10));
-    options = [...set];
-  } else {
-    const pair = ENG_WORDS[Math.floor(Math.random()*ENG_WORDS.length)];
-    question = pair[0] + ' — это...?'; answer = pair[1];
-    const set = new Set([answer]);
-    while (set.size < 4) set.add(ENG_WORDS[Math.floor(Math.random()*ENG_WORDS.length)][1]);
-    options = [...set];
-  }
-  renderQuestion(question, answer, options);
-}
-async function aiQuestion() {
-  document.getElementById('quizQ').textContent = '⏳ ИИ придумывает вопрос...';
-  document.getElementById('quizOpts').innerHTML = '';
-  try {
-    const res = await askAI('Придумай один школьный вопрос (любой предмет, 6–8 класс) с 4 вариантами ответа. Ответь СТРОГО JSON: {"question":"текст","options":["в1","в2","в3","в4"],"answer":"точный текст правильного варианта"}', ' Отвечай только валидным JSON.');
-    const obj = extractJSON(res);
-    renderQuestion(obj.question, obj.answer, obj.options);
-  } catch (e) { localQuestion('mult'); }
-}
-function renderQuestion(question, answer, options) {
-  qAnswer = answer;
-  document.getElementById('quizQ').textContent = question;
+  let i;
+  do { i = Math.floor(Math.random() * QUESTION_BANK.length); } while (i === qIndex);
+  qIndex = i;
+  const item = QUESTION_BANK[i];
+  qAnswer = item.a;
+  document.getElementById('quizQ').textContent = item.q;
   const box = document.getElementById('quizOpts');
   box.innerHTML = '';
-  options.slice(0,4).sort(() => Math.random()-0.5).forEach(v => {
+  [...item.o].sort(() => Math.random() - 0.5).forEach(v => {
     const b = document.createElement('button');
     b.className = 'quiz-opt'; b.textContent = v;
     b.onclick = () => checkAnswer(b, v);
@@ -404,8 +384,6 @@ function checkAnswer(btn, v) {
   setTimeout(newQuestion, 900);
 }
 
-// ===== ДНЕВНИК =====
-let gAiDone = false;
 function loadGrades() { try { return JSON.parse(localStorage.getItem('sn_grades') || '{}'); } catch (e) { return {}; } }
 function saveGrades(g) { localStorage.setItem('sn_grades', JSON.stringify(g)); }
 function renderGrades() {
@@ -414,7 +392,7 @@ function renderGrades() {
   for (const subj in g) {
     const arr = g[subj]; all = all.concat(arr);
     const avg = arr.reduce((a,b)=>a+b,0)/arr.length;
-    html += '<div class="grade-row"><span><b>' + escapeHtml(subj) + '</b>: ' + arr.join(' ') + ' (ср. ' + avg.toFixed(2) + ')</span><button onclick="delSubject(\'' + subj.replace(/'/g,'') + '\')">✕</button></div>';
+    html += '<div class="grade-row"><span><b>' + subj + '</b>: ' + arr.join(' ') + ' (ср. ' + avg.toFixed(2) + ')</span><button onclick="delSubject(\'' + subj.replace(/'/g,'') + '\')">✕</button></div>';
   }
   document.getElementById('gList').innerHTML = html || '<div class="item">Пока нет оценок. Добавь первую! 👇</div>';
   document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
@@ -426,33 +404,42 @@ function addGrade() {
   const g = loadGrades();
   if (!g[subj]) g[subj] = [];
   g[subj].push(val);
-  saveGrades(g); renderGrades();
-  gAiDone = false;
-  gradesByAI(document.getElementById('gBtn'));
+  saveGrades(g); renderGrades(); gradesAI();
 }
-function delSubject(subj) { const g = loadGrades(); delete g[subj]; saveGrades(g); renderGrades(); gAiDone = false; }
-function clearGrades() { if (confirm('Удалить все оценки?')) { localStorage.removeItem('sn_grades'); renderGrades(); document.getElementById('gAi').innerHTML=''; gAiDone=false; } }
-async function gradesByAI(btn) {
+function delSubject(subj) { const g = loadGrades(); delete g[subj]; saveGrades(g); renderGrades(); }
+function clearGrades() { if (confirm('Удалить все оценки?')) { localStorage.removeItem('sn_grades'); renderGrades(); document.getElementById('gAi').innerHTML = ''; } }
+function gradesAI() {
   const g = loadGrades();
-  if (!Object.keys(g).length) return;
-  let desc = '';
-  for (const s in g) desc += s + ': ' + g[s].join(', ') + ' (средний ' + (g[s].reduce((a,b)=>a+b,0)/g[s].length).toFixed(2) + ')\n';
-  aiState(btn, true);
-  try {
-    const res = await askAI('Вот оценки ученика:\n' + desc + '\nПроанализируй: сильные стороны, слабые предметы, 3 совета по улучшению. Без Markdown и LaTeX.');
-    document.getElementById('gAi').innerHTML = '<div class="item ai">🤖 <b>Анализ от ИИ:</b>\n' + escapeHtml(cleanAiText(res)) + '</div>';
-    gAiDone = true;
-  } catch (e) {
-    document.getElementById('gAi').innerHTML = '<div class="item">😔 ИИ-анализ недоступен. Проверь прокси (proxy_server.py, порт 8000).</div>';
-  } finally { aiState(btn, false); }
+  const keys = Object.keys(g);
+  if (!keys.length) { document.getElementById('gAi').innerHTML = '<div class="item">Сначала добавь хотя бы одну оценку 👆</div>'; return; }
+  const avgs = {};
+  for (const s in g) avgs[s] = g[s].reduce((a,b)=>a+b,0)/g[s].length;
+  const best = Object.keys(avgs).reduce((a,b)=>avgs[a]>avgs[b]?a:b);
+  const worst = Object.keys(avgs).reduce((a,b)=>avgs[a]<avgs[b]?a:b);
+  const overall = Object.values(avgs).reduce((a,b)=>a+b,0)/Object.values(avgs).length;
+  let txt = '🤖 Анализ ИИ:\n';
+  txt += 'Общий средний: ' + overall.toFixed(2) + '.\n';
+  txt += '💪 Сильная сторона: ' + best + ' (' + avgs[best].toFixed(2) + ').\n';
+  txt += '📚 Требует внимания: ' + worst + ' (' + avgs[worst].toFixed(2) + ').\n';
+  txt += overall >= 4.5 ? '🌟 Держи темп и добавляй сложные задачи!' :
+        (overall >= 3.5 ? '✅ 20 минут в день по слабым темам — и будет 4.5+.' :
+        '💪 Начни с базовых тем по «' + worst + '».');
+  document.getElementById('gAi').innerHTML = '<div class="item ai">' + txt + '</div>';
 }
 
-// ===== КАРТОЧКИ =====
-let flashPair = null, flashFlipped = false, aiCards = [];
-function currentCards() { return aiCards.length ? aiCards : ENG_WORDS; }
+const CARD_TOPICS = {
+  'школа': [['book','книга'],['teacher','учитель'],['lesson','урок'],['homework','домашка'],['grade','оценка'],['desk','парта']],
+  'еда': [['apple','яблоко'],['bread','хлеб'],['milk','молоко'],['cheese','сыр'],['juice','сок'],['cake','торт']],
+  'путешествия': [['ticket','билет'],['hotel','отель'],['map','карта'],['beach','пляж'],['flight','рейс'],['luggage','багаж']],
+  'животные': [['cat','кошка'],['dog','собака'],['bird','птица'],['horse','лошадь'],['bear','медведь'],['fox','лиса']],
+};
+let flashCards = CARD_TOPICS['школа'], flashPair = null, flashFlipped = false;
+function setFlashTopic() {
+  flashCards = CARD_TOPICS[document.getElementById('fTopic').value] || CARD_TOPICS['школа'];
+  nextCard();
+}
 function nextCard() {
-  const cards = currentCards();
-  flashPair = cards[Math.floor(Math.random()*cards.length)];
+  flashPair = flashCards[Math.floor(Math.random()*flashCards.length)];
   flashFlipped = false;
   document.getElementById('flashCard').textContent = flashPair[0];
 }
@@ -461,90 +448,92 @@ function flipCard() {
   flashFlipped = !flashFlipped;
   document.getElementById('flashCard').textContent = flashFlipped ? flashPair[1] : flashPair[0];
 }
-async function flashByAI(btn) {
-  const topic = document.getElementById('fTopic').value.trim() || 'школа';
-  aiState(btn, true);
-  try {
-    const res = await askAI('Сделай 6 карточек английских слов по теме «' + topic + '». Ответь СТРОГО JSON массив пар: [["слово","перевод"],...]', ' Отвечай только валидным JSON.');
-    const arr = extractJSON(res);
-    if (Array.isArray(arr) && arr.length) {
-      aiCards = arr.filter(p => Array.isArray(p) && p.length === 2);
-      nextCard();
-    }
-  } catch (e) {
-    if (!aiCards.length) document.getElementById('flashCard').textContent = '😔 ИИ недоступен — использую стандартные карточки';
-  } finally { aiState(btn, false); }
-}
 
-// ===== РАСКЛАДКА =====
 const EN_RU = {'q':'й','w':'ц','e':'у','r':'к','t':'е','y':'н','u':'г','i':'ш','o':'щ','p':'з','[':'х',']':'ъ','a':'ф','s':'ы','d':'в','f':'а','g':'п','h':'р','j':'о','k':'л','l':'д',';':'ж','\'':'э','z':'я','x':'ч','c':'с','v':'м','b':'и','n':'т','m':'ь',',':'б','.':'ю','/':'.'};
 const RU_EN = {}; for (const k in EN_RU) RU_EN[EN_RU[k]] = k;
-async function fixLayout(btn) {
-  const text = document.getElementById('lInput').value.trim();
-  if (!text) { alert('Вставь текст'); return; }
-  aiState(btn, true);
-  try {
-    const res = await askAI('Текст мог быть набран в неправильной раскладке или с опечатками. Верни ТОЛЬКО исправленный текст на правильном языке, без пояснений: «' + text + '»');
-    document.getElementById('lOutput').value = res.trim();
-  } catch (e) {
-    const latin = (text.match(/[a-zA-Z]/g)||[]).length;
-    const cyr = (text.match(/[а-яА-ЯёЁ]/g)||[]).length;
-    const map = latin >= cyr ? EN_RU : RU_EN;
-    document.getElementById('lOutput').value = text.split('').map(c => map[c] || c).join('');
-  } finally { aiState(btn, false); }
+function fixLayout() {
+  const text = document.getElementById('lInput').value;
+  const latin = (text.match(/[a-zA-Z]/g)||[]).length;
+  const cyr = (text.match(/[а-яА-ЯёЁ]/g)||[]).length;
+  const map = latin >= cyr ? EN_RU : RU_EN;
+  document.getElementById('lOutput').value = text.split('').map(c => map[c] || c).join('');
 }
 
-// ===== ВИДЕО =====
-async function buildVideo(btn) {
+const EXPLAIN_KB = [
+  ['фотосинтез', 'Фотосинтез — растения из света, воды и CO₂ делают сахар и выделяют кислород. 🌱 Лист на солнце = мини-фабрика еды.'],
+  ['дроб', 'Дробь — часть целого. 1/2 — половина. 🍕 Пицца на 4 куска, взял 1 = 1/4.'],
+  ['уравнен', 'Уравнение — равенство с неизвестным. Решить = найти значение. x+2=5 → x=3.'],
+  ['глагол', 'Глагол — часть речи, обозначающая действие: бежать, думать. ✍️'],
+  ['атом', 'Атом — ядро (протоны+нейтроны) и электроны вокруг. ⚛️'],
+  ['процент', 'Процент — сотая часть. 50% от 200 = 100. 💯'],
+];
+function buildVideo() {
   const topicRaw = document.getElementById('vTopic').value.trim() || 'математика';
   const topic = encodeURIComponent(topicRaw);
+  const t = topicRaw.toLowerCase();
+  let explain = 'Тема «' + topicRaw + '»: начни с определения, разбери примеры, реши задачу сам.';
+  for (const [k, v] of EXPLAIN_KB) if (t.includes(k)) { explain = v; break; }
+  document.getElementById('vAi').innerHTML = '<div class="item ai">🎓 <b>Объяснение:</b>\n' + explain + '</div>';
   document.getElementById('videoResult').innerHTML =
-    '<a class="link-item" target="_blank" href="https://rutube.ru/search/?q=' + topic + '">▶️ RuTube: уроки</a>' +
-    '<a class="link-item" target="_blank" href="https://vk.com/video?q=' + topic + '">▶️ VK Видео: уроки</a>' +
-    '<a class="link-item" target="_blank" href="https://www.youtube.com/results?search_query=' + topic + '">▶️ YouTube: уроки</a>';
-  document.getElementById('vAi').innerHTML = '<div class="item">⏳ ИИ объясняет тему...</div>';
-  try {
-    const res = await askAI('Кратко (3–4 предложения) объясни школьнику тему «' + topicRaw + '» простыми словами с примером. Без Markdown и LaTeX.');
-    document.getElementById('vAi').innerHTML = '<div class="item ai">🎓 <b>Объяснение от ИИ:</b>\n' + escapeHtml(cleanAiText(res)) + '</div>';
-  } catch (e) {
-    document.getElementById('vAi').innerHTML = '<div class="item">😔 ИИ-объяснение недоступно. Смотри видео по ссылкам выше.</div>';
-  }
+    '<a class="link-item" target="_blank" href="https://rutube.ru/search/?q=' + topic + '">▶️ RuTube</a>' +
+    '<a class="link-item" target="_blank" href="https://vk.com/video?q=' + topic + '">▶️ VK Видео</a>' +
+    '<a class="link-item" target="_blank" href="https://www.youtube.com/results?search_query=' + topic + '">▶️ YouTube</a>';
 }
 
-// ===== МОТИВАЦИЯ =====
-let motivationLoaded = false;
-const QUOTES = [
-  'Ошибка — это не провал, а подсказка, куда двигаться дальше. 🌱',
-  '15 минут сегодня сильнее, чем 3 часа «с понедельника». ⏰',
-  'Ты не обязан быть лучшим. Ты обязан быть лучше, чем вчера. 💪'
-];
-async function motivationByAI(btn) {
-  aiState(btn, true);
-  try {
-    const res = await askAI('Школьник устал и переживает из-за учёбы и экзаменов. Поддержи его 2–3 тёплыми предложениями, как старший друг, без банальностей. Без Markdown.');
-    document.getElementById('quoteBox').textContent = res.trim();
-    motivationLoaded = true;
-  } catch (e) {
-    document.getElementById('quoteBox').textContent = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-  } finally { aiState(btn, false); }
+const SUPPORT = {
+  tired: ['Отдых — часть учёбы, а не награда. 😴 20 минут тишины — и вернёшься сильнее.'],
+  worried: ['Волнение — значит, не всё равно. Открой «План» — и страх станет расписанием.'],
+  lazy: ['Лень — сигнал: задача слишком большая. 🧩 Разрежь на 10-минутные кусочки.'],
+  ok: ['Отличное состояние! 🚀 Учи новое — мозг свежий. Поставь рекорд в тренажёре!'],
+};
+function motivationAI() {
+  const mood = document.getElementById('mMood').value;
+  const arr = SUPPORT[mood];
+  document.getElementById('quoteBox').textContent = arr[Math.floor(Math.random()*arr.length)];
 }
 
-// ===== О БОТЕ =====
-async function askAbout(btn) {
-  aiState(btn, true);
+// ===== ЧАТ =====
+function addMsg(text, cls) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = 'msg ' + cls; div.textContent = text;
+  box.appendChild(div); box.scrollTop = box.scrollHeight;
+  return div;
+}
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addMsg(text, 'user');
+  setTimeout(() => addMsg(chatReply(text), 'bot'), 300);
+}
+function clearChat() {
+  document.getElementById('chatBox').innerHTML = '';
+  addMsg('Привет! Я ИИ-наставник. Спроси про учёбу 🎓', 'bot');
+}
+
+function go(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // Обновляем Back Button в MAX
   try {
-    const res = await askAI('Кратко расскажи, что такое проект Sferum Navigator: ИИ-наставник для школьников в мессенджере MAX на базе GigaChat, мини-приложение с планировщиком, тренажёрами и дневником. 4–5 предложений, без Markdown.');
-    document.getElementById('aResult').innerHTML = '<div class="item ai">🤖 ' + escapeHtml(cleanAiText(res)) + '</div>';
-  } catch (e) {
-    document.getElementById('aResult').innerHTML = '<div class="item">Sferum Navigator — ИИ-наставник для школьников в MAX на базе GigaChat.</div>';
-  } finally { aiState(btn, false); }
+    if (window.WebApp && window.WebApp.BackButton) {
+      if (id === 'home') window.WebApp.BackButton.hide();
+      else window.WebApp.BackButton.show();
+    }
+  } catch(e) {}
 }
 
 // ===== СТАРТ =====
-renderGrades();
-nextCard();
-newQuestion();
-clearChat();
+window.addEventListener('DOMContentLoaded', () => {
+  initMaxBridge();
+  handleDeeplinks();
+  renderGrades();
+  nextCard();
+  newQuestion();
+  clearChat();
+});
 </script>
 </body>
 </html>
