@@ -53,6 +53,7 @@
   .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
   .msg.user { background: #667eea; color: #fff; margin-left: auto; }
   .msg.bot { background: #fff; border: 1px solid #e0e0e8; }
+  .msg.sys { background: #d4f7d4; border: 1px solid #4caf50; font-size: 14px; }
   .msg.loading { background: #fff8e1; border: 1px solid #f7971e; text-align: center; }
   .chat-input { display: flex; gap: 8px; margin-top: 10px; }
   .chat-input input { flex: 1; }
@@ -81,7 +82,7 @@
   <div id="chat" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🤖 Чат с GigaChat</h1>
-    <div class="subtitle">Задавай любые вопросы</div>
+    <div class="subtitle">Расскажешь про оценки — сам запишу в дневник</div>
     <div class="chat-box" id="chatBox"></div>
     <div class="chat-input">
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -203,8 +204,10 @@
       <option value="tired">Устал</option><option value="worried">Переживаю</option>
       <option value="lazy">Лень</option><option value="ok">Нормально</option>
     </select>
-    <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи от GigaChat</button>
-    <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
+    <label>✍️ Что случилось? (необязательно)</label>
+    <textarea id="mText" rows="3" placeholder="Расскажи своими словами: что случилось, почему так чувствуешь..."></textarea>
+    <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
+    <div class="quote" id="quoteBox">Выбери настроение, расскажи ситуацию и нажми кнопку 👆</div>
   </div>
 
   <div id="about" class="page">
@@ -214,8 +217,8 @@
       <b>Sferum Navigator</b> — ИИ-наставник в мессенджере MAX на базе GigaChat от Сбера.
       <ul>
         <li>🤖 Все функции работают через GigaChat</li>
+        <li>📚 Чат сам записывает оценки в дневник</li>
         <li>🔒 Защищённый прокси для работы из браузера</li>
-        <li>📝 Метод Сократа в домашке</li>
         <li>📱 Мини-апп в MAX и на сайте</li>
       </ul>
     </div>
@@ -325,7 +328,57 @@ function videoLinks(topic) {
 }
 function todayIdx() { return (new Date().getDay() + 6) % 7; }
 
-// ===== ЧАТ =====
+// ===== СЛОВАРЬ ПРЕДМЕТОВ (общий для чата и дневника) =====
+const SUBJ_ALIASES = [
+  ['Физкультура', ['физр', 'физкульт', 'физ-ра']],
+  ['Физика', ['физик']],
+  ['Математика', ['матан', 'матем', 'алгебр', 'геометр']],
+  ['Информатика', ['информ', 'инфа', 'комп', 'программ']],
+  ['Английский язык', ['англ', 'инглиш', 'english']],
+  ['Немецкий язык', ['немец', 'герман']],
+  ['Испанский язык', ['испан']],
+  ['Русский язык', ['русск', 'рус язы']],
+  ['Литература', ['литер', 'лит-ра']],
+  ['Химия', ['хим']],
+  ['Биология', ['био', 'биолог']],
+  ['История', ['истор']],
+  ['Обществознание', ['обществ']],
+  ['География', ['географ', 'геогр']],
+];
+function localSubject(text) {
+  const t = text.toLowerCase();
+  for (const [name, keys] of SUBJ_ALIASES) {
+    for (const k of keys) if (t.includes(k)) return name;
+  }
+  return null;
+}
+function extractGradesLocal(text) {
+  const subj = localSubject(text);
+  const grades = (text.match(/\b[1-5]\b/g) || []).map(Number);
+  if (subj && grades.length) return { subject: subj, grades };
+  return null;
+}
+const GRADE_TRIGGERS = /оценк|получил|получила|поставили|поставил|заработал|заработала|балл|отметк|вышел ответ|результат контрольной/i;
+
+function loadG() { try { return JSON.parse(localStorage.getItem('g') || '{}'); } catch(e) { return {}; } }
+function saveG(g) { localStorage.setItem('g', JSON.stringify(g)); }
+function addGradeToStorage(parsed) {
+  const g = loadG();
+  if (!g[parsed.subject]) g[parsed.subject] = [];
+  g[parsed.subject] = g[parsed.subject].concat(parsed.grades);
+  saveG(g);
+  renderG();
+}
+function renderG() {
+  const g = loadG(); let h = '', all = [];
+  for (const s in g) { const a = g[s]; all = all.concat(a); const avg = a.reduce((x,y)=>x+y,0)/a.length;
+    h += '<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';
+  }
+  document.getElementById('gList').innerHTML = h || '<div class="item">Напиши оценки своими словами — определим предмет 👆</div>';
+  document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
+}
+
+// ===== ЧАТ: сам ловит оценки и пишет в дневник =====
 let chatHistory = [];
 function addMsg(t, c) {
   const b = document.getElementById('chatBox');
@@ -334,21 +387,51 @@ function addMsg(t, c) {
   b.appendChild(d); b.scrollTop = b.scrollHeight;
   return d;
 }
+async function tryParseGradesViaGiga(text) {
+  const digits = (text.match(/\b[1-5]\b/g) || []).length;
+  if (!digits || !GRADE_TRIGGERS.test(text)) return null;
+  try {
+    const response = await askGiga('Ученик написал: «' + text + '». Если это сообщение про школьные оценки — определи предмет (полное название по-русски) и список оценок (числа 1-5). Предмет бери СТРОГО из текста. Верни СТРОГО JSON: {"subject":"...","grades":[...]}. Если сообщение НЕ про оценки — верни {"subject":null,"grades":[]}.', 'Верни только валидный JSON, без пояснений.', 300);
+    const obj = parseJSONObjectSafe(response);
+    if (obj && obj.subject && Array.isArray(obj.grades) && obj.grades.length) {
+      return { subject: obj.subject, grades: obj.grades.filter(g => g >= 1 && g <= 5) };
+    }
+  } catch (e) {}
+  return null;
+}
 async function sendChat() {
   const i = document.getElementById('chatInput');
   const t = i.value.trim(); if (!t) return;
   i.value = '';
   addMsg(t, 'user');
+
+  // 1) Быстрая локальная проверка: предмет + цифры
+  const local = extractGradesLocal(t);
+  if (local) {
+    addGradeToStorage(local);
+    addMsg('📚 Записал в дневник: ' + local.subject + ' → ' + local.grades.join(', '), 'sys');
+  }
+
+  // 2) Обычный ответ GigaChat
   const loading = addMsg('⏳ Думаю...', 'loading');
   document.getElementById('chatBtn').disabled = true;
   try {
     chatHistory.push({ role: 'user', content: t });
-    const response = await askGiga(t, 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни контекст разговора.');
+    const response = await askGiga(t, 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни контекст разговора. Если ученик рассказывает про свои оценки — порадуйся или поддержи его.');
     const cleaned = cleanResponse(response);
     loading.remove();
     addMsg(cleaned, 'bot');
     chatHistory.push({ role: 'assistant', content: cleaned });
     if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+
+    // 3) Если локально не распознали, но похоже на оценки — пробуем через GigaChat
+    if (!local) {
+      const parsed = await tryParseGradesViaGiga(t);
+      if (parsed) {
+        addGradeToStorage(parsed);
+        addMsg('📚 Записал в дневник: ' + parsed.subject + ' → ' + parsed.grades.join(', '), 'sys');
+      }
+    }
   } catch (e) {
     loading.remove();
     addMsg('❌ Ошибка: ' + e.message, 'bot');
@@ -359,10 +442,10 @@ async function sendChat() {
 function clearChat() {
   chatHistory = [];
   document.getElementById('chatBox').innerHTML = '';
-  addMsg('Привет! Я GigaChat. Спроси про учёбу 🎓', 'bot');
+  addMsg('Привет! Я GigaChat. Спроси про учёбу или расскажи про оценки 🎓', 'bot');
 }
 
-// ===== ПЛАН: ИИ сам решает логику расписания =====
+// ===== ПЛАН =====
 function examInfo(grade, examText) {
   const now = new Date();
   const t = (examText || '').toLowerCase();
@@ -430,7 +513,7 @@ async function buildPlan() {
   btn.disabled = true;
   showLoading('planResult', 'GigaChat продумывает логику плана...');
   try {
-    const prompt = 'Ученик ' + grade + ' класса собирается сдавать: ' + examText + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\n\nСАМ продумай, как ЛОГИЧНЕЕ и ЭФФЕКТИВНЕЕ составить расписание на неделю: реши, какие предметы в какие дни ставить (чередуй сложное и лёгкое, учитывай слабые места, ставь сложные предметы на свежие дни), какие дни сделать отдыхом (исходя из ' + days + ' дней в неделю), и какую конкретную тему изучать в каждый день. Обоснуй выбор в activity.\nТакже составь план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет или отдых","topic":"тема дня","activity":"что делать и почему"},{"day":"Вт",...}...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
+    const prompt = 'Ученик ' + grade + ' класса собирается сдавать: ' + examText + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\n\nСАМ продумай, как ЛОГИЧНЕЕ и ЭФФЕКТИВНЕЕ составить расписание на неделю: реши, какие предметы в какие дни ставить (чередуй сложное и лёгкое, учитывай слабые места), какие дни сделать отдыхом (исходя из ' + days + ' дней в неделю), и какую конкретную тему изучать в каждый день. Обоснуй выбор в activity.\nТакже составь план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет или отдых","topic":"тема дня","activity":"что делать и почему"},{"day":"Вт",...}...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
     const response = await askGiga(prompt, 'Ты — эксперт по педагогике и подготовке к экзаменам. Верни только валидный JSON, без markdown.', 3000);
     let data = parseJSONObjectSafe(response);
     if (!data || (!data.steps && !data.schedule)) data = { text: response };
@@ -467,7 +550,7 @@ function videoTodayFromPlan() {
   buildVideo();
 }
 
-// ===== ТРЕНАЖЁР: класс + тип (примеры/задачи) =====
+// ===== ТРЕНАЖЁР =====
 let qC = 0, qT = 0, qCurrent = null, qAnswered = false, qQueue = [], qLastTopic = '';
 function normalize(s) {
   return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();
@@ -577,40 +660,7 @@ function checkAnswer() {
   updateNextLabel();
 }
 
-// ===== ДНЕВНИК: жёсткий словарь сленга ПЕРЕД GigaChat =====
-const SUBJ_ALIASES = [
-  ['Физкультура', ['физр', 'физкульт', 'физ-ра']],
-  ['Физика', ['физик']],
-  ['Математика', ['матан', 'матем', 'алгебр', 'геометр']],
-  ['Информатика', ['информ', 'инфа', 'комп', 'программ']],
-  ['Английский язык', ['англ', 'инглиш', 'english']],
-  ['Немецкий язык', ['немец', 'герман']],
-  ['Испанский язык', ['испан']],
-  ['Русский язык', ['русск', 'рус язы']],
-  ['Литература', ['литер', 'лит-ра']],
-  ['Химия', ['хим']],
-  ['Биология', ['био', 'биолог']],
-  ['История', ['истор']],
-  ['Обществознание', ['обществ']],
-  ['География', ['географ', 'геогр']],
-];
-function localSubject(text) {
-  const t = text.toLowerCase();
-  for (const [name, keys] of SUBJ_ALIASES) {
-    for (const k of keys) if (t.includes(k)) return name;
-  }
-  return null;
-}
-function loadG() { try { return JSON.parse(localStorage.getItem('g') || '{}'); } catch(e) { return {}; } }
-function saveG(g) { localStorage.setItem('g', JSON.stringify(g)); }
-function renderG() {
-  const g = loadG(); let h = '', all = [];
-  for (const s in g) { const a = g[s]; all = all.concat(a); const avg = a.reduce((x,y)=>x+y,0)/a.length;
-    h += '<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';
-  }
-  document.getElementById('gList').innerHTML = h || '<div class="item">Напиши оценки своими словами — определим предмет 👆</div>';
-  document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
-}
+// ===== ДНЕВНИК =====
 async function addGradeAI() {
   const text = document.getElementById('gText').value.trim();
   if (!text) return alert('Напиши, например: инфа 5 5 5');
@@ -643,10 +693,7 @@ async function addGradeAI() {
     btn.disabled = false;
     return;
   }
-  const g = loadG();
-  if (!g[subject]) g[subject] = [];
-  g[subject] = g[subject].concat(grades);
-  saveG(g); renderG();
+  addGradeToStorage({ subject, grades });
   document.getElementById('gText').value = '';
   document.getElementById('gAi').innerHTML = '<div class="item ai">✅ Записано: ' + subject + ' → ' + grades.join(', ') + '</div>';
   btn.disabled = false;
@@ -694,15 +741,22 @@ async function buildVideo() {
   }
 }
 
-// ===== МОТИВАЦИЯ =====
+// ===== МОТИВАЦИЯ: настроение + своя ситуация =====
 async function motivationAI() {
   const mood = document.getElementById('mMood').value;
   const moodText = {tired:'Устал', worried:'Переживаю', lazy:'Лень', ok:'Нормально'}[mood];
+  const situation = document.getElementById('mText').value.trim();
   const btn = document.getElementById('mBtn');
   btn.disabled = true;
-  document.getElementById('quoteBox').textContent = '⏳ GigaChat подбирает поддержку...';
+  document.getElementById('quoteBox').textContent = '⏳ GigaChat читает и подбирает поддержку...';
   try {
-    const response = await askGiga('Школьник чувствует: ' + moodText + '. Поддержи его 2-3 тёплыми предложениями, как старший друг, без банальностей.');
+    let prompt;
+    if (situation) {
+      prompt = 'Школьник чувствует себя: ' + moodText + '. Он рассказал о своей ситуации: «' + situation + '». Ответь на конкретику его ситуации: поддержи 3-4 тёплыми предложениями как старший друг, покажи, что ты услышал его, и дай один мягкий совет. Без банальностей и Markdown.';
+    } else {
+      prompt = 'Школьник чувствует: ' + moodText + '. Поддержи его 2-3 тёплыми предложениями, как старший друг, без банальностей.';
+    }
+    const response = await askGiga(prompt);
     document.getElementById('quoteBox').textContent = cleanResponse(response);
   } catch (e) {
     document.getElementById('quoteBox').textContent = '❌ Ошибка: ' + e.message;
