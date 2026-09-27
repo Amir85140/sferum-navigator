@@ -30,6 +30,8 @@
   .item.loading { background: #fff8e1; border-left-color: #f7971e; text-align: center; }
   .row2 { display: flex; gap: 10px; }
   .row2 > * { flex: 1; }
+  .row3 { display: flex; gap: 8px; }
+  .row3 > * { flex: 1; }
   .mini-link { display: inline-block; margin: 4px 6px 0 0; font-size: 12px; color: #667eea; text-decoration: none; background: #eef; padding: 4px 8px; border-radius: 8px; }
   .sched-row { display: flex; justify-content: space-between; gap: 8px; background: #f7f7fc; border-radius: 10px; padding: 10px 12px; margin-top: 6px; font-size: 14px; align-items: center; }
   .sched-row.today { background: #fff8e1; border: 2px solid #f7971e; font-weight: 700; }
@@ -131,13 +133,33 @@
     <div class="subtitle">Пак из 10 заданий с письменным ответом</div>
     <label>📚 Предмет или тема</label>
     <input type="text" id="qTopic" placeholder="Например: математика, дроби, фотосинтез">
-    <label>🎚 Сложность</label>
-    <select id="qDiff">
-      <option value="лёгкая">Лёгкая (разминка)</option>
-      <option value="средняя" selected>Средняя (как в школе)</option>
-      <option value="сложная">Сложная (ОГЭ/ЕГЭ)</option>
-      <option value="смешанная">Смешанная</option>
-    </select>
+    <div class="row3">
+      <div>
+        <label>🎓 Класс</label>
+        <select id="qGrade">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          <option value="10">10</option><option value="11">11</option>
+        </select>
+      </div>
+      <div>
+        <label>🧩 Тип</label>
+        <select id="qType">
+          <option value="примеры">Примеры</option>
+          <option value="задачи">Задачи</option>
+          <option value="смешанные" selected>Смешанные</option>
+        </select>
+      </div>
+      <div>
+        <label>🎚 Сложность</label>
+        <select id="qDiff">
+          <option value="лёгкая">Лёгкая</option>
+          <option value="средняя" selected>Средняя</option>
+          <option value="сложная">Сложная</option>
+        </select>
+      </div>
+    </div>
     <button class="btn" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
     <div class="quiz-q" id="quizQ">Введи предмет и нажми кнопку 👆</div>
     <div class="hint" id="quizHint"></div>
@@ -156,7 +178,7 @@
     <div class="avg" id="gAvg">—</div>
     <div id="gList"></div>
     <label>✍️ Напиши предмет и оценки своими словами</label>
-    <input type="text" id="gText" placeholder="Например: матан 5 5 5 / по физике получил 4 и 3">
+    <input type="text" id="gText" placeholder="Например: инфа 5 5 5 / по физре получил 4">
     <button class="btn" id="gAddBtn" onclick="addGradeAI()">🤖 Добавить через GigaChat</button>
     <button class="btn" id="gBtn" onclick="gradesAI()">🤖 Анализ успеваемости</button>
     <button class="btn gray" onclick="clearGrades()">🗑 Очистить всё</button>
@@ -278,8 +300,6 @@ async function ensureSpaces(text) {
     return (fixed || text).trim();
   } catch (e) { return text; }
 }
-
-// ===== ПОЧИНКА ОБРЕЗАННОГО JSON =====
 function parseJSONArraySafe(text) {
   const match = text.match(/\[[\s\S]*\]/);
   if (!match) throw new Error('Ответ не JSON');
@@ -297,7 +317,6 @@ function parseJSONObjectSafe(text) {
   if (!match) return null;
   try { return JSON.parse(match[0]); } catch (e) { return null; }
 }
-
 function videoLinks(topic) {
   const t = encodeURIComponent(topic);
   return '<a class="mini-link" target="_blank" href="https://rutube.ru/search/?q='+t+'">▶ RuTube</a>'+
@@ -343,7 +362,7 @@ function clearChat() {
   addMsg('Привет! Я GigaChat. Спроси про учёбу 🎓', 'bot');
 }
 
-// ===== ПЛАН: расписание по дням С ТЕМАМИ + переходы =====
+// ===== ПЛАН: ИИ сам решает логику расписания =====
 function examInfo(grade, examText) {
   const now = new Date();
   const t = (examText || '').toLowerCase();
@@ -372,7 +391,7 @@ function renderPlan(data) {
          (data.savedAt ? '\n💾 Сохранён: ' + data.savedAt + ' — живёт, пока не изменишь' : '') + '</div>';
   }
   if (data.schedule && data.schedule.length) {
-    h += '<div class="item ai">📆 Расписание по дням (каждую неделю одинаковое):</div>';
+    h += '<div class="item ai">📆 Расписание на неделю (логика ИИ):</div>';
     const ti = todayIdx();
     data.schedule.forEach((s, i) => {
       h += '<div class="sched-row' + (i === ti ? ' today' : '') + '"><span>' + (s.day || DAYS[i]) + (i === ti ? ' 👉' : '') + '</span><b>' + (s.subject || '') + '</b><span class="act">' + (s.topic || '') + (s.activity ? ' · ' + s.activity : '') + '</span></div>';
@@ -409,10 +428,10 @@ async function buildPlan() {
   const ei = examInfo(grade, examText);
   const btn = document.getElementById('planBtn');
   btn.disabled = true;
-  showLoading('planResult', 'GigaChat составляет план до ' + ei.name + '...');
+  showLoading('planResult', 'GigaChat продумывает логику плана...');
   try {
-    const prompt = 'Ученик ' + grade + ' класса собирается сдавать: ' + examText + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\nСоставь:\n1) Регулярное расписание по дням недели (Пн-Вс): один предмет в день, для каждого дня ужи конкретную тему этого дня (topic). В дни без занятий (учитывай ' + days + ' дней в неделю) пиши subject="отдых". Расписание повторяется каждую неделю.\n2) План из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет","topic":"тема дня","activity":"что делать"},{"day":"Вт",...}...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
-    const response = await askGiga(prompt, 'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.', 3000);
+    const prompt = 'Ученик ' + grade + ' класса собирается сдавать: ' + examText + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\n\nСАМ продумай, как ЛОГИЧНЕЕ и ЭФФЕКТИВНЕЕ составить расписание на неделю: реши, какие предметы в какие дни ставить (чередуй сложное и лёгкое, учитывай слабые места, ставь сложные предметы на свежие дни), какие дни сделать отдыхом (исходя из ' + days + ' дней в неделю), и какую конкретную тему изучать в каждый день. Обоснуй выбор в activity.\nТакже составь план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет или отдых","topic":"тема дня","activity":"что делать и почему"},{"day":"Вт",...}...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
+    const response = await askGiga(prompt, 'Ты — эксперт по педагогике и подготовке к экзаменам. Верни только валидный JSON, без markdown.', 3000);
     let data = parseJSONObjectSafe(response);
     if (!data || (!data.steps && !data.schedule)) data = { text: response };
     data.examName = ei.name;
@@ -448,13 +467,13 @@ function videoTodayFromPlan() {
   buildVideo();
 }
 
-// ===== ТРЕНАЖЁР =====
+// ===== ТРЕНАЖЁР: класс + тип (примеры/задачи) =====
 let qC = 0, qT = 0, qCurrent = null, qAnswered = false, qQueue = [], qLastTopic = '';
 function normalize(s) {
   return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();
 }
-async function fetchBatch(topic, diff, n) {
-  const prompt = 'Придумай ' + n + ' разных учебных заданий по предмету/теме «' + topic + '» (сложность: ' + diff + '), от простых к сложным. Ответы короткие и однозначные (слово, число, формула). Не давай вариантов ответа. Формулируй КОРОТКО (вопрос до 120 символов). Пиши обязательно с пробелами между словами. Верни СТРОГО JSON-массив: [{"question":"...","answer":"...","alternatives":["..."],"hint":"..."}]';
+async function fetchBatch(topic, diff, n, grade, type) {
+  const prompt = 'Придумай ' + n + ' разных учебных заданий для ученика ' + grade + ' класса по предмету/теме «' + topic + '». Тип заданий: ' + type + ' (примеры — короткие вычисления, задачи — сюжетные с условием). Сложность: ' + diff + '. От простых к сложным. Ответы короткие и однозначные (слово, число, формула). Не давай вариантов ответа. Формулируй КОРОТКО (вопрос до 120 символов). Пиши обязательно с пробелами между словами. Верни СТРОГО JSON-массив: [{"question":"...","answer":"...","alternatives":["..."],"hint":"..."}]';
   let lastErr;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
@@ -494,16 +513,18 @@ async function startQuiz() {
   if (!topic) return alert('Напиши предмет или тему');
   qLastTopic = topic;
   const diff = document.getElementById('qDiff').value;
+  const grade = document.getElementById('qGrade').value;
+  const type = document.getElementById('qType').value;
   const btn = document.getElementById('quizBtn');
   btn.disabled = true;
   qQueue = [];
-  document.getElementById('quizQ').textContent = '⏳ GigaChat генерирует 10 заданий по «' + topic + '»...';
+  document.getElementById('quizQ').textContent = '⏳ GigaChat генерирует 10 заданий (' + grade + ' класс, ' + type + ')...';
   document.getElementById('quizHint').textContent = '';
   document.getElementById('quizResult').innerHTML = '';
   document.getElementById('quizAnswerBox').style.display = 'none';
   document.getElementById('nextBtn').style.display = 'none';
   try {
-    const arr = await fetchBatch(topic, diff, 10);
+    const arr = await fetchBatch(topic, diff, 10, grade, type);
     qQueue = arr.slice(1);
     showQuestion(arr[0]);
   } catch (e) {
@@ -521,10 +542,12 @@ async function nextQuestion() {
     return;
   }
   const diff = document.getElementById('qDiff').value;
+  const grade = document.getElementById('qGrade').value;
+  const type = document.getElementById('qType').value;
   document.getElementById('quizQ').textContent = '⏳ Генерируем ещё 10 заданий...';
   document.getElementById('quizAnswerBox').style.display = 'none';
   try {
-    const arr = await fetchBatch(qLastTopic || 'математика', diff, 10);
+    const arr = await fetchBatch(qLastTopic || 'математика', diff, 10, grade, type);
     qQueue = arr.slice(1);
     showQuestion(arr[0]);
   } catch (e) {
@@ -554,7 +577,30 @@ function checkAnswer() {
   updateNextLabel();
 }
 
-// ===== ДНЕВНИК =====
+// ===== ДНЕВНИК: жёсткий словарь сленга ПЕРЕД GigaChat =====
+const SUBJ_ALIASES = [
+  ['Физкультура', ['физр', 'физкульт', 'физ-ра']],
+  ['Физика', ['физик']],
+  ['Математика', ['матан', 'матем', 'алгебр', 'геометр']],
+  ['Информатика', ['информ', 'инфа', 'комп', 'программ']],
+  ['Английский язык', ['англ', 'инглиш', 'english']],
+  ['Немецкий язык', ['немец', 'герман']],
+  ['Испанский язык', ['испан']],
+  ['Русский язык', ['русск', 'рус язы']],
+  ['Литература', ['литер', 'лит-ра']],
+  ['Химия', ['хим']],
+  ['Биология', ['био', 'биолог']],
+  ['История', ['истор']],
+  ['Обществознание', ['обществ']],
+  ['География', ['географ', 'геогр']],
+];
+function localSubject(text) {
+  const t = text.toLowerCase();
+  for (const [name, keys] of SUBJ_ALIASES) {
+    for (const k of keys) if (t.includes(k)) return name;
+  }
+  return null;
+}
 function loadG() { try { return JSON.parse(localStorage.getItem('g') || '{}'); } catch(e) { return {}; } }
 function saveG(g) { localStorage.setItem('g', JSON.stringify(g)); }
 function renderG() {
@@ -562,39 +608,47 @@ function renderG() {
   for (const s in g) { const a = g[s]; all = all.concat(a); const avg = a.reduce((x,y)=>x+y,0)/a.length;
     h += '<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';
   }
-  document.getElementById('gList').innerHTML = h || '<div class="item">Напиши оценки своими словами — GigaChat сам определит предмет 👆</div>';
+  document.getElementById('gList').innerHTML = h || '<div class="item">Напиши оценки своими словами — определим предмет 👆</div>';
   document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
-}
-function localParseGrades(text) {
-  const grades = (text.match(/\b[1-5]\b/g) || []).map(Number);
-  const subject = text.replace(/\b[1-5]\b/g, '').replace(/[^a-zA-Zа-яА-ЯёЁ\s]/g, '').trim().split(/\s+/)[0] || 'Предмет';
-  return { subject: subject.charAt(0).toUpperCase() + subject.slice(1), grades };
 }
 async function addGradeAI() {
   const text = document.getElementById('gText').value.trim();
-  if (!text) return alert('Напиши, например: матан 5 5 5');
+  if (!text) return alert('Напиши, например: инфа 5 5 5');
   const btn = document.getElementById('gAddBtn');
   btn.disabled = true;
-  let parsed = null;
-  try {
-    const response = await askGiga('Ученик написал про свои оценки: «' + text + '». Определи школьный предмет (полное нормальное название по-русски) и список оценок (числа 1-5). Учти сленг: матан=математика, физра=физкультура, инглиш=английский язык. Верни СТРОГО JSON: {"subject":"математика","grades":[5,5,5]}', 'Верни только валидный JSON, без пояснений.', 300);
-    const obj = parseJSONObjectSafe(response);
-    if (obj && obj.subject && Array.isArray(obj.grades) && obj.grades.length) {
-      parsed = { subject: obj.subject, grades: obj.grades.filter(g => g >= 1 && g <= 5) };
+  const localSubj = localSubject(text);
+  const localGrades = (text.match(/\b[1-5]\b/g) || []).map(Number);
+  let subject = null, grades = [];
+  if (localSubj && localGrades.length) {
+    subject = localSubj;
+    grades = localGrades;
+  } else {
+    try {
+      const response = await askGiga('Ученик написал про свои оценки: «' + text + '». Определи школьный предмет (полное нормальное название по-русски) и список оценок (числа 1-5). Предмет бери СТРОГО из текста ученика, не подставляй другой предмет. Верни СТРОГО JSON в формате {"subject":"название предмета","grades":[5,4]} — без примеров с другими предметами.', 'Верни только валидный JSON, без пояснений.', 300);
+      const obj = parseJSONObjectSafe(response);
+      if (obj && obj.subject && Array.isArray(obj.grades)) {
+        subject = obj.subject;
+        grades = obj.grades.filter(g => g >= 1 && g <= 5);
+      }
+    } catch (e) {}
+    if (localSubj) subject = localSubj;
+    if (!grades.length) grades = localGrades;
+    if (!subject) {
+      const first = text.replace(/\b[1-5]\b/g,'').replace(/[^a-zA-Zа-яА-ЯёЁ\s]/g,'').trim().split(/\s+/)[0];
+      subject = first ? first.charAt(0).toUpperCase() + first.slice(1) : 'Предмет';
     }
-  } catch (e) { parsed = null; }
-  if (!parsed || !parsed.grades.length) parsed = localParseGrades(text);
-  if (!parsed.grades.length) {
-    alert('Не нашёл оценок в тексте. Напиши цифры, например: математика 5 4');
+  }
+  if (!grades.length) {
+    alert('Не нашёл оценок в тексте. Напиши цифры, например: информатика 5 4');
     btn.disabled = false;
     return;
   }
   const g = loadG();
-  if (!g[parsed.subject]) g[parsed.subject] = [];
-  g[parsed.subject] = g[parsed.subject].concat(parsed.grades);
+  if (!g[subject]) g[subject] = [];
+  g[subject] = g[subject].concat(grades);
   saveG(g); renderG();
   document.getElementById('gText').value = '';
-  document.getElementById('gAi').innerHTML = '<div class="item ai">✅ GigaChat записал: ' + parsed.subject + ' → ' + parsed.grades.join(', ') + '</div>';
+  document.getElementById('gAi').innerHTML = '<div class="item ai">✅ Записано: ' + subject + ' → ' + grades.join(', ') + '</div>';
   btn.disabled = false;
 }
 function delG(s) { const g = loadG(); delete g[s]; saveG(g); renderG(); }
