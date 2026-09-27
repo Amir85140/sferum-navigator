@@ -127,18 +127,25 @@
   <div id="quiz" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>✅ Тренажёр от GigaChat</h1>
-    <div class="subtitle">Задания с письменным ответом по твоей теме</div>
-    <label>📚 По какой теме подготовиться?</label>
+    <div class="subtitle">Первое задание сразу, пак из 10 — параллельно в фоне</div>
+    <label>📚 Тема для подготовки</label>
     <input type="text" id="qTopic" placeholder="Например: дроби, фотосинтез, неправильные глаголы">
-    <button class="btn" id="quizBtn" onclick="newQuestion()">🎲 Сгенерировать задание</button>
-    <div class="quiz-q" id="quizQ">Введи тему и нажми кнопку 👆</div>
+    <label>🎚 Сложность</label>
+    <select id="qDiff">
+      <option value="лёгкая">Лёгкая (разминка)</option>
+      <option value="средняя" selected>Средняя (как в школе)</option>
+      <option value="сложная">Сложная (уровень ОГЭ/ЕГЭ)</option>
+      <option value="смешанная">Смешанная</option>
+    </select>
+    <button class="btn" id="quizBtn" onclick="startQuiz()">🎲 Начать тренировку</button>
+    <div class="quiz-q" id="quizQ">Выбери тему и сложность, нажми кнопку 👆</div>
     <div class="hint" id="quizHint"></div>
     <div class="quiz-input" id="quizAnswerBox" style="display:none;">
       <input id="quizAnswer" placeholder="Твой ответ..." onkeydown="if(event.key==='Enter')checkAnswer()">
       <button class="btn" onclick="checkAnswer()">✔</button>
     </div>
     <div id="quizResult"></div>
-    <button class="btn gray" id="nextBtn" style="display:none;" onclick="newQuestion()">➡️ Следующее задание</button>
+    <button class="btn gray" id="nextBtn" style="display:none;" onclick="nextQuestion()">➡️ Следующее задание</button>
     <div class="score" id="score">Счёт: 0 / 0</div>
   </div>
 
@@ -224,9 +231,9 @@ function uuid() {
   });
 }
 
-async function askGiga(prompt, systemPrompt) {
+async function askGiga(prompt, systemPrompt, maxTokens) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 45000);
+  const timer = setTimeout(() => ctrl.abort(), 60000);
   try {
     if (!gigaToken || Date.now() > gigaExp) {
       const r1 = await fetch(PROXY_BASE + '/proxy?url=' + encodeURIComponent('https://ngw.devices.sberbank.ru:9443/api/v2/oauth'), {
@@ -253,7 +260,7 @@ async function askGiga(prompt, systemPrompt) {
           { role: 'system', content: systemPrompt || 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно, без LaTeX и Markdown. Для степеней пиши x², для дробей a/b.' },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 800, temperature: 0.7
+        max_tokens: maxTokens || 800, temperature: 0.7
       }),
       signal: ctrl.signal
     });
@@ -275,6 +282,16 @@ function showLoading(id, msg) {
 
 function showError(id, msg) {
   document.getElementById(id).innerHTML = '<div class="item" style="border-left-color:#e57373;">❌ ' + msg + '</div>';
+}
+
+// ===== ЗАЩИТА ОТ СЛИПШИХСЯ СЛОВ =====
+async function ensureSpaces(text) {
+  if (!text) return '';
+  if (text.length < 15 || /\s/.test(text.trim())) return text;
+  try {
+    const fixed = await askGiga('Расставь пропущенные пробелы между словами в тексте, сохрани знаки препинания и цифры. Верни ТОЛЬКО исправленный текст:\n' + text, 'Верни только исправленный текст, без пояснений.', 400);
+    return (fixed || text).trim();
+  } catch (e) { return text; }
 }
 
 // ===== ЧАТ =====
@@ -338,37 +355,86 @@ async function buildPlan() {
   }
 }
 
-// ===== ТРЕНАЖЁР (письменные ответы) =====
-let qC = 0, qT = 0, qA = null, qAlts = [], qAnswered = false;
+// ===== ТРЕНАЖЁР: 1 задание сразу + пак 10 параллельно =====
+let qC = 0, qT = 0, qCurrent = null, qAnswered = false;
+let qQueue = [];
+let qBatchPromise = null;
 
 function normalize(s) {
-  return String(s).toLowerCase().replace(/ё/g, 'е').replace(/[.,!?;:"'()\s]/g, '').trim();
+  return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();
 }
 
-async function newQuestion() {
+async function fetchOne(topic, diff) {
+  const prompt = 'Придумай ОДНО учебное задание по теме «' + topic + '», сложность: ' + diff + '. Ответ короткий и однозначный (слово, число или формула). Не давай вариантов ответа — ученик впишет ответ сам. Пиши вопрос и подсказку обычным русским языком, ОБЯЗАТЕЛЬНО с пробелами между словами и знаками препинания. Верни СТРОГО JSON без пояснений: {"question":"текст задания","answer":"правильный ответ","alternatives":["допустимый вариант написания ответа"],"hint":"короткая подсказка"}';
+  const response = await askGiga(prompt, 'Ты — учитель. Верни только валидный JSON, без пояснений и markdown.', 600);
+  const match = response.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('GigaChat вернул не JSON');
+  const obj = JSON.parse(match[0]);
+  if (!obj.question || !obj.answer) throw new Error('Пустое задание');
+  obj.question = await ensureSpaces(obj.question);
+  obj.hint = obj.hint ? await ensureSpaces(obj.hint) : '';
+  return obj;
+}
+
+async function fetchBatch(topic, diff, n) {
+  const prompt = 'Придумай ' + n + ' разных учебных заданий по теме «' + topic + '» (сложность: ' + diff + '), от простых к сложным. Ответы короткие и однозначные (слово, число, формула). Не давай вариантов ответа. Пиши вопросы и подсказки обычным русским языком, ОБЯЗАТЕЛЬНО с пробелами между словами и знаками препинания. Верни СТРОГО JSON-массив объектов без пояснений: [{"question":"...","answer":"...","alternatives":["..."],"hint":"..."}]';
+  const response = await askGiga(prompt, 'Ты — учитель. Верни только валидный JSON-массив, без пояснений и markdown.', 3000);
+  const match = response.match(/\[[\s\S]*\]/);
+  if (!match) return [];
+  let arr;
+  try { arr = JSON.parse(match[0]); } catch (e) { return []; }
+  if (!Array.isArray(arr)) return [];
+  const out = [];
+  for (const obj of arr) {
+    if (obj && obj.question && obj.answer) {
+      obj.question = await ensureSpaces(obj.question);
+      obj.hint = obj.hint ? await ensureSpaces(obj.hint) : '';
+      out.push(obj);
+    }
+  }
+  return out;
+}
+
+function updateNextLabel() {
+  document.getElementById('nextBtn').textContent = '➡️ Следующее задание (в запасе: ' + qQueue.length + ')';
+}
+
+function showQuestion(obj) {
+  qCurrent = obj;
+  qAnswered = false;
+  document.getElementById('quizQ').textContent = obj.question;
+  document.getElementById('quizHint').textContent = obj.hint ? '💡 Подсказка: ' + obj.hint : '';
+  document.getElementById('quizResult').innerHTML = '';
+  document.getElementById('quizAnswerBox').style.display = 'flex';
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('quizAnswer').value = '';
+  document.getElementById('quizAnswer').focus();
+  updateNextLabel();
+}
+
+async function startQuiz() {
   const topic = document.getElementById('qTopic').value.trim();
   if (!topic) return alert('Напиши тему, по которой подготовиться');
+  const diff = document.getElementById('qDiff').value;
   const btn = document.getElementById('quizBtn');
   btn.disabled = true;
-  document.getElementById('quizQ').textContent = '⏳ GigaChat придумывает задание по теме «' + topic + '»...';
+  qQueue = [];
+  qBatchPromise = null;
+  document.getElementById('quizQ').textContent = '⏳ GigaChat придумывает первое задание...';
   document.getElementById('quizHint').textContent = '';
   document.getElementById('quizResult').innerHTML = '';
   document.getElementById('quizAnswerBox').style.display = 'none';
   document.getElementById('nextBtn').style.display = 'none';
   try {
-    const prompt = 'Придумай ОДНО учебное задание по теме «' + topic + '» с коротким однозначным письменным ответом (слово, число или формула без пробелов). Не давай вариантов ответа — ученик впишет ответ сам. Верни СТРОГО JSON без пояснений: {"question":"текст задания","answer":"правильный ответ","alternatives":["допустимый вариант написания ответа 2"],"hint":"короткая подсказка"}';
-    const response = await askGiga(prompt, 'Ты — учитель. Верни только валидный JSON, без пояснений и markdown.');
-    const match = response.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('Не JSON');
-    const obj = JSON.parse(match[0]);
-    qA = obj.answer;
-    qAlts = Array.isArray(obj.alternatives) ? obj.alternatives : [];
-    qAnswered = false;
-    document.getElementById('quizQ').textContent = obj.question;
-    document.getElementById('quizHint').textContent = obj.hint ? '💡 Подсказка: ' + obj.hint : '';
-    document.getElementById('quizAnswerBox').style.display = 'flex';
-    document.getElementById('quizAnswer').value = '';
-    document.getElementById('quizAnswer').focus();
+    const first = await fetchOne(topic, diff);
+    showQuestion(first);
+    // ПАРАЛЛЕЛЬНО: пока решаешь первое, генерируется пак из 10
+    qBatchPromise = fetchBatch(topic, diff, 10).then(arr => {
+      qQueue = qQueue.concat(arr);
+      updateNextLabel();
+      qBatchPromise = null;
+      return arr;
+    }).catch(() => { qBatchPromise = null; return []; });
   } catch (e) {
     document.getElementById('quizQ').textContent = '❌ Ошибка: ' + e.message;
   } finally {
@@ -376,23 +442,55 @@ async function newQuestion() {
   }
 }
 
+async function nextQuestion() {
+  const topic = document.getElementById('qTopic').value.trim() || 'математика';
+  const diff = document.getElementById('qDiff').value;
+  const btn = document.getElementById('nextBtn');
+  btn.disabled = true;
+  if (qQueue.length) {
+    showQuestion(qQueue.shift());
+    btn.disabled = false;
+    return;
+  }
+  document.getElementById('quizQ').textContent = '⏳ Готовим ещё задания...';
+  document.getElementById('quizHint').textContent = '';
+  document.getElementById('quizAnswerBox').style.display = 'none';
+  try {
+    if (qBatchPromise) await qBatchPromise;
+    if (qQueue.length) {
+      showQuestion(qQueue.shift());
+    } else {
+      const arr = await fetchBatch(topic, diff, 10);
+      qQueue = qQueue.concat(arr);
+      if (qQueue.length) showQuestion(qQueue.shift());
+      else showQuestion(await fetchOne(topic, diff));
+    }
+  } catch (e) {
+    document.getElementById('quizQ').textContent = '❌ Ошибка: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    updateNextLabel();
+  }
+}
+
 function checkAnswer() {
-  if (qAnswered || !qA) return;
+  if (qAnswered || !qCurrent) return;
   const user = normalize(document.getElementById('quizAnswer').value);
   if (!user) return;
   qAnswered = true;
   qT++;
-  const variants = [qA].concat(qAlts).map(normalize);
+  const variants = [qCurrent.answer].concat(qCurrent.alternatives || []).map(normalize);
   const ok = variants.includes(user);
   if (ok) {
     qC++;
     document.getElementById('quizResult').innerHTML = '<div class="item ai">✅ Верно! Отличная работа!</div>';
   } else {
-    document.getElementById('quizResult').innerHTML = '<div class="item" style="border-left-color:#e57373;">❌ Неверно. Правильный ответ: ' + qA + '</div>';
+    document.getElementById('quizResult').innerHTML = '<div class="item" style="border-left-color:#e57373;">❌ Неверно. Правильный ответ: ' + qCurrent.answer + '</div>';
   }
   document.getElementById('score').textContent = 'Счёт: ' + qC + ' / ' + qT;
   document.getElementById('quizAnswerBox').style.display = 'none';
   document.getElementById('nextBtn').style.display = 'block';
+  updateNextLabel();
 }
 
 // ===== ДНЕВНИК =====
@@ -445,7 +543,7 @@ async function generateCards() {
   document.getElementById('flashCard').textContent = '⏳ GigaChat генерирует карточки...';
   try {
     const prompt = 'Создай 8 карточек для изучения английских слов по теме «' + topic + '». Ответь СТРОГО JSON массивом пар без пояснений: [["word","перевод"],...]';
-    const response = await askGiga(prompt, 'Отвечай только валидным JSON, без пояснений и markdown.');
+    const response = await askGiga(prompt, 'Отвечай только валидным JSON, без пояснений и markdown.', 1200);
     const match = response.match(/\[[\s\S]*\]/);
     if (!match) throw new Error('Не JSON');
     cards = JSON.parse(match[0]).filter(p => Array.isArray(p) && p.length === 2);
