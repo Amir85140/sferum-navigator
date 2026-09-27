@@ -82,7 +82,7 @@
   <div id="chat" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🤖 Чат с GigaChat</h1>
-    <div class="subtitle">Расскажешь про оценки — сам запишу в дневник</div>
+    <div class="subtitle">Помнит разговор даже после перезахода · оценки сам пишет в дневник</div>
     <div class="chat-box" id="chatBox"></div>
     <div class="chat-input">
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -94,7 +94,7 @@
   <div id="plan" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>📅 Персональный план</h1>
-    <div class="subtitle">Сохраняется, пока сам не изменишь</div>
+    <div class="subtitle">Темы обновляются каждую неделю автоматически</div>
     <label>🎓 Твой класс</label>
     <select id="pGrade">
       <option value="5">5 класс</option><option value="6">6 класс</option>
@@ -126,6 +126,7 @@
     <button class="btn" id="planBtn" onclick="buildPlan()">✨ Составить план от GigaChat</button>
     <button class="btn gray" onclick="deletePlan()">🗑 Удалить сохранённый план</button>
     <div id="planResult"></div>
+    <div id="doneBox" style="display:none;"></div>
   </div>
 
   <div id="quiz" class="page">
@@ -217,10 +218,11 @@
       <b>Sferum Navigator</b> — ИИ-наставник в мессенджере MAX на базе GigaChat от Сбера.
       <ul>
         <li>🤖 Все функции работают через GigaChat</li>
-        <li>📚 Чат сам записывает оценки в дневник</li>
-        <li>🔒 Защищённый прокси для работы из браузера</li>
+        <li>🧠 Чат помнит разговор и сам пишет оценки в дневник</li>
+        <li>📆 План обновляет темы каждую неделю</li>
         <li>📱 Мини-апп в MAX и на сайте</li>
       </ul>
+      <p style="margin-top:10px;color:#888;font-size:13px;">Версия 9</p>
     </div>
     <div class="legal">
       <a href="terms.html">Соглашение</a> ·
@@ -245,7 +247,7 @@ function uuid() {
   });
 }
 
-async function askGiga(prompt, systemPrompt, maxTokens) {
+async function askGiga(prompt, systemPrompt, maxTokens, history) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 60000);
   try {
@@ -265,17 +267,13 @@ async function askGiga(prompt, systemPrompt, maxTokens) {
       gigaToken = d1.access_token;
       gigaExp = Date.now() + 1700*1000;
     }
+    const messages = [{ role: 'system', content: systemPrompt || 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно, без LaTeX и Markdown. Для степеней пиши x², для дробей a/b.' }];
+    if (history && history.length) messages.push.apply(messages, history);
+    messages.push({ role: 'user', content: prompt });
     const r2 = await fetch(PROXY_BASE + '/proxy?url=' + encodeURIComponent('https://gigachat.devices.sberbank.ru/api/v1/chat/completions'), {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + gigaToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'GigaChat:latest',
-        messages: [
-          { role: 'system', content: systemPrompt || 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно, без LaTeX и Markdown. Для степеней пиши x², для дробей a/b.' },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: maxTokens || 800, temperature: 0.7
-      }),
+      body: JSON.stringify({ model: 'GigaChat:latest', messages, max_tokens: maxTokens || 800, temperature: 0.7 }),
       signal: ctrl.signal
     });
     if (!r2.ok) throw new Error('Chat failed: ' + r2.status);
@@ -327,8 +325,16 @@ function videoLinks(topic) {
          '<a class="mini-link" target="_blank" href="https://www.youtube.com/results?search_query='+t+'">▶ YouTube</a>';
 }
 function todayIdx() { return (new Date().getDay() + 6) % 7; }
+function mondayOf(d) {
+  const x = new Date(d);
+  const day = (x.getDay() + 6) % 7;
+  x.setDate(x.getDate() - day);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function currentWeekKey() { return mondayOf(new Date()).toISOString().slice(0,10); }
 
-// ===== СЛОВАРЬ ПРЕДМЕТОВ (общий для чата и дневника) =====
+// ===== СЛОВАРЬ ПРЕДМЕТОВ =====
 const SUBJ_ALIASES = [
   ['Физкультура', ['физр', 'физкульт', 'физ-ра']],
   ['Физика', ['физик']],
@@ -338,7 +344,7 @@ const SUBJ_ALIASES = [
   ['Немецкий язык', ['немец', 'герман']],
   ['Испанский язык', ['испан']],
   ['Русский язык', ['русск', 'рус язы']],
-  ['Литература', ['литер', 'лит-ра']],
+  ['Литература', ['литер', 'лит-ра', 'литре', 'литру', 'литрой', 'лит']],
   ['Химия', ['хим']],
   ['Биология', ['био', 'биолог']],
   ['История', ['истор']],
@@ -358,7 +364,7 @@ function extractGradesLocal(text) {
   if (subj && grades.length) return { subject: subj, grades };
   return null;
 }
-const GRADE_TRIGGERS = /оценк|получил|получила|поставили|поставил|заработал|заработала|балл|отметк|вышел ответ|результат контрольной/i;
+const GRADE_TRIGGERS = /оценк|получил|получила|поставили|поставил|заработал|заработала|балл|отметк|результат контрольной/i;
 
 function loadG() { try { return JSON.parse(localStorage.getItem('g') || '{}'); } catch(e) { return {}; } }
 function saveG(g) { localStorage.setItem('g', JSON.stringify(g)); }
@@ -378,8 +384,13 @@ function renderG() {
   document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
 }
 
-// ===== ЧАТ: сам ловит оценки и пишет в дневник =====
+// ===== ЧАТ: память + авто-запись оценок =====
 let chatHistory = [];
+try { chatHistory = JSON.parse(localStorage.getItem('sn_chat') || '[]'); } catch (e) { chatHistory = []; }
+function saveChatHistory() {
+  if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+  localStorage.setItem('sn_chat', JSON.stringify(chatHistory));
+}
 function addMsg(t, c) {
   const b = document.getElementById('chatBox');
   const d = document.createElement('div');
@@ -405,26 +416,24 @@ async function sendChat() {
   i.value = '';
   addMsg(t, 'user');
 
-  // 1) Быстрая локальная проверка: предмет + цифры
   const local = extractGradesLocal(t);
   if (local) {
     addGradeToStorage(local);
     addMsg('📚 Записал в дневник: ' + local.subject + ' → ' + local.grades.join(', '), 'sys');
   }
 
-  // 2) Обычный ответ GigaChat
   const loading = addMsg('⏳ Думаю...', 'loading');
   document.getElementById('chatBtn').disabled = true;
   try {
+    const historyForModel = chatHistory.slice(-16);
     chatHistory.push({ role: 'user', content: t });
-    const response = await askGiga(t, 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни контекст разговора. Если ученик рассказывает про свои оценки — порадуйся или поддержи его.');
+    const response = await askGiga(t, 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни весь предыдущий разговор и учитывай его. Если ученик рассказывает про свои оценки — порадуйся или поддержи.', 800, historyForModel);
     const cleaned = cleanResponse(response);
     loading.remove();
     addMsg(cleaned, 'bot');
     chatHistory.push({ role: 'assistant', content: cleaned });
-    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+    saveChatHistory();
 
-    // 3) Если локально не распознали, но похоже на оценки — пробуем через GigaChat
     if (!local) {
       const parsed = await tryParseGradesViaGiga(t);
       if (parsed) {
@@ -441,11 +450,12 @@ async function sendChat() {
 }
 function clearChat() {
   chatHistory = [];
+  localStorage.removeItem('sn_chat');
   document.getElementById('chatBox').innerHTML = '';
-  addMsg('Привет! Я GigaChat. Спроси про учёбу или расскажи про оценки 🎓', 'bot');
+  addMsg('Привет! Я GigaChat. Я помню наш разговор и сам запишу оценки в дневник 🎓', 'bot');
 }
 
-// ===== ПЛАН =====
+// ===== ПЛАН: недельное обновление тем + отметка «прошёл» =====
 function examInfo(grade, examText) {
   const now = new Date();
   const t = (examText || '').toLowerCase();
@@ -459,6 +469,7 @@ function examInfo(grade, examText) {
   return { name: examText || 'экзамен', examDate, weeks };
 }
 function loadPlan() { try { return JSON.parse(localStorage.getItem('sn_plan') || 'null'); } catch(e) { return null; } }
+function savePlan(p) { localStorage.setItem('sn_plan', JSON.stringify(p)); }
 function todayPlanItem() {
   const plan = loadPlan();
   if (!plan || !plan.schedule) return null;
@@ -474,7 +485,7 @@ function renderPlan(data) {
          (data.savedAt ? '\n💾 Сохранён: ' + data.savedAt + ' — живёт, пока не изменишь' : '') + '</div>';
   }
   if (data.schedule && data.schedule.length) {
-    h += '<div class="item ai">📆 Расписание на неделю (логика ИИ):</div>';
+    h += '<div class="item ai">📆 Расписание на эту неделю (темы недели ' + (data.scheduleWeek || '') + '):</div>';
     const ti = todayIdx();
     data.schedule.forEach((s, i) => {
       h += '<div class="sched-row' + (i === ti ? ' today' : '') + '"><span>' + (s.day || DAYS[i]) + (i === ti ? ' 👉' : '') + '</span><b>' + (s.subject || '') + '</b><span class="act">' + (s.topic || '') + (s.activity ? ' · ' + s.activity : '') + '</span></div>';
@@ -484,9 +495,14 @@ function renderPlan(data) {
       h += '<div class="item ai">🎯 Сегодня (' + DAYS[ti] + '): ' + todayItem.subject + '\n📖 Тема дня: ' + (todayItem.topic || 'по плану') + (todayItem.activity ? '\n✏️ ' + todayItem.activity : '') + '</div>';
       h += '<button class="btn" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';
       h += '<button class="btn gray" onclick="videoTodayFromPlan()">🎥 Видеоуроки по теме дня</button>';
+      h += '<button class="btn gray" onclick="markTopicDone()">✅ Я прошёл сегодняшнюю тему</button>';
     } else if (todayItem) {
       h += '<div class="item ai">😴 Сегодня по плану отдых. Но можешь потренировать любую тему!</div>';
     }
+  }
+  if (data.done && data.done.length) {
+    const last = data.done[data.done.length - 1];
+    h += '<div class="item">✅ Пройдено тем: ' + data.done.length + ' (последняя: ' + last.topic + ', ' + last.date + ')</div>';
   }
   if (data.steps && data.steps.length) {
     h += '<div class="item ai">🗺 Этапы подготовки с темами:</div>';
@@ -502,18 +518,21 @@ async function buildPlan() {
   const grade = +document.getElementById('pGrade').value;
   const examText = document.getElementById('pExam').value.trim();
   if (!examText) return alert('Напиши, что собираешься сдавать');
-  const subjects = document.getElementById('pSubjects').value || 'не указано';
-  const goal = document.getElementById('pGoal').value || 'не указано';
-  const minutes = document.getElementById('pMinutes').value;
-  const days = document.getElementById('pDays').value;
-  const level = document.getElementById('pLevel').value;
-  const weak = document.getElementById('pWeak').value || 'нет';
+  const params = {
+    grade, exam: examText,
+    subjects: document.getElementById('pSubjects').value || 'не указано',
+    goal: document.getElementById('pGoal').value || 'не указано',
+    minutes: document.getElementById('pMinutes').value,
+    days: document.getElementById('pDays').value,
+    level: document.getElementById('pLevel').value,
+    weak: document.getElementById('pWeak').value || 'нет'
+  };
   const ei = examInfo(grade, examText);
   const btn = document.getElementById('planBtn');
   btn.disabled = true;
   showLoading('planResult', 'GigaChat продумывает логику плана...');
   try {
-    const prompt = 'Ученик ' + grade + ' класса собирается сдавать: ' + examText + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\n\nСАМ продумай, как ЛОГИЧНЕЕ и ЭФФЕКТИВНЕЕ составить расписание на неделю: реши, какие предметы в какие дни ставить (чередуй сложное и лёгкое, учитывай слабые места), какие дни сделать отдыхом (исходя из ' + days + ' дней в неделю), и какую конкретную тему изучать в каждый день. Обоснуй выбор в activity.\nТакже составь план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет или отдых","topic":"тема дня","activity":"что делать и почему"},{"day":"Вт",...}...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
+    const prompt = 'Ученик ' + params.grade + ' класса собирается сдавать: ' + params.exam + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + params.subjects + '\nЦель: ' + params.goal + '\nЗанятия: ' + params.minutes + ' минут в день, ' + params.days + ' дней в неделю\nУровень: ' + params.level + '\nСлабые места: ' + params.weak + '\n\nСАМ продумай, как ЛОГИЧНЕЕ и ЭФФЕКТИВНЕЕ составить расписание на эту неделю: какие предметы в какие дни (чередуй сложное и лёгкое, учитывай слабые места), какие дни отдых (исходя из ' + params.days + ' дней в неделю), и какую конкретную тему изучать в каждый день. Обоснуй в activity.\nТакже составь план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет или отдых","topic":"тема дня","activity":"что делать и почему"},...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
     const response = await askGiga(prompt, 'Ты — эксперт по педагогике и подготовке к экзаменам. Верни только валидный JSON, без markdown.', 3000);
     let data = parseJSONObjectSafe(response);
     if (!data || (!data.steps && !data.schedule)) data = { text: response };
@@ -521,7 +540,10 @@ async function buildPlan() {
     data.examDate = ei.examDate.toLocaleDateString('ru-RU');
     data.weeks = ei.weeks;
     data.savedAt = new Date().toLocaleDateString('ru-RU');
-    localStorage.setItem('sn_plan', JSON.stringify(data));
+    data.scheduleWeek = currentWeekKey();
+    data.params = params;
+    data.done = [];
+    savePlan(data);
     renderPlan(data);
   } catch (e) {
     showError('planResult', 'Ошибка: ' + e.message);
@@ -529,10 +551,33 @@ async function buildPlan() {
     btn.disabled = false;
   }
 }
+async function checkWeekUpdate() {
+  const plan = loadPlan();
+  if (!plan || !plan.params || !plan.schedule) return;
+  if (plan.scheduleWeek === currentWeekKey()) return;
+  showLoading('planResult', 'Новая неделя — GigaChat обновляет темы...');
+  try {
+    const p = plan.params;
+    const ei = examInfo(p.grade, p.exam);
+    const done = (plan.done || []).map(d => d.subject + ': ' + d.topic).join('; ') || 'ещё нет';
+    const prompt = 'Наступила новая неделя подготовки. Ученик ' + p.grade + ' класса, сдаёт: ' + p.exam + ' (осталось ' + ei.weeks + ' недель). Предметы: ' + p.subjects + '. Занятия: ' + p.minutes + ' мин/день, ' + p.days + ' дней в неделю. Уровень: ' + p.level + '. Слабые места: ' + p.weak + '.\nУже пройденные темы: ' + done + '.\nСоставь расписание на НОВУЮ неделю (Пн-Вс): продолжи логику пройденного (новые темы, не повторяй пройденное), чередуй предметы, дни отдыха по ' + p.days + ' дней в неделю. Верни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет или отдых","topic":"новая тема дня","activity":"что делать и почему"},...7 элементов]}';
+    const response = await askGiga(prompt, 'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.', 2000);
+    const data = parseJSONObjectSafe(response);
+    if (data && data.schedule && data.schedule.length === 7) {
+      plan.schedule = data.schedule;
+      plan.scheduleWeek = currentWeekKey();
+      savePlan(plan);
+    }
+    renderPlan(plan);
+  } catch (e) {
+    renderPlan(plan);
+  }
+}
 function deletePlan() {
   if (confirm('Удалить сохранённый план?')) {
     localStorage.removeItem('sn_plan');
     document.getElementById('planResult').innerHTML = '';
+    document.getElementById('doneBox').style.display = 'none';
   }
 }
 function startTodayFromPlan() {
@@ -549,6 +594,28 @@ function videoTodayFromPlan() {
   go('video');
   buildVideo();
 }
+function markTopicDone() {
+  const plan = loadPlan();
+  const item = todayPlanItem();
+  if (!plan || isRestDay(item)) return alert('Сегодня нет темы для отметки');
+  if (!plan.done) plan.done = [];
+  plan.done.push({ date: new Date().toLocaleDateString('ru-RU'), subject: item.subject, topic: item.topic || item.subject });
+  savePlan(plan);
+  renderPlan(plan);
+  const box = document.getElementById('doneBox');
+  box.style.display = 'block';
+  box.innerHTML = '<div class="item ai">🎉 Отлично! Тема «' + (item.topic || item.subject) + '» отмечена пройденной.\nЗакрепить её тренажёром прямо сейчас?</div>' +
+    '<button class="btn" onclick="trainerFromDone()">Да, перехожу в тренажёр</button>' +
+    '<button class="btn gray" onclick="hideDone()">Позже</button>';
+}
+function trainerFromDone() {
+  const item = todayPlanItem();
+  document.getElementById('qTopic').value = (item.subject || '') + (item.topic ? ', тема: ' + item.topic : '');
+  document.getElementById('doneBox').style.display = 'none';
+  go('quiz');
+  startQuiz();
+}
+function hideDone() { document.getElementById('doneBox').style.display = 'none'; }
 
 // ===== ТРЕНАЖЁР =====
 let qC = 0, qT = 0, qCurrent = null, qAnswered = false, qQueue = [], qLastTopic = '';
@@ -741,7 +808,7 @@ async function buildVideo() {
   }
 }
 
-// ===== МОТИВАЦИЯ: настроение + своя ситуация =====
+// ===== МОТИВАЦИЯ =====
 async function motivationAI() {
   const mood = document.getElementById('mMood').value;
   const moodText = {tired:'Устал', worried:'Переживаю', lazy:'Лень', ok:'Нормально'}[mood];
@@ -768,6 +835,7 @@ async function motivationAI() {
 function go(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  if (id === 'plan') checkWeekUpdate();
 }
 
 // ===== СТАРТ =====
@@ -775,6 +843,7 @@ const savedPlan = loadPlan();
 if (savedPlan) renderPlan(savedPlan);
 renderG();
 clearChat();
+checkWeekUpdate();
 </script>
 </body>
 </html>
