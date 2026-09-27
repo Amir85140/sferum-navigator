@@ -88,7 +88,7 @@
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
       <button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
-    <button class="btn gray" onclick="clearChat()">🗑 Очистить</button>
+    <button class="btn gray" onclick="clearChat()">🗑 Очистить историю</button>
   </div>
 
   <div id="plan" class="page">
@@ -222,7 +222,7 @@
         <li>📆 План обновляет темы каждую неделю</li>
         <li>📱 Мини-апп в MAX и на сайте</li>
       </ul>
-      <p style="margin-top:10px;color:#888;font-size:13px;">Версия 9</p>
+      <p style="margin-top:10px;color:#888;font-size:13px;">Версия 10</p>
     </div>
     <div class="legal">
       <a href="terms.html">Соглашение</a> ·
@@ -334,7 +334,6 @@ function mondayOf(d) {
 }
 function currentWeekKey() { return mondayOf(new Date()).toISOString().slice(0,10); }
 
-// ===== СЛОВАРЬ ПРЕДМЕТОВ =====
 const SUBJ_ALIASES = [
   ['Физкультура', ['физр', 'физкульт', 'физ-ра']],
   ['Физика', ['физик']],
@@ -384,13 +383,14 @@ function renderG() {
   document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
 }
 
-// ===== ЧАТ: память + авто-запись оценок =====
 let chatHistory = [];
 try { chatHistory = JSON.parse(localStorage.getItem('sn_chat') || '[]'); } catch (e) { chatHistory = []; }
+
 function saveChatHistory() {
   if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
   localStorage.setItem('sn_chat', JSON.stringify(chatHistory));
 }
+
 function addMsg(t, c) {
   const b = document.getElementById('chatBox');
   const d = document.createElement('div');
@@ -398,6 +398,7 @@ function addMsg(t, c) {
   b.appendChild(d); b.scrollTop = b.scrollHeight;
   return d;
 }
+
 async function tryParseGradesViaGiga(text) {
   const digits = (text.match(/\b[1-5]\b/g) || []).length;
   if (!digits || !GRADE_TRIGGERS.test(text)) return null;
@@ -410,6 +411,7 @@ async function tryParseGradesViaGiga(text) {
   } catch (e) {}
   return null;
 }
+
 async function sendChat() {
   const i = document.getElementById('chatInput');
   const t = i.value.trim(); if (!t) return;
@@ -448,14 +450,28 @@ async function sendChat() {
     document.getElementById('chatBtn').disabled = false;
   }
 }
+
 function clearChat() {
+  if (!confirm('Удалить всю историю разговора?')) return;
   chatHistory = [];
   localStorage.removeItem('sn_chat');
   document.getElementById('chatBox').innerHTML = '';
-  addMsg('Привет! Я GigaChat. Я помню наш разговор и сам запишу оценки в дневник 🎓', 'bot');
+  addMsg('История очищена. Давай начнём заново! 🎓', 'bot');
 }
 
-// ===== ПЛАН: недельное обновление тем + отметка «прошёл» =====
+function restoreChatHistory() {
+  document.getElementById('chatBox').innerHTML = '';
+  if (chatHistory.length === 0) {
+    addMsg('Привет! Я GigaChat. Я помню наш разговор и сам запишу оценки в дневник 🎓', 'bot');
+  } else {
+    chatHistory.forEach(m => {
+      if (m.role === 'user') addMsg(m.content, 'user');
+      else if (m.role === 'assistant') addMsg(m.content, 'bot');
+    });
+    addMsg('💾 Восстановил нашу переписку. О чём говорили?', 'sys');
+  }
+}
+
 function examInfo(grade, examText) {
   const now = new Date();
   const t = (examText || '').toLowerCase();
@@ -617,7 +633,6 @@ function trainerFromDone() {
 }
 function hideDone() { document.getElementById('doneBox').style.display = 'none'; }
 
-// ===== ТРЕНАЖЁР =====
 let qC = 0, qT = 0, qCurrent = null, qAnswered = false, qQueue = [], qLastTopic = '';
 function normalize(s) {
   return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();
@@ -727,7 +742,6 @@ function checkAnswer() {
   updateNextLabel();
 }
 
-// ===== ДНЕВНИК =====
 async function addGradeAI() {
   const text = document.getElementById('gText').value.trim();
   if (!text) return alert('Напиши, например: инфа 5 5 5');
@@ -788,7 +802,6 @@ async function gradesAI() {
   }
 }
 
-// ===== ВИДЕО =====
 async function buildVideo() {
   const topic = document.getElementById('vTopic').value.trim() || 'математика';
   const btn = document.getElementById('vBtn');
@@ -808,7 +821,6 @@ async function buildVideo() {
   }
 }
 
-// ===== МОТИВАЦИЯ =====
 async function motivationAI() {
   const mood = document.getElementById('mMood').value;
   const moodText = {tired:'Устал', worried:'Переживаю', lazy:'Лень', ok:'Нормально'}[mood];
@@ -838,11 +850,10 @@ function go(id) {
   if (id === 'plan') checkWeekUpdate();
 }
 
-// ===== СТАРТ =====
 const savedPlan = loadPlan();
 if (savedPlan) renderPlan(savedPlan);
 renderG();
-clearChat();
+restoreChatHistory();
 checkWeekUpdate();
 </script>
 </body>
