@@ -30,11 +30,11 @@
   .item.loading { background: #fff8e1; border-left-color: #f7971e; text-align: center; }
   .row2 { display: flex; gap: 10px; }
   .row2 > * { flex: 1; }
-  .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0; text-align: center; min-height: 48px; }
-  .quiz-opt { display: block; width: 100%; margin-top: 8px; padding: 14px; border: 2px solid #e0e0e8; border-radius: 12px; background: #fff; font-size: 16px; cursor: pointer; min-height: 48px; }
-  .quiz-opt.correct { background: #d4f7d4; border-color: #4caf50; }
-  .quiz-opt.wrong { background: #fdd; border-color: #e57373; }
-  .quiz-opt:disabled { cursor: not-allowed; }
+  .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0 6px; text-align: center; min-height: 48px; }
+  .hint { font-size: 13px; color: #888; margin-top: 4px; text-align: center; }
+  .quiz-input { display: flex; gap: 8px; margin-top: 12px; }
+  .quiz-input input { flex: 1; }
+  .quiz-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
   .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 12px; }
   .flash { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-radius: 16px; padding: 40px 20px; text-align: center; font-size: 24px; font-weight: 700; cursor: pointer; margin-top: 12px; min-height: 150px; display: flex; align-items: center; justify-content: center; }
   .grade-row { display: flex; justify-content: space-between; align-items: center; background: #f7f7fc; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 14px; }
@@ -90,13 +90,10 @@
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>📅 Персональный план</h1>
     <div class="subtitle">Расскажи о себе — GigaChat составит план</div>
-    
     <label>📚 Какие предметы сдаёшь?</label>
     <textarea id="pSubjects" rows="2" placeholder="Например: математика профиль, русский, физика"></textarea>
-    
     <label>🎯 Твоя цель</label>
     <input type="text" id="pGoal" placeholder="Например: сдать ЕГЭ на 90+, поступить в МФТИ">
-    
     <label>⏳ Сколько времени до экзаменов?</label>
     <div class="row2">
       <input type="number" id="pTimeVal" value="6" min="1" max="36">
@@ -105,10 +102,8 @@
         <option value="недель">недель</option>
       </select>
     </div>
-    
     <label>⏰ Сколько минут в день готов заниматься?</label>
     <input type="number" id="pMinutes" value="60" min="15" max="480" step="15">
-    
     <label>📅 Дней в неделю</label>
     <select id="pDays">
       <option value="3">3 дня</option>
@@ -117,17 +112,14 @@
       <option value="6">6 дней</option>
       <option value="7">7 дней</option>
     </select>
-    
     <label>📊 Текущий уровень</label>
     <select id="pLevel">
       <option value="начальный">Начальный (много пробелов)</option>
       <option value="средний" selected>Средний (базу знаю)</option>
       <option value="продвинутый">Продвинутый (хочу максимум)</option>
     </select>
-    
     <label>😓 Слабые места (необязательно)</label>
-    <textarea id="pWeak" rows="2" placeholder="Например: плохо даются задачи с параметром, не умею писать сочинения"></textarea>
-    
+    <textarea id="pWeak" rows="2" placeholder="Например: плохо даются задачи с параметром"></textarea>
     <button class="btn" id="planBtn" onclick="buildPlan()">✨ Составить план от GigaChat</button>
     <div id="planResult"></div>
   </div>
@@ -135,10 +127,18 @@
   <div id="quiz" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>✅ Тренажёр от GigaChat</h1>
-    <div class="subtitle">ИИ придумывает вопросы на лету</div>
-    <div class="quiz-q" id="quizQ">Нажми кнопку, чтобы начать</div>
-    <div id="quizOpts"></div>
-    <button class="btn" id="quizBtn" onclick="newQuestion()">🎲 Новый вопрос от ИИ</button>
+    <div class="subtitle">Задания с письменным ответом по твоей теме</div>
+    <label>📚 По какой теме подготовиться?</label>
+    <input type="text" id="qTopic" placeholder="Например: дроби, фотосинтез, неправильные глаголы">
+    <button class="btn" id="quizBtn" onclick="newQuestion()">🎲 Сгенерировать задание</button>
+    <div class="quiz-q" id="quizQ">Введи тему и нажми кнопку 👆</div>
+    <div class="hint" id="quizHint"></div>
+    <div class="quiz-input" id="quizAnswerBox" style="display:none;">
+      <input id="quizAnswer" placeholder="Твой ответ..." onkeydown="if(event.key==='Enter')checkAnswer()">
+      <button class="btn" onclick="checkAnswer()">✔</button>
+    </div>
+    <div id="quizResult"></div>
+    <button class="btn gray" id="nextBtn" style="display:none;" onclick="newQuestion()">➡️ Следующее задание</button>
     <div class="score" id="score">Счёт: 0 / 0</div>
   </div>
 
@@ -162,7 +162,7 @@
     <h1>🎴 Карточки от GigaChat</h1>
     <div class="subtitle">ИИ генерирует карточки по любой теме</div>
     <label>Тема</label>
-    <input type="text" id="fTopic" placeholder="Например: еда, путешествия, неправильные глаголы" value="школа">
+    <input type="text" id="fTopic" placeholder="Например: еда, путешествия" value="школа">
     <button class="btn" id="fBtn" onclick="generateCards()">✨ Создать карточки</button>
     <div class="flash" id="flashCard" onclick="flipCard()">Нажми «Создать»</div>
     <button class="btn gray" onclick="nextCard()">➡️ Следующая</button>
@@ -277,6 +277,7 @@ function showError(id, msg) {
   document.getElementById(id).innerHTML = '<div class="item" style="border-left-color:#e57373;">❌ ' + msg + '</div>';
 }
 
+// ===== ЧАТ =====
 let chatHistory = [];
 function addMsg(t, c) {
   const b = document.getElementById('chatBox');
@@ -293,9 +294,8 @@ async function sendChat() {
   const loading = addMsg('⏳ Думаю...', 'loading');
   document.getElementById('chatBtn').disabled = true;
   try {
-    const systemPrompt = 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни контекст разговора.';
     chatHistory.push({ role: 'user', content: t });
-    const response = await askGiga(t, systemPrompt);
+    const response = await askGiga(t, 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни контекст разговора.');
     const cleaned = cleanResponse(response);
     loading.remove();
     addMsg(cleaned, 'bot');
@@ -314,6 +314,7 @@ function clearChat() {
   addMsg('Привет! Я GigaChat. Спроси про учёбу 🎓', 'bot');
 }
 
+// ===== ПЛАН =====
 async function buildPlan() {
   const subjects = document.getElementById('pSubjects').value || 'не указано';
   const goal = document.getElementById('pGoal').value || 'не указано';
@@ -323,21 +324,11 @@ async function buildPlan() {
   const days = document.getElementById('pDays').value;
   const level = document.getElementById('pLevel').value;
   const weak = document.getElementById('pWeak').value || 'нет';
-
   const btn = document.getElementById('planBtn');
   btn.disabled = true;
   showLoading('planResult', 'GigaChat составляет персональный план...');
   try {
-    const prompt = `Составь персональный план подготовки к экзаменам.
-Данные ученика:
-- Предметы: ${subjects}
-- Цель: ${goal}
-- Время до экзамена: ${timeVal} ${timeUnit}
-- Занятия: ${minutes} минут в день, ${days} дней в неделю
-- Текущий уровень: ${level}
-- Слабые места: ${weak}
-
-Распиши план по этапам. Дай конкретные советы, как распределить время между предметами и на что обратить внимание. Отвечай структурированно, без Markdown и LaTeX.`;
+    const prompt = 'Составь персональный план подготовки к экзаменам.\nДанные ученика:\n- Предметы: ' + subjects + '\n- Цель: ' + goal + '\n- Время до экзамена: ' + timeVal + ' ' + timeUnit + '\n- Занятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\n- Текущий уровень: ' + level + '\n- Слабые места: ' + weak + '\n\nРаспиши план по этапам. Дай конкретные советы, как распределить время между предметами и на что обратить внимание. Отвечай структурированно, без Markdown и LaTeX.';
     const response = await askGiga(prompt, 'Ты — эксперт по подготовке к экзаменам. Отвечай структурированно, без Markdown и LaTeX.');
     document.getElementById('planResult').innerHTML = '<div class="item ai">✨ План от GigaChat:\n' + cleanResponse(response) + '</div>';
   } catch (e) {
@@ -347,41 +338,64 @@ async function buildPlan() {
   }
 }
 
-let qC = 0, qT = 0, qA = null;
+// ===== ТРЕНАЖЁР (письменные ответы) =====
+let qC = 0, qT = 0, qA = null, qAlts = [], qAnswered = false;
+
+function normalize(s) {
+  return String(s).toLowerCase().replace(/ё/g, 'е').replace(/[.,!?;:"'()\s]/g, '').trim();
+}
+
 async function newQuestion() {
+  const topic = document.getElementById('qTopic').value.trim();
+  if (!topic) return alert('Напиши тему, по которой подготовиться');
   const btn = document.getElementById('quizBtn');
   btn.disabled = true;
-  document.getElementById('quizQ').textContent = '⏳ GigaChat придумывает вопрос...';
-  document.getElementById('quizOpts').innerHTML = '';
+  document.getElementById('quizQ').textContent = '⏳ GigaChat придумывает задание по теме «' + topic + '»...';
+  document.getElementById('quizHint').textContent = '';
+  document.getElementById('quizResult').innerHTML = '';
+  document.getElementById('quizAnswerBox').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
   try {
-    const prompt = 'Придумай один школьный вопрос (любой предмет, 6-9 класс) с 4 вариантами ответа. Ответь СТРОГО в формате JSON без пояснений: {"question":"текст вопроса","options":["в1","в2","в3","в4"],"answer":"точный текст правильного варианта"}';
-    const response = await askGiga(prompt, 'Отвечай только валидным JSON, без пояснений и markdown.');
+    const prompt = 'Придумай ОДНО учебное задание по теме «' + topic + '» с коротким однозначным письменным ответом (слово, число или формула без пробелов). Не давай вариантов ответа — ученик впишет ответ сам. Верни СТРОГО JSON без пояснений: {"question":"текст задания","answer":"правильный ответ","alternatives":["допустимый вариант написания ответа 2"],"hint":"короткая подсказка"}';
+    const response = await askGiga(prompt, 'Ты — учитель. Верни только валидный JSON, без пояснений и markdown.');
     const match = response.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('Не JSON');
     const obj = JSON.parse(match[0]);
     qA = obj.answer;
+    qAlts = Array.isArray(obj.alternatives) ? obj.alternatives : [];
+    qAnswered = false;
     document.getElementById('quizQ').textContent = obj.question;
-    const box = document.getElementById('quizOpts');
-    [...obj.options].sort(() => Math.random()-0.5).forEach(v => {
-      const b = document.createElement('button');
-      b.className = 'quiz-opt'; b.textContent = v;
-      b.onclick = () => checkAnswer(b, v);
-      box.appendChild(b);
-    });
+    document.getElementById('quizHint').textContent = obj.hint ? '💡 Подсказка: ' + obj.hint : '';
+    document.getElementById('quizAnswerBox').style.display = 'flex';
+    document.getElementById('quizAnswer').value = '';
+    document.getElementById('quizAnswer').focus();
   } catch (e) {
     document.getElementById('quizQ').textContent = '❌ Ошибка: ' + e.message;
   } finally {
     btn.disabled = false;
   }
 }
-function checkAnswer(btn, v) {
+
+function checkAnswer() {
+  if (qAnswered || !qA) return;
+  const user = normalize(document.getElementById('quizAnswer').value);
+  if (!user) return;
+  qAnswered = true;
   qT++;
-  document.querySelectorAll('.quiz-opt').forEach(b => { b.onclick = null; b.disabled = true; });
-  if (v === qA) btn.classList.add('correct'), qC++;
-  else { btn.classList.add('wrong'); document.querySelectorAll('.quiz-opt').forEach(b => { if (b.textContent === qA) b.classList.add('correct'); }); }
+  const variants = [qA].concat(qAlts).map(normalize);
+  const ok = variants.includes(user);
+  if (ok) {
+    qC++;
+    document.getElementById('quizResult').innerHTML = '<div class="item ai">✅ Верно! Отличная работа!</div>';
+  } else {
+    document.getElementById('quizResult').innerHTML = '<div class="item" style="border-left-color:#e57373;">❌ Неверно. Правильный ответ: ' + qA + '</div>';
+  }
   document.getElementById('score').textContent = 'Счёт: ' + qC + ' / ' + qT;
+  document.getElementById('quizAnswerBox').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'block';
 }
 
+// ===== ДНЕВНИК =====
 function loadG() { try { return JSON.parse(localStorage.getItem('g') || '{}'); } catch(e) { return {}; } }
 function saveG(g) { localStorage.setItem('g', JSON.stringify(g)); }
 function renderG() {
@@ -413,8 +427,7 @@ async function gradesAI() {
   btn.disabled = true;
   showLoading('gAi', 'GigaChat анализирует успеваемость...');
   try {
-    const prompt = desc + '\nПроанализируй успеваемость: сильные стороны, слабые предметы, 3 конкретных совета по улучшению.';
-    const response = await askGiga(prompt, 'Ты — педагог-эксперт. Дай честный, поддерживающий анализ без Markdown.');
+    const response = await askGiga(desc + '\nПроанализируй успеваемость: сильные стороны, слабые предметы, 3 конкретных совета по улучшению.', 'Ты — педагог-эксперт. Дай честный, поддерживающий анализ без Markdown.');
     document.getElementById('gAi').innerHTML = '<div class="item ai">🤖 Анализ от GigaChat:\n' + cleanResponse(response) + '</div>';
   } catch (e) {
     showError('gAi', 'Ошибка: ' + e.message);
@@ -423,6 +436,7 @@ async function gradesAI() {
   }
 }
 
+// ===== КАРТОЧКИ =====
 let cards = [], cardIdx = 0, flipped = false;
 async function generateCards() {
   const topic = document.getElementById('fTopic').value.trim() || 'школа';
@@ -457,14 +471,14 @@ function flipCard() {
   document.getElementById('flashCard').textContent = flipped ? cards[cardIdx][1] : cards[cardIdx][0];
 }
 
+// ===== ВИДЕО =====
 async function buildVideo() {
   const topic = document.getElementById('vTopic').value.trim() || 'математика';
   const btn = document.getElementById('vBtn');
   btn.disabled = true;
   showLoading('vAi', 'GigaChat объясняет тему...');
   try {
-    const prompt = 'Кратко (3-4 предложения) объясни школьнику тему «' + topic + '» простыми словами с примером.';
-    const response = await askGiga(prompt);
+    const response = await askGiga('Кратко (3-4 предложения) объясни школьнику тему «' + topic + '» простыми словами с примером.');
     document.getElementById('vAi').innerHTML = '<div class="item ai">🎓 Объяснение от GigaChat:\n' + cleanResponse(response) + '</div>';
     const t = encodeURIComponent(topic);
     document.getElementById('videoResult').innerHTML =
@@ -478,6 +492,7 @@ async function buildVideo() {
   }
 }
 
+// ===== МОТИВАЦИЯ =====
 async function motivationAI() {
   const mood = document.getElementById('mMood').value;
   const moodText = {tired:'Устал', worried:'Переживаю', lazy:'Лень', ok:'Нормально'}[mood];
@@ -485,8 +500,7 @@ async function motivationAI() {
   btn.disabled = true;
   document.getElementById('quoteBox').textContent = '⏳ GigaChat подбирает поддержку...';
   try {
-    const prompt = 'Школьник чувствует: ' + moodText + '. Поддержи его 2-3 тёплыми предложениями, как старший друг, без банальностей.';
-    const response = await askGiga(prompt);
+    const response = await askGiga('Школьник чувствует: ' + moodText + '. Поддержи его 2-3 тёплыми предложениями, как старший друг, без банальностей.');
     document.getElementById('quoteBox').textContent = cleanResponse(response);
   } catch (e) {
     document.getElementById('quoteBox').textContent = '❌ Ошибка: ' + e.message;
