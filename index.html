@@ -33,14 +33,13 @@
   .mini-link { display: inline-block; margin: 4px 6px 0 0; font-size: 12px; color: #667eea; text-decoration: none; background: #eef; padding: 4px 8px; border-radius: 8px; }
   .sched-row { display: flex; justify-content: space-between; gap: 8px; background: #f7f7fc; border-radius: 10px; padding: 10px 12px; margin-top: 6px; font-size: 14px; align-items: center; }
   .sched-row.today { background: #fff8e1; border: 2px solid #f7971e; font-weight: 700; }
-  .sched-row .act { font-size: 12px; color: #888; font-weight: 400; }
+  .sched-row .act { font-size: 12px; color: #888; font-weight: 400; text-align: right; }
   .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0 6px; text-align: center; min-height: 48px; }
   .hint { font-size: 13px; color: #888; margin-top: 4px; text-align: center; }
   .quiz-input { display: flex; gap: 8px; margin-top: 12px; }
   .quiz-input input { flex: 1; }
   .quiz-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
   .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 12px; }
-  .flash { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-radius: 16px; padding: 40px 20px; text-align: center; font-size: 24px; font-weight: 700; cursor: pointer; margin-top: 12px; min-height: 150px; display: flex; align-items: center; justify-content: center; }
   .grade-row { display: flex; justify-content: space-between; align-items: center; background: #f7f7fc; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 14px; }
   .grade-row button { background: #fdd; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
   .avg { text-align: center; font-size: 36px; font-weight: 800; color: #667eea; margin: 12px 0; }
@@ -71,7 +70,6 @@
       <button class="tile" onclick="go('plan')"><span class="ico">📅</span><span class="ttl">План</span></button>
       <button class="tile" onclick="go('quiz')"><span class="ico">✅</span><span class="ttl">Тренажёр</span></button>
       <button class="tile" onclick="go('grades')"><span class="ico">📚</span><span class="ttl">Дневник</span></button>
-      <button class="tile" onclick="go('flash')"><span class="ico">🎴</span><span class="ttl">Карточки</span></button>
       <button class="tile" onclick="go('video')"><span class="ico">🎥</span><span class="ttl">Видео</span></button>
       <button class="tile" onclick="go('motivation')"><span class="ico">💪</span><span class="ttl">Мотивация</span></button>
       <button class="tile" onclick="go('about')"><span class="ico">ℹ️</span><span class="ttl">О боте</span></button>
@@ -102,7 +100,7 @@
       <option value="11">11 класс</option>
     </select>
     <label>🎯 Что собираешься сдавать?</label>
-    <input type="text" id="pExam" placeholder="Например: ЕГЭ по математике и физике, ОГЭ, вступительные">
+    <input type="text" id="pExam" placeholder="Например: ЕГЭ по математике и физике, ОГЭ">
     <label>📚 Предметы для подготовки</label>
     <textarea id="pSubjects" rows="2" placeholder="Например: математика, русский, физика"></textarea>
     <label>🏆 Твоя цель</label>
@@ -163,17 +161,6 @@
     <button class="btn" id="gBtn" onclick="gradesAI()">🤖 Анализ успеваемости</button>
     <button class="btn gray" onclick="clearGrades()">🗑 Очистить всё</button>
     <div id="gAi"></div>
-  </div>
-
-  <div id="flash" class="page">
-    <button class="back" onclick="go('home')">← Назад</button>
-    <h1>🎴 Карточки от GigaChat</h1>
-    <div class="subtitle">ИИ генерирует карточки по любой теме</div>
-    <label>Тема</label>
-    <input type="text" id="fTopic" placeholder="Например: еда, путешествия" value="школа">
-    <button class="btn" id="fBtn" onclick="generateCards()">✨ Создать карточки</button>
-    <div class="flash" id="flashCard" onclick="flipCard()">Нажми «Создать»</div>
-    <button class="btn gray" onclick="nextCard()">➡️ Следующая</button>
   </div>
 
   <div id="video" class="page">
@@ -291,6 +278,26 @@ async function ensureSpaces(text) {
     return (fixed || text).trim();
   } catch (e) { return text; }
 }
+
+// ===== ПОЧИНКА ОБРЕЗАННОГО JSON =====
+function parseJSONArraySafe(text) {
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error('Ответ не JSON');
+  const raw = match[0];
+  try { return JSON.parse(raw); } catch (e) {}
+  const lastClose = raw.lastIndexOf('}');
+  if (lastClose > 0) {
+    let fixed = raw.slice(0, lastClose + 1).replace(/,\s*$/, '') + ']';
+    try { return JSON.parse(fixed); } catch (e) {}
+  }
+  throw new Error('JSON обрезан, попробуйте ещё раз');
+}
+function parseJSONObjectSafe(text) {
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) return null;
+  try { return JSON.parse(match[0]); } catch (e) { return null; }
+}
+
 function videoLinks(topic) {
   const t = encodeURIComponent(topic);
   return '<a class="mini-link" target="_blank" href="https://rutube.ru/search/?q='+t+'">▶ RuTube</a>'+
@@ -336,7 +343,7 @@ function clearChat() {
   addMsg('Привет! Я GigaChat. Спроси про учёбу 🎓', 'bot');
 }
 
-// ===== ПЛАН =====
+// ===== ПЛАН: расписание по дням С ТЕМАМИ + переходы =====
 function examInfo(grade, examText) {
   const now = new Date();
   const t = (examText || '').toLowerCase();
@@ -350,6 +357,14 @@ function examInfo(grade, examText) {
   return { name: examText || 'экзамен', examDate, weeks };
 }
 function loadPlan() { try { return JSON.parse(localStorage.getItem('sn_plan') || 'null'); } catch(e) { return null; } }
+function todayPlanItem() {
+  const plan = loadPlan();
+  if (!plan || !plan.schedule) return null;
+  return plan.schedule[todayIdx()] || null;
+}
+function isRestDay(item) {
+  return !item || /отдых|выходной/i.test(item.subject || '');
+}
 function renderPlan(data) {
   let h = '';
   if (data.examName) {
@@ -360,12 +375,15 @@ function renderPlan(data) {
     h += '<div class="item ai">📆 Расписание по дням (каждую неделю одинаковое):</div>';
     const ti = todayIdx();
     data.schedule.forEach((s, i) => {
-      h += '<div class="sched-row' + (i === ti ? ' today' : '') + '"><span>' + (s.day || DAYS[i]) + (i === ti ? ' 👉' : '') + '</span><b>' + (s.subject || '') + '</b><span class="act">' + (s.activity || '') + '</span></div>';
+      h += '<div class="sched-row' + (i === ti ? ' today' : '') + '"><span>' + (s.day || DAYS[i]) + (i === ti ? ' 👉' : '') + '</span><b>' + (s.subject || '') + '</b><span class="act">' + (s.topic || '') + (s.activity ? ' · ' + s.activity : '') + '</span></div>';
     });
     const todayItem = data.schedule[ti];
-    if (todayItem) {
-      h += '<div class="item ai">🎯 Сегодня (' + DAYS[ti] + '): ' + todayItem.subject + ' — ' + (todayItem.activity || 'занятие') + '</div>';
-      h += '<button class="btn" onclick="startTodayFromPlan()">🎯 Перейти к заданиям на сегодня</button>';
+    if (todayItem && !isRestDay(todayItem)) {
+      h += '<div class="item ai">🎯 Сегодня (' + DAYS[ti] + '): ' + todayItem.subject + '\n📖 Тема дня: ' + (todayItem.topic || 'по плану') + (todayItem.activity ? '\n✏️ ' + todayItem.activity : '') + '</div>';
+      h += '<button class="btn" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';
+      h += '<button class="btn gray" onclick="videoTodayFromPlan()">🎥 Видеоуроки по теме дня</button>';
+    } else if (todayItem) {
+      h += '<div class="item ai">😴 Сегодня по плану отдых. Но можешь потренировать любую тему!</div>';
     }
   }
   if (data.steps && data.steps.length) {
@@ -393,14 +411,10 @@ async function buildPlan() {
   btn.disabled = true;
   showLoading('planResult', 'GigaChat составляет план до ' + ei.name + '...');
   try {
-    const prompt = 'Ученик ' + grade + ' класса собирается сдавать: ' + examText + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\nСоставь:\n1) Регулярное расписание по дням недели (Пн-Вс): один предмет в день, в дни без занятий (учитывай ' + days + ' дней в неделю) пиши subject="отдых". Это расписание повторяется каждую неделю.\n2) План из 6-8 этапов с конкретными темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет","activity":"что делать"},{"day":"Вт",...}...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
+    const prompt = 'Ученик ' + grade + ' класса собирается сдавать: ' + examText + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\nСоставь:\n1) Регулярное расписание по дням недели (Пн-Вс): один предмет в день, для каждого дня ужи конкретную тему этого дня (topic). В дни без занятий (учитывай ' + days + ' дней в неделю) пиши subject="отдых". Расписание повторяется каждую неделю.\n2) План из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет","topic":"тема дня","activity":"что делать"},{"day":"Вт",...}...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
     const response = await askGiga(prompt, 'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.', 3000);
-    const match = response.match(/\{[\s\S]*\}/);
-    let data = null;
-    if (match) { try { data = JSON.parse(match[0]); } catch (e) { data = null; } }
-    if (!data || (!data.steps && !data.schedule)) {
-      data = { text: response };
-    }
+    let data = parseJSONObjectSafe(response);
+    if (!data || (!data.steps && !data.schedule)) data = { text: response };
     data.examName = ei.name;
     data.examDate = ei.examDate.toLocaleDateString('ru-RU');
     data.weeks = ei.weeks;
@@ -420,17 +434,18 @@ function deletePlan() {
   }
 }
 function startTodayFromPlan() {
-  const plan = loadPlan();
-  if (!plan || !plan.schedule) return alert('В плане нет расписания');
-  const item = plan.schedule[todayIdx()];
-  if (!item || /отдых|выходной/i.test(item.subject || '')) {
-    alert('Сегодня по плану отдых 😴 Но можешь потренировать любую тему в тренажёре!');
-    go('quiz');
-    return;
-  }
-  document.getElementById('qTopic').value = item.subject;
+  const item = todayPlanItem();
+  if (isRestDay(item)) { alert('Сегодня по плану отдых 😴'); go('quiz'); return; }
+  document.getElementById('qTopic').value = (item.subject || '') + (item.topic ? ', тема: ' + item.topic : '');
   go('quiz');
   startQuiz();
+}
+function videoTodayFromPlan() {
+  const item = todayPlanItem();
+  if (isRestDay(item)) { alert('Сегодня по плану отдых 😴'); return; }
+  document.getElementById('vTopic').value = item.topic || item.subject || '';
+  go('video');
+  buildVideo();
 }
 
 // ===== ТРЕНАЖЁР =====
@@ -439,22 +454,25 @@ function normalize(s) {
   return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();
 }
 async function fetchBatch(topic, diff, n) {
-  const prompt = 'Придумай ' + n + ' разных учебных заданий по предмету/теме «' + topic + '» (сложность: ' + diff + '), от простых к сложным. Ответы короткие и однозначные (слово, число, формула). Не давай вариантов ответа. Пиши вопросы и подсказки обычным русским языком, ОБЯЗАТЕЛЬНО с пробелами между словами. Верни СТРОГО JSON-массив: [{"question":"...","answer":"...","alternatives":["..."],"hint":"..."}]';
-  const response = await askGiga(prompt, 'Ты — учитель. Верни только валидный JSON-массив, без пояснений и markdown.', 3000);
-  const match = response.match(/\[[\s\S]*\]/);
-  if (!match) throw new Error('Не JSON');
-  const arr = JSON.parse(match[0]);
-  if (!Array.isArray(arr) || !arr.length) throw new Error('Пусто');
-  const out = [];
-  for (const obj of arr) {
-    if (obj && obj.question && obj.answer) {
-      obj.question = await ensureSpaces(obj.question);
-      obj.hint = obj.hint ? await ensureSpaces(obj.hint) : '';
-      out.push(obj);
-    }
+  const prompt = 'Придумай ' + n + ' разных учебных заданий по предмету/теме «' + topic + '» (сложность: ' + diff + '), от простых к сложным. Ответы короткие и однозначные (слово, число, формула). Не давай вариантов ответа. Формулируй КОРОТКО (вопрос до 120 символов). Пиши обязательно с пробелами между словами. Верни СТРОГО JSON-массив: [{"question":"...","answer":"...","alternatives":["..."],"hint":"..."}]';
+  let lastErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await askGiga(prompt, 'Ты — учитель. Верни только валидный JSON-массив, без пояснений и markdown.', 4000);
+      const arr = parseJSONArraySafe(response);
+      const out = [];
+      for (const obj of arr) {
+        if (obj && obj.question && obj.answer) {
+          obj.question = await ensureSpaces(obj.question);
+          obj.hint = obj.hint ? await ensureSpaces(obj.hint) : '';
+          out.push(obj);
+        }
+      }
+      if (!out.length) throw new Error('Пусто');
+      return out;
+    } catch (e) { lastErr = e; }
   }
-  if (!out.length) throw new Error('Пусто');
-  return out;
+  throw lastErr;
 }
 function updateNextLabel() {
   document.getElementById('nextBtn').textContent = '➡️ Следующее задание (в запасе: ' + qQueue.length + ')';
@@ -560,12 +578,9 @@ async function addGradeAI() {
   let parsed = null;
   try {
     const response = await askGiga('Ученик написал про свои оценки: «' + text + '». Определи школьный предмет (полное нормальное название по-русски) и список оценок (числа 1-5). Учти сленг: матан=математика, физра=физкультура, инглиш=английский язык. Верни СТРОГО JSON: {"subject":"математика","grades":[5,5,5]}', 'Верни только валидный JSON, без пояснений.', 300);
-    const match = response.match(/\{[\s\S]*\}/);
-    if (match) {
-      const obj = JSON.parse(match[0]);
-      if (obj.subject && Array.isArray(obj.grades) && obj.grades.length) {
-        parsed = { subject: obj.subject, grades: obj.grades.filter(g => g >= 1 && g <= 5) };
-      }
+    const obj = parseJSONObjectSafe(response);
+    if (obj && obj.subject && Array.isArray(obj.grades) && obj.grades.length) {
+      parsed = { subject: obj.subject, grades: obj.grades.filter(g => g >= 1 && g <= 5) };
     }
   } catch (e) { parsed = null; }
   if (!parsed || !parsed.grades.length) parsed = localParseGrades(text);
@@ -603,40 +618,6 @@ async function gradesAI() {
   } finally {
     btn.disabled = false;
   }
-}
-
-// ===== КАРТОЧКИ =====
-let cards = [], cardIdx = 0, flipped = false;
-async function generateCards() {
-  const topic = document.getElementById('fTopic').value.trim() || 'школа';
-  const btn = document.getElementById('fBtn');
-  btn.disabled = true;
-  document.getElementById('flashCard').textContent = '⏳ GigaChat генерирует карточки...';
-  try {
-    const response = await askGiga('Создай 8 карточек для изучения английских слов по теме «' + topic + '». Ответь СТРОГО JSON массивом пар: [["word","перевод"],...]', 'Отвечай только валидным JSON.', 1200);
-    const match = response.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('Не JSON');
-    cards = JSON.parse(match[0]).filter(p => Array.isArray(p) && p.length === 2);
-    if (!cards.length) throw new Error('Пусто');
-    cardIdx = 0; flipped = false;
-    document.getElementById('flashCard').textContent = cards[0][0];
-  } catch (e) {
-    document.getElementById('flashCard').textContent = '❌ Ошибка: ' + e.message;
-    cards = [];
-  } finally {
-    btn.disabled = false;
-  }
-}
-function nextCard() {
-  if (!cards.length) return;
-  cardIdx = (cardIdx + 1) % cards.length;
-  flipped = false;
-  document.getElementById('flashCard').textContent = cards[cardIdx][0];
-}
-function flipCard() {
-  if (!cards.length) return;
-  flipped = !flipped;
-  document.getElementById('flashCard').textContent = flipped ? cards[cardIdx][1] : cards[cardIdx][0];
 }
 
 // ===== ВИДЕО =====
