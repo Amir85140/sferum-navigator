@@ -8,6 +8,7 @@ app = Flask(__name__)
 
 @app.route('/proxy', methods=['GET', 'POST', 'OPTIONS'])
 def proxy():
+    # Разрешаем CORS для любого источника
     if request.method == 'OPTIONS':
         resp = Response('', status=204)
         resp.headers['Access-Control-Allow-Origin'] = '*'
@@ -27,7 +28,7 @@ def proxy():
             url=url,
             headers=headers,
             data=request.get_data(),
-            verify=False,
+            verify=False,   # обходим недоверенный сертификат Сбера
             timeout=60
         )
         resp = Response(r.content, status=r.status_code)
@@ -36,6 +37,10 @@ def proxy():
         return resp
     except Exception as e:
         return jsonify({'error': str(e)}), 502
+
+@app.route('/health')
+def health():
+    return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
