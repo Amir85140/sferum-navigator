@@ -25,6 +25,7 @@
   .btn:active { transform: scale(.98); }
   .btn:disabled { opacity: .6; cursor: not-allowed; }
   .btn.gray { background: #e8e8f0; color: #555; }
+  .btn.sel { background: #4caf50; }
   .item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 12px; margin-top: 10px; font-size: 15px; white-space: pre-wrap; line-height: 1.6; }
   .item.ai { border-left-color: #f7971e; }
   .item.loading { background: #fff8e1; border-left-color: #f7971e; text-align: center; }
@@ -82,7 +83,7 @@
   <div id="chat" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🤖 Чат с GigaChat</h1>
-    <div class="subtitle">Помнит разговор даже после перезахода · оценки сам пишет в дневник</div>
+    <div class="subtitle">Помнит разговор · оценки сам пишет в дневник</div>
     <div class="chat-box" id="chatBox"></div>
     <div class="chat-input">
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -126,7 +127,6 @@
     <button class="btn" id="planBtn" onclick="buildPlan()">✨ Составить план от GigaChat</button>
     <button class="btn gray" onclick="deletePlan()">🗑 Удалить сохранённый план</button>
     <div id="planResult"></div>
-    <div id="doneBox" style="display:none;"></div>
   </div>
 
   <div id="quiz" class="page">
@@ -181,7 +181,7 @@
     <div id="gList"></div>
     <label>✍️ Напиши предмет и оценки своими словами</label>
     <input type="text" id="gText" placeholder="Например: инфа 5 5 5 / по физре получил 4">
-    <button class="btn" id="gAddBtn" onclick="addGradeAI()">🤖 Добавить через GigaChat</button>
+    <button class="btn" id="gAddBtn" onclick="addGradeAI()">🤖 Добавить (предмет определит GigaChat)</button>
     <button class="btn" id="gBtn" onclick="gradesAI()">🤖 Анализ успеваемости</button>
     <button class="btn gray" onclick="clearGrades()">🗑 Очистить всё</button>
     <div id="gAi"></div>
@@ -219,10 +219,10 @@
       <ul>
         <li>🤖 Все функции работают через GigaChat</li>
         <li>🧠 Чат помнит разговор и сам пишет оценки в дневник</li>
-        <li>📆 План обновляет темы каждую неделю</li>
+        <li>📆 План: тема засчитывается только после теста</li>
         <li>📱 Мини-апп в MAX и на сайте</li>
       </ul>
-      <p style="margin-top:10px;color:#888;font-size:13px;">Версия 10</p>
+      <p style="margin-top:10px;color:#888;font-size:13px;">Версия 11</p>
     </div>
     <div class="legal">
       <a href="terms.html">Соглашение</a> ·
@@ -333,6 +333,7 @@ function mondayOf(d) {
   return x;
 }
 function currentWeekKey() { return mondayOf(new Date()).toISOString().slice(0,10); }
+function attr(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 
 const SUBJ_ALIASES = [
   ['Физкультура', ['физр', 'физкульт', 'физ-ра']],
@@ -379,18 +380,17 @@ function renderG() {
   for (const s in g) { const a = g[s]; all = all.concat(a); const avg = a.reduce((x,y)=>x+y,0)/a.length;
     h += '<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';
   }
-  document.getElementById('gList').innerHTML = h || '<div class="item">Напиши оценки своими словами — определим предмет 👆</div>';
+  document.getElementById('gList').innerHTML = h || '<div class="item">Напиши оценки своими словами — GigaChat определит предмет 👆</div>';
   document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
 }
 
+// ===== ЧАТ =====
 let chatHistory = [];
 try { chatHistory = JSON.parse(localStorage.getItem('sn_chat') || '[]'); } catch (e) { chatHistory = []; }
-
 function saveChatHistory() {
   if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
   localStorage.setItem('sn_chat', JSON.stringify(chatHistory));
 }
-
 function addMsg(t, c) {
   const b = document.getElementById('chatBox');
   const d = document.createElement('div');
@@ -398,7 +398,6 @@ function addMsg(t, c) {
   b.appendChild(d); b.scrollTop = b.scrollHeight;
   return d;
 }
-
 async function tryParseGradesViaGiga(text) {
   const digits = (text.match(/\b[1-5]\b/g) || []).length;
   if (!digits || !GRADE_TRIGGERS.test(text)) return null;
@@ -411,7 +410,6 @@ async function tryParseGradesViaGiga(text) {
   } catch (e) {}
   return null;
 }
-
 async function sendChat() {
   const i = document.getElementById('chatInput');
   const t = i.value.trim(); if (!t) return;
@@ -450,7 +448,6 @@ async function sendChat() {
     document.getElementById('chatBtn').disabled = false;
   }
 }
-
 function clearChat() {
   if (!confirm('Удалить всю историю разговора?')) return;
   chatHistory = [];
@@ -458,7 +455,6 @@ function clearChat() {
   document.getElementById('chatBox').innerHTML = '';
   addMsg('История очищена. Давай начнём заново! 🎓', 'bot');
 }
-
 function restoreChatHistory() {
   document.getElementById('chatBox').innerHTML = '';
   if (chatHistory.length === 0) {
@@ -472,6 +468,7 @@ function restoreChatHistory() {
   }
 }
 
+// ===== ПЛАН =====
 function examInfo(grade, examText) {
   const now = new Date();
   const t = (examText || '').toLowerCase();
@@ -494,6 +491,8 @@ function todayPlanItem() {
 function isRestDay(item) {
   return !item || /отдых|выходной/i.test(item.subject || '');
 }
+function topicKey(s) { return s.topic || s.subject || ''; }
+
 function renderPlan(data) {
   let h = '';
   if (data.examName) {
@@ -511,14 +510,38 @@ function renderPlan(data) {
       h += '<div class="item ai">🎯 Сегодня (' + DAYS[ti] + '): ' + todayItem.subject + '\n📖 Тема дня: ' + (todayItem.topic || 'по плану') + (todayItem.activity ? '\n✏️ ' + todayItem.activity : '') + '</div>';
       h += '<button class="btn" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';
       h += '<button class="btn gray" onclick="videoTodayFromPlan()">🎥 Видеоуроки по теме дня</button>';
-      h += '<button class="btn gray" onclick="markTopicDone()">✅ Я прошёл сегодняшнюю тему</button>';
     } else if (todayItem) {
       h += '<div class="item ai">😴 Сегодня по плану отдых. Но можешь потренировать любую тему!</div>';
     }
-  }
-  if (data.done && data.done.length) {
-    const last = data.done[data.done.length - 1];
-    h += '<div class="item">✅ Пройдено тем: ' + data.done.length + ' (последняя: ' + last.topic + ', ' + last.date + ')</div>';
+
+    // ===== ТЕМЫ НЕДЕЛИ: выбор + тест + отметка =====
+    const weekTopics = data.schedule.filter(s => !isRestDay(s));
+    if (weekTopics.length) {
+      h += '<div class="item ai">📚 Темы недели: выбери пройденную и подтверди тестом</div>';
+      weekTopics.forEach(s => {
+        const key = topicKey(s);
+        if (!key) return;
+        const passed = data.testPassed && data.testPassed[key];
+        const done = (data.done || []).some(d => d.topic === key);
+        const selected = data.selectedTopic === key;
+        h += '<div class="sched-row' + (selected ? ' today' : '') + '"><span>' + (s.day || '') + '</span><b>' + (s.subject || '') + '</b><span class="act">' + key +
+             (passed ? '\n✅ тест ' + passed.score + '/' + passed.total : '') + (done ? '\n🎓 пройдено' : '') + '</span></div>';
+        if (!done) {
+          h += '<button class="btn ' + (selected ? 'sel' : 'gray') + '" onclick="selectTopic(\'' + attr(key) + '\')">' + (selected ? '✔ Выбрано: ' : 'Выбрать тему: ') + key + '</button>';
+          if (selected) {
+            h += '<button class="btn" onclick="testSelectedTopic()">🎯 Пройти тест по теме в тренажёре</button>';
+            if (passed) {
+              h += '<button class="btn" onclick="markSelectedDone()">✅ Я прошёл тему «' + key + '»</button>';
+            } else {
+              h += '<div class="item">⛔ Кнопка «Я прошёл тему» откроется после теста по этой теме в тренажёре</div>';
+            }
+          }
+        }
+      });
+      if (data.done && data.done.length) {
+        h += '<div class="item">🎓 Пройдено тем: ' + data.done.length + ' (последняя: ' + data.done[data.done.length-1].topic + ', ' + data.done[data.done.length-1].date + ')</div>';
+      }
+    }
   }
   if (data.steps && data.steps.length) {
     h += '<div class="item ai">🗺 Этапы подготовки с темами:</div>';
@@ -559,6 +582,8 @@ async function buildPlan() {
     data.scheduleWeek = currentWeekKey();
     data.params = params;
     data.done = [];
+    data.testPassed = {};
+    data.selectedTopic = null;
     savePlan(data);
     renderPlan(data);
   } catch (e) {
@@ -582,6 +607,7 @@ async function checkWeekUpdate() {
     if (data && data.schedule && data.schedule.length === 7) {
       plan.schedule = data.schedule;
       plan.scheduleWeek = currentWeekKey();
+      plan.selectedTopic = null;
       savePlan(plan);
     }
     renderPlan(plan);
@@ -593,7 +619,6 @@ function deletePlan() {
   if (confirm('Удалить сохранённый план?')) {
     localStorage.removeItem('sn_plan');
     document.getElementById('planResult').innerHTML = '';
-    document.getElementById('doneBox').style.display = 'none';
   }
 }
 function startTodayFromPlan() {
@@ -610,30 +635,40 @@ function videoTodayFromPlan() {
   go('video');
   buildVideo();
 }
-function markTopicDone() {
+function selectTopic(key) {
   const plan = loadPlan();
-  const item = todayPlanItem();
-  if (!plan || isRestDay(item)) return alert('Сегодня нет темы для отметки');
-  if (!plan.done) plan.done = [];
-  plan.done.push({ date: new Date().toLocaleDateString('ru-RU'), subject: item.subject, topic: item.topic || item.subject });
+  if (!plan) return;
+  plan.selectedTopic = (plan.selectedTopic === key) ? null : key;
   savePlan(plan);
   renderPlan(plan);
-  const box = document.getElementById('doneBox');
-  box.style.display = 'block';
-  box.innerHTML = '<div class="item ai">🎉 Отлично! Тема «' + (item.topic || item.subject) + '» отмечена пройденной.\nЗакрепить её тренажёром прямо сейчас?</div>' +
-    '<button class="btn" onclick="trainerFromDone()">Да, перехожу в тренажёр</button>' +
-    '<button class="btn gray" onclick="hideDone()">Позже</button>';
 }
-function trainerFromDone() {
-  const item = todayPlanItem();
-  document.getElementById('qTopic').value = (item.subject || '') + (item.topic ? ', тема: ' + item.topic : '');
-  document.getElementById('doneBox').style.display = 'none';
+function testSelectedTopic() {
+  const plan = loadPlan();
+  const key = plan && plan.selectedTopic;
+  if (!key) return alert('Сначала выбери тему из списка');
+  document.getElementById('qTopic').value = key;
   go('quiz');
-  startQuiz();
+  startQuiz(key);
 }
-function hideDone() { document.getElementById('doneBox').style.display = 'none'; }
+function markSelectedDone() {
+  const plan = loadPlan();
+  if (!plan) return;
+  const key = plan.selectedTopic;
+  if (!key) return alert('Сначала выбери тему');
+  if (!plan.testPassed || !plan.testPassed[key]) return alert('Сначала пройди тест по этой теме в тренажёре');
+  if (!plan.done) plan.done = [];
+  if (!plan.done.some(d => d.topic === key)) {
+    const schedItem = (plan.schedule || []).find(s => topicKey(s) === key);
+    plan.done.push({ date: new Date().toLocaleDateString('ru-RU'), subject: (schedItem && schedItem.subject) || key, topic: key, score: plan.testPassed[key].score + '/' + plan.testPassed[key].total });
+  }
+  plan.selectedTopic = null;
+  savePlan(plan);
+  renderPlan(plan);
+}
 
+// ===== ТРЕНАЖЁР =====
 let qC = 0, qT = 0, qCurrent = null, qAnswered = false, qQueue = [], qLastTopic = '';
+let qPendingTopic = null, qBatchTotal = 0, qBatchAnswered = 0, qBatchScore = 0;
 function normalize(s) {
   return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();
 }
@@ -673,16 +708,18 @@ function showQuestion(obj) {
   document.getElementById('quizAnswer').focus();
   updateNextLabel();
 }
-async function startQuiz() {
+async function startQuiz(pendingTopic) {
   const topic = document.getElementById('qTopic').value.trim();
   if (!topic) return alert('Напиши предмет или тему');
   qLastTopic = topic;
+  qPendingTopic = pendingTopic || null;
   const diff = document.getElementById('qDiff').value;
   const grade = document.getElementById('qGrade').value;
   const type = document.getElementById('qType').value;
   const btn = document.getElementById('quizBtn');
   btn.disabled = true;
   qQueue = [];
+  qBatchTotal = 0; qBatchAnswered = 0; qBatchScore = 0;
   document.getElementById('quizQ').textContent = '⏳ GigaChat генерирует 10 заданий (' + grade + ' класс, ' + type + ')...';
   document.getElementById('quizHint').textContent = '';
   document.getElementById('quizResult').innerHTML = '';
@@ -691,6 +728,7 @@ async function startQuiz() {
   try {
     const arr = await fetchBatch(topic, diff, 10, grade, type);
     qQueue = arr.slice(1);
+    qBatchTotal = arr.length;
     showQuestion(arr[0]);
   } catch (e) {
     document.getElementById('quizQ').textContent = '❌ Ошибка: ' + e.message;
@@ -714,6 +752,7 @@ async function nextQuestion() {
   try {
     const arr = await fetchBatch(qLastTopic || 'математика', diff, 10, grade, type);
     qQueue = arr.slice(1);
+    qBatchTotal = arr.length; qBatchAnswered = 0; qBatchScore = 0;
     showQuestion(arr[0]);
   } catch (e) {
     document.getElementById('quizQ').textContent = '❌ Ошибка: ' + e.message;
@@ -722,16 +761,33 @@ async function nextQuestion() {
     updateNextLabel();
   }
 }
+function finishBatch() {
+  let extra = '<div class="item ai">🏁 Тест завершён: ' + qBatchScore + ' / ' + qBatchTotal + '</div>';
+  if (qPendingTopic) {
+    const plan = loadPlan();
+    if (plan) {
+      if (!plan.testPassed) plan.testPassed = {};
+      plan.testPassed[qPendingTopic] = { score: qBatchScore, total: qBatchTotal, date: new Date().toLocaleDateString('ru-RU') };
+      savePlan(plan);
+      extra += '<div class="item ai">Тема «' + qPendingTopic + '» подтверждена тестом!\nВернись в план и нажми «✅ Я прошёл тему».</div>';
+      extra += '<button class="btn" onclick="go(\'plan\')">📅 Вернуться в план</button>';
+    }
+    qPendingTopic = null;
+  }
+  document.getElementById('quizResult').innerHTML += extra;
+}
 function checkAnswer() {
   if (qAnswered || !qCurrent) return;
   const user = normalize(document.getElementById('quizAnswer').value);
   if (!user) return;
   qAnswered = true;
   qT++;
+  qBatchAnswered++;
   const variants = [qCurrent.answer].concat(qCurrent.alternatives || []).map(normalize);
   const ok = variants.includes(user);
   if (ok) {
     qC++;
+    qBatchScore++;
     document.getElementById('quizResult').innerHTML = '<div class="item ai">✅ Верно! Отличная работа!</div>';
   } else {
     document.getElementById('quizResult').innerHTML = '<div class="item" style="border-left-color:#e57373;">❌ Неверно. Правильный ответ: ' + qCurrent.answer + '</div>';
@@ -740,43 +796,38 @@ function checkAnswer() {
   document.getElementById('quizAnswerBox').style.display = 'none';
   document.getElementById('nextBtn').style.display = 'block';
   updateNextLabel();
+  if (qBatchTotal && qBatchAnswered >= qBatchTotal && qQueue.length === 0) finishBatch();
 }
 
+// ===== ДНЕВНИК: предмет определяет GigaChat =====
 async function addGradeAI() {
   const text = document.getElementById('gText').value.trim();
   if (!text) return alert('Напиши, например: инфа 5 5 5');
   const btn = document.getElementById('gAddBtn');
   btn.disabled = true;
-  const localSubj = localSubject(text);
-  const localGrades = (text.match(/\b[1-5]\b/g) || []).map(Number);
+  document.getElementById('gAi').innerHTML = '<div class="item loading">⏳ GigaChat определяет предмет...</div>';
   let subject = null, grades = [];
-  if (localSubj && localGrades.length) {
-    subject = localSubj;
-    grades = localGrades;
-  } else {
-    try {
-      const response = await askGiga('Ученик написал про свои оценки: «' + text + '». Определи школьный предмет (полное нормальное название по-русски) и список оценок (числа 1-5). Предмет бери СТРОГО из текста ученика, не подставляй другой предмет. Верни СТРОГО JSON в формате {"subject":"название предмета","grades":[5,4]} — без примеров с другими предметами.', 'Верни только валидный JSON, без пояснений.', 300);
-      const obj = parseJSONObjectSafe(response);
-      if (obj && obj.subject && Array.isArray(obj.grades)) {
-        subject = obj.subject;
-        grades = obj.grades.filter(g => g >= 1 && g <= 5);
-      }
-    } catch (e) {}
-    if (localSubj) subject = localSubj;
-    if (!grades.length) grades = localGrades;
-    if (!subject) {
-      const first = text.replace(/\b[1-5]\b/g,'').replace(/[^a-zA-Zа-яА-ЯёЁ\s]/g,'').trim().split(/\s+/)[0];
-      subject = first ? first.charAt(0).toUpperCase() + first.slice(1) : 'Предмет';
+  try {
+    const response = await askGiga('Ученик написал про свои оценки: «' + text + '». Определи школьный предмет (полное нормальное название по-русски, с учётом сленга и сокращений) и список оценок (числа 1-5). Предмет бери СТРОГО из текста ученика, не подставляй другой. Верни СТРОГО JSON: {"subject":"название предмета","grades":[5,4]}', 'Верни только валидный JSON, без пояснений.', 300);
+    const obj = parseJSONObjectSafe(response);
+    if (obj && obj.subject && Array.isArray(obj.grades)) {
+      subject = obj.subject;
+      grades = obj.grades.filter(g => g >= 1 && g <= 5);
     }
+  } catch (e) {}
+  if (!subject || !grades.length) {
+    const lp = extractGradesLocal(text) || { subject: null, grades: (text.match(/\b[1-5]\b/g)||[]).map(Number) };
+    if (!subject) subject = lp.subject || (text.split(/\s+/)[0] || 'Предмет');
+    if (!grades.length) grades = lp.grades;
   }
   if (!grades.length) {
-    alert('Не нашёл оценок в тексте. Напиши цифры, например: информатика 5 4');
+    document.getElementById('gAi').innerHTML = '<div class="item" style="border-left-color:#e57373;">Не нашёл оценок. Напиши цифры, например: информатика 5 4</div>';
     btn.disabled = false;
     return;
   }
   addGradeToStorage({ subject, grades });
   document.getElementById('gText').value = '';
-  document.getElementById('gAi').innerHTML = '<div class="item ai">✅ Записано: ' + subject + ' → ' + grades.join(', ') + '</div>';
+  document.getElementById('gAi').innerHTML = '<div class="item ai">✅ GigaChat определил: ' + subject + ' → ' + grades.join(', ') + '</div>';
   btn.disabled = false;
 }
 function delG(s) { const g = loadG(); delete g[s]; saveG(g); renderG(); }
@@ -802,6 +853,7 @@ async function gradesAI() {
   }
 }
 
+// ===== ВИДЕО =====
 async function buildVideo() {
   const topic = document.getElementById('vTopic').value.trim() || 'математика';
   const btn = document.getElementById('vBtn');
@@ -821,6 +873,7 @@ async function buildVideo() {
   }
 }
 
+// ===== МОТИВАЦИЯ =====
 async function motivationAI() {
   const mood = document.getElementById('mMood').value;
   const moodText = {tired:'Устал', worried:'Переживаю', lazy:'Лень', ok:'Нормально'}[mood];
