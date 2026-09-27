@@ -31,8 +31,9 @@
   .row2 { display: flex; gap: 10px; }
   .row2 > * { flex: 1; }
   .mini-link { display: inline-block; margin: 4px 6px 0 0; font-size: 12px; color: #667eea; text-decoration: none; background: #eef; padding: 4px 8px; border-radius: 8px; }
-  .sched-row { display: flex; justify-content: space-between; background: #f7f7fc; border-radius: 10px; padding: 10px 12px; margin-top: 6px; font-size: 14px; }
+  .sched-row { display: flex; justify-content: space-between; gap: 8px; background: #f7f7fc; border-radius: 10px; padding: 10px 12px; margin-top: 6px; font-size: 14px; align-items: center; }
   .sched-row.today { background: #fff8e1; border: 2px solid #f7971e; font-weight: 700; }
+  .sched-row .act { font-size: 12px; color: #888; font-weight: 400; }
   .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0 6px; text-align: center; min-height: 48px; }
   .hint { font-size: 13px; color: #888; margin-top: 4px; text-align: center; }
   .quiz-input { display: flex; gap: 8px; margin-top: 12px; }
@@ -92,19 +93,21 @@
   <div id="plan" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>📅 Персональный план</h1>
-    <div class="subtitle">План сохраняется, пока ты сам его не изменишь</div>
+    <div class="subtitle">Сохраняется, пока сам не изменишь</div>
     <label>🎓 Твой класс</label>
     <select id="pGrade">
       <option value="5">5 класс</option><option value="6">6 класс</option>
       <option value="7">7 класс</option><option value="8">8 класс</option>
-      <option value="9">9 класс (ОГЭ)</option><option value="10">10 класс</option>
-      <option value="11">11 класс (ЕГЭ)</option>
+      <option value="9">9 класс</option><option value="10">10 класс</option>
+      <option value="11">11 класс</option>
     </select>
-    <label>📚 Какие предметы сдаёшь?</label>
+    <label>🎯 Что собираешься сдавать?</label>
+    <input type="text" id="pExam" placeholder="Например: ЕГЭ по математике и физике, ОГЭ, вступительные">
+    <label>📚 Предметы для подготовки</label>
     <textarea id="pSubjects" rows="2" placeholder="Например: математика, русский, физика"></textarea>
-    <label>🎯 Твоя цель</label>
+    <label>🏆 Твоя цель</label>
     <input type="text" id="pGoal" placeholder="Например: сдать на 90+, поступить в МФТИ">
-    <label>⏰ Сколько минут в день готов заниматься?</label>
+    <label>⏰ Минут в день</label>
     <input type="number" id="pMinutes" value="60" min="15" max="480" step="15">
     <label>📅 Дней в неделю</label>
     <select id="pDays">
@@ -127,9 +130,9 @@
   <div id="quiz" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>✅ Тренажёр</h1>
-    <div class="subtitle">Один предмет в день · пак из 10 заданий</div>
-    <label>📚 Твои предметы (через запятую)</label>
-    <input type="text" id="qSubjects" placeholder="математика, русский, физика">
+    <div class="subtitle">Пак из 10 заданий с письменным ответом</div>
+    <label>📚 Предмет или тема</label>
+    <input type="text" id="qTopic" placeholder="Например: математика, дроби, фотосинтез">
     <label>🎚 Сложность</label>
     <select id="qDiff">
       <option value="лёгкая">Лёгкая (разминка)</option>
@@ -137,11 +140,8 @@
       <option value="сложная">Сложная (ОГЭ/ЕГЭ)</option>
       <option value="смешанная">Смешанная</option>
     </select>
-    <button class="btn" id="schedBtn" onclick="buildSchedule()">📅 Составить расписание на неделю</button>
-    <div id="schedResult"></div>
-    <div class="item ai" id="qToday" style="display:none;"></div>
-    <button class="btn" id="quizBtn" onclick="startTodayQuiz()">🎲 10 заданий на сегодня</button>
-    <div class="quiz-q" id="quizQ">Сначала составь расписание 👆</div>
+    <button class="btn" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
+    <div class="quiz-q" id="quizQ">Введи предмет и нажми кнопку 👆</div>
     <div class="hint" id="quizHint"></div>
     <div class="quiz-input" id="quizAnswerBox" style="display:none;">
       <input id="quizAnswer" placeholder="Твой ответ..." onkeydown="if(event.key==='Enter')checkAnswer()">
@@ -297,6 +297,7 @@ function videoLinks(topic) {
          '<a class="mini-link" target="_blank" href="https://vk.com/video?q='+t+'">▶ VK</a>'+
          '<a class="mini-link" target="_blank" href="https://www.youtube.com/results?search_query='+t+'">▶ YouTube</a>';
 }
+function todayIdx() { return (new Date().getDay() + 6) % 7; }
 
 // ===== ЧАТ =====
 let chatHistory = [];
@@ -335,61 +336,74 @@ function clearChat() {
   addMsg('Привет! Я GigaChat. Спроси про учёбу 🎓', 'bot');
 }
 
-// ===== ПЛАН: авто-расчёт экзамена + сохранение + видео-ссылки =====
-function examInfo(grade) {
+// ===== ПЛАН =====
+function examInfo(grade, examText) {
   const now = new Date();
-  let name, month, day;
-  if (grade == 9) { name = 'ОГЭ'; month = 4; day = 20; }
-  else if (grade == 11) { name = 'ЕГЭ'; month = 4; day = 25; }
-  else { name = 'итоговые экзамены за год'; month = 4; day = 25; }
-  let examDate = new Date(now.getFullYear(), month, day);
-  if (examDate < now) examDate = new Date(now.getFullYear() + 1, month, day);
+  const t = (examText || '').toLowerCase();
+  let targetGrade = grade, month = 4, day = 25;
+  if (t.includes('огэ')) { targetGrade = 9; day = 20; }
+  else if (t.includes('егэ')) { targetGrade = 11; day = 25; }
+  const yearsLeft = Math.max(0, targetGrade - grade);
+  let examDate = new Date(now.getFullYear() + yearsLeft, month, day);
+  if (examDate < now) examDate = new Date(now.getFullYear() + yearsLeft + 1, month, day);
   const weeks = Math.max(1, Math.round((examDate - now) / (7*24*3600*1000)));
-  return { name, examDate, weeks };
+  return { name: examText || 'экзамен', examDate, weeks };
 }
+function loadPlan() { try { return JSON.parse(localStorage.getItem('sn_plan') || 'null'); } catch(e) { return null; } }
 function renderPlan(data) {
   let h = '';
   if (data.examName) {
-    h += '<div class="item ai">🎯 Экзамен: ' + data.examName + ' · до ' + data.examDate + ' · осталось недель: ' + data.weeks + (data.savedAt ? '\n💾 План сохранён: ' + data.savedAt + ' (будет жить, пока не изменишь)' : '') + '</div>';
+    h += '<div class="item ai">🎯 Сдаёшь: ' + data.examName + '\n📆 Дата экзамена: ' + data.examDate + ' · осталось недель: ' + data.weeks +
+         (data.savedAt ? '\n💾 Сохранён: ' + data.savedAt + ' — живёт, пока не изменишь' : '') + '</div>';
   }
-  if (data.text) {
-    h += '<div class="item ai">' + cleanResponse(data.text) + '</div>';
-  } else if (data.steps) {
+  if (data.schedule && data.schedule.length) {
+    h += '<div class="item ai">📆 Расписание по дням (каждую неделю одинаковое):</div>';
+    const ti = todayIdx();
+    data.schedule.forEach((s, i) => {
+      h += '<div class="sched-row' + (i === ti ? ' today' : '') + '"><span>' + (s.day || DAYS[i]) + (i === ti ? ' 👉' : '') + '</span><b>' + (s.subject || '') + '</b><span class="act">' + (s.activity || '') + '</span></div>';
+    });
+    const todayItem = data.schedule[ti];
+    if (todayItem) {
+      h += '<div class="item ai">🎯 Сегодня (' + DAYS[ti] + '): ' + todayItem.subject + ' — ' + (todayItem.activity || 'занятие') + '</div>';
+      h += '<button class="btn" onclick="startTodayFromPlan()">🎯 Перейти к заданиям на сегодня</button>';
+    }
+  }
+  if (data.steps && data.steps.length) {
+    h += '<div class="item ai">🗺 Этапы подготовки с темами:</div>';
     data.steps.forEach((s, i) => {
       h += '<div class="item"><b>' + (i+1) + '. ' + (s.period||'') + ' · ' + (s.subject||'') + '</b>\nТема: ' + (s.topic||'') + '\n' + (s.advice||'') + '\n' + videoLinks(s.topic || s.subject || 'урок') + '</div>';
     });
-    if (data.summary) h += '<div class="item ai">💡 ' + cleanResponse(data.summary) + '</div>';
   }
+  if (data.summary) h += '<div class="item ai">💡 ' + cleanResponse(data.summary) + '</div>';
+  if (data.text) h += '<div class="item ai">' + cleanResponse(data.text) + '</div>';
   document.getElementById('planResult').innerHTML = h;
 }
-function loadPlan() { try { return JSON.parse(localStorage.getItem('sn_plan') || 'null'); } catch(e) { return null; } }
 async function buildPlan() {
   const grade = +document.getElementById('pGrade').value;
+  const examText = document.getElementById('pExam').value.trim();
+  if (!examText) return alert('Напиши, что собираешься сдавать');
   const subjects = document.getElementById('pSubjects').value || 'не указано';
   const goal = document.getElementById('pGoal').value || 'не указано';
   const minutes = document.getElementById('pMinutes').value;
   const days = document.getElementById('pDays').value;
   const level = document.getElementById('pLevel').value;
   const weak = document.getElementById('pWeak').value || 'нет';
-  const ei = examInfo(grade);
+  const ei = examInfo(grade, examText);
   const btn = document.getElementById('planBtn');
   btn.disabled = true;
   showLoading('planResult', 'GigaChat составляет план до ' + ei.name + '...');
   try {
-    const prompt = 'Ученик ' + grade + ' класса. Экзамен: ' + ei.name + ', до него осталось ' + ei.weeks + ' недель.\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\nСоставь план подготовки из 6-8 этапов с конкретными темами. Верни СТРОГО JSON: {"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"короткий совет"}],"summary":"2-3 предложения общих советов"}';
-    const response = await askGiga(prompt, 'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.', 2500);
+    const prompt = 'Ученик ' + grade + ' класса собирается сдавать: ' + examText + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + subjects + '\nЦель: ' + goal + '\nЗанятия: ' + minutes + ' минут в день, ' + days + ' дней в неделю\nУровень: ' + level + '\nСлабые места: ' + weak + '\nСоставь:\n1) Регулярное расписание по дням недели (Пн-Вс): один предмет в день, в дни без занятий (учитывай ' + days + ' дней в неделю) пиши subject="отдых". Это расписание повторяется каждую неделю.\n2) План из 6-8 этапов с конкретными темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет","activity":"что делать"},{"day":"Вт",...}...7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
+    const response = await askGiga(prompt, 'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.', 3000);
     const match = response.match(/\{[\s\S]*\}/);
-    let data;
-    if (match) {
-      try { data = JSON.parse(match[0]); } catch (e) { data = null; }
+    let data = null;
+    if (match) { try { data = JSON.parse(match[0]); } catch (e) { data = null; } }
+    if (!data || (!data.steps && !data.schedule)) {
+      data = { text: response };
     }
-    if (data && data.steps) {
-      data.examName = ei.name;
-      data.examDate = ei.examDate.toLocaleDateString('ru-RU');
-      data.weeks = ei.weeks;
-    } else {
-      data = { text: response, examName: ei.name, examDate: ei.examDate.toLocaleDateString('ru-RU'), weeks: ei.weeks };
-    }
+    data.examName = ei.name;
+    data.examDate = ei.examDate.toLocaleDateString('ru-RU');
+    data.weeks = ei.weeks;
     data.savedAt = new Date().toLocaleDateString('ru-RU');
     localStorage.setItem('sn_plan', JSON.stringify(data));
     renderPlan(data);
@@ -405,49 +419,24 @@ function deletePlan() {
     document.getElementById('planResult').innerHTML = '';
   }
 }
+function startTodayFromPlan() {
+  const plan = loadPlan();
+  if (!plan || !plan.schedule) return alert('В плане нет расписания');
+  const item = plan.schedule[todayIdx()];
+  if (!item || /отдых|выходной/i.test(item.subject || '')) {
+    alert('Сегодня по плану отдых 😴 Но можешь потренировать любую тему в тренажёре!');
+    go('quiz');
+    return;
+  }
+  document.getElementById('qTopic').value = item.subject;
+  go('quiz');
+  startQuiz();
+}
 
-// ===== ТРЕНАЖЁР: расписание по дням + пак 10 заданий =====
-let qC = 0, qT = 0, qCurrent = null, qAnswered = false, qQueue = [];
+// ===== ТРЕНАЖЁР =====
+let qC = 0, qT = 0, qCurrent = null, qAnswered = false, qQueue = [], qLastTopic = '';
 function normalize(s) {
   return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();
-}
-function parseSubjects(s) { return s.split(/[,;\n]/).map(x => x.trim()).filter(Boolean); }
-function todayIdx() { return (new Date().getDay() + 6) % 7; }
-function loadSched() { try { return JSON.parse(localStorage.getItem('sn_sched') || 'null'); } catch(e) { return null; } }
-function renderSchedule() {
-  const sched = loadSched();
-  const box = document.getElementById('schedResult');
-  const todayBox = document.getElementById('qToday');
-  if (!sched) { box.innerHTML = ''; todayBox.style.display = 'none'; return; }
-  const ti = todayIdx();
-  let h = '';
-  sched.forEach((item, i) => {
-    h += '<div class="sched-row' + (i === ti ? ' today' : '') + '"><span>' + DAYS[i] + (i === ti ? ' 👉 сегодня' : '') + '</span><b>' + item.subject + '</b></div>';
-  });
-  box.innerHTML = h;
-  todayBox.style.display = 'block';
-  todayBox.textContent = '🎯 Сегодня (' + DAYS[ti] + ') изучаем: ' + sched[ti].subject;
-}
-async function buildSchedule() {
-  const subjects = parseSubjects(document.getElementById('qSubjects').value);
-  if (!subjects.length) return alert('Перечисли свои предметы через запятую');
-  const btn = document.getElementById('schedBtn');
-  btn.disabled = true;
-  showLoading('schedResult', 'GigaChat составляет расписание...');
-  let sched = null;
-  try {
-    const prompt = 'Составь расписание занятий на неделю: ОДИН предмет в день, распредели равномерно и логично предметы: ' + subjects.join(', ') + '. Верни СТРОГО JSON-массив из 7 объектов по порядку Пн..Вс: [{"day":"Пн","subject":"предмет"},...]';
-    const response = await askGiga(prompt, 'Верни только валидный JSON-массив, без пояснений.', 800);
-    const match = response.match(/\[[\s\S]*\]/);
-    if (match) {
-      const arr = JSON.parse(match[0]);
-      if (Array.isArray(arr) && arr.length === 7) sched = arr.map(x => ({ subject: x.subject || subjects[0] }));
-    }
-  } catch (e) { sched = null; }
-  if (!sched) sched = DAYS.map((d, i) => ({ subject: subjects[i % subjects.length] }));
-  localStorage.setItem('sn_sched', JSON.stringify(sched));
-  renderSchedule();
-  btn.disabled = false;
 }
 async function fetchBatch(topic, diff, n) {
   const prompt = 'Придумай ' + n + ' разных учебных заданий по предмету/теме «' + topic + '» (сложность: ' + diff + '), от простых к сложным. Ответы короткие и однозначные (слово, число, формула). Не давай вариантов ответа. Пиши вопросы и подсказки обычным русским языком, ОБЯЗАТЕЛЬНО с пробелами между словами. Верни СТРОГО JSON-массив: [{"question":"...","answer":"...","alternatives":["..."],"hint":"..."}]';
@@ -482,21 +471,21 @@ function showQuestion(obj) {
   document.getElementById('quizAnswer').focus();
   updateNextLabel();
 }
-async function startTodayQuiz() {
-  const sched = loadSched();
-  if (!sched) return alert('Сначала составь расписание на неделю');
-  const subject = sched[todayIdx()].subject;
+async function startQuiz() {
+  const topic = document.getElementById('qTopic').value.trim();
+  if (!topic) return alert('Напиши предмет или тему');
+  qLastTopic = topic;
   const diff = document.getElementById('qDiff').value;
   const btn = document.getElementById('quizBtn');
   btn.disabled = true;
   qQueue = [];
-  document.getElementById('quizQ').textContent = '⏳ GigaChat генерирует 10 заданий по теме «' + subject + '»...';
+  document.getElementById('quizQ').textContent = '⏳ GigaChat генерирует 10 заданий по «' + topic + '»...';
   document.getElementById('quizHint').textContent = '';
   document.getElementById('quizResult').innerHTML = '';
   document.getElementById('quizAnswerBox').style.display = 'none';
   document.getElementById('nextBtn').style.display = 'none';
   try {
-    const arr = await fetchBatch(subject, diff, 10);
+    const arr = await fetchBatch(topic, diff, 10);
     qQueue = arr.slice(1);
     showQuestion(arr[0]);
   } catch (e) {
@@ -513,13 +502,11 @@ async function nextQuestion() {
     btn.disabled = false;
     return;
   }
-  const sched = loadSched();
-  const subject = sched ? sched[todayIdx()].subject : 'математика';
   const diff = document.getElementById('qDiff').value;
   document.getElementById('quizQ').textContent = '⏳ Генерируем ещё 10 заданий...';
   document.getElementById('quizAnswerBox').style.display = 'none';
   try {
-    const arr = await fetchBatch(subject, diff, 10);
+    const arr = await fetchBatch(qLastTopic || 'математика', diff, 10);
     qQueue = arr.slice(1);
     showQuestion(arr[0]);
   } catch (e) {
@@ -549,7 +536,7 @@ function checkAnswer() {
   updateNextLabel();
 }
 
-// ===== ДНЕВНИК: GigaChat парсит предмет и оценки из текста =====
+// ===== ДНЕВНИК =====
 function loadG() { try { return JSON.parse(localStorage.getItem('g') || '{}'); } catch(e) { return {}; } }
 function saveG(g) { localStorage.setItem('g', JSON.stringify(g)); }
 function renderG() {
@@ -694,10 +681,9 @@ function go(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// ===== СТАРТ: восстанавливаем сохранённые план и расписание =====
+// ===== СТАРТ =====
 const savedPlan = loadPlan();
 if (savedPlan) renderPlan(savedPlan);
-renderSchedule();
 renderG();
 clearChat();
 </script>
