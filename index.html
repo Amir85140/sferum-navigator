@@ -73,7 +73,7 @@
 
   <div id="home" class="page active">
     <h1>🎯 Sferum Navigator</h1>
-    <div class="subtitle">ИИ-наставник на базе GigaChat · с формулами LaTeX</div>
+    <div class="subtitle">ИИ-наставник на базе GigaChat · формулы LaTeX</div>
     <div class="grid">
       <button class="tile" onclick="go('chat')"><span class="ico">🤖</span><span class="ttl">Чат с ИИ</span></button>
       <button class="tile" onclick="go('plan')"><span class="ico">📅</span><span class="ttl">План</span></button>
@@ -88,13 +88,13 @@
   <div id="chat" class="page">
     <button class="back" onclick="go('home')">← Назад</button>
     <h1>🤖 Чат с GigaChat</h1>
-    <div class="subtitle">Синхронизирован с ботом MAX · формулы в LaTeX</div>
+    <div class="subtitle">🔄 Двусторонняя синхронизация с ботом MAX</div>
     <div class="chat-box" id="chatBox"></div>
     <div class="chat-input">
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
       <button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
-    <button class="btn gray" onclick="clearChat()">🗑 Очистить историю</button>
+    <button class="btn gray" onclick="clearChat()">🗑 Очистить общий чат</button>
   </div>
 
   <div id="plan" class="page">
@@ -222,12 +222,12 @@
     <div class="about">
       <b>Sferum Navigator</b> — ИИ-наставник в мессенджере MAX на базе GigaChat от Сбера.
       <ul>
-        <li>🤖 Все функции работают через GigaChat</li>
+        <li>🔄 Чат синхронизирован с ботом MAX в обе стороны</li>
         <li>🧮 Красивые формулы LaTeX (KaTeX)</li>
-        <li>🔄 Чат синхронизирован с ботом MAX</li>
         <li>📚 Дневник распознаёт несколько предметов</li>
+        <li>🔒 Тема засчитывается только после теста из 20 вопросов</li>
       </ul>
-      <p style="margin-top:10px;color:#888;font-size:13px;">Версия 14</p>
+      <p style="margin-top:10px;color:#888;font-size:13px;">Версия 15</p>
     </div>
     <div class="legal">
       <a href="terms.html">Соглашение</a> ·
@@ -244,11 +244,10 @@ const CODESPACE_NAME = 'automatic-system-p7gg76p4wqqwf99rj';
 const PROXY_BASE = 'https://' + CODESPACE_NAME + '-8000.app.github.dev';
 const DAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const TEST_SIZE = 20;
+const CHANNEL = 'main';   // общий канал чата с ботом MAX
 const MATH_SYSTEM = 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
 
 let gigaToken = null, gigaExp = 0;
-let userId = localStorage.getItem('sn_user_id');
-if (!userId) { userId = 'user_' + Math.random().toString(36).slice(2, 10); localStorage.setItem('sn_user_id', userId); }
 
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -256,7 +255,7 @@ function uuid() {
   });
 }
 
-// ===== KATEX: рендеринг формул =====
+// ===== KATEX =====
 function mathIn(el) {
   if (!el || !window.renderMathInElement) return;
   try {
@@ -416,50 +415,61 @@ function renderG() {
   document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
 }
 
-// ===== ЧАТ =====
+// ===== ОБЩИЙ ЧАТ: двусторонняя синхронизация =====
 let chatHistory = [];
+try { chatHistory = JSON.parse(localStorage.getItem('sn_chat') || '[]'); } catch (e) { chatHistory = []; }
+
+function msgKey(m) { return (m.role||'') + '|' + (m.timestamp||'') + '|' + (m.content||''); }
+
 async function syncChatHistory() {
   try {
-    const r = await fetch(PROXY_BASE + '/chat_history?user_id=' + encodeURIComponent(userId));
-    if (r.ok) {
-      const serverHistory = await r.json();
-      if (Array.isArray(serverHistory) && serverHistory.length) {
-        const localSet = new Set(chatHistory.map(m => m.content + '|' + m.role));
-        serverHistory.forEach(m => {
-          const key = m.content + '|' + m.role;
-          if (!localSet.has(key)) { chatHistory.push(m); localSet.add(key); }
-        });
-        chatHistory.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        if (chatHistory.length > 50) chatHistory = chatHistory.slice(-50);
-        localStorage.setItem('sn_chat', JSON.stringify(chatHistory));
-      }
+    const r = await fetch(PROXY_BASE + '/chat_history?user_id=' + encodeURIComponent(CHANNEL));
+    if (!r.ok) return;
+    const server = await r.json();
+    if (!Array.isArray(server)) return;
+    const keys = new Set(chatHistory.map(msgKey));
+    let changed = false;
+    server.forEach(m => {
+      const k = msgKey(m);
+      if (!keys.has(k)) { chatHistory.push(m); keys.add(k); changed = true; }
+    });
+    if (changed) {
+      chatHistory.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+      if (chatHistory.length > 50) chatHistory = chatHistory.slice(-50);
+      localStorage.setItem('sn_chat', JSON.stringify(chatHistory));
+      if (document.getElementById('chat').classList.contains('active')) restoreChatHistory();
     }
   } catch (e) {}
 }
+
 async function saveChatToServer() {
   try {
-    await fetch(PROXY_BASE + '/chat_history?user_id=' + encodeURIComponent(userId), {
+    await fetch(PROXY_BASE + '/chat_history?user_id=' + encodeURIComponent(CHANNEL), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(chatHistory.slice(-50))
     });
   } catch (e) {}
 }
+
 function saveChatHistory() {
   if (chatHistory.length > 50) chatHistory = chatHistory.slice(-50);
   localStorage.setItem('sn_chat', JSON.stringify(chatHistory));
   saveChatToServer();
 }
-function addMsg(t, c) {
+
+function addMsg(t, c, source) {
   const b = document.getElementById('chatBox');
   const d = document.createElement('div');
-  d.className = 'msg '+c;
+  d.className = 'msg ' + c;
+  if (source === 'max' && c === 'user') t = '📱 MAX: ' + t;
   d.innerHTML = escapeHtml(t);
   b.appendChild(d);
   mathIn(d);
   b.scrollTop = b.scrollHeight;
   return d;
 }
+
 async function tryParseGradesViaGiga(text) {
   const digits = (text.match(/\b[1-5]\b/g) || []).length;
   if (!digits || !GRADE_TRIGGERS.test(text)) return null;
@@ -474,11 +484,12 @@ async function tryParseGradesViaGiga(text) {
   } catch (e) {}
   return null;
 }
+
 async function sendChat() {
   const i = document.getElementById('chatInput');
   const t = i.value.trim(); if (!t) return;
   i.value = '';
-  addMsg(t, 'user');
+  addMsg(t, 'user', 'web');
 
   const local = extractGradesLocal(t);
   if (local) {
@@ -489,13 +500,14 @@ async function sendChat() {
   const loading = addMsg('⏳ Думаю...', 'loading');
   document.getElementById('chatBtn').disabled = true;
   try {
+    await syncChatHistory();
     const historyForModel = chatHistory.slice(-16);
-    chatHistory.push({ role: 'user', content: t, timestamp: Date.now() });
-    const response = await askGiga(t, MATH_SYSTEM + ' Помни весь предыдущий разговор и учитывай его. Если ученик рассказывает про свои оценки — порадуйся или поддержи.', 800, historyForModel);
+    chatHistory.push({ role: 'user', content: t, timestamp: Date.now(), source: 'web' });
+    const response = await askGiga(t, MATH_SYSTEM + ' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про свои оценки — порадуйся или поддержи.', 800, historyForModel);
     const cleaned = cleanResponse(response);
     loading.remove();
-    addMsg(cleaned, 'bot');
-    chatHistory.push({ role: 'assistant', content: cleaned, timestamp: Date.now() });
+    addMsg(cleaned, 'bot', 'web');
+    chatHistory.push({ role: 'assistant', content: cleaned, timestamp: Date.now(), source: 'web' });
     saveChatHistory();
 
     if (!local) {
@@ -512,24 +524,26 @@ async function sendChat() {
     document.getElementById('chatBtn').disabled = false;
   }
 }
+
 function clearChat() {
-  if (!confirm('Удалить всю историю разговора (и на сервере)?')) return;
+  if (!confirm('Удалить общий чат (и в MAX, и на сайте)?')) return;
   chatHistory = [];
   localStorage.removeItem('sn_chat');
   document.getElementById('chatBox').innerHTML = '';
-  addMsg('История очищена. Давай начнём заново! 🎓', 'bot');
+  addMsg('Общий чат очищен. Давай начнём заново! 🎓', 'bot');
   saveChatToServer();
 }
+
 function restoreChatHistory() {
   document.getElementById('chatBox').innerHTML = '';
   if (chatHistory.length === 0) {
-    addMsg('Привет! Я GigaChat. Умею красиво писать формулы: $x^2 + \\frac{1}{2}$ 🎓', 'bot');
+    addMsg('Привет! Я GigaChat. Наш чат общий с ботом MAX: пиши здесь — увидят там, и наоборот 🔄', 'bot');
   } else {
     chatHistory.forEach(m => {
-      if (m.role === 'user') addMsg(m.content, 'user');
-      else if (m.role === 'assistant') addMsg(m.content, 'bot');
+      if (m.role === 'user') addMsg(m.content, 'user', m.source);
+      else if (m.role === 'assistant') addMsg(m.content, 'bot', m.source);
     });
-    addMsg('💾 Восстановил нашу переписку (синхронизировано с MAX). О чём говорили?', 'sys');
+    addMsg('💾 Общий чат загружен (MAX + сайт). Продолжаем?', 'sys');
   }
 }
 
@@ -1024,12 +1038,13 @@ function go(id) {
   if (id === 'chat') syncChatHistory().then(() => restoreChatHistory());
 }
 
+// ===== СТАРТ =====
 const savedPlan = loadPlan();
 if (savedPlan) renderPlan(savedPlan);
 renderG();
-try { chatHistory = JSON.parse(localStorage.getItem('sn_chat') || '[]'); } catch (e) { chatHistory = []; }
 syncChatHistory().then(() => restoreChatHistory());
 checkWeekUpdate();
+setInterval(syncChatHistory, 12000);   // живая синхронизация с MAX каждые 12 секунд
 </script>
 </body>
 </html>
