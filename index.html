@@ -8,279 +8,342 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
-  /* ===== ТЕМЫ ===== */
+  /* ===== ПАЛИТРА: НЕОБРУТАЛИЗМ ===== */
   :root, :root[data-theme="light"] {
-    --bg-grad: linear-gradient(135deg, #eef1ff 0%, #f8f0ff 50%, #eef1ff 100%);
-    --card: #ffffff;
-    --text: #1f2333;
-    --muted: #8a8fa3;
-    --tile: #f5f6fc;
-    --tile-text: #3c4257;
-    --border: #e3e6f0;
-    --input-bg: #ffffff;
-    --box: #f5f6fc;
-    --bubble-bot: #ffffff;
-    --bubble-bot-text: #2a2e3f;
-    --accent: #667eea;
-    --accent2: #764ba2;
-    --btn-grad: linear-gradient(135deg, #667eea, #764ba2);
-    --ok-bg: #e8f8e8; --ok-bd: #4caf50;
-    --err-bg: #fdeaea; --err-bd: #e57373;
-    --warn-bg: #fff6e0; --warn: #f7971e;
-    --shadow: 0 10px 40px rgba(30, 30, 60, .12);
-    --blob-op: .35;
-    --particle-col: rgba(102, 126, 234, .5);
+    --bg: #FBF3E4;
+    --dot: rgba(32,26,23,.10);
+    --ink: #201A17;
+    --card: #FFFDF7;
+    --sh: #201A17;
+    --muted: #8A7F76;
+    --y: #FFD43B; --m: #8CE99A; --c: #FFA8A8; --l: #D0BFFF; --s: #A5D8FF; --o: #FFC078;
+    --ok: #40C057; --err: #FA5252; --warn: #F59F00;
+    --ok-bg: #D3F9D8; --err-bg: #FFE3E3; --warn-bg: #FFF3BF;
   }
   :root[data-theme="dark"] {
-    --bg-grad: linear-gradient(135deg, #0e1020 0%, #1b1030 50%, #0e1020 100%);
-    --card: #1b1d2a;
-    --text: #e8eaf6;
-    --muted: #9aa0b5;
-    --tile: #252838;
-    --tile-text: #dfe3f9;
-    --border: #343850;
-    --input-bg: #252838;
-    --box: #20222f;
-    --bubble-bot: #252838;
-    --bubble-bot-text: #e8eaf6;
-    --accent: #8b9cf8;
-    --accent2: #b08cf8;
-    --btn-grad: linear-gradient(135deg, #7c8cf8, #9b6cf8);
-    --ok-bg: #1d3323; --ok-bd: #66bb6a;
-    --err-bg: #3a2226; --err-bd: #ef9a9a;
-    --warn-bg: #3a2c17; --warn: #ffb74d;
-    --shadow: 0 10px 40px rgba(0, 0, 0, .5);
-    --blob-op: .22;
-    --particle-col: rgba(139, 156, 248, .6);
+    --bg: #191721;
+    --dot: rgba(244,239,230,.08);
+    --ink: #F4EFE6;
+    --card: #241F2E;
+    --sh: #000000;
+    --muted: #A79E93;
+    --y: #F5C518; --m: #69DB7C; --c: #FF8787; --l: #B197FC; --s: #74C0FC; --o: #FFA94D;
+    --ok: #69DB7C; --err: #FF8787; --warn: #FFC078;
+    --ok-bg: #2B3A2E; --err-bg: #3A2626; --warn-bg: #3A3122;
   }
   @media (prefers-color-scheme: dark) {
     :root[data-theme="auto"] {
-      --bg-grad: linear-gradient(135deg, #0e1020 0%, #1b1030 50%, #0e1020 100%);
-      --card: #1b1d2a; --text: #e8eaf6; --muted: #9aa0b5; --tile: #252838; --tile-text: #dfe3f9;
-      --border: #343850; --input-bg: #252838; --box: #20222f;
-      --bubble-bot: #252838; --bubble-bot-text: #e8eaf6;
-      --accent: #8b9cf8; --accent2: #b08cf8; --btn-grad: linear-gradient(135deg, #7c8cf8, #9b6cf8);
-      --ok-bg: #1d3323; --ok-bd: #66bb6a; --err-bg: #3a2226; --err-bd: #ef9a9a;
-      --warn-bg: #3a2c17; --warn: #ffb74d;
-      --shadow: 0 10px 40px rgba(0, 0, 0, .5); --blob-op: .22;
-      --particle-col: rgba(139, 156, 248, .6);
+      --bg: #191721; --dot: rgba(244,239,230,.08); --ink: #F4EFE6; --card: #241F2E; --sh: #000;
+      --muted: #A79E93; --y: #F5C518; --m: #69DB7C; --c: #FF8787; --l: #B197FC; --s: #74C0FC; --o: #FFA94D;
+      --ok: #69DB7C; --err: #FF8787; --warn: #FFC078;
+      --ok-bg: #2B3A2E; --err-bg: #3A2626; --warn-bg: #3A3122;
     }
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    background: var(--bg-grad); background-size: 200% 200%;
-    animation: gradShift 14s ease infinite;
-    min-height: 100vh; padding: 12px; color: var(--text);
-    position: relative; overflow-x: hidden;
+    background: var(--bg);
+    background-image: radial-gradient(var(--dot) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+    min-height: 100vh;
+    padding: 14px 14px 96px;
+    color: var(--ink);
   }
-  body, .card, .tile, .item, .msg, input, select, textarea, .btn, .sched-row, .grade-row, .quote, .chat-box, .link-item, .back {
-    transition: background-color .4s ease, color .4s ease, border-color .4s ease, box-shadow .4s ease;
+  body, .card, .sticker, .btn, input, select, textarea, .msg, .tabbar, .sched-row, .grade-row {
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
   }
 
-  /* Частицы на фоне */
-  #particles { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
+  .card { max-width: 480px; margin: 0 auto; }
 
-  body::before, body::after {
-    content: ''; position: fixed; border-radius: 50%;
-    filter: blur(70px); z-index: -1; opacity: var(--blob-op); pointer-events: none;
+  /* ===== ТИПОГРАФИКА / ЗАГОЛОВКИ ===== */
+  .page-head { margin-bottom: 16px; animation: headIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+  .page-head .kicker {
+    display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--ink);
+    background: var(--y); border: 2px solid var(--ink); border-radius: 999px;
+    padding: 3px 10px; box-shadow: 3px 3px 0 var(--sh); margin-bottom: 10px;
   }
-  body::before { width: 360px; height: 360px; background: #667eea; top: -80px; left: -80px; animation: floatBlob 16s ease-in-out infinite; }
-  body::after { width: 320px; height: 320px; background: #f7971e; bottom: -60px; right: -60px; animation: floatBlob 20s ease-in-out infinite reverse; }
+  .page-head h1 { font-size: 26px; font-weight: 900; letter-spacing: -.5px; line-height: 1.1; }
+  .page-head .sub { font-size: 13px; color: var(--muted); margin-top: 5px; font-weight: 600; }
 
-  .card { background: var(--card); border-radius: 24px; padding: 18px; max-width: 480px; margin: 0 auto; min-height: 90vh; box-shadow: var(--shadow); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; position: relative; overflow: hidden; }
-
-  h1 { font-size: 21px; text-align: center; color: var(--text); position: relative; }
-  h1::after { content: ''; display: block; width: 0; height: 4px; margin: 8px auto 0; border-radius: 2px; background: var(--btn-grad); animation: growBar .8s cubic-bezier(.4,0,.2,1) forwards; }
-  .subtitle { text-align: center; color: var(--muted); font-size: 13px; margin: 6px 0 14px; animation: fadeUp .5s ease both; animation-delay: .2s; opacity: 0; }
-
-  .back { background: var(--tile); border: none; border-radius: 12px; padding: 10px 14px; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: var(--text); display: inline-flex; align-items: center; gap: 4px; }
-  .back:hover { filter: brightness(1.05); transform: translateX(-4px); transition: transform .25s ease; }
-
-  /* ===== ГЛАВНАЯ — плитки ===== */
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; perspective: 800px; }
-  .tile { background: var(--tile); border: none; border-radius: 18px; padding: 18px 10px; cursor: pointer; text-align: center; min-height: 90px; animation: tileIn .6s cubic-bezier(.34,1.56,.64,1) both; position: relative; overflow: hidden; }
-  .tile::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
-    transform: translateX(-100%); transition: transform .6s ease;
+  /* ===== СТИКЕР-КАРТОЧКИ (универсальный блок) ===== */
+  .sticker {
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 18px;
+    box-shadow: 5px 5px 0 var(--sh);
+    padding: 16px;
   }
-  .tile:hover::before { transform: translateX(100%); }
-  .grid .tile:nth-child(1){animation-delay:.03s} .grid .tile:nth-child(2){animation-delay:.09s}
-  .grid .tile:nth-child(3){animation-delay:.15s} .grid .tile:nth-child(4){animation-delay:.21s}
-  .grid .tile:nth-child(5){animation-delay:.27s} .grid .tile:nth-child(6){animation-delay:.33s}
-  .grid .tile:nth-child(7){animation-delay:.39s}
-  @media (hover:hover) {
-    .tile:hover { transform: translateY(-6px) rotateX(4deg); box-shadow: var(--shadow); }
-    .tile:hover .ico { animation: bounce .6s ease; transform: scale(1.15); }
+
+  /* ===== КНОПКИ ===== */
+  .btn {
+    display: block; width: 100%;
+    margin-top: 12px; padding: 14px;
+    border: 2px solid var(--ink); border-radius: 14px;
+    background: var(--y); color: var(--ink);
+    font-size: 16px; font-weight: 800; cursor: pointer;
+    box-shadow: 4px 4px 0 var(--sh);
+    transition: transform .12s ease, box-shadow .12s ease, background .2s;
   }
-  .tile:active { transform: scale(.94); }
-  .tile .ico { font-size: 32px; display: block; margin-bottom: 8px; transition: transform .3s ease; }
-  .tile .ttl { font-size: 14px; font-weight: 600; color: var(--tile-text); }
+  .btn:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--sh); }
+  .btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--sh); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--sh); }
+  .btn.gray { background: var(--card); }
+  .btn.green { background: var(--m); }
+  .btn.blue { background: var(--s); }
+  .btn.pink { background: var(--c); }
+  .btn.purple { background: var(--l); }
+  .btn.sel { background: var(--m); }
 
-  .page { display: none; }
-  .page.active { display: block; animation: pageEnter .45s cubic-bezier(.22,.61,.36,1) both; }
-
-  label { display: block; font-size: 14px; margin: 12px 0 5px; font-weight: 500; color: var(--text); animation: fadeUp .4s ease both; }
-  select, input, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; min-height: 48px; font-family: inherit; background: var(--input-bg); color: var(--text); }
-  select:focus, input:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 4px rgba(102,126,234,.18); animation: inputPulse 1.2s ease infinite; }
-
-  .btn { width: 100%; margin-top: 12px; padding: 14px; border: none; border-radius: 14px; background: var(--btn-grad); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; box-shadow: 0 4px 14px rgba(102,126,234,.35); position: relative; overflow: hidden; }
-  .btn::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.25) 50%, transparent 70%);
-    transform: translateX(-100%);
+  /* ===== ФОРМЫ ===== */
+  label { display: block; font-size: 13px; font-weight: 800; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .5px; }
+  select, input, textarea {
+    width: 100%; padding: 12px;
+    border: 2px solid var(--ink); border-radius: 12px;
+    background: var(--card); color: var(--ink);
+    font-size: 16px; font-family: inherit; min-height: 48px;
+    box-shadow: inset 3px 3px 0 var(--dot);
   }
-  .btn:hover::after { transform: translateX(100%); transition: transform .6s ease; }
-  .btn:active { transform: scale(.97); }
-  .btn:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
-  .btn:disabled::after { display: none; }
-  .btn.gray { background: var(--tile); color: var(--text); box-shadow: none; }
-  .btn.sel { background: linear-gradient(135deg, #43a047, #66bb6a); }
-
-  .item { background: var(--tile); border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px; margin-top: 10px; font-size: 15px; white-space: pre-wrap; line-height: 1.6; color: var(--text); animation: fadeUp .4s ease both; }
-  .item.ai { border-left-color: var(--warn); position: relative; }
-  .item.ai::before {
-    content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
-    background: linear-gradient(180deg, var(--warn), var(--accent), var(--accent2), var(--warn));
-    background-size: 100% 300%;
-    animation: rainbow 3s linear infinite;
-  }
-  .item.loading { background: var(--warn-bg); border-left-color: var(--warn); text-align: center; }
-  .item.loading::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
-
+  select:focus, input:focus, textarea:focus { outline: none; box-shadow: 3px 3px 0 var(--sh); transform: translate(-1px,-1px); }
   .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
-  .mini-link { display: inline-block; margin: 4px 6px 0 0; font-size: 12px; color: var(--accent); text-decoration: none; background: var(--tile); padding: 4px 8px; border-radius: 8px; animation: popIn .4s ease both; }
-  .mini-link:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-  .sched-row { display: flex; justify-content: space-between; gap: 8px; background: var(--tile); border-radius: 12px; padding: 10px 12px; margin-top: 6px; font-size: 14px; align-items: center; color: var(--text); animation: slideRow .45s cubic-bezier(.22,.61,.36,1) both; }
-  .sched-row.today { background: var(--warn-bg); border: 2px solid var(--warn); font-weight: 700; animation: glowPulse 2s ease infinite; }
-  .sched-row .act { font-size: 12px; color: var(--muted); font-weight: 400; text-align: right; }
+  /* ===== СТРАНИЦЫ ===== */
+  .page { display: none; }
+  .page.active { display: block; animation: pageIn .35s cubic-bezier(.22,.61,.36,1) both; }
 
-  /* ===== ТРЕНАЖЁР ===== */
-  .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0 6px; text-align: center; min-height: 48px; color: var(--text); animation: questionIn .5s cubic-bezier(.34,1.56,.64,1) both; }
-  .hint { font-size: 13px; color: var(--muted); margin-top: 4px; text-align: center; animation: fadeUp .35s ease both; }
-  .quiz-input { display: flex; gap: 8px; margin-top: 12px; animation: fadeUp .35s ease both; }
-  .quiz-input input { flex: 1; }
-  .quiz-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
-  .score { text-align: center; color: var(--accent); font-weight: 700; margin-top: 12px; animation: popIn .4s ease both; }
+  /* ===== ГЛАВНАЯ ===== */
+  .brand {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+    animation: headIn .45s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .brand .logo {
+    width: 56px; height: 56px; flex-shrink: 0;
+    background: var(--y); border: 2px solid var(--ink); border-radius: 16px;
+    display: flex; align-items: center; justify-content: center; font-size: 30px;
+    box-shadow: 4px 4px 0 var(--sh);
+    animation: wiggle 3s ease-in-out infinite;
+  }
+  .brand h1 { font-size: 24px; font-weight: 900; letter-spacing: -.5px; }
+  .brand .tag { font-size: 12px; color: var(--muted); font-weight: 700; }
 
-  /* Прогресс-бар тренажёра */
-  .progress-wrap { margin: 12px 0 4px; height: 8px; background: var(--tile); border-radius: 4px; overflow: hidden; animation: fadeUp .4s ease both; }
-  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--warn)); background-size: 200% 100%; animation: progressFill .5s ease forwards, progressShine 2s linear infinite; width: 0; border-radius: 4px; transition: width .5s ease; }
+  .stat-strip { display: flex; gap: 8px; margin-bottom: 16px; }
+  .stat-pill {
+    flex: 1; text-align: center; padding: 10px 6px;
+    border: 2px solid var(--ink); border-radius: 14px;
+    box-shadow: 3px 3px 0 var(--sh);
+    animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .stat-pill:nth-child(1){background:var(--s); animation-delay:.05s}
+  .stat-pill:nth-child(2){background:var(--o); animation-delay:.12s}
+  .stat-pill:nth-child(3){background:var(--m); animation-delay:.19s}
+  .stat-pill .v { font-size: 20px; font-weight: 900; line-height: 1; }
+  .stat-pill .l { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; margin-top: 3px; opacity: .8; }
 
-  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--tile); border-radius: 12px; padding: 12px; margin-top: 8px; font-size: 14px; color: var(--text); animation: slideRow .4s ease both; }
-  .grade-row button { background: var(--err-bg); border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; color: var(--text); }
-  .avg { text-align: center; font-size: 42px; font-weight: 800; color: var(--accent); margin: 12px 0; animation: popIn .6s cubic-bezier(.34,1.56,.64,1) both; background: var(--btn-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .home-hero {
+    display: block; width: 100%; text-align: left; cursor: pointer;
+    background: var(--l); border: 2px solid var(--ink); border-radius: 20px;
+    box-shadow: 6px 6px 0 var(--sh); padding: 18px; margin-bottom: 16px;
+    animation: heroIn .5s cubic-bezier(.34,1.56,.64,1) both;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .home-hero:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 var(--sh); }
+  .home-hero:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--sh); }
+  .home-hero .em { font-size: 34px; display: block; margin-bottom: 8px; }
+  .home-hero h2 { font-size: 21px; font-weight: 900; margin-bottom: 4px; }
+  .home-hero p { font-size: 13px; font-weight: 600; opacity: .85; }
+  .home-hero .go { display: inline-block; margin-top: 10px; font-weight: 900; font-size: 13px; background: var(--card); border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px; box-shadow: 2px 2px 0 var(--sh); }
 
-  .link-item { display: block; background: var(--tile); border-radius: 12px; padding: 14px; margin-top: 8px; text-decoration: none; color: var(--accent); font-weight: 600; text-align: center; animation: fadeUp .4s ease both; }
-  .link-item:hover { filter: brightness(1.05); transform: translateY(-2px); }
-
-  /* ===== МОТИВАЦИЯ — typewriter ===== */
-  .quote { background: var(--tile); border-radius: 18px; padding: 24px 20px; font-size: 17px; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--text); animation: quoteIn .6s cubic-bezier(.34,1.56,.64,1) both; position: relative; }
-  .quote.typing::after { content: '|'; display: inline-block; margin-left: 2px; animation: blink .7s step-end infinite; color: var(--accent); }
-
-  .about { font-size: 15px; line-height: 1.6; color: var(--text); }
-  .about li { margin: 8px 0 8px 20px; animation: slideRow .45s ease both; }
-  .about li:nth-child(1){animation-delay:.1s} .about li:nth-child(2){animation-delay:.2s}
-  .about li:nth-child(3){animation-delay:.3s} .about li:nth-child(4){animation-delay:.4s}
+  .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .nav-card {
+    text-align: left; cursor: pointer; padding: 14px;
+    border: 2px solid var(--ink); border-radius: 18px;
+    box-shadow: 4px 4px 0 var(--sh);
+    animation: cardIn .45s cubic-bezier(.34,1.56,.64,1) both;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .nav-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--sh); }
+  .nav-card:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--sh); }
+  .home-grid .nav-card:nth-child(1){background:var(--s); animation-delay:.05s}
+  .home-grid .nav-card:nth-child(2){background:var(--m); animation-delay:.1s}
+  .home-grid .nav-card:nth-child(3){background:var(--o); animation-delay:.15s}
+  .home-grid .nav-card:nth-child(4){background:var(--c); animation-delay:.2s}
+  .home-grid .nav-card:nth-child(5){background:var(--y); animation-delay:.25s}
+  .home-grid .nav-card:nth-child(6){background:var(--l); animation-delay:.3s}
+  .nav-card .em {
+    width: 42px; height: 42px; border-radius: 12px; background: var(--card);
+    border: 2px solid var(--ink); display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 10px; box-shadow: 2px 2px 0 var(--sh);
+  }
+  .nav-card .t { font-size: 15px; font-weight: 900; }
+  .nav-card .d { font-size: 11px; font-weight: 600; opacity: .8; margin-top: 2px; }
 
   /* ===== ЧАТ ===== */
-  .chat-box { height: 52vh; overflow-y: auto; background: var(--box); border-radius: 14px; padding: 12px; margin-top: 10px; }
-  .msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; position: relative; }
-  .msg.user { background: var(--btn-grad); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; animation: slideR .4s cubic-bezier(.22,.61,.36,1) both; box-shadow: 0 2px 8px rgba(102,126,234,.25); }
-  .msg.bot { background: var(--bubble-bot); border: 1px solid var(--border); color: var(--bubble-bot-text); border-bottom-left-radius: 4px; animation: slideL .4s cubic-bezier(.22,.61,.36,1) both; }
-  .msg.bot.ai-glow { animation: slideL .4s cubic-bezier(.22,.61,.36,1) both, aiGlow 2s ease infinite; }
-  .msg.sys { background: var(--ok-bg); border: 1px solid var(--ok-bd); font-size: 14px; animation: slideL .4s ease both; }
-  .msg.loading { background: var(--warn-bg); border: 1px solid var(--warn); text-align: center; }
-  .msg.loading::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
-  /* «прыгающие точки» загрузки */
-  .msg.typing-dots::after {
-    content: ''; display: inline-block; width: 4px; height: 4px; margin-left: 6px;
-    background: var(--warn); border-radius: 50%;
-    box-shadow: 8px 0 0 var(--warn), 16px 0 0 var(--warn);
-    animation: dotsJump 1.2s ease infinite;
+  .chat-box {
+    height: 52vh; overflow-y: auto; padding: 12px;
+    background: var(--card); border: 2px solid var(--ink); border-radius: 18px;
+    box-shadow: inset 4px 4px 0 var(--dot);
   }
-  .chat-input { display: flex; gap: 8px; margin-top: 10px; }
-  .chat-input input { flex: 1; }
-  .chat-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
+  .msg { max-width: 85%; padding: 10px 14px; margin-top: 10px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; border: 2px solid var(--ink); border-radius: 14px; box-shadow: 3px 3px 0 var(--sh); }
+  .msg.user { background: var(--y); margin-left: auto; border-bottom-right-radius: 4px; animation: msgR .3s ease both; }
+  .msg.bot { background: var(--card); border-bottom-left-radius: 4px; animation: msgL .3s ease both; }
+  .msg.sys { background: var(--ok-bg); font-size: 13px; font-weight: 700; animation: msgL .3s ease both; }
+  .msg.loading { background: var(--warn-bg); text-align: center; font-weight: 700; }
+  .msg.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2px solid var(--ink); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  .msg.typing-dots::after { content: ''; display: inline-block; width: 4px; height: 4px; margin-left: 6px; background: var(--ink); border-radius: 50%; box-shadow: 8px 0 0 var(--ink), 16px 0 0 var(--ink); animation: dots 1.2s ease infinite; }
+  .chat-input { display: flex; gap: 8px; margin-top: 12px; }
+  .chat-input input { flex: 1; margin: 0; }
+  .chat-input .btn { width: auto; margin: 0; padding: 12px 20px; }
 
-  .legal { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; text-align: center; color: var(--muted); }
-  .legal a { color: var(--accent); text-decoration: none; margin: 0 8px; }
+  /* ===== ПЛАН / РАСПИСАНИЕ ===== */
+  .item { background: var(--card); border: 2px solid var(--ink); border-left-width: 6px; border-radius: 14px; box-shadow: 4px 4px 0 var(--sh); padding: 12px; margin-top: 12px; font-size: 15px; line-height: 1.6; white-space: pre-wrap; animation: cardIn .35s ease both; }
+  .item.ai { border-left-color: var(--warn); }
+  .item.loading { background: var(--warn-bg); text-align: center; font-weight: 700; }
+  .item.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2px solid var(--ink); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  .sched-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    background: var(--card); border: 2px solid var(--ink); border-radius: 12px;
+    padding: 10px 12px; margin-top: 8px; font-size: 14px; font-weight: 600;
+    box-shadow: 3px 3px 0 var(--sh); animation: rowIn .35s ease both;
+  }
+  .sched-row .day { background: var(--s); border: 2px solid var(--ink); border-radius: 8px; padding: 2px 8px; font-weight: 900; font-size: 12px; }
+  .sched-row.today { background: var(--warn-bg); border-width: 3px; animation: glow 1.8s ease infinite; }
+  .sched-row.today .day { background: var(--warn); }
+  .sched-row .act { font-size: 11px; color: var(--muted); font-weight: 600; text-align: right; }
+  .mini-link { display: inline-block; margin: 5px 6px 0 0; font-size: 12px; font-weight: 800; color: var(--ink); text-decoration: none; background: var(--s); border: 2px solid var(--ink); border-radius: 999px; padding: 3px 10px; box-shadow: 2px 2px 0 var(--sh); }
+  .mini-link:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--sh); }
+
+  /* ===== ТРЕНАЖЁР ===== */
+  .quiz-q { font-size: 20px; font-weight: 900; text-align: center; margin: 16px 0 8px; min-height: 48px; animation: qIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+  .hint { font-size: 13px; color: var(--muted); font-weight: 700; text-align: center; }
+  .quiz-input { display: flex; gap: 8px; margin-top: 14px; }
+  .quiz-input input { flex: 1; margin: 0; }
+  .quiz-input .btn { width: auto; margin: 0; padding: 12px 20px; }
+  .progress-wrap { margin: 14px 0 4px; height: 16px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); overflow: hidden; box-shadow: 3px 3px 0 var(--sh); }
+  .progress-bar { height: 100%; width: 0; background: repeating-linear-gradient(45deg, var(--m), var(--m) 8px, var(--y) 8px, var(--y) 16px); transition: width .5s ease; animation: stripes 1s linear infinite; }
+  .score { text-align: center; font-weight: 900; font-size: 15px; margin-top: 12px; }
+
+  /* ===== ДНЕВНИК ===== */
+  .avg { text-align: center; font-size: 46px; font-weight: 900; margin: 8px 0; animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 2px solid var(--ink); border-radius: 12px; padding: 12px; margin-top: 8px; font-size: 14px; font-weight: 700; box-shadow: 3px 3px 0 var(--sh); animation: rowIn .35s ease both; }
+  .grade-row button { background: var(--err-bg); border: 2px solid var(--ink); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-weight: 900; color: var(--ink); box-shadow: 2px 2px 0 var(--sh); }
+  .grade-row button:active { transform: translate(2px,2px); box-shadow: 0 0 0 var(--sh); }
+
+  /* ===== ВИДЕО / МОТИВАЦИЯ / О БОТЕ ===== */
+  .link-item { display: block; background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 14px; margin-top: 10px; text-decoration: none; color: var(--ink); font-weight: 800; text-align: center; box-shadow: 4px 4px 0 var(--sh); animation: cardIn .35s ease both; }
+  .link-item:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--sh); }
+  .quote { background: var(--card); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 5px 5px 0 var(--sh); padding: 22px; font-size: 17px; font-weight: 600; line-height: 1.6; text-align: center; margin-top: 14px; min-height: 120px; display: flex; align-items: center; justify-content: center; animation: cardIn .4s ease both; }
+  .quote.typing::after { content: '|'; margin-left: 2px; animation: blink .7s step-end infinite; }
+  .about { font-size: 15px; line-height: 1.7; font-weight: 600; }
+  .about li { margin: 8px 0 8px 20px; animation: rowIn .4s ease both; }
+  .about li:nth-child(1){animation-delay:.05s}.about li:nth-child(2){animation-delay:.1s}
+  .about li:nth-child(3){animation-delay:.15s}.about li:nth-child(4){animation-delay:.2s}
+  .legal { margin-top: 18px; padding-top: 14px; border-top: 2px dashed var(--ink); font-size: 13px; text-align: center; font-weight: 700; }
+  .legal a { color: var(--ink); text-decoration: underline; margin: 0 6px; }
+
+  /* ===== НИЖНЯЯ НАВИГАЦИЯ ===== */
+  .tabbar {
+    position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+    width: calc(100% - 28px); max-width: 452px;
+    display: flex; gap: 6px; padding: 8px;
+    background: var(--card); border: 2px solid var(--ink); border-radius: 20px;
+    box-shadow: 5px 5px 0 var(--sh); z-index: 90;
+    animation: barIn .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .tabbar button {
+    flex: 1; border: 2px solid transparent; border-radius: 14px;
+    background: transparent; padding: 8px 4px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; font-weight: 800; color: var(--muted);
+    transition: transform .15s ease, background .2s, color .2s;
+  }
+  .tabbar button .ic { font-size: 20px; }
+  .tabbar button:hover { transform: translateY(-2px); }
+  .tabbar button.active { background: var(--y); color: var(--ink); border-color: var(--ink); box-shadow: 2px 2px 0 var(--sh); }
+
+  /* ===== ТЕМЫ ===== */
+  .theme-pill { position: fixed; top: 12px; right: 12px; z-index: 95; display: flex; gap: 4px; padding: 4px; background: var(--card); border: 2px solid var(--ink); border-radius: 999px; box-shadow: 3px 3px 0 var(--sh); }
+  .theme-pill button { border: none; background: transparent; font-size: 15px; padding: 5px 9px; border-radius: 999px; cursor: pointer; }
+  .theme-pill button.on { background: var(--y); box-shadow: inset 2px 2px 0 var(--dot); }
+
+  #confetti { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
   .katex-display { overflow-x: auto; padding: 4px 0; }
 
-  /* ===== ТЕМА-ПИЛЛ ===== */
-  .theme-pill { position: fixed; top: 10px; right: 10px; z-index: 99; display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); opacity: .95; animation: fadeDown .5s ease both; }
-  .theme-pill button { border: none; background: transparent; font-size: 16px; padding: 6px 10px; border-radius: 999px; cursor: pointer; transition: transform .2s, background .2s; }
-  .theme-pill button:hover { transform: scale(1.2) rotate(10deg); }
-  .theme-pill button.on { background: var(--btn-grad); animation: popIn .3s ease both; }
-
-  /* ===== КОНФЕТТИ ===== */
-  #confetti { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
-
   /* ===== KEYFRAMES ===== */
-  @keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-  @keyframes floatBlob { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-30px) scale(1.12)} 66%{transform:translate(-25px,25px) scale(.94)} }
-  @keyframes fadeUp { from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:none} }
-  @keyframes fadeDown { from{opacity:0; transform:translateY(-18px)} to{opacity:1; transform:none} }
-  @keyframes popIn { from{opacity:0; transform:scale(.85)} to{opacity:1; transform:scale(1)} }
-  @keyframes slideL { from{opacity:0; transform:translateX(-30px)} to{opacity:1; transform:none} }
-  @keyframes slideR { from{opacity:0; transform:translateX(30px)} to{opacity:1; transform:none} }
-  @keyframes slideRow { from{opacity:0; transform:translateX(20px)} to{opacity:1; transform:none} }
-  @keyframes tileIn { 0%{opacity:0; transform:translateY(30px) rotateX(-20deg) scale(.85)} 100%{opacity:1; transform:none} }
-  @keyframes pageEnter { from{opacity:0; transform:translateY(25px) scale(.97)} to{opacity:1; transform:none} }
-  @keyframes questionIn { 0%{opacity:0; transform:scale(.7) rotate(-3deg)} 60%{transform:scale(1.05) rotate(1deg)} 100%{opacity:1; transform:none} }
-  @keyframes quoteIn { 0%{opacity:0; transform:translateY(20px) scale(.9)} 100%{opacity:1; transform:none} }
+  @keyframes headIn { from{opacity:0; transform:translateY(-14px)} to{opacity:1; transform:none} }
+  @keyframes pageIn { from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none} }
+  @keyframes cardIn { from{opacity:0; transform:translateY(14px) scale(.97)} to{opacity:1; transform:none} }
+  @keyframes rowIn { from{opacity:0; transform:translateX(16px)} to{opacity:1; transform:none} }
+  @keyframes popIn { from{opacity:0; transform:scale(.8)} to{opacity:1; transform:scale(1)} }
+  @keyframes heroIn { from{opacity:0; transform:translateY(24px) scale(.95)} to{opacity:1; transform:none} }
+  @keyframes barIn { from{opacity:0; transform:translate(-50%,30px)} to{opacity:1; transform:translate(-50%,0)} }
+  @keyframes msgL { from{opacity:0; transform:translateX(-20px)} to{opacity:1; transform:none} }
+  @keyframes msgR { from{opacity:0; transform:translateX(20px)} to{opacity:1; transform:none} }
+  @keyframes qIn { from{opacity:0; transform:scale(.85) rotate(-2deg)} to{opacity:1; transform:none} }
   @keyframes spin { to{transform:rotate(360deg)} }
-  @keyframes bounce { 0%,100%{transform:translateY(0) scale(1)} 30%{transform:translateY(-8px) scale(1.1)} 60%{transform:translateY(0) scale(1)} 80%{transform:translateY(-3px) scale(1.05)} }
-  @keyframes shake { 0%,100%{transform:translateX(0) rotate(0)} 20%{transform:translateX(-8px) rotate(-2deg)} 40%{transform:translateX(8px) rotate(2deg)} 60%{transform:translateX(-6px) rotate(-1deg)} 80%{transform:translateX(6px) rotate(1deg)} }
-  @keyframes glowPulse { 0%,100%{box-shadow:0 0 0 0 rgba(247,151,30,.45)} 50%{box-shadow:0 0 0 12px rgba(247,151,30,0)} }
-  @keyframes aiGlow { 0%,100%{box-shadow:0 0 0 0 rgba(247,151,30,.3)} 50%{box-shadow:0 0 0 8px rgba(247,151,30,0)} }
-  @keyframes growBar { from{width:0} to{width:56px} }
-  @keyframes rainbow { 0%{background-position:0% 0%} 100%{background-position:0% 300%} }
   @keyframes blink { 50%{opacity:0} }
-  @keyframes dotsJump { 0%,20%,100%{box-shadow:8px 0 0 var(--warn), 16px 0 0 var(--warn); transform:translateY(0)} 40%{box-shadow:8px -4px 0 var(--warn), 16px 0 0 var(--warn); transform:translateY(-2px)} 60%{box-shadow:8px 0 0 var(--warn), 16px -4px 0 var(--warn); transform:translateY(-2px)} }
-  @keyframes inputPulse { 0%,100%{box-shadow:0 0 0 3px rgba(102,126,234,.2)} 50%{box-shadow:0 0 0 6px rgba(102,126,234,.05)} }
-  @keyframes progressShine { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
-  @keyframes wrongShake { 0%,100%{transform:translateX(0) rotate(0)} 15%{transform:translateX(-10px) rotate(-3deg)} 30%{transform:translateX(10px) rotate(3deg)} 45%{transform:translateX(-8px) rotate(-2deg)} 60%{transform:translateX(8px) rotate(2deg)} 75%{transform:translateX(-4px) rotate(-1deg)} }
-  @keyframes correctPop { 0%{transform:scale(1)} 30%{transform:scale(1.08)} 60%{transform:scale(.98)} 100%{transform:scale(1)} }
-  @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-
+  @keyframes wiggle { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-4deg)} 75%{transform:rotate(4deg)} }
+  @keyframes glow { 0%,100%{box-shadow:3px 3px 0 var(--sh)} 50%{box-shadow:3px 3px 0 var(--sh), 0 0 0 6px var(--warn-bg)} }
+  @keyframes stripes { to{background-position: 32px 0} }
+  @keyframes dots { 0%,20%,100%{box-shadow:8px 0 0 var(--ink),16px 0 0 var(--ink)} 40%{box-shadow:8px -4px 0 var(--ink),16px 0 0 var(--ink)} 60%{box-shadow:8px 0 0 var(--ink),16px -4px 0 var(--ink)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+  @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 100%{transform:scale(1)} }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 
-<canvas id="particles"></canvas>
 <canvas id="confetti"></canvas>
 
 <div class="theme-pill">
-  <button id="thLight" onclick="setTheme('light')" title="Светлая тема">☀️</button>
-  <button id="thDark" onclick="setTheme('dark')" title="Тёмная тема">🌙</button>
-  <button id="thAuto" onclick="setTheme('auto')" title="Как в системе">🖥️</button>
+  <button id="thLight" onclick="setTheme('light')" title="Светлая">☀️</button>
+  <button id="thDark" onclick="setTheme('dark')" title="Тёмная">🌙</button>
+  <button id="thAuto" onclick="setTheme('auto')" title="Системная">🖥️</button>
 </div>
 
 <div class="card">
 
+  <!-- ГЛАВНАЯ -->
   <div id="home" class="page active">
-    <h1>🎯 Sferum Navigator</h1>
-    <div class="subtitle">ИИ-наставник на базе GigaChat · формулы LaTeX</div>
-    <div class="grid">
-      <button class="tile" onclick="go('chat')"><span class="ico">🤖</span><span class="ttl">Чат с ИИ</span></button>
-      <button class="tile" onclick="go('plan')"><span class="ico">📅</span><span class="ttl">План</span></button>
-      <button class="tile" onclick="go('quiz')"><span class="ico">✅</span><span class="ttl">Тренажёр</span></button>
-      <button class="tile" onclick="go('grades')"><span class="ico">📚</span><span class="ttl">Дневник</span></button>
-      <button class="tile" onclick="go('video')"><span class="ico">🎥</span><span class="ttl">Видео</span></button>
-      <button class="tile" onclick="go('motivation')"><span class="ico">💪</span><span class="ttl">Мотивация</span></button>
-      <button class="tile" onclick="go('about')"><span class="ico">ℹ️</span><span class="ttl">О боте</span></button>
+    <div class="brand">
+      <div class="logo">🎯</div>
+      <div>
+        <h1>Sferum Navigator</h1>
+        <div class="tag" id="heroGreet">ИИ-наставник на GigaChat</div>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-pill"><div class="v" id="statAvg">—</div><div class="l">Ср. балл</div></div>
+      <div class="stat-pill"><div class="v" id="statWeeks">—</div><div class="l">Недель</div></div>
+      <div class="stat-pill"><div class="v" id="statDone">0</div><div class="l">Тем</div></div>
+    </div>
+
+    <button class="home-hero" onclick="go('chat')">
+      <span class="em">🤖</span>
+      <h2>Спроси GigaChat</h2>
+      <p>Любой вопрос по учёбе + формулы LaTeX. Чат общий с ботом MAX!</p>
+      <span class="go">Открыть чат →</span>
+    </button>
+
+    <div class="home-grid">
+      <button class="nav-card" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
+      <button class="nav-card" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты по темам</div></button>
+      <button class="nav-card" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
+      <button class="nav-card" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
+      <button class="nav-card" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
+      <button class="nav-card" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 19</div></button>
     </div>
   </div>
 
+  <!-- ЧАТ -->
   <div id="chat" class="page">
-    <button class="back" onclick="go('home')">← Назад</button>
-    <h1>🤖 Чат с GigaChat</h1>
-    <div class="subtitle">🔄 Двусторонняя синхронизация с ботом MAX</div>
+    <div class="page-head">
+      <span class="kicker">Чат</span>
+      <h1>🤖 GigaChat</h1>
+      <div class="sub">🔄 Синхронизирован с ботом MAX</div>
+    </div>
     <div class="chat-box" id="chatBox"></div>
     <div class="chat-input">
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -289,147 +352,181 @@
     <button class="btn gray" onclick="clearChat()">🗑 Очистить общий чат</button>
   </div>
 
+  <!-- ПЛАН -->
   <div id="plan" class="page">
-    <button class="back" onclick="go('home')">← Назад</button>
-    <h1>📅 Персональный план</h1>
-    <div class="subtitle">Столько учебных дней в неделю, сколько ты указал</div>
-    <label>🎓 Твой класс</label>
-    <select id="pGrade">
-      <option value="5">5 класс</option><option value="6">6 класс</option>
-      <option value="7">7 класс</option><option value="8">8 класс</option>
-      <option value="9">9 класс</option><option value="10">10 класс</option>
-      <option value="11">11 класс</option>
-    </select>
-    <label>🎯 Что собираешься сдавать?</label>
-    <input type="text" id="pExam" placeholder="Например: ЕГЭ по математике и физике, ОГЭ">
-    <label>📚 Предметы для подготовки</label>
-    <textarea id="pSubjects" rows="2" placeholder="Например: математика, русский, физика"></textarea>
-    <label>🏆 Твоя цель</label>
-    <input type="text" id="pGoal" placeholder="Например: сдать на 90+, поступить в МФТИ">
-    <label>⏰ Минут в день</label>
-    <input type="number" id="pMinutes" value="60" min="15" max="480" step="15">
-    <label>📅 Учебных дней в неделю</label>
-    <select id="pDays">
-      <option value="3">3 дня</option><option value="4">4 дня</option>
-      <option value="5" selected>5 дней</option><option value="6">6 дней</option><option value="7">7 дней</option>
-    </select>
-    <label>📊 Текущий уровень</label>
-    <select id="pLevel">
-      <option value="начальный">Начальный (много пробелов)</option>
-      <option value="средний" selected>Средний (базу знаю)</option>
-      <option value="продвинутый">Продвинутый (хочу максимум)</option>
-    </select>
-    <label>😓 Слабые места (необязательно)</label>
-    <textarea id="pWeak" rows="2" placeholder="Например: задачи с параметром, сочинения"></textarea>
-    <button class="btn" id="planBtn" onclick="buildPlan()">✨ Составить план от GigaChat</button>
-    <button class="btn gray" onclick="deletePlan()">🗑 Удалить сохранённый план</button>
+    <div class="page-head">
+      <span class="kicker">План</span>
+      <h1>📅 Подготовка</h1>
+      <div class="sub">GigaChat составит расписание под тебя</div>
+    </div>
+    <div class="sticker">
+      <label>🎓 Твой класс</label>
+      <select id="pGrade">
+        <option value="5">5</option><option value="6">6</option><option value="7">7</option>
+        <option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option>
+      </select>
+      <label>🎯 Что сдаёшь</label>
+      <input type="text" id="pExam" placeholder="ЕГЭ по математике, ОГЭ...">
+      <label>📚 Предметы</label>
+      <textarea id="pSubjects" rows="2" placeholder="математика, русский, физика"></textarea>
+      <label>🏆 Цель</label>
+      <input type="text" id="pGoal" placeholder="сдать на 90+">
+      <div class="row2">
+        <div><label>⏰ Мин/день</label><input type="number" id="pMinutes" value="60" min="15" max="480" step="15"></div>
+        <div><label>📅 Дней/нед</label>
+          <select id="pDays"><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option></select>
+        </div>
+      </div>
+      <label>📊 Уровень</label>
+      <select id="pLevel">
+        <option value="начальный">Начальный</option><option value="средний" selected>Средний</option><option value="продвинутый">Продвинутый</option>
+      </select>
+      <label>😓 Слабые места</label>
+      <textarea id="pWeak" rows="2" placeholder="необязательно"></textarea>
+      <button class="btn green" id="planBtn" onclick="buildPlan()">✨ Составить план</button>
+      <button class="btn gray" onclick="deletePlan()">🗑 Удалить план</button>
+    </div>
     <div id="planResult"></div>
   </div>
 
+  <!-- ТРЕНАЖЁР -->
   <div id="quiz" class="page">
-    <button class="back" onclick="go('home')">← Назад</button>
-    <h1>✅ Тренажёр</h1>
-    <div class="subtitle">Ответы проверяются по смыслу · тест по теме плана = 20 вопросов</div>
-    <label>📚 Предмет или тема</label>
-    <input type="text" id="qTopic" placeholder="Например: математика, дроби, фотосинтез">
-    <div class="row3">
-      <div>
-        <label>🎓 Класс</label>
-        <select id="qGrade">
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-          <option value="10">10</option><option value="11">11</option>
-        </select>
-      </div>
-      <div>
-        <label>🧩 Тип</label>
-        <select id="qType">
-          <option value="примеры">Примеры</option>
-          <option value="задачи">Задачи</option>
-          <option value="смешанные" selected>Смешанные</option>
-        </select>
-      </div>
-      <div>
-        <label>🎚 Сложность</label>
-        <select id="qDiff">
-          <option value="лёгкая">Лёгкая</option>
-          <option value="средняя" selected>Средняя</option>
-          <option value="сложная">Сложная</option>
-        </select>
-      </div>
+    <div class="page-head">
+      <span class="kicker">Тренажёр</span>
+      <h1>✅ Задания</h1>
+      <div class="sub">Письменный ответ · проверка по смыслу</div>
     </div>
-    <button class="btn" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
-    <div class="progress-wrap" id="quizProgressWrap" style="display:none;">
-      <div class="progress-bar" id="quizProgress"></div>
+    <div class="sticker">
+      <label>📚 Предмет / тема</label>
+      <input type="text" id="qTopic" placeholder="математика, дроби...">
+      <div class="row3">
+        <div><label>🎓 Класс</label>
+          <select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select>
+        </div>
+        <div><label>🧩 Тип</label>
+          <select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select>
+        </div>
+        <div><label>🎚 Слож.</label>
+          <select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select>
+        </div>
+      </div>
+      <button class="btn blue" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
     </div>
-    <div class="quiz-q" id="quizQ">Введи предмет и нажми кнопку 👆</div>
+    <div class="progress-wrap" id="quizProgressWrap" style="display:none;"><div class="progress-bar" id="quizProgress"></div></div>
+    <div class="quiz-q" id="quizQ">Введи тему и жми кнопку 👆</div>
     <div class="hint" id="quizHint"></div>
     <div class="quiz-input" id="quizAnswerBox" style="display:none;">
       <input id="quizAnswer" placeholder="Твой ответ..." onkeydown="if(event.key==='Enter')checkAnswer()">
-      <button class="btn" onclick="checkAnswer()">✔</button>
+      <button class="btn green" onclick="checkAnswer()">✔</button>
     </div>
     <div id="quizResult"></div>
-    <button class="btn gray" id="nextBtn" style="display:none;" onclick="nextQuestion()">➡️ Следующее задание</button>
+    <button class="btn gray" id="nextBtn" style="display:none;" onclick="nextQuestion()">➡️ Дальше</button>
     <div class="score" id="score">Счёт: 0 / 0</div>
   </div>
 
+  <!-- ДНЕВНИК -->
   <div id="grades" class="page">
-    <button class="back" onclick="go('home')">← Назад</button>
-    <h1>📚 Дневник оценок</h1>
+    <div class="page-head">
+      <span class="kicker">Дневник</span>
+      <h1>📚 Оценки</h1>
+      <div class="sub">Пиши словами — GigaChat сам разберёт</div>
+    </div>
     <div class="avg" id="gAvg">—</div>
     <div id="gList"></div>
-    <label>✍️ Напиши предметы и оценки своими словами</label>
-    <input type="text" id="gText" placeholder="Например: математика 5 4, физика 3, инфа 5 5 5">
-    <button class="btn" id="gAddBtn" onclick="addGradeAI()">🤖 Добавить (GigaChat разберёт несколько предметов)</button>
-    <button class="btn" id="gBtn" onclick="gradesAI()">🤖 Анализ успеваемости</button>
-    <button class="btn gray" onclick="clearGrades()">🗑 Очистить всё</button>
+    <div class="sticker" style="margin-top:14px;">
+      <label>✍️ Предметы и оценки</label>
+      <input type="text" id="gText" placeholder="математика 5 4, физика 3">
+      <button class="btn green" id="gAddBtn" onclick="addGradeAI()">🤖 Разобрать</button>
+      <button class="btn blue" id="gBtn" onclick="gradesAI()">🤖 Анализ</button>
+      <button class="btn gray" onclick="clearGrades()">🗑 Очистить</button>
+    </div>
     <div id="gAi"></div>
   </div>
 
+  <!-- ВИДЕО -->
   <div id="video" class="page">
-    <button class="back" onclick="go('home')">← Назад</button>
-    <h1>🎥 Видеоуроки</h1>
-    <label>Тема</label>
-    <input type="text" id="vTopic" placeholder="фотосинтез">
-    <button class="btn" id="vBtn" onclick="buildVideo()">🤖 Найти и объяснить от GigaChat</button>
+    <div class="page-head">
+      <span class="kicker">Видео</span>
+      <h1>🎥 Видеоуроки</h1>
+      <div class="sub">Объяснение + только рабочие ссылки</div>
+    </div>
+    <div class="sticker">
+      <label>Тема</label>
+      <input type="text" id="vTopic" placeholder="фотосинтез">
+      <button class="btn pink" id="vBtn" onclick="buildVideo()">🤖 Объяснить и найти</button>
+    </div>
     <div id="vAi"></div>
     <div id="videoResult"></div>
   </div>
 
+  <!-- МОТИВАЦИЯ -->
   <div id="motivation" class="page">
-    <button class="back" onclick="go('home')">← Назад</button>
-    <h1>💪 Мотивация от GigaChat</h1>
-    <label>Настроение</label>
-    <select id="mMood">
-      <option value="tired">Устал</option><option value="worried">Переживаю</option>
-      <option value="lazy">Лень</option><option value="ok">Нормально</option>
-    </select>
-    <label>✍️ Что случилось? (необязательно)</label>
-    <textarea id="mText" rows="3" placeholder="Расскажи своими словами: что случилось, почему так чувствуешь..."></textarea>
-    <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
-    <div class="quote" id="quoteBox">Выбери настроение, расскажи ситуацию и нажми кнопку 👆</div>
+    <div class="page-head">
+      <span class="kicker">Поддержка</span>
+      <h1>💪 Мотивация</h1>
+      <div class="sub">Расскажи, что случилось — ИИ ответит</div>
+    </div>
+    <div class="sticker">
+      <label>Настроение</label>
+      <select id="mMood">
+        <option value="tired">Устал</option><option value="worried">Переживаю</option>
+        <option value="lazy">Лень</option><option value="ok">Нормально</option>
+      </select>
+      <label>✍️ Что случилось?</label>
+      <textarea id="mText" rows="3" placeholder="необязательно"></textarea>
+      <button class="btn purple" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
+    </div>
+    <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
   </div>
 
+  <!-- О БОТЕ -->
   <div id="about" class="page">
-    <button class="back" onclick="go('home')">← Назад</button>
-    <h1>ℹ️ О проекте</h1>
-    <div class="about">
-      <b>Sferum Navigator</b> — ИИ-наставник в мессенджере MAX на базе GigaChat от Сбера.
-      <ul>
-        <li>🔄 Чат синхронизирован с ботом MAX в обе стороны</li>
-        <li>🧮 Красивые формулы LaTeX (KaTeX)</li>
-        <li>🎨 Темы: светлая, тёмная, как в системе</li>
-        <li>✨ Много уникальных анимаций для каждой функции</li>
-      </ul>
-      <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 17</p>
+    <div class="page-head">
+      <span class="kicker">Инфо</span>
+      <h1>ℹ️ О проекте</h1>
     </div>
-    <div class="legal">
-      <a href="terms.html">Соглашение</a> ·
-      <a href="privacy.html">Конфиденциальность</a>
+    <div class="sticker">
+      <div class="about">
+        <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
+        <ul>
+          <li>🔄 Чат синхронизирован с ботом MAX</li>
+          <li>🧮 Формулы LaTeX (KaTeX)</li>
+          <li>🎨 Светлая / тёмная / системная тема</li>
+          <li>🔒 Тема засчитывается после теста (20)</li>
+        </ul>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 19</p>
+      </div>
+      <div class="legal">
+        <a href="terms.html">Соглашение</a> · <a href="privacy.html">Конфиденциальность</a>
+      </div>
     </div>
   </div>
 
+</div>
+
+<!-- НИЖНЯЯ НАВИГАЦИЯ -->
+<nav class="tabbar">
+  <button data-tab="home" onclick="go('home')"><span class="ic">🏠</span>Дом</button>
+  <button data-tab="chat" onclick="go('chat')"><span class="ic">🤖</span>Чат</button>
+  <button data-tab="plan" onclick="go('plan')"><span class="ic">📅</span>План</button>
+  <button data-tab="quiz" onclick="go('quiz')"><span class="ic">✅</span>Тест</button>
+  <button data-tab="more" onclick="go('more')"><span class="ic">⋯</span>Ещё</button>
+</nav>
+
+<!-- СТРАНИЦА «ЕЩЁ» -->
+<div class="card" style="display:none;" id="moreCard">
+  <div id="more" class="page">
+    <div class="page-head">
+      <span class="kicker">Ещё</span>
+      <h1>⋯ Разделы</h1>
+    </div>
+    <div class="home-grid">
+      <button class="nav-card" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
+      <button class="nav-card" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
+      <button class="nav-card" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
+      <button class="nav-card" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 19</div></button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -442,69 +539,8 @@ function applyTheme(t) {
     if (b) b.classList.toggle('on', n.toLowerCase() === t);
   });
 }
-function setTheme(t) { applyTheme(t); initParticles(); }
+function setTheme(t) { applyTheme(t); }
 applyTheme(localStorage.getItem('sn_theme') || 'auto');
-
-// ===== ЧАСТИЦЫ НА ФОНЕ =====
-const particlesCv = document.getElementById('particles');
-const pCtx = particlesCv.getContext('2d');
-let particles = [];
-function sizeParticles() {
-  particlesCv.width = window.innerWidth;
-  particlesCv.height = window.innerHeight;
-  const count = Math.min(40, Math.floor(window.innerWidth * window.innerHeight / 18000));
-  particles = [];
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: Math.random() * particlesCv.width,
-      y: Math.random() * particlesCv.height,
-      r: Math.random() * 2.5 + .8,
-      vx: (Math.random() - .5) * .4,
-      vy: (Math.random() - .5) * .4,
-      phase: Math.random() * Math.PI * 2
-    });
-  }
-}
-function drawParticles() {
-  if (!particlesCv || !pCtx) return;
-  pCtx.clearRect(0, 0, particlesCv.width, particlesCv.height);
-  const col = getComputedStyle(document.documentElement).getPropertyValue('--particle-col').trim() || 'rgba(102,126,234,.5)';
-  const t = Date.now() / 1000;
-  particles.forEach(p => {
-    p.x += p.vx; p.y += p.vy;
-    if (p.x < 0 || p.x > particlesCv.width) p.vx *= -1;
-    if (p.y < 0 || p.y > particlesCv.height) p.vy *= -1;
-    const a = .3 + .3 * Math.sin(t * 2 + p.phase);
-    pCtx.globalAlpha = a;
-    pCtx.fillStyle = col;
-    pCtx.beginPath();
-    pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    pCtx.fill();
-  });
-  pCtx.globalAlpha = 1;
-  // соединения между близкими
-  pCtx.strokeStyle = col; pCtx.lineWidth = .5;
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const d2 = dx*dx + dy*dy;
-      if (d2 < 12000) {
-        pCtx.globalAlpha = .15 * (1 - d2 / 12000);
-        pCtx.beginPath();
-        pCtx.moveTo(particles[i].x, particles[i].y);
-        pCtx.lineTo(particles[j].x, particles[j].y);
-        pCtx.stroke();
-      }
-    }
-  }
-  pCtx.globalAlpha = 1;
-  requestAnimationFrame(drawParticles);
-}
-function initParticles() { sizeParticles(); }
-sizeParticles();
-drawParticles();
-window.addEventListener('resize', sizeParticles);
 
 // ===== КОНФЕТТИ =====
 const confettiCv = document.getElementById('confetti');
@@ -513,73 +549,46 @@ let confetti = [];
 function sizeConfetti() { confettiCv.width = window.innerWidth; confettiCv.height = window.innerHeight; }
 sizeConfetti();
 window.addEventListener('resize', sizeConfetti);
-function fireConfetti(fromX, fromY) {
-  const colors = ['#667eea','#764ba2','#f7971e','#4caf50','#ffb74d','#ef5350'];
+function fireConfetti(x, y) {
+  const colors = ['#FFD43B','#8CE99A','#FFA8A8','#D0BFFF','#A5D8FF','#FFC078'];
   for (let i = 0; i < 35; i++) {
-    confetti.push({
-      x: fromX, y: fromY,
-      vx: (Math.random() - .5) * 10,
-      vy: -Math.random() * 8 - 4,
-      g: .25,
-      size: Math.random() * 6 + 4,
-      rot: Math.random() * Math.PI * 2,
-      vr: (Math.random() - .5) * .4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      life: 0,
-      maxLife: 80 + Math.random() * 30
-    });
+    confetti.push({ x, y, vx:(Math.random()-.5)*10, vy:-Math.random()*8-4, g:.25,
+      size:Math.random()*6+4, rot:Math.random()*Math.PI*2, vr:(Math.random()-.5)*.4,
+      color:colors[i%colors.length], life:0, maxLife:80+Math.random()*30 });
   }
 }
 function drawConfetti() {
-  cCtx.clearRect(0, 0, confettiCv.width, confettiCv.height);
+  cCtx.clearRect(0,0,confettiCv.width,confettiCv.height);
   confetti = confetti.filter(c => c.life < c.maxLife && c.y < confettiCv.height + 30);
   confetti.forEach(c => {
-    c.x += c.vx; c.y += c.vy; c.vy += c.g;
-    c.vx *= .99; c.rot += c.vr; c.life++;
-    const alpha = Math.max(0, 1 - c.life / c.maxLife);
-    cCtx.save();
-    cCtx.globalAlpha = alpha;
-    cCtx.translate(c.x, c.y);
-    cCtx.rotate(c.rot);
-    cCtx.fillStyle = c.color;
-    cCtx.fillRect(-c.size/2, -c.size/2, c.size, c.size * .6);
-    cCtx.restore();
+    c.x+=c.vx; c.y+=c.vy; c.vy+=c.g; c.vx*=.99; c.rot+=c.vr; c.life++;
+    cCtx.save(); cCtx.globalAlpha = Math.max(0,1-c.life/c.maxLife);
+    cCtx.translate(c.x,c.y); cCtx.rotate(c.rot); cCtx.fillStyle=c.color;
+    cCtx.fillRect(-c.size/2,-c.size/2,c.size,c.size*.6); cCtx.restore();
   });
   requestAnimationFrame(drawConfetti);
 }
 drawConfetti();
 
-// ===== TYPEWRITER =====
-function typeWriter(el, text, speed = 22) {
-  el.classList.add('typing');
-  el.textContent = '';
+function typeWriter(el, text, speed = 20) {
+  el.classList.add('typing'); el.textContent = '';
   let i = 0;
-  return new Promise(resolve => {
+  return new Promise(res => {
     const step = () => {
-      if (i <= text.length) {
-        el.textContent = text.slice(0, i);
-        i++;
-        setTimeout(step, speed);
-      } else {
-        el.classList.remove('typing');
-        resolve();
-      }
+      if (i <= text.length) { el.textContent = text.slice(0,i); i++; setTimeout(step, speed); }
+      else { el.classList.remove('typing'); res(); }
     };
     step();
   });
 }
-
-// ===== COUNT-UP для среднего балла =====
-function animateCount(el, from, to, duration = 700) {
-  const start = performance.now();
-  const update = now => {
-    const p = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - p, 3);
-    const v = from + (to - from) * eased;
-    el.textContent = v.toFixed(2);
-    if (p < 1) requestAnimationFrame(update);
+function animateCount(el, from, to, dur = 700) {
+  const st = performance.now();
+  const up = now => {
+    const p = Math.min((now-st)/dur,1);
+    el.textContent = (from+(to-from)*(1-Math.pow(1-p,3))).toFixed(2);
+    if (p<1) requestAnimationFrame(up);
   };
-  requestAnimationFrame(update);
+  requestAnimationFrame(up);
 }
 
 const GIGA_ID = '01a0bafa-206f-7e07-a2e7-df9e0acea285';
@@ -592,835 +601,432 @@ const CHANNEL = 'main';
 const MATH_SYSTEM = 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
 
 let gigaToken = null, gigaExp = 0;
+function uuid(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);});}
 
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16);
-  });
-}
-
-function mathIn(el) {
-  if (!el || !window.renderMathInElement) return;
-  try {
-    renderMathInElement(el, {
-      delimiters: [
-        {left: '$$', right: '$$', display: true},
-        {left: '$', right: '$', display: false},
-        {left: '\\(', right: '\\)', display: false},
-        {left: '\\[', right: '\\]', display: true}
-      ],
-      throwOnError: false
-    });
-  } catch (e) {}
-}
-function renderAllMath() { mathIn(document.body); }
-window.addEventListener('load', renderAllMath);
-
-function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function mathIn(el){ if(!el||!window.renderMathInElement)return; try{ renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false}); }catch(e){} }
+window.addEventListener('load', ()=>mathIn(document.body));
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 async function askGiga(prompt, systemPrompt, maxTokens, history) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 60000);
+  const timer = setTimeout(()=>ctrl.abort(), 60000);
   try {
     if (!gigaToken || Date.now() > gigaExp) {
       const r1 = await fetch(PROXY_BASE + '/proxy?url=' + encodeURIComponent('https://ngw.devices.sberbank.ru:9443/api/v2/oauth'), {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Basic ' + btoa(GIGA_ID + ':' + GIGA_SECRET),
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'RqUID': uuid()
-        },
-        body: 'scope=GIGACHAT_API_PERS',
-        signal: ctrl.signal
-      });
-      if (!r1.ok) throw new Error('Auth failed: ' + r1.status);
-      const d1 = await r1.json();
-      gigaToken = d1.access_token;
-      gigaExp = Date.now() + 1700*1000;
+        method:'POST',
+        headers:{'Authorization':'Basic '+btoa(GIGA_ID+':'+GIGA_SECRET),'Content-Type':'application/x-www-form-urlencoded','RqUID':uuid()},
+        body:'scope=GIGACHAT_API_PERS', signal:ctrl.signal });
+      if (!r1.ok) throw new Error('Auth failed: '+r1.status);
+      const d1 = await r1.json(); gigaToken = d1.access_token; gigaExp = Date.now()+1700*1000;
     }
-    const messages = [{ role: 'system', content: systemPrompt || MATH_SYSTEM }];
+    const messages = [{role:'system',content:systemPrompt||MATH_SYSTEM}];
     if (history && history.length) messages.push.apply(messages, history);
-    messages.push({ role: 'user', content: prompt });
+    messages.push({role:'user',content:prompt});
     const r2 = await fetch(PROXY_BASE + '/proxy?url=' + encodeURIComponent('https://gigachat.devices.sberbank.ru/api/v1/chat/completions'), {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + gigaToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'GigaChat:latest', messages, max_tokens: maxTokens || 800, temperature: 0.7 }),
-      signal: ctrl.signal
-    });
-    if (!r2.ok) throw new Error('Chat failed: ' + r2.status);
+      method:'POST',
+      headers:{'Authorization':'Bearer '+gigaToken,'Content-Type':'application/json'},
+      body:JSON.stringify({model:'GigaChat:latest',messages,max_tokens:maxTokens||800,temperature:0.7}),
+      signal:ctrl.signal });
+    if (!r2.ok) throw new Error('Chat failed: '+r2.status);
     const d2 = await r2.json();
     return d2.choices[0].message.content;
-  } finally {
-    clearTimeout(timer);
-  }
+  } finally { clearTimeout(timer); }
 }
+function cleanResponse(t){return t.replace(/\*\*/g,'').replace(/(^|\n)#{1,3}\s*/g,'$1').replace(/`/g,'').replace(/\n{3,}/g,'\n\n').trim();}
+function showLoading(id,m){document.getElementById(id).innerHTML='<div class="item loading">'+m+'</div>';}
+function showError(id,m){document.getElementById(id).innerHTML='<div class="item" style="border-left-color:var(--err);">❌ '+m+'</div>';}
+async function ensureSpaces(text){ if(!text)return ''; if(text.length<15||/\s/.test(text.trim()))return text; try{ const f=await askGiga('Расставь пропущенные пробелы между словами, сохрани знаки, цифры и LaTeX. Верни ТОЛЬКО текст:\n'+text,'Верни только текст.',400); return (f||text).trim(); }catch(e){return text;} }
+function parseJSONArraySafe(text){ const m=text.match(/\[[\s\S]*\]/); if(!m)throw new Error('Не JSON'); const raw=m[0]; try{return JSON.parse(raw);}catch(e){} const lc=raw.lastIndexOf('}'); if(lc>0){ try{return JSON.parse(raw.slice(0,lc+1).replace(/,\s*$/,'')+']');}catch(e){} } throw new Error('JSON обрезан'); }
+function parseJSONObjectSafe(text){ const m=text.match(/\{[\s\S]*\}/); if(!m)return null; try{return JSON.parse(m[0]);}catch(e){return null;} }
+function videoLinks(topic, av){ const t=encodeURIComponent(topic); let h='';
+  if(av.youtube)h+='<a class="mini-link" target="_blank" href="https://www.youtube.com/results?search_query='+t+'">▶ YouTube</a>';
+  if(av.vk)h+='<a class="mini-link" target="_blank" href="https://vk.com/video?q='+t+'">▶ VK</a>';
+  if(av.rutube)h+='<a class="mini-link" target="_blank" href="https://rutube.ru/search/?q='+t+'">▶ RuTube</a>';
+  if(!h)h='<span style="font-size:12px;font-weight:700;color:var(--muted);">📭 видео не найдено</span>';
+  return h; }
+function todayIdx(){return (new Date().getDay()+6)%7;}
+function mondayOf(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;}
+function currentWeekKey(){return mondayOf(new Date()).toISOString().slice(0,10);}
+function attr(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
 
-function cleanResponse(text) {
-  return text.replace(/\*\*/g,'').replace(/(^|\n)#{1,3}\s*/g,'$1').replace(/`/g,'').replace(/\n{3,}/g,'\n\n').trim();
-}
-function showLoading(id, msg) {
-  document.getElementById(id).innerHTML = '<div class="item loading">' + msg + '</div>';
-}
-function showError(id, msg) {
-  document.getElementById(id).innerHTML = '<div class="item" style="border-left-color:var(--err-bd);">❌ ' + msg + '</div>';
-}
-async function ensureSpaces(text) {
-  if (!text) return '';
-  if (text.length < 15 || /\s/.test(text.trim())) return text;
-  try {
-    const fixed = await askGiga('Расставь пропущенные пробелы между словами в тексте, сохрани знаки препинания, цифры и LaTeX-формулы. Верни ТОЛЬКО исправленный текст:\n' + text, 'Верни только исправленный текст, без пояснений.', 400);
-    return (fixed || text).trim();
-  } catch (e) { return text; }
-}
-function parseJSONArraySafe(text) {
-  const match = text.match(/\[[\s\S]*\]/);
-  if (!match) throw new Error('Ответ не JSON');
-  const raw = match[0];
-  try { return JSON.parse(raw); } catch (e) {}
-  const lastClose = raw.lastIndexOf('}');
-  if (lastClose > 0) {
-    let fixed = raw.slice(0, lastClose + 1).replace(/,\s*$/, '') + ']';
-    try { return JSON.parse(fixed); } catch (e) {}
-  }
-  throw new Error('JSON обрезан, попробуйте ещё раз');
-}
-function parseJSONObjectSafe(text) {
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) return null;
-  try { return JSON.parse(match[0]); } catch (e) { return null; }
-}
-function videoLinks(topic, available) {
-  const t = encodeURIComponent(topic);
-  let h = '';
-  if (available.youtube) h += '<a class="mini-link" target="_blank" href="https://www.youtube.com/results?search_query='+t+'">▶ YouTube</a>';
-  if (available.vk) h += '<a class="mini-link" target="_blank" href="https://vk.com/video?q='+t+'">▶ VK</a>';
-  if (available.rutube) h += '<a class="mini-link" target="_blank" href="https://rutube.ru/search/?q='+t+'">▶ RuTube</a>';
-  if (!h) h = '<span style="font-size:12px;color:var(--muted);">📭 видео не найдено</span>';
-  return h;
-}
-function todayIdx() { return (new Date().getDay() + 6) % 7; }
-function mondayOf(d) {
-  const x = new Date(d);
-  const day = (x.getDay() + 6) % 7;
-  x.setDate(x.getDate() - day);
-  x.setHours(0,0,0,0);
-  return x;
-}
-function currentWeekKey() { return mondayOf(new Date()).toISOString().slice(0,10); }
-function attr(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+const SUBJ_ALIASES=[['Физкультура',['физр','физкульт','физ-ра']],['Физика',['физик']],['Математика',['матан','матем','алгебр','геометр']],['Информатика',['информ','инфа','комп','программ']],['Английский язык',['англ','инглиш','english']],['Немецкий язык',['немец','герман']],['Испанский язык',['испан']],['Русский язык',['русск','рус язы']],['Литература',['литер','лит-ра','литре','литру','литрой','лит']],['Химия',['хим']],['Биология',['био','биолог']],['История',['истор']],['Обществознание',['обществ']],['География',['географ','геогр']]];
+function localSubject(t){const s=t.toLowerCase();for(const[n,k]of SUBJ_ALIASES){for(const x of k)if(s.includes(x))return n;}return null;}
+function extractGradesLocal(t){const s=localSubject(t);const g=(t.match(/\b[1-5]\b/g)||[]).map(Number);if(s&&g.length)return[{subject:s,grades:g}];return null;}
+const GRADE_TRIGGERS=/оценк|получил|получила|поставили|поставил|заработал|заработала|балл|отметк|результат контрольной/i;
 
-const SUBJ_ALIASES = [
-  ['Физкультура', ['физр', 'физкульт', 'физ-ра']],
-  ['Физика', ['физик']],
-  ['Математика', ['матан', 'матем', 'алгебр', 'геометр']],
-  ['Информатика', ['информ', 'инфа', 'комп', 'программ']],
-  ['Английский язык', ['англ', 'инглиш', 'english']],
-  ['Немецкий язык', ['немец', 'герман']],
-  ['Испанский язык', ['испан']],
-  ['Русский язык', ['русск', 'рус язы']],
-  ['Литература', ['литер', 'лит-ра', 'литре', 'литру', 'литрой', 'лит']],
-  ['Химия', ['хим']],
-  ['Биология', ['био', 'биолог']],
-  ['История', ['истор']],
-  ['Обществознание', ['обществ']],
-  ['География', ['географ', 'геогр']],
-];
-function localSubject(text) {
-  const t = text.toLowerCase();
-  for (const [name, keys] of SUBJ_ALIASES) {
-    for (const k of keys) if (t.includes(k)) return name;
-  }
-  return null;
-}
-function extractGradesLocal(text) {
-  const subj = localSubject(text);
-  const grades = (text.match(/\b[1-5]\b/g) || []).map(Number);
-  if (subj && grades.length) return [{ subject: subj, grades }];
-  return null;
-}
-const GRADE_TRIGGERS = /оценк|получил|получила|поставили|поставил|заработал|заработала|балл|отметк|результат контрольной/i;
-
-function loadG() { try { return JSON.parse(localStorage.getItem('g') || '{}'); } catch(e) { return {}; } }
-function saveG(g) { localStorage.setItem('g', JSON.stringify(g)); }
-function addGradeToStorage(parsed) {
-  const g = loadG();
-  if (!g[parsed.subject]) g[parsed.subject] = [];
-  g[parsed.subject] = g[parsed.subject].concat(parsed.grades);
-  saveG(g);
-  renderG();
-}
-function renderG() {
-  const g = loadG(); let h = '', all = [];
-  for (const s in g) { const a = g[s]; all = all.concat(a); const avg = a.reduce((x,y)=>x+y,0)/a.length;
-    h += '<div class="grade-row" style="animation-delay:'+(Object.keys(g).indexOf(s)*60)+'ms;"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';
-  }
-  document.getElementById('gList').innerHTML = h || '<div class="item">Напиши предметы и оценки — GigaChat разберёт 👆</div>';
-  const avgEl = document.getElementById('gAvg');
-  const newAvg = all.length ? (all.reduce((a,b)=>a+b,0)/all.length) : null;
-  const oldVal = parseFloat(avgEl.textContent) || 0;
-  if (newAvg !== null) animateCount(avgEl, oldVal, newAvg, 700);
-  else avgEl.textContent = '—';
+function loadG(){try{return JSON.parse(localStorage.getItem('g')||'{}');}catch(e){return{};}}
+function saveG(g){localStorage.setItem('g',JSON.stringify(g));}
+function addGradeToStorage(p){const g=loadG();if(!g[p.subject])g[p.subject]=[];g[p.subject]=g[p.subject].concat(p.grades);saveG(g);renderG();}
+function renderG(){
+  const g=loadG();let h='',all=[];
+  for(const s in g){const a=g[s];all=all.concat(a);const avg=a.reduce((x,y)=>x+y,0)/a.length;
+    h+='<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';}
+  document.getElementById('gList').innerHTML=h||'<div class="item">Напиши предметы и оценки — GigaChat разберёт 👆</div>';
+  const el=document.getElementById('gAvg');
+  const nv=all.length?(all.reduce((a,b)=>a+b,0)/all.length):null;
+  const ov=parseFloat(el.textContent)||0;
+  if(nv!==null)animateCount(el,ov,nv,700); else el.textContent='—';
+  const sa=document.getElementById('statAvg');
+  if(sa)sa.textContent=nv!==null?nv.toFixed(2):'—';
 }
 
 // ===== ЧАТ =====
-let chatHistory = [];
-try { chatHistory = JSON.parse(localStorage.getItem('sn_chat') || '[]'); } catch (e) { chatHistory = []; }
-
-function msgKey(m) { return (m.role||'') + '|' + (m.timestamp||'') + '|' + (m.content||''); }
-
-async function syncChatHistory() {
-  try {
-    const r = await fetch(PROXY_BASE + '/chat_history?user_id=' + encodeURIComponent(CHANNEL));
-    if (!r.ok) return;
-    const server = await r.json();
-    if (!Array.isArray(server)) return;
-    const keys = new Set(chatHistory.map(msgKey));
-    let changed = false;
-    server.forEach(m => {
-      const k = msgKey(m);
-      if (!keys.has(k)) { chatHistory.push(m); keys.add(k); changed = true; }
-    });
-    if (changed) {
-      chatHistory.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-      if (chatHistory.length > 50) chatHistory = chatHistory.slice(-50);
-      localStorage.setItem('sn_chat', JSON.stringify(chatHistory));
-      if (document.getElementById('chat').classList.contains('active')) restoreChatHistory();
-    }
-  } catch (e) {}
+let chatHistory=[];
+try{chatHistory=JSON.parse(localStorage.getItem('sn_chat')||'[]');}catch(e){chatHistory=[];}
+function msgKey(m){return (m.role||'')+'|'+(m.timestamp||'')+'|'+(m.content||'');}
+async function syncChatHistory(){
+  try{
+    const r=await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL));
+    if(!r.ok)return;
+    const server=await r.json();
+    if(!Array.isArray(server))return;
+    const keys=new Set(chatHistory.map(msgKey));let ch=false;
+    server.forEach(m=>{const k=msgKey(m);if(!keys.has(k)){chatHistory.push(m);keys.add(k);ch=true;}});
+    if(ch){chatHistory.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));if(document.getElementById('chat').classList.contains('active'))restoreChatHistory();}
+  }catch(e){}
 }
-
-async function saveChatToServer() {
-  try {
-    await fetch(PROXY_BASE + '/chat_history?user_id=' + encodeURIComponent(CHANNEL), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(chatHistory.slice(-50))
-    });
-  } catch (e) {}
-}
-
-function saveChatHistory() {
-  if (chatHistory.length > 50) chatHistory = chatHistory.slice(-50);
-  localStorage.setItem('sn_chat', JSON.stringify(chatHistory));
-  saveChatToServer();
-}
-
-function addMsg(t, c, source) {
-  const b = document.getElementById('chatBox');
-  const d = document.createElement('div');
-  d.className = 'msg ' + c;
-  if (source === 'max' && c === 'user') t = '📱 MAX: ' + t;
-  d.innerHTML = escapeHtml(t);
-  b.appendChild(d);
-  mathIn(d);
-  b.scrollTop = b.scrollHeight;
-  return d;
-}
-
-async function tryParseGradesViaGiga(text) {
-  const digits = (text.match(/\b[1-5]\b/g) || []).length;
-  if (!digits || !GRADE_TRIGGERS.test(text)) return null;
-  try {
-    const response = await askGiga('Ученик написал: «' + text + '». Если это сообщение про школьные оценки — определи предметы (полные названия по-русски) и оценки для каждого. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[...]}, ...]. Если НЕ про оценки — верни [].', 'Верни только валидный JSON, без пояснений.', 500);
-    const arr = parseJSONArraySafe(response);
-    if (Array.isArray(arr) && arr.length) {
-      return arr.filter(x => x.subject && Array.isArray(x.grades) && x.grades.length).map(x => ({
-        subject: x.subject, grades: x.grades.filter(g => g >= 1 && g <= 5)
-      })).filter(x => x.grades.length);
-    }
-  } catch (e) {}
+async function saveChatToServer(){ try{ await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(chatHistory.slice(-50))}); }catch(e){} }
+function saveChatHistory(){ if(chatHistory.length>50)chatHistory=chatHistory.slice(-50); localStorage.setItem('sn_chat',JSON.stringify(chatHistory)); saveChatToServer(); }
+function addMsg(t,c,source){ const b=document.getElementById('chatBox'); const d=document.createElement('div'); d.className='msg '+c; if(source==='max'&&c==='user')t='📱 MAX: '+t; d.innerHTML=escapeHtml(t); b.appendChild(d); mathIn(d); b.scrollTop=b.scrollHeight; return d; }
+async function tryParseGradesViaGiga(text){
+  const digits=(text.match(/\b[1-5]\b/g)||[]).length;
+  if(!digits||!GRADE_TRIGGERS.test(text))return null;
+  try{
+    const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы и оценки. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[...]}]. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500);
+    const arr=parseJSONArraySafe(r);
+    if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);
+  }catch(e){}
   return null;
 }
-
-async function sendChat() {
-  const i = document.getElementById('chatInput');
-  const t = i.value.trim(); if (!t) return;
-  i.value = '';
-  addMsg(t, 'user', 'web');
-
-  const local = extractGradesLocal(t);
-  if (local) {
-    local.forEach(p => addGradeToStorage(p));
-    addMsg('📚 Записал в дневник: ' + local.map(p => p.subject + ' → ' + p.grades.join(', ')).join('; '), 'sys');
-  }
-
-  const loading = document.createElement('div');
-  loading.className = 'msg loading typing-dots';
-  loading.textContent = 'Думаю';
-  document.getElementById('chatBox').appendChild(loading);
-  document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
-  document.getElementById('chatBtn').disabled = true;
-  try {
+async function sendChat(){
+  const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
+  i.value=''; addMsg(t,'user','web');
+  const local=extractGradesLocal(t);
+  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
+  const loading=document.createElement('div');loading.className='msg loading typing-dots';loading.textContent='Думаю';
+  const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
+  document.getElementById('chatBtn').disabled=true;
+  try{
     await syncChatHistory();
-    const historyForModel = chatHistory.slice(-16);
-    chatHistory.push({ role: 'user', content: t, timestamp: Date.now(), source: 'web' });
-    const response = await askGiga(t, MATH_SYSTEM + ' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про свои оценки — порадуйся или поддержи.', 800, historyForModel);
-    const cleaned = cleanResponse(response);
-    loading.remove();
-    const botMsg = addMsg(cleaned, 'bot ai-glow', 'web');
-    chatHistory.push({ role: 'assistant', content: cleaned, timestamp: Date.now(), source: 'web' });
+    const hist=chatHistory.slice(-16);
+    chatHistory.push({role:'user',content:t,timestamp:Date.now(),source:'web'});
+    const resp=await askGiga(t,MATH_SYSTEM+' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про оценки — порадуйся или поддержи.',800,hist);
+    const cl=cleanResponse(resp);
+    loading.remove(); addMsg(cl,'bot','web');
+    chatHistory.push({role:'assistant',content:cl,timestamp:Date.now(),source:'web'});
     saveChatHistory();
-
-    if (!local) {
-      const parsed = await tryParseGradesViaGiga(t);
-      if (parsed && parsed.length) {
-        parsed.forEach(p => addGradeToStorage(p));
-        addMsg('📚 Записал в дневник: ' + parsed.map(p => p.subject + ' → ' + p.grades.join(', ')).join('; '), 'sys');
-      }
-    }
-  } catch (e) {
-    loading.remove();
-    addMsg('❌ Ошибка: ' + e.message, 'bot');
-  } finally {
-    document.getElementById('chatBtn').disabled = false;
-  }
+    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
+  }catch(e){loading.remove();addMsg('❌ Ошибка: '+e.message,'bot');}
+  finally{document.getElementById('chatBtn').disabled=false;}
 }
-
-function clearChat() {
-  if (!confirm('Удалить общий чат (и в MAX, и на сайте)?')) return;
-  chatHistory = [];
-  localStorage.removeItem('sn_chat');
-  document.getElementById('chatBox').innerHTML = '';
-  addMsg('Общий чат очищен. Давай начнём заново! 🎓', 'bot');
-  saveChatToServer();
-}
-
-function restoreChatHistory() {
-  document.getElementById('chatBox').innerHTML = '';
-  if (chatHistory.length === 0) {
-    addMsg('Привет! Я GigaChat. Наш чат общий с ботом MAX: пиши здесь — увидят там, и наоборот 🔄', 'bot');
-  } else {
-    chatHistory.forEach(m => {
-      if (m.role === 'user') addMsg(m.content, 'user', m.source);
-      else if (m.role === 'assistant') addMsg(m.content, 'bot', m.source);
-    });
-    addMsg('💾 Общий чат загружен (MAX + сайт). Продолжаем?', 'sys');
-  }
+function clearChat(){ if(!confirm('Удалить общий чат (и в MAX, и на сайте)?'))return; chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';addMsg('Общий чат очищен. Начнём заново! 🎓','bot');saveChatToServer(); }
+function restoreChatHistory(){
+  const b=document.getElementById('chatBox');b.innerHTML='';
+  if(!chatHistory.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX 🔄','bot');}
+  else{chatHistory.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}
 }
 
 // ===== ПЛАН =====
-function examInfo(grade, examText) {
-  const now = new Date();
-  const t = (examText || '').toLowerCase();
-  let targetGrade = grade, month = 4, day = 25;
-  if (t.includes('огэ')) { targetGrade = 9; day = 20; }
-  else if (t.includes('егэ')) { targetGrade = 11; day = 25; }
-  const yearsLeft = Math.max(0, targetGrade - grade);
-  let examDate = new Date(now.getFullYear() + yearsLeft, month, day);
-  if (examDate < now) examDate = new Date(now.getFullYear() + yearsLeft + 1, month, day);
-  const weeks = Math.max(1, Math.round((examDate - now) / (7*24*3600*1000)));
-  return { name: examText || 'экзамен', examDate, weeks };
-}
-function normalizeSchedule(schedule, studyDays) {
-  let study = 0;
-  return (schedule || []).map(s => {
-    const rest = /отдых|выходной/i.test(s.subject || '');
-    if (!rest && study < studyDays) { study++; return s; }
-    if (!rest) return { day: s.day, subject: 'отдых', topic: '', activity: 'восстановление и сон' };
-    return s;
-  });
-}
-function loadPlan() { try { return JSON.parse(localStorage.getItem('sn_plan') || 'null'); } catch(e) { return null; } }
-function savePlan(p) { localStorage.setItem('sn_plan', JSON.stringify(p)); }
-function todayPlanItem() {
-  const plan = loadPlan();
-  if (!plan || !plan.schedule) return null;
-  return plan.schedule[todayIdx()] || null;
-}
-function isRestDay(item) { return !item || /отдых|выходной/i.test(item.subject || ''); }
-function topicKey(s) { return s.topic || s.subject || ''; }
+function examInfo(grade,examText){const now=new Date();const t=(examText||'').toLowerCase();let tg=grade,mo=4,da=25;if(t.includes('огэ')){tg=9;da=20;}else if(t.includes('егэ')){tg=11;da=25;}const yl=Math.max(0,tg-grade);let ed=new Date(now.getFullYear()+yl,mo,da);if(ed<now)ed=new Date(now.getFullYear()+yl+1,mo,da);const w=Math.max(1,Math.round((ed-now)/(7*24*3600*1000)));return{name:examText||'экзамен',examDate:ed,weeks:w};}
+function normalizeSchedule(sch,days){let st=0;return (sch||[]).map(s=>{const rest=/отдых|выходной/i.test(s.subject||'');if(!rest&&st<days){st++;return s;}if(!rest)return{day:s.day,subject:'отдых',topic:'',activity:'отдых'};return s;});}
+function loadPlan(){try{return JSON.parse(localStorage.getItem('sn_plan')||'null');}catch(e){return null;}}
+function savePlan(p){localStorage.setItem('sn_plan',JSON.stringify(p));updateHomeStats();}
+function todayPlanItem(){const p=loadPlan();if(!p||!p.schedule)return null;return p.schedule[todayIdx()]||null;}
+function isRestDay(i){return !i||/отдых|выходной/i.test(i.subject||'');}
+function topicKey(s){return s.topic||s.subject||'';}
 
-function renderPlan(data) {
-  let h = '';
-  if (data.examName) {
-    h += '<div class="item ai">🎯 Сдаёшь: ' + escapeHtml(data.examName) + '\n📆 Дата экзамена: ' + data.examDate + ' · осталось недель: ' + data.weeks +
-         (data.savedAt ? '\n💾 Сохранён: ' + data.savedAt + ' — живёт, пока не изменишь' : '') + '</div>';
-  }
-  if (data.schedule && data.schedule.length) {
-    const studyCount = data.schedule.filter(s => !isRestDay(s)).length;
-    h += '<div class="item ai">📆 Расписание недели ' + (data.scheduleWeek || '') + ' · учебных дней: ' + studyCount + ':</div>';
-    const ti = todayIdx();
-    data.schedule.forEach((s, i) => {
-      h += '<div class="sched-row' + (i === ti ? ' today' : '') + '" style="animation-delay:'+i*70+'ms;"><span>' + (s.day || DAYS[i]) + (i === ti ? ' 👉' : '') + '</span><b>' + escapeHtml(s.subject || '') + '</b><span class="act">' + escapeHtml(s.topic || '') + (s.activity ? ' · ' + escapeHtml(s.activity) : '') + '</span></div>';
-    });
-    const todayItem = data.schedule[ti];
-    if (todayItem && !isRestDay(todayItem)) {
-      h += '<div class="item ai">🎯 Сегодня (' + DAYS[ti] + '): ' + escapeHtml(todayItem.subject) + '\n📖 Тема дня: ' + escapeHtml(todayItem.topic || 'по плану') + (todayItem.activity ? '\n✏️ ' + escapeHtml(todayItem.activity) : '') + '</div>';
-      h += '<button class="btn" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';
-      h += '<button class="btn gray" onclick="videoTodayFromPlan()">🎥 Видеоуроки по теме дня</button>';
-    } else if (todayItem) {
-      h += '<div class="item ai">😴 Сегодня по плану отдых. Но можешь потренировать любую тему!</div>';
-    }
-    const weekTopics = data.schedule.filter(s => !isRestDay(s));
-    if (weekTopics.length) {
-      h += '<div class="item ai">📚 Темы недели: выбери пройденную и подтверди тестом из ' + TEST_SIZE + ' вопросов</div>';
-      weekTopics.forEach(s => {
-        const key = topicKey(s);
-        if (!key) return;
-        const passed = data.testPassed && data.testPassed[key] && data.testPassed[key].week === currentWeekKey() ? data.testPassed[key] : null;
-        const done = (data.done || []).some(d => d.topic === key);
-        const selected = data.selectedTopic === key;
-        h += '<div class="sched-row' + (selected ? ' today' : '') + '"><span>' + (s.day || '') + '</span><b>' + escapeHtml(s.subject || '') + '</b><span class="act">' + escapeHtml(key) +
-             (passed ? '\n✅ тест ' + passed.score + '/' + passed.total : '') + (done ? '\n🎓 пройдено' : '') + '</span></div>';
-        if (!done) {
-          h += '<button class="btn ' + (selected ? 'sel' : 'gray') + '" onclick="selectTopic(\'' + attr(key) + '\')">' + (selected ? '✔ Выбрано: ' : 'Выбрать тему: ') + escapeHtml(key) + '</button>';
-          if (selected) {
-            h += '<button class="btn" onclick="testSelectedTopic()">🎯 Пройти тест по теме (' + TEST_SIZE + ' вопросов)</button>';
-            if (passed) {
-              h += '<button class="btn" onclick="markSelectedDone()">✅ Я прошёл тему «' + escapeHtml(key) + '»</button>';
-            } else {
-              h += '<button class="btn gray" disabled>✅ Я прошёл тему — сначала пройди тест (' + TEST_SIZE + ')</button>';
-            }
+function renderPlan(data){
+  let h='';
+  if(data.examName)h+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
+  if(data.schedule&&data.schedule.length){
+    const sc=data.schedule.filter(s=>!isRestDay(s)).length;
+    h+='<div class="item ai">📆 Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
+    const ti=todayIdx();
+    data.schedule.forEach((s,i)=>{h+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
+    const td=data.schedule[ti];
+    if(td&&!isRestDay(td)){
+      h+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';
+      h+='<button class="btn green" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';
+      h+='<button class="btn blue" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';
+    } else if(td){h+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
+    const wt=data.schedule.filter(s=>!isRestDay(s));
+    if(wt.length){
+      h+='<div class="item ai">📚 Темы недели: выбери и подтверди тестом ('+TEST_SIZE+'):</div>';
+      wt.forEach(s=>{
+        const key=topicKey(s);if(!key)return;
+        const passed=data.testPassed&&data.testPassed[key]&&data.testPassed[key].week===currentWeekKey()?data.testPassed[key]:null;
+        const done=(data.done||[]).some(d=>d.topic===key);
+        const sel=data.selectedTopic===key;
+        h+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(passed?'\n✅ тест '+passed.score+'/'+passed.total:'')+(done?'\n🎓 пройдено':'')+'</span></div>';
+        if(!done){
+          h+='<button class="btn '+(sel?'sel':'gray')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
+          if(sel){
+            h+='<button class="btn blue" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+')</button>';
+            if(passed)h+='<button class="btn green" onclick="markSelectedDone()">✅ Я прошёл тему</button>';
+            else h+='<button class="btn gray" disabled>✅ Сначала пройди тест ('+TEST_SIZE+')</button>';
           }
         }
       });
-      if (data.done && data.done.length) {
-        h += '<div class="item">🎓 Пройдено тем: ' + data.done.length + ' (последняя: ' + escapeHtml(data.done[data.done.length-1].topic) + ', ' + data.done[data.done.length-1].date + ', тест ' + (data.done[data.done.length-1].score || '') + ')</div>';
-      }
+      if(data.done&&data.done.length)h+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
     }
   }
-  if (data.steps && data.steps.length) {
-    h += '<div class="item ai">🗺 Этапы подготовки с темами:</div>';
-    data.steps.forEach((s, i) => {
-      h += '<div class="item" style="animation-delay:'+i*80+'ms;"><b>' + (i+1) + '. ' + escapeHtml(s.period||'') + ' · ' + escapeHtml(s.subject||'') + '</b>\nТема: ' + escapeHtml(s.topic||'') + '\n' + escapeHtml(s.advice||'') + '\n' + videoLinks(s.topic || s.subject || 'урок', {youtube: true, vk: true, rutube: true}) + '</div>';
-    });
+  if(data.steps&&data.steps.length){
+    h+='<div class="item ai">🗺 Этапы подготовки:</div>';
+    data.steps.forEach((s,i)=>{h+='<div class="item" style="animation-delay:'+i*70+'ms;"><b>'+(i+1)+'. '+escapeHtml(s.period||'')+' · '+escapeHtml(s.subject||'')+'</b>\nТема: '+escapeHtml(s.topic||'')+'\n'+escapeHtml(s.advice||'')+'\n'+videoLinks(s.topic||s.subject||'урок',{youtube:true,vk:true,rutube:true})+'</div>';});
   }
-  if (data.summary) h += '<div class="item ai">💡 ' + escapeHtml(cleanResponse(data.summary)) + '</div>';
-  if (data.text) h += '<div class="item ai">' + escapeHtml(cleanResponse(data.text)) + '</div>';
-  const box = document.getElementById('planResult');
-  box.innerHTML = h;
-  mathIn(box);
+  if(data.summary)h+='<div class="item ai">💡 '+escapeHtml(cleanResponse(data.summary))+'</div>';
+  if(data.text)h+='<div class="item ai">'+escapeHtml(cleanResponse(data.text))+'</div>';
+  const box=document.getElementById('planResult');box.innerHTML=h;mathIn(box);
 }
-async function buildPlan() {
-  const grade = +document.getElementById('pGrade').value;
-  const examText = document.getElementById('pExam').value.trim();
-  if (!examText) return alert('Напиши, что собираешься сдавать');
-  const params = {
-    grade, exam: examText,
-    subjects: document.getElementById('pSubjects').value || 'не указано',
-    goal: document.getElementById('pGoal').value || 'не указано',
-    minutes: document.getElementById('pMinutes').value,
-    days: +document.getElementById('pDays').value,
-    level: document.getElementById('pLevel').value,
-    weak: document.getElementById('pWeak').value || 'нет'
-  };
-  const ei = examInfo(grade, examText);
-  const btn = document.getElementById('planBtn');
-  btn.disabled = true;
-  showLoading('planResult', 'GigaChat продумывает логику плана...');
-  try {
-    const prompt = 'Ученик ' + params.grade + ' класса собирается сдавать: ' + params.exam + '. До экзамена осталось ' + ei.weeks + ' недель (дата: ' + ei.examDate.toLocaleDateString('ru-RU') + ').\nПредметы: ' + params.subjects + '\nЦель: ' + params.goal + '\nЗанятия: ' + params.minutes + ' минут в день, РОВНО ' + params.days + ' УЧЕБНЫХ дней в неделю (остальные дни — отдых).\nУровень: ' + params.level + '\nСлабые места: ' + params.weak + '\n\nСАМ продумай, как ЛОГИЧНЕЕ и ЭФФЕКТИВНЕЕ составить расписание на эту неделю: распредели РОВНО ' + params.days + ' учебных дней и ' + (7 - params.days) + ' дней отдыха (subject="отдых"), чередуй сложное и лёгкое, учитывай слабые места, для каждого учебного дня укажи конкретную тему. Обоснуй в activity.\nТакже составь план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет или отдых","topic":"тема дня","activity":"что делать и почему"},...ровно 7 элементов],"steps":[{"period":"недели 1-2","subject":"предмет","topic":"тема","advice":"совет"}],"summary":"2-3 предложения общих советов"}';
-    const response = await askGiga(prompt, 'Ты — эксперт по педагогике и подготовке к экзаменам. Верни только валидный JSON, без markdown. Формулы в LaTeX внутри $...$.', 3000);
-    let data = parseJSONObjectSafe(response);
-    if (!data || (!data.steps && !data.schedule)) data = { text: response };
-    if (data.schedule) data.schedule = normalizeSchedule(data.schedule, params.days);
-    data.examName = ei.name;
-    data.examDate = ei.examDate.toLocaleDateString('ru-RU');
-    data.weeks = ei.weeks;
-    data.savedAt = new Date().toLocaleDateString('ru-RU');
-    data.scheduleWeek = currentWeekKey();
-    data.params = params;
-    data.done = [];
-    data.testPassed = {};
-    data.selectedTopic = null;
-    savePlan(data);
-    renderPlan(data);
-  } catch (e) {
-    showError('planResult', 'Ошибка: ' + e.message);
-  } finally {
-    btn.disabled = false;
-  }
+async function buildPlan(){
+  const grade=+document.getElementById('pGrade').value;
+  const examText=document.getElementById('pExam').value.trim();
+  if(!examText)return alert('Напиши, что сдаёшь');
+  const params={grade,exam:examText,subjects:document.getElementById('pSubjects').value||'не указано',goal:document.getElementById('pGoal').value||'не указано',minutes:document.getElementById('pMinutes').value,days:+document.getElementById('pDays').value,level:document.getElementById('pLevel').value,weak:document.getElementById('pWeak').value||'нет'};
+  const ei=examInfo(grade,examText);
+  const btn=document.getElementById('planBtn');btn.disabled=true;
+  showLoading('planResult','GigaChat продумывает план...');
+  try{
+    const prompt='Ученик '+params.grade+' класса сдаёт: '+params.exam+'. До экзамена '+ei.weeks+' недель.\nПредметы: '+params.subjects+'\nЦель: '+params.goal+'\nЗанятия: '+params.minutes+' мин/день, РОВНО '+params.days+' УЧЕБНЫХ дней в неделю.\nУровень: '+params.level+'\nСлабые места: '+params.weak+'\n\nСАМ продумай логичное расписание: РОВНО '+params.days+' учебных и '+(7-params.days)+' дней отдыха (subject="отдых"), чередуй сложное/лёгкое, укажи тему каждого дня. Обоснуй в activity.\nТакже план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"...","topic":"...","activity":"..."},...7],"steps":[{"period":"...","subject":"...","topic":"...","advice":"..."}],"summary":"..."}';
+    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.',3000);
+    let data=parseJSONObjectSafe(resp);
+    if(!data||(!data.steps&&!data.schedule))data={text:resp};
+    if(data.schedule)data.schedule=normalizeSchedule(data.schedule,params.days);
+    data.examName=ei.name;data.examDate=ei.examDate.toLocaleDateString('ru-RU');data.weeks=ei.weeks;
+    data.savedAt=new Date().toLocaleDateString('ru-RU');data.scheduleWeek=currentWeekKey();
+    data.params=params;data.done=[];data.testPassed={};data.selectedTopic=null;
+    savePlan(data);renderPlan(data);
+  }catch(e){showError('planResult','Ошибка: '+e.message);}
+  finally{btn.disabled=false;}
 }
-async function checkWeekUpdate() {
-  const plan = loadPlan();
-  if (!plan || !plan.params || !plan.schedule) return;
-  if (plan.scheduleWeek === currentWeekKey()) return;
-  showLoading('planResult', 'Новая неделя — GigaChat обновляет темы...');
-  try {
-    const p = plan.params;
-    const ei = examInfo(p.grade, p.exam);
-    const done = (plan.done || []).map(d => d.subject + ': ' + d.topic).join('; ') || 'ещё нет';
-    const prompt = 'Наступила новая неделя подготовки. Ученик ' + p.grade + ' класса, сдаёт: ' + p.exam + ' (осталось ' + ei.weeks + ' недель). Предметы: ' + p.subjects + '. Занятия: ' + p.minutes + ' мин/день, РОВНО ' + p.days + ' УЧЕБНЫХ дней в неделю (остальные — отдых). Уровень: ' + p.level + '. Слабые места: ' + p.weak + '.\nУже пройденные темы: ' + done + '.\nСоставь расписание на НОВУЮ неделю (Пн-Вс): РОВНО ' + p.days + ' учебных дней и ' + (7 - p.days) + ' дней отдыха (subject="отдых"), продолжи логику пройденного (новые темы), чередуй предметы. Верни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"предмет или отдых","topic":"новая тема дня","activity":"что делать и почему"},...ровно 7 элементов]}';
-    const response = await askGiga(prompt, 'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.', 2000);
-    const data = parseJSONObjectSafe(response);
-    if (data && data.schedule && data.schedule.length === 7) {
-      plan.schedule = normalizeSchedule(data.schedule, p.days);
-      plan.scheduleWeek = currentWeekKey();
-      plan.selectedTopic = null;
-      plan.testPassed = {};
-      savePlan(plan);
-    }
+async function checkWeekUpdate(){
+  const plan=loadPlan();if(!plan||!plan.params||!plan.schedule)return;
+  if(plan.scheduleWeek===currentWeekKey())return;
+  showLoading('planResult','Новая неделя — обновляю темы...');
+  try{
+    const p=plan.params;const ei=examInfo(p.grade,p.exam);
+    const done=(plan.done||[]).map(d=>d.subject+': '+d.topic).join('; ')||'ещё нет';
+    const prompt='Новая неделя. Ученик '+p.grade+' кл., сдаёт '+p.exam+' ('+ei.weeks+' нед.). Предметы: '+p.subjects+'. '+p.minutes+' мин/день, РОВНО '+p.days+' учебных дней. Уровень: '+p.level+'. Слабые: '+p.weak+'.\nПройдено: '+done+'.\nСоставь расписание на НОВУЮ неделю (Пн-Вс): РОВНО '+p.days+' учебных и '+(7-p.days)+' отдыха, новые темы. Верни СТРОГО JSON: {"schedule":[...7 элементов {"day","subject","topic","activity"}]}';
+    const resp=await askGiga(prompt,'Верни только валидный JSON.',2000);
+    const data=parseJSONObjectSafe(resp);
+    if(data&&data.schedule&&data.schedule.length===7){plan.schedule=normalizeSchedule(data.schedule,p.days);plan.scheduleWeek=currentWeekKey();plan.selectedTopic=null;plan.testPassed={};savePlan(plan);}
     renderPlan(plan);
-  } catch (e) {
-    renderPlan(plan);
-  }
+  }catch(e){renderPlan(plan);}
 }
-function deletePlan() {
-  if (confirm('Удалить сохранённый план?')) {
-    localStorage.removeItem('sn_plan');
-    document.getElementById('planResult').innerHTML = '';
-  }
-}
-function startTodayFromPlan() {
-  const item = todayPlanItem();
-  if (isRestDay(item)) { alert('Сегодня по плану отдых 😴'); go('quiz'); return; }
-  document.getElementById('qTopic').value = (item.subject || '') + (item.topic ? ', тема: ' + item.topic : '');
-  go('quiz');
-  startQuiz();
-}
-function videoTodayFromPlan() {
-  const item = todayPlanItem();
-  if (isRestDay(item)) { alert('Сегодня по плану отдых 😴'); return; }
-  document.getElementById('vTopic').value = item.topic || item.subject || '';
-  go('video');
-  buildVideo();
-}
-function selectTopic(key) {
-  const plan = loadPlan();
-  if (!plan) return;
-  plan.selectedTopic = (plan.selectedTopic === key) ? null : key;
-  savePlan(plan);
-  renderPlan(plan);
-}
-function testSelectedTopic() {
-  const plan = loadPlan();
-  const key = plan && plan.selectedTopic;
-  if (!key) return alert('Сначала выбери тему из списка');
-  document.getElementById('qTopic').value = key;
-  go('quiz');
-  startQuiz(key, TEST_SIZE);
-}
-function markSelectedDone() {
-  const plan = loadPlan();
-  if (!plan) return;
-  const key = plan.selectedTopic;
-  if (!key) return alert('Сначала выбери тему');
-  const passed = plan.testPassed && plan.testPassed[key];
-  if (!passed || passed.week !== currentWeekKey() || passed.total < TEST_SIZE || passed.answered < passed.total) {
-    return alert('Тема не засчитана: нужно полностью пройти тест из ' + TEST_SIZE + ' вопросов по этой теме на этой неделе');
-  }
-  if (!plan.done) plan.done = [];
-  if (!plan.done.some(d => d.topic === key)) {
-    const schedItem = (plan.schedule || []).find(s => topicKey(s) === key);
-    plan.done.push({ date: new Date().toLocaleDateString('ru-RU'), subject: (schedItem && schedItem.subject) || key, topic: key, score: passed.score + '/' + passed.total });
-  }
-  plan.selectedTopic = null;
-  savePlan(plan);
-  renderPlan(plan);
+function deletePlan(){ if(confirm('Удалить план?')){localStorage.removeItem('sn_plan');document.getElementById('planResult').innerHTML='';updateHomeStats();} }
+function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');startQuiz();}
+function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');return;}document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
+function selectTopic(key){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===key)?null:key;savePlan(p);renderPlan(p);}
+function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return alert('Выбери тему');document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
+function markSelectedDone(){
+  const p=loadPlan();if(!p)return;const k=p.selectedTopic;if(!k)return alert('Выбери тему');
+  const passed=p.testPassed&&p.testPassed[k];
+  if(!passed||passed.week!==currentWeekKey()||passed.total<TEST_SIZE||passed.answered<passed.total)return alert('Нужно полностью пройти тест из '+TEST_SIZE+' вопросов на этой неделе');
+  if(!p.done)p.done=[];
+  if(!p.done.some(d=>d.topic===k)){const si=(p.schedule||[]).find(s=>topicKey(s)===k);p.done.push({date:new Date().toLocaleDateString('ru-RU'),subject:(si&&si.subject)||k,topic:k,score:passed.score+'/'+passed.total});}
+  p.selectedTopic=null;savePlan(p);renderPlan(p);
 }
 
 // ===== ТРЕНАЖЁР =====
-let qC = 0, qT = 0, qCurrent = null, qAnswered = false, qQueue = [], qLastTopic = '';
-let qPendingTopic = null, qBatchTotal = 0, qBatchAnswered = 0, qBatchScore = 0;
-function normalize(s) {
-  return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();
-}
-async function semanticCheck(question, correct, user) {
-  const nu = parseFloat(String(user).replace(',', '.'));
-  const nc = parseFloat(String(correct).replace(',', '.'));
-  if (!isNaN(nu) && !isNaN(nc) && Math.abs(nu - nc) < 1e-6) return true;
-  const a = normalize(user), b = normalize(correct);
-  if (a && b && Math.min(a.length, b.length) >= 3 && (a.includes(b) || b.includes(a))) return true;
-  try {
-    const resp = await askGiga('Вопрос: «' + question + '». Правильный ответ: «' + correct + '». Ответ ученика: «' + user + '». Оцени, верен ли ответ ученика ПО СМЫСЛУ (синонимы, другая форма записи, лишние слова, округление допустимы; орфографические ошибки не важны). Верни СТРОГО JSON: {"correct": true} или {"correct": false}.', 'Верни только валидный JSON, без пояснений.', 100);
-    const obj = parseJSONObjectSafe(resp);
-    if (obj && typeof obj.correct === 'boolean') return obj.correct;
-  } catch (e) {}
+let qC=0,qT=0,qCurrent=null,qAnswered=false,qQueue=[],qLastTopic='';
+let qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0;
+function normalize(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();}
+async function semanticCheck(q,c,u){
+  const nu=parseFloat(String(u).replace(',','.')),nc=parseFloat(String(c).replace(',','.'));
+  if(!isNaN(nu)&&!isNaN(nc)&&Math.abs(nu-nc)<1e-6)return true;
+  const a=normalize(u),b=normalize(c);
+  if(a&&b&&Math.min(a.length,b.length)>=3&&(a.includes(b)||b.includes(a)))return true;
+  try{const r=await askGiga('Вопрос: «'+q+'». Правильный ответ: «'+c+'». Ответ ученика: «'+u+'». Верен ли ответ ПО СМЫСЛУ? Верни СТРОГО JSON: {"correct": true|false}.','Верни только JSON.',100);const o=parseJSONObjectSafe(r);if(o&&typeof o.correct==='boolean')return o.correct;}catch(e){}
   return false;
 }
-async function fetchBatch(topic, diff, n, grade, type) {
-  const prompt = 'Придумай ' + n + ' разных учебных заданий для ученика ' + grade + ' класса по предмету/теме «' + topic + '». Тип заданий: ' + type + ' (примеры — короткие вычисления, задачи — сюжетные с условием). Сложность: ' + diff + '. От простых к сложным. В тексте задания формулы можно писать в LaTeX ($...$). Но поле "answer" пиши ПРОСТЫМ текстом без LaTeX (например: 54, x^2, 1/2, Москва). Не давай вариантов ответа. Формулируй КОРОТКО (вопрос до 120 символов). Пиши обязательно с пробелами между словами. Верни СТРОГО JSON-массив: [{"question":"...","answer":"...","alternatives":["..."],"hint":"..."}]';
+async function fetchBatch(topic,diff,n,grade,type){
+  const prompt='Придумай '+n+' заданий для '+grade+' класса по «'+topic+'». Тип: '+type+'. Сложность: '+diff+'. От простых к сложным. Формулы в задании можно в LaTeX ($...$), но "answer" — ПРОСТЫМ текстом (54, x^2, 1/2, Москва). Без вариантов ответа. Вопрос до 120 символов, с пробелами. Верни СТРОГО JSON-массив: [{"question","answer","alternatives":[],"hint"}]';
   let lastErr;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const response = await askGiga(prompt, 'Ты — учитель. Верни только валидный JSON-массив, без пояснений и markdown.', 4000);
-      const arr = parseJSONArraySafe(response);
-      const out = [];
-      for (const obj of arr) {
-        if (obj && obj.question && obj.answer) {
-          obj.question = await ensureSpaces(obj.question);
-          obj.hint = obj.hint ? await ensureSpaces(obj.hint) : '';
-          out.push(obj);
-        }
-      }
-      if (!out.length) throw new Error('Пусто');
+  for(let a=0;a<2;a++){
+    try{
+      const r=await askGiga(prompt,'Ты — учитель. Верни только валидный JSON-массив.',4000);
+      const arr=parseJSONArraySafe(r);const out=[];
+      for(const o of arr){if(o&&o.question&&o.answer){o.question=await ensureSpaces(o.question);o.hint=o.hint?await ensureSpaces(o.hint):'';out.push(o);}}
+      if(!out.length)throw new Error('Пусто');
       return out;
-    } catch (e) { lastErr = e; }
+    }catch(e){lastErr=e;}
   }
   throw lastErr;
 }
-function updateNextLabel() {
-  document.getElementById('nextBtn').textContent = '➡️ Следующее задание (в запасе: ' + qQueue.length + ')';
+function updateNextLabel(){document.getElementById('nextBtn').textContent='➡️ Дальше (в запасе: '+qQueue.length+')';}
+function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100:0;const b=document.getElementById('quizProgress');if(b)b.style.width=pct+'%';const w=document.getElementById('quizProgressWrap');if(w)w.style.display=qBatchTotal?'block':'none';}
+function showQuestion(o){
+  qCurrent=o;qAnswered=false;
+  const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';
+  q.innerHTML=escapeHtml(o.question);mathIn(q);
+  const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);
+  document.getElementById('quizResult').innerHTML='';
+  document.getElementById('quizAnswerBox').style.display='flex';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('quizAnswer').value='';document.getElementById('quizAnswer').focus();
+  updateNextLabel();updateProgress();
 }
-function updateProgress() {
-  const pct = qBatchTotal ? (qBatchAnswered / qBatchTotal) * 100 : 0;
-  const bar = document.getElementById('quizProgress');
-  if (bar) bar.style.width = pct + '%';
-  const wrap = document.getElementById('quizProgressWrap');
-  if (wrap) wrap.style.display = (qBatchTotal ? 'block' : 'none');
+async function startQuiz(pending,count){
+  const topic=document.getElementById('qTopic').value.trim();if(!topic)return alert('Напиши тему');
+  qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;
+  const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;
+  const btn=document.getElementById('quizBtn');btn.disabled=true;
+  qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;
+  document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';
+  document.getElementById('quizHint').textContent='';document.getElementById('quizResult').innerHTML='';
+  document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';
+  try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}
+  catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}
+  finally{btn.disabled=false;}
 }
-function showQuestion(obj) {
-  qCurrent = obj;
-  qAnswered = false;
-  const q = document.getElementById('quizQ');
-  // перезапускаем анимацию вопроса
-  q.style.animation = 'none';
-  void q.offsetWidth;
-  q.style.animation = '';
-  q.innerHTML = escapeHtml(obj.question);
-  mathIn(q);
-  const hEl = document.getElementById('quizHint');
-  hEl.innerHTML = obj.hint ? '💡 Подсказка: ' + escapeHtml(obj.hint) : '';
-  mathIn(hEl);
-  document.getElementById('quizResult').innerHTML = '';
-  document.getElementById('quizAnswerBox').style.display = 'flex';
-  document.getElementById('nextBtn').style.display = 'none';
-  document.getElementById('quizAnswer').value = '';
-  document.getElementById('quizAnswer').focus();
-  updateNextLabel();
-  updateProgress();
+async function nextQuestion(){
+  const btn=document.getElementById('nextBtn');btn.disabled=true;
+  if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}
+  const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;
+  document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';
+  document.getElementById('quizAnswerBox').style.display='none';
+  try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}
+  catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}
+  finally{btn.disabled=false;updateNextLabel();}
 }
-async function startQuiz(pendingTopic, count) {
-  const topic = document.getElementById('qTopic').value.trim();
-  if (!topic) return alert('Напиши предмет или тему');
-  qLastTopic = topic;
-  qPendingTopic = pendingTopic || null;
-  const n = count || 10;
-  const diff = document.getElementById('qDiff').value;
-  const grade = document.getElementById('qGrade').value;
-  const type = document.getElementById('qType').value;
-  const btn = document.getElementById('quizBtn');
-  btn.disabled = true;
-  qQueue = [];
-  qBatchTotal = 0; qBatchAnswered = 0; qBatchScore = 0;
-  document.getElementById('quizQ').textContent = '⏳ GigaChat генерирует ' + n + ' заданий (' + grade + ' класс, ' + type + ')...';
-  document.getElementById('quizHint').textContent = '';
-  document.getElementById('quizResult').innerHTML = '';
-  document.getElementById('quizAnswerBox').style.display = 'none';
-  document.getElementById('nextBtn').style.display = 'none';
-  try {
-    const arr = await fetchBatch(topic, diff, n, grade, type);
-    qQueue = arr.slice(1);
-    qBatchTotal = arr.length;
-    showQuestion(arr[0]);
-  } catch (e) {
-    document.getElementById('quizQ').textContent = '❌ Ошибка: ' + e.message;
-  } finally {
-    btn.disabled = false;
+function finishBatch(){
+  let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+'</div>';
+  if(qPendingTopic){
+    const p=loadPlan();
+    if(p){if(!p.testPassed)p.testPassed={};p.testPassed[qPendingTopic]={score:qBatchScore,total:qBatchTotal,answered:qBatchAnswered,week:currentWeekKey(),date:new Date().toLocaleDateString('ru-RU')};savePlan(p);
+      extra+='<div class="item ai">Тема «'+escapeHtml(qPendingTopic)+'» подтверждена!\nВернись в план и нажми «✅ Я прошёл тему».</div><button class="btn green" onclick="go(\'plan\')">📅 В план</button>';}
+    qPendingTopic=null;
   }
+  const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);
 }
-async function nextQuestion() {
-  const btn = document.getElementById('nextBtn');
-  btn.disabled = true;
-  if (qQueue.length) {
-    showQuestion(qQueue.shift());
-    btn.disabled = false;
-    return;
+async function checkAnswer(){
+  if(qAnswered||!qCurrent)return;
+  const u=document.getElementById('quizAnswer').value.trim();if(!u)return;
+  qAnswered=true;qT++;qBatchAnswered++;
+  const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);
+  let ok=vars.map(normalize).includes(normalize(u));let bySense=false;
+  if(!ok){
+    document.getElementById('quizResult').innerHTML='<div class="item loading">Проверяю по смыслу...</div>';
+    for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}
   }
-  const diff = document.getElementById('qDiff').value;
-  const grade = document.getElementById('qGrade').value;
-  const type = document.getElementById('qType').value;
-  document.getElementById('quizQ').textContent = '⏳ Генерируем ещё 10 заданий...';
-  document.getElementById('quizAnswerBox').style.display = 'none';
-  try {
-    const arr = await fetchBatch(qLastTopic || 'математика', diff, 10, grade, type);
-    qQueue = arr.slice(1);
-    qBatchTotal = arr.length; qBatchAnswered = 0; qBatchScore = 0;
-    qPendingTopic = null;
-    showQuestion(arr[0]);
-  } catch (e) {
-    document.getElementById('quizQ').textContent = '❌ Ошибка: ' + e.message;
-  } finally {
-    btn.disabled = false;
-    updateNextLabel();
+  const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');
+  if(ok){
+    qC++;qBatchScore++;
+    box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';
+    qEl.style.animation='correctPop .5s ease';
+    const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);
+  }else{
+    box.innerHTML='<div class="item" style="border-left-color:var(--err);">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';
+    qEl.style.animation='shake .6s ease';
   }
-}
-function finishBatch() {
-  let extra = '<div class="item ai">🏁 Тест завершён: ' + qBatchScore + ' / ' + qBatchTotal + '</div>';
-  if (qPendingTopic) {
-    const plan = loadPlan();
-    if (plan) {
-      if (!plan.testPassed) plan.testPassed = {};
-      plan.testPassed[qPendingTopic] = { score: qBatchScore, total: qBatchTotal, answered: qBatchAnswered, week: currentWeekKey(), date: new Date().toLocaleDateString('ru-RU') };
-      savePlan(plan);
-      extra += '<div class="item ai">Тема «' + escapeHtml(qPendingTopic) + '» подтверждена тестом!\nВернись в план и нажми «✅ Я прошёл тему».</div>';
-      extra += '<button class="btn" onclick="go(\'plan\')">📅 Вернуться в план</button>';
-    }
-    qPendingTopic = null;
-  }
-  const box = document.getElementById('quizResult');
-  box.innerHTML += extra;
+  setTimeout(()=>{qEl.style.animation='';},700);
   mathIn(box);
-}
-async function checkAnswer() {
-  if (qAnswered || !qCurrent) return;
-  const userRaw = document.getElementById('quizAnswer').value.trim();
-  if (!userRaw) return;
-  qAnswered = true;
-  qT++;
-  qBatchAnswered++;
-  const variants = [qCurrent.answer].concat(qCurrent.alternatives || []);
-  let ok = variants.map(normalize).includes(normalize(userRaw));
-  let bySense = false;
-  if (!ok) {
-    document.getElementById('quizResult').innerHTML = '<div class="item loading">Проверяю по смыслу...</div>';
-    for (const v of variants) {
-      if (await semanticCheck(qCurrent.question, v, userRaw)) { ok = true; bySense = true; break; }
-    }
-  }
-  const box = document.getElementById('quizResult');
-  const qEl = document.getElementById('quizQ');
-  if (ok) {
-    qC++;
-    qBatchScore++;
-    box.innerHTML = '<div class="item ai">✅ Верно!' + (bySense ? ' (зачёл по смыслу)' : '') + ' Отличная работа!</div>';
-    // анимация правильного ответа: pop + конфетти
-    qEl.style.animation = 'correctPop .5s ease';
-    box.firstElementChild && (box.firstElementChild.style.animation = 'popIn .4s ease both');
-    const rect = box.getBoundingClientRect();
-    fireConfetti(rect.left + rect.width / 2, rect.top);
-  } else {
-    box.innerHTML = '<div class="item" style="border-left-color:var(--err-bd);">❌ Неверно. Правильный ответ: ' + escapeHtml(qCurrent.answer) + '</div>';
-    // тряска неверного ответа
-    qEl.style.animation = 'wrongShake .6s ease';
-    box.firstElementChild && (box.firstElementChild.style.animation = 'shake .5s ease');
-  }
-  setTimeout(() => { qEl.style.animation = ''; }, 700);
-  mathIn(box);
-  document.getElementById('score').textContent = 'Счёт: ' + qC + ' / ' + qT;
-  document.getElementById('quizAnswerBox').style.display = 'none';
-  document.getElementById('nextBtn').style.display = 'block';
-  updateNextLabel();
-  updateProgress();
-  if (qBatchTotal && qBatchAnswered >= qBatchTotal && qQueue.length === 0) finishBatch();
+  document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;
+  document.getElementById('quizAnswerBox').style.display='none';
+  document.getElementById('nextBtn').style.display='block';
+  updateNextLabel();updateProgress();
+  if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();
 }
 
 // ===== ДНЕВНИК =====
-async function addGradeAI() {
-  const text = document.getElementById('gText').value.trim();
-  if (!text) return alert('Напиши, например: математика 5 4, физика 3, инфа 5 5 5');
-  const btn = document.getElementById('gAddBtn');
-  btn.disabled = true;
-  document.getElementById('gAi').innerHTML = '<div class="item loading">GigaChat разбирает несколько предметов...</div>';
-  let parsed = null;
-  try {
-    const response = await askGiga('Ученик написал про свои оценки: «' + text + '». Определи ВСЕ школьные предметы (полные нормальные названия по-русски, с учётом сленга и сокращений) и список оценок для каждого (числа 1-5). Предметы бери СТРОГО из текста ученика. Верни СТРОГО JSON-массив: [{"subject":"название предмета","grades":[5,4]}, {"subject":"другой предмет","grades":[3]}]', 'Верни только валидный JSON-массив, без пояснений.', 500);
-    const arr = parseJSONArraySafe(response);
-    if (Array.isArray(arr) && arr.length) {
-      parsed = arr.filter(x => x.subject && Array.isArray(x.grades) && x.grades.length).map(x => ({
-        subject: x.subject, grades: x.grades.filter(g => g >= 1 && g <= 5)
-      })).filter(x => x.grades.length);
-    }
-  } catch (e) {}
-  if (!parsed || !parsed.length) parsed = extractGradesLocal(text);
-  if (!parsed || !parsed.length) {
-    document.getElementById('gAi').innerHTML = '<div class="item" style="border-left-color:var(--err-bd);">Не нашёл оценок. Напиши предметы и цифры, например: математика 5 4, физика 3</div>';
-    btn.disabled = false;
-    return;
-  }
-  parsed.forEach(p => addGradeToStorage(p));
-  document.getElementById('gText').value = '';
-  document.getElementById('gAi').innerHTML = '<div class="item ai">✅ GigaChat разобрал:\n' + parsed.map(p => escapeHtml(p.subject) + ' → ' + p.grades.join(', ')).join('\n') + '</div>';
-  btn.disabled = false;
+async function addGradeAI(){
+  const text=document.getElementById('gText').value.trim();if(!text)return alert('Напиши: математика 5 4, физика 3');
+  const btn=document.getElementById('gAddBtn');btn.disabled=true;
+  document.getElementById('gAi').innerHTML='<div class="item loading">GigaChat разбирает...</div>';
+  let parsed=null;
+  try{
+    const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (полные названия, учти сленг) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);
+    const arr=parseJSONArraySafe(r);
+    if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);
+  }catch(e){}
+  if(!parsed||!parsed.length)parsed=extractGradesLocal(text);
+  if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left-color:var(--err);">Не нашёл оценок. Напиши: математика 5 4, физика 3</div>';btn.disabled=false;return;}
+  parsed.forEach(p=>addGradeToStorage(p));
+  document.getElementById('gText').value='';
+  document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';
+  btn.disabled=false;
 }
-function delG(s) { const g = loadG(); delete g[s]; saveG(g); renderG(); }
-function clearGrades() { if (confirm('Удалить все?')) { localStorage.removeItem('g'); renderG(); document.getElementById('gAi').innerHTML=''; } }
-async function gradesAI() {
-  const g = loadG(); const k = Object.keys(g);
-  if (!k.length) return alert('Сначала добавь оценки');
-  let desc = 'Оценки ученика:\n';
-  for (const s in g) {
-    const avg = g[s].reduce((a,b)=>a+b,0)/g[s].length;
-    desc += s + ': ' + g[s].join(', ') + ' (средний ' + avg.toFixed(2) + ')\n';
-  }
-  const btn = document.getElementById('gBtn');
-  btn.disabled = true;
-  showLoading('gAi', 'GigaChat анализирует успеваемость...');
-  try {
-    const response = await askGiga(desc + '\nПроанализируй успеваемость: сильные стороны, слабые предметы, 3 конкретных совета по улучшению.', 'Ты — педагог-эксперт. Дай честный, поддерживающий анализ без Markdown. Формулы в LaTeX внутри $...$.');
-    const box = document.getElementById('gAi');
-    box.innerHTML = '<div class="item ai">🤖 Анализ от GigaChat:\n' + escapeHtml(cleanResponse(response)) + '</div>';
-    mathIn(box);
-  } catch (e) {
-    showError('gAi', 'Ошибка: ' + e.message);
-  } finally {
-    btn.disabled = false;
-  }
+function delG(s){const g=loadG();delete g[s];saveG(g);renderG();}
+function clearGrades(){if(confirm('Удалить все?')){localStorage.removeItem('g');renderG();document.getElementById('gAi').innerHTML='';}}
+async function gradesAI(){
+  const g=loadG();const k=Object.keys(g);if(!k.length)return alert('Сначала добавь оценки');
+  let desc='Оценки ученика:\n';
+  for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}
+  const btn=document.getElementById('gBtn');btn.disabled=true;
+  showLoading('gAi','GigaChat анализирует...');
+  try{
+    const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.');
+    const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);
+  }catch(e){showError('gAi','Ошибка: '+e.message);}
+  finally{btn.disabled=false;}
 }
 
 // ===== ВИДЕО =====
-async function buildVideo() {
-  const topic = document.getElementById('vTopic').value.trim() || 'математика';
-  const btn = document.getElementById('vBtn');
-  btn.disabled = true;
-  showLoading('vAi', 'GigaChat объясняет тему и проверяет наличие видео...');
-  try {
-    const response = await askGiga('Кратко (3-4 предложения) объясни школьнику тему «' + topic + '» простыми словами с примером. Формулы пиши в LaTeX ($...$).');
-    const box = document.getElementById('vAi');
-    box.innerHTML = '<div class="item ai">🎓 Объяснение от GigaChat:\n' + escapeHtml(cleanResponse(response)) + '</div>';
-    mathIn(box);
-    const available = { youtube: true, vk: true, rutube: true };
-    try {
-      const checkResp = await fetch(PROXY_BASE + '/check_video?q=' + encodeURIComponent(topic));
-      if (checkResp.ok) {
-        const data = await checkResp.json();
-        if (data.available) {
-          available.youtube = data.available.includes('youtube');
-          available.vk = data.available.includes('vk');
-          available.rutube = data.available.includes('rutube');
-        }
-      }
-    } catch (e) {}
-    document.getElementById('videoResult').innerHTML = videoLinks(topic, available);
-  } catch (e) {
-    showError('vAi', 'Ошибка: ' + e.message);
-  } finally {
-    btn.disabled = false;
-  }
+async function buildVideo(){
+  const topic=document.getElementById('vTopic').value.trim()||'математика';
+  const btn=document.getElementById('vBtn');btn.disabled=true;
+  showLoading('vAi','Объясняю и проверяю видео...');
+  try{
+    const r=await askGiga('Кратко (3-4 предложения) объясни школьнику тему «'+topic+'» с примером. Формулы в LaTeX ($...$).');
+    const box=document.getElementById('vAi');box.innerHTML='<div class="item ai">🎓 Объяснение:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);
+    const av={youtube:true,vk:true,rutube:true};
+    try{const cr=await fetch(PROXY_BASE+'/check_video?q='+encodeURIComponent(topic));if(cr.ok){const d=await cr.json();if(d.available){av.youtube=d.available.includes('youtube');av.vk=d.available.includes('vk');av.rutube=d.available.includes('rutube');}}}catch(e){}
+    document.getElementById('videoResult').innerHTML=videoLinks(topic,av);
+  }catch(e){showError('vAi','Ошибка: '+e.message);}
+  finally{btn.disabled=false;}
 }
 
-// ===== МОТИВАЦИЯ (typewriter) =====
-async function motivationAI() {
-  const mood = document.getElementById('mMood').value;
-  const moodText = {tired:'Устал', worried:'Переживаю', lazy:'Лень', ok:'Нормально'}[mood];
-  const situation = document.getElementById('mText').value.trim();
-  const btn = document.getElementById('mBtn');
-  btn.disabled = true;
-  const box = document.getElementById('quoteBox');
-  box.textContent = '⏳ GigaChat читает и подбирает поддержку...';
-  try {
+// ===== МОТИВАЦИЯ =====
+async function motivationAI(){
+  const mood=document.getElementById('mMood').value;
+  const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[mood];
+  const sit=document.getElementById('mText').value.trim();
+  const btn=document.getElementById('mBtn');btn.disabled=true;
+  const box=document.getElementById('quoteBox');box.textContent='⏳ Читаю и подбираю слова...';
+  try{
     let prompt;
-    if (situation) {
-      prompt = 'Школьник чувствует себя: ' + moodText + '. Он рассказал о своей ситуации: «' + situation + '». Ответь на конкретику его ситуации: поддержи 3-4 тёплыми предложениями как старший друг, покажи, что ты услышал его, и дай один мягкий совет. Без банальностей и Markdown.';
-    } else {
-      prompt = 'Школьник чувствует: ' + moodText + '. Поддержи его 2-3 тёплыми предложениями, как старший друг, без банальностей.';
-    }
-    const response = await askGiga(prompt);
-    box.textContent = '';
-    await typeWriter(box, cleanResponse(response), 18);
-    mathIn(box);
-  } catch (e) {
-    box.textContent = '❌ Ошибка: ' + e.message;
-  } finally {
-    btn.disabled = false;
-  }
+    if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';
+    else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';
+    const r=await askGiga(prompt);
+    box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);
+  }catch(e){box.textContent='❌ Ошибка: '+e.message;}
+  finally{btn.disabled=false;}
 }
 
-function go(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+// ===== НАВИГАЦИЯ =====
+function setTab(id){
+  const map={home:'home',chat:'chat',plan:'plan',quiz:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more'};
+  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===map[id]));
+  const moreCard=document.getElementById('moreCard');
+  if(id==='more'){moreCard.style.display='block';}
+}
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if (id === 'plan') checkWeekUpdate();
-  if (id === 'chat') syncChatHistory().then(() => restoreChatHistory());
-  if (id === 'grades') renderG();
+  setTab(id);
+  if(id==='plan')checkWeekUpdate();
+  if(id==='chat')syncChatHistory().then(()=>restoreChatHistory());
+  if(id==='grades')renderG();
+  if(id==='home')updateHomeStats();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateHomeStats(){
+  try{
+    const plan=loadPlan();
+    const w=document.getElementById('statWeeks'),d=document.getElementById('statDone');
+    if(plan){if(w)w.textContent=plan.weeks||'—';if(d)d.textContent=(plan.done||[]).length;}
+    else{if(w)w.textContent='—';if(d)d.textContent='0';}
+  }catch(e){}
 }
 
 // ===== СТАРТ =====
-const savedPlan = loadPlan();
-if (savedPlan) renderPlan(savedPlan);
-renderG();
-syncChatHistory().then(() => restoreChatHistory());
+const savedPlan=loadPlan();
+if(savedPlan)renderPlan(savedPlan);
+renderG();updateHomeStats();
+setTab('home');
+syncChatHistory().then(()=>restoreChatHistory());
 checkWeekUpdate();
-setInterval(syncChatHistory, 12000);
+setInterval(syncChatHistory,12000);
 </script>
 </body>
 </html>
