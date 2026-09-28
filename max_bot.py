@@ -1,200 +1,220 @@
-import asyncio
-import logging
-from dotenv import load_dotenv
 import os
-from maxapi import Bot, Dispatcher, F
-from maxapi.types import BotStarted, MessageCreated
-from maxapi.filters.command import CommandStart
-from services import AIService, detect_mode, fix_keyboard_layout
+import logging
+import json
+from pathlib import Path
+from typing import Dict, Any, List
+import requests
+import urllib3
+from max_sdk import Bot, types
 
-load_dotenv()
+urllib3.disable_warnings()
+
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-bot = Bot(token=os.environ["MAX_TOKEN"])
-dp = Dispatcher()
+# ===== НАСТРОЙКИ =====
+BOT_TOKEN = os.environ.get('BOT_TOKEN', 'AgAEAAEAAAAAAAAAAAAAAABgJmUAAAAAYmY0YjEwZjEtNjQ2OC00MjVlLTg2ZDctMjM5ZjQ3ZjQ3ZjQ3')
+GIGA_ID = os.environ.get('GIGA_ID', '01a0bafa-206f-7e07-a2e7-df9e0acea285')
+GIGA_SECRET = os.environ.get('GIGA_SECRET', '93e085d7-803b-4fe2-b1da-468aff78a450')
+CODESPACE_NAME = os.environ.get('CODESPACE_NAME', 'automatic-system-p7gg76p4wqqwf99rj')
+PROXY_BASE = f"https://{CODESPACE_NAME}-8000.app.github.dev"
+MINI_APP_URL = "https://amir85140.github.io/sferum-navigator/"
+USER_DATA_FILE = Path('user_data.json')
 
-user_data = {}
-MAX_HISTORY_MESSAGES = 20
+# ===== ХРАНИЛИЩЕ =====
+user_data: Dict[int, Dict[str, Any]] = {}
 
-# Ссылка на мини-приложение (GitHub Pages)
-MINI_APP_LINK = "https://amir85140.github.io/sferum-navigator/"
-
-MODES = {
-    "general": "🤖 Общий", "planner": "📅 Подготовка к экзаменам",
-    "homework": "📝 Помощь с домашкой", "explain": "🎓 Объяснение темы",
-    "tests": "✅ Проверка знаний", "motivation": "💪 Мотивация",
-    "videos": "🎥 Видеоуроки", "offline": "📱 Оффлайн материалы",
-    "context": "🔗 Контекст", "languages": "🌍 Иностранные языки"
-}
-
-def get_user_data(user_id):
-    if user_id not in user_data:
-        user_data[user_id] = {"history": [], "mode": "general"}
-    return user_data[user_id]
-
-def add_to_history(user_id, role, content):
-    data = get_user_data(user_id)
-    data["history"].append({"role": role, "content": content})
-    if len(data["history"]) > MAX_HISTORY_MESSAGES:
-        data["history"] = data["history"][-MAX_HISTORY_MESSAGES:]
-
-def clear_history(user_id):
-    if user_id in user_data:
-        user_data[user_id]["history"] = []
-        user_data[user_id]["mode"] = "general"
-
-def get_chat_id(event):
-    ways = [
-        ("recipient.chat_id", lambda e: e.recipient.chat_id),
-        ("message.recipient.chat_id", lambda e: e.message.recipient.chat_id),
-        ("chat.chat_id", lambda e: e.chat.chat_id),
-        ("message.chat_id", lambda e: e.message.chat_id),
-        ("sender.user_id", lambda e: e.sender.user_id),
-    ]
-    for name, func in ways:
+def load_user_data():
+    global user_data
+    if USER_DATA_FILE.exists():
         try:
-            return func(event)
-        except Exception:
-            pass
+            user_data = json.loads(USER_DATA_FILE.read_text(encoding='utf-8'))
+            user_data = {int(k): v for k, v in user_data.items()}
+        except Exception as e:
+            logger.error(f"Failed to load user data: {e}")
+            user_data = {}
+
+def save_user_data():
+    try:
+        USER_DATA_FILE.write_text(json.dumps(user_data, ensure_ascii=False, indent=2), encoding='utf-8')
+    except Exception as e:
+        logger.error(f"Failed to save user data: {e}")
+
+load_user_data()
+
+# ===== СИНХРОНИЗАЦИЯ ЧАТА С МИНИ-АПОМ =====
+def save_chat_to_server(user_id: int, history: List[Dict]):
+    """Сохраняет историю чата на сервер через прокси"""
+    try:
+        proxy_url = f"{PROXY_BASE}/chat_history?user_id=user_{user_id}"
+        requests.post(proxy_url, json=history[-50:], timeout=5, verify=False)
+    except Exception as e:
+        logger.error(f"Failed to save chat history: {e}")
+
+def load_chat_from_server(user_id: int) -> List[Dict]:
+    """Загружает историю чата с сервера"""
+    try:
+        proxy_url = f"{PROXY_BASE}/chat_history?user_id=user_{user_id}"
+        r = requests.get(proxy_url, timeout=5, verify=False)
+        if r.ok:
+            return r.json()
+    except Exception as e:
+        logger.error(f"Failed to load chat history: {e}")
+    return []
+
+# ===== GIGACHAT API =====
+giga_token = None
+giga_exp = 0
+
+def get_giga_token():
+    global giga_token, giga_exp
+    import time
+    import uuid
+    if giga_token and time.time() < giga_exp:
+        return giga_token
+    try:
+        auth = f"{GIGA_ID}:{GIGA_SECRET}"
+        import base64
+        auth_b64 = base64.b64encode(auth.encode()).decode()
+        r = requests.post(
+            'https://ngw.devices.sberbank.ru:9443/api/v2/oauth',
+            headers={
+                'Authorization': f'Basic {auth_b64}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RqUID': str(uuid.uuid4())
+            },
+            data={'scope': 'GIGACHAT_API_PERS'},
+            verify=False,
+            timeout=30
+        )
+        if r.ok:
+            data = r.json()
+            giga_token = data['access_token']
+            giga_exp = time.time() + 1700
+            return giga_token
+    except Exception as e:
+        logger.error(f"Failed to get GigaChat token: {e}")
     return None
 
-
-async def send_mini_app(event):
-    """
-    Отправляет мини-приложение максимально "как в Telegram":
-    1) Пробует web_app-кнопку (открытие внутри MAX)
-    2) Если не поддерживается — link-кнопку (встроенный браузер MAX)
-    3) Если и это не вышло — просто ссылку текстом
-    """
-    # Попытка 1: web_app кнопка (настоящее мини-приложение внутри MAX)
+def ask_gigachat(prompt: str, system_prompt: str = None, max_tokens: int = 800, history: List[Dict] = None) -> str:
+    token = get_giga_token()
+    if not token:
+        return "❌ Не удалось подключиться к GigaChat"
     try:
-        from maxapi.types import InlineKeyboardButton
-        from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
-        builder = InlineKeyboardBuilder()
-        builder.row(InlineKeyboardButton(text="🚀 Открыть в MAX", web_app={"url": MINI_APP_LINK}))
-        await event.message.answer("📱 Мини-приложение Sferum Navigator:", attachments=[builder.as_markup()])
-        print("✅ Отправлено через web_app-кнопку (внутри MAX)")
-        return
-    except Exception as e:
-        print(f"⚠️ web_app-кнопка не поддержалась: {type(e).__name__}")
-    
-    # Попытка 2: link-кнопка (откроется во встроенном браузере MAX)
-    try:
-        from maxapi.types import InlineKeyboardButton
-        from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
-        builder = InlineKeyboardBuilder()
-        builder.row(InlineKeyboardButton(text="🚀 Открыть приложение", url=MINI_APP_LINK))
-        await event.message.answer("📱 Мини-приложение Sferum Navigator:", attachments=[builder.as_markup()])
-        print("✅ Отправлено через link-кнопку (встроенный браузер)")
-        return
-    except Exception as e:
-        print(f"⚠️ link-кнопка не поддержалась: {type(e).__name__}")
-    
-    # Попытка 3: просто ссылка
-    msg = "📱 Мини-приложение Sferum Navigator!\n\n"
-    msg += MINI_APP_LINK + "\n\n"
-    msg += "Внутри: планировщик подготовки и тренажёр."
-    await event.message.answer(msg)
-    print("✅ Отправлено просто ссылкой")
-
-
-@dp.bot_started()
-async def bot_started(event: BotStarted):
-    welcome = "🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\n\n"
-    welcome += "✨ Я запомню наш разговор и буду учитывать контекст.\n"
-    welcome += "📝 Напиши 'сброс', чтобы начать заново.\n\n"
-    welcome += "📌 Что я умею:\n"
-    welcome += "📝 Помощь с домашкой (метод Сократа)\n"
-    welcome += "📅 Планирование подготовки к ОГЭ/ЕГЭ\n"
-    welcome += "🎓 Объяснение сложных тем простым языком\n"
-    welcome += "🌍 Практика иностранных языков и переводы\n"
-    welcome += "✅ Проверка знаний через тесты и квизы\n"
-    welcome += "🎥 Поиск видеоуроков\n"
-    welcome += "💪 Мотивация и поддержка при выгорании\n"
-    welcome += "📱 Мини-приложение: напиши 'мини'"
-    await bot.send_message(chat_id=event.chat_id, text=welcome)
-
-@dp.message_created(CommandStart())
-async def handle_start(event: MessageCreated):
-    chat_id = get_chat_id(event)
-    if not chat_id:
-        return
-    clear_history(chat_id)
-    await event.message.answer("🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.")
-
-@dp.message_created(F.message.body.text)
-async def handle_message(event: MessageCreated):
-    text = event.message.body.text
-    chat_id = get_chat_id(event)
-    
-    if not chat_id or not text:
-        return
-    
-    # Автоисправление раскладки клавиатуры
-    original_text = text
-    text = fix_keyboard_layout(text)
-    if text != original_text:
-        print(f"⌨️ Исправлена раскладка")
-    
-    text = text.strip()
-    text_lower = text.lower()
-    
-    # Команды управления
-    if text_lower in ["начать", "старт", "start", "hello", "hi", "привет"]:
-        clear_history(chat_id)
-        await event.message.answer("🎯 Привет! Я Sferum Navigator — ИИ-наставник для учёбы.\nНапиши 'помощь', чтобы увидеть список команд.")
-        return
-    
-    if text_lower in ["сброс", "забудь", "очистить", "reset", "clear"]:
-        clear_history(chat_id)
-        await event.message.answer("🗑️ Готово! Чем помочь?")
-        return
-    
-    if text_lower in ["помощь", "меню", "режимы", "help", "menu"]:
-        menu = "🎯 Я сам определю режим по твоему вопросу.\n"
-        menu += "Просто напиши, что нужно!\n"
-        menu += "Команды: 'сброс' — начать заново\n"
-        menu += "🌍 Пиши на любом языке — я пойму!\n"
-        menu += "📱 'мини' — открыть мини-приложение"
-        await event.message.answer(menu)
-        return
-    
-    # Команда открытия мини-приложения
-    if text_lower in ["мини", "приложение", "мини приложение", "mini", "app"]:
-        await send_mini_app(event)
-        return
-    
-    # Определяем режим
-    data = get_user_data(chat_id)
-    has_history = len(data["history"]) > 0
-    
-    detected = detect_mode(text, has_history)
-    if detected != "general":
-        data["mode"] = detected
-    mode = data["mode"]
-    
-    print(f"🎯 Режим: {MODES.get(mode, 'Общий')}")
-    
-    try:
-        response = AIService.process_message(text, mode, data["history"])
+        messages = [{'role': 'system', 'content': system_prompt or 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно, без LaTeX и Markdown.'}]
+        if history:
+            messages.extend(history[-16:])
+        messages.append({'role': 'user', 'content': prompt})
         
-        add_to_history(chat_id, "user", text)
-        add_to_history(chat_id, "assistant", response)
-        
-        if len(response) > 4000:
-            for i in range(0, len(response), 4000):
-                await event.message.answer(response[i:i+4000])
-        else:
-            await event.message.answer(response)
+        r = requests.post(
+            'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
+            headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'},
+            json={'model': 'GigaChat:latest', 'messages': messages, 'max_tokens': max_tokens, 'temperature': 0.7},
+            verify=False,
+            timeout=60
+        )
+        if r.ok:
+            data = r.json()
+            return data['choices'][0]['message']['content'].replace('**', '').replace('#', '').replace('`', '')
     except Exception as e:
-        print(f"❌ Ошибка ИИ: {e}")
-        await event.message.answer("Извини, произошла ошибка. Попробуй через минуту.")
+        logger.error(f"GigaChat error: {e}")
+    return "❌ Ошибка при обращении к GigaChat"
 
-async def main():
-    print("🚀 БОТ Sferum Navigator запущен!")
-    print("✅ Режимы: текст, контекст, языки, мини-приложение")
-    print("Ожидаю сообщения...\n")
-    await dp.start_polling(bot)
+# ===== БОТ =====
+bot = Bot(token=BOT_TOKEN)
 
-if __name__ == "__main__":
-    asyncio.run(main())
+@bot.on.message()
+async def handle_message(message: types.Message):
+    user_id = message.user.user_id
+    text = message.body.text or ''
+    
+    # Инициализация пользователя
+    if user_id not in user_data:
+        user_data[user_id] = {
+            'chat_history': load_chat_from_server(user_id),
+            'grades': {}
+        }
+    
+    # Команда /start
+    if text.strip() == '/start':
+        await message.answer(
+            "👋 Привет! Я **Sferum Navigator** — твой ИИ-наставник.\n\n"
+            "🤖 Задавай вопросы по учёбе\n"
+            "📚 Пиши про оценки — сам запишу в дневник\n"
+            "📱 Команда /мини — открою приложение\n\n"
+            "Попробуй написать: *«объясни дроби»* или *«математика 5 5 5»*"
+        )
+        save_user_data()
+        return
+    
+    # Команда /мини
+    if text.strip() == '/мини' or text.strip() == '/mini':
+        await message.answer(
+            f"📱 Открываю мини-приложение Sferum Navigator!\n\n"
+            f"Там ты найдёшь:\n"
+            f"📅 Персональный план подготовки\n"
+            f"✅ Тренажёр с тестами\n"
+            f"🎥 Видеоуроки\n"
+            f"💪 Мотивацию\n\n"
+            f"👉 {MINI_APP_URL}"
+        )
+        save_user_data()
+        return
+    
+    # Проверка на оценки
+    grade_triggers = ['оценк', 'получил', 'получила', 'поставили', 'поставил', 'заработал', 'заработала', 'балл', 'отметк']
+    has_grades = any(t in text.lower() for t in grade_triggers)
+    has_digits = any(d in text for d in '12345')
+    
+    if has_grades and has_digits:
+        try:
+            response = ask_gigachat(
+                f'Ученик написал про свои оценки: «{text}». Определи ВСЕ школьные предметы (полные нормальные названия по-русски, с учётом сленга) и список оценок для каждого (числа 1-5). Верни СТРОГО JSON-массив: [{{"subject":"название предмета","grades":[5,4]}}, ...]',
+                'Верни только валидный JSON-массив, без пояснений.',
+                500
+            )
+            match = json.loads(response) if response.startswith('[') else None
+            if not match:
+                import re
+                m = re.search(r'\[[\s\S]*\]', response)
+                if m:
+                    match = json.loads(m.group())
+            
+            if match and isinstance(match, list):
+                for item in match:
+                    if 'subject' in item and 'grades' in item and isinstance(item['grades'], list):
+                        subject = item['subject']
+                        grades = [g for g in item['grades'] if isinstance(g, int) and 1 <= g <= 5]
+                        if grades:
+                            if subject not in user_data[user_id]['grades']:
+                                user_data[user_id]['grades'][subject] = []
+                            user_data[user_id]['grades'][subject].extend(grades)
+                            
+                            await message.answer(f"📚 Записал в дневник: **{subject}** → {', '.join(map(str, grades))}")
+                save_user_data()
+        except Exception as e:
+            logger.error(f"Failed to parse grades: {e}")
+    
+    # Обычный разговор с GigaChat
+    user_data[user_id]['chat_history'].append({'role': 'user', 'content': text, 'timestamp': int(__import__('time').time() * 1000)})
+    
+    await message.answer("⏳ Думаю...")
+    
+    response = ask_gigachat(
+        text,
+        'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни весь предыдущий разговор. Если ученик рассказывает про свои оценки — порадуйся или поддержи.',
+        800,
+        user_data[user_id]['chat_history']
+    )
+    
+    user_data[user_id]['chat_history'].append({'role': 'assistant', 'content': response, 'timestamp': int(__import__('time').time() * 1000)})
+    
+    # Синхронизация с сервером
+    save_chat_to_server(user_id, user_data[user_id]['chat_history'])
+    
+    await message.answer(response)
+    save_user_data()
+
+if __name__ == '__main__':
+    logger.info("Bot is starting...")
+    bot.run()
