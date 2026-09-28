@@ -1,74 +1,217 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="auto">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sferum Navigator Mini</title>
-<!-- KaTeX для рендеринга LaTeX-формул -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 12px; }
-  .card { background: #fff; border-radius: 20px; padding: 18px; max-width: 480px; margin: 0 auto; min-height: 90vh; }
-  h1 { font-size: 21px; text-align: center; }
-  .subtitle { text-align: center; color: #888; font-size: 13px; margin: 4px 0 14px; }
-  .back { background: #f0f0f5; border: none; border-radius: 10px; padding: 10px 14px; font-size: 15px; cursor: pointer; margin-bottom: 12px; }
+  /* ===== ТЕМЫ ===== */
+  :root, :root[data-theme="light"] {
+    --bg-grad: linear-gradient(135deg, #eef1ff 0%, #f8f0ff 50%, #eef1ff 100%);
+    --card: #ffffff;
+    --text: #1f2333;
+    --muted: #8a8fa3;
+    --tile: #f5f6fc;
+    --tile-text: #3c4257;
+    --border: #e3e6f0;
+    --input-bg: #ffffff;
+    --box: #f5f6fc;
+    --bubble-bot: #ffffff;
+    --bubble-bot-text: #2a2e3f;
+    --accent: #667eea;
+    --accent2: #764ba2;
+    --btn-grad: linear-gradient(135deg, #667eea, #764ba2);
+    --ok-bg: #e8f8e8; --ok-bd: #4caf50;
+    --err-bg: #fdeaea; --err-bd: #e57373;
+    --warn-bg: #fff6e0; --warn: #f7971e;
+    --shadow: 0 10px 40px rgba(30, 30, 60, .12);
+    --blob-op: .35;
+  }
+  :root[data-theme="dark"] {
+    --bg-grad: linear-gradient(135deg, #0e1020 0%, #1b1030 50%, #0e1020 100%);
+    --card: #1b1d2a;
+    --text: #e8eaf6;
+    --muted: #9aa0b5;
+    --tile: #252838;
+    --tile-text: #dfe3f9;
+    --border: #343850;
+    --input-bg: #252838;
+    --box: #20222f;
+    --bubble-bot: #252838;
+    --bubble-bot-text: #e8eaf6;
+    --accent: #8b9cf8;
+    --accent2: #b08cf8;
+    --btn-grad: linear-gradient(135deg, #7c8cf8, #9b6cf8);
+    --ok-bg: #1d3323; --ok-bd: #66bb6a;
+    --err-bg: #3a2226; --err-bd: #ef9a9a;
+    --warn-bg: #3a2c17; --warn: #ffb74d;
+    --shadow: 0 10px 40px rgba(0, 0, 0, .5);
+    --blob-op: .22;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-theme="auto"] {
+      --bg-grad: linear-gradient(135deg, #0e1020 0%, #1b1030 50%, #0e1020 100%);
+      --card: #1b1d2a;
+      --text: #e8eaf6;
+      --muted: #9aa0b5;
+      --tile: #252838;
+      --tile-text: #dfe3f9;
+      --border: #343850;
+      --input-bg: #252838;
+      --box: #20222f;
+      --bubble-bot: #252838;
+      --bubble-bot-text: #e8eaf6;
+      --accent: #8b9cf8;
+      --accent2: #b08cf8;
+      --btn-grad: linear-gradient(135deg, #7c8cf8, #9b6cf8);
+      --ok-bg: #1d3323; --ok-bd: #66bb6a;
+      --err-bg: #3a2226; --err-bd: #ef9a9a;
+      --warn-bg: #3a2c17; --warn: #ffb74d;
+      --shadow: 0 10px 40px rgba(0, 0, 0, .5);
+      --blob-op: .22;
+    }
+  }
+
+  /* ===== БАЗА ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  body {
+    background: var(--bg-grad);
+    background-size: 200% 200%;
+    animation: gradShift 14s ease infinite;
+    min-height: 100vh; padding: 12px;
+    color: var(--text);
+  }
+  body::before, body::after {
+    content: ''; position: fixed; border-radius: 50%;
+    filter: blur(70px); z-index: -1; opacity: var(--blob-op); pointer-events: none;
+  }
+  body::before { width: 340px; height: 340px; background: #667eea; top: -80px; left: -80px; animation: floatBlob 16s ease-in-out infinite; }
+  body::after { width: 300px; height: 300px; background: #f7971e; bottom: -60px; right: -60px; animation: floatBlob 20s ease-in-out infinite reverse; }
+
+  body, .card, .tile, .item, .msg, input, select, textarea, .btn, .sched-row, .grade-row, .quote, .chat-box, .link-item, .back, .quiz-opt {
+    transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
+  }
+
+  .card { background: var(--card); border-radius: 24px; padding: 18px; max-width: 480px; margin: 0 auto; min-height: 90vh; box-shadow: var(--shadow); animation: popIn .4s ease both; }
+  h1 { font-size: 21px; text-align: center; color: var(--text); }
+  h1::after { content: ''; display: block; width: 56px; height: 4px; margin: 8px auto 0; border-radius: 2px; background: var(--btn-grad); animation: growBar .6s ease both; }
+  .subtitle { text-align: center; color: var(--muted); font-size: 13px; margin: 6px 0 14px; }
+  .back { background: var(--tile); border: none; border-radius: 12px; padding: 10px 14px; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: var(--text); }
+  .back:hover { filter: brightness(1.05); }
+
+  /* ===== ПЛИТКИ ===== */
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tile { background: #f7f7fc; border: none; border-radius: 16px; padding: 18px 10px; cursor: pointer; text-align: center; min-height: 90px; }
-  .tile:active { transform: scale(.96); }
+  .tile { background: var(--tile); border: none; border-radius: 18px; padding: 18px 10px; cursor: pointer; text-align: center; min-height: 90px; animation: popIn .45s ease both; }
+  .grid .tile:nth-child(1){animation-delay:.03s} .grid .tile:nth-child(2){animation-delay:.08s}
+  .grid .tile:nth-child(3){animation-delay:.13s} .grid .tile:nth-child(4){animation-delay:.18s}
+  .grid .tile:nth-child(5){animation-delay:.23s} .grid .tile:nth-child(6){animation-delay:.28s}
+  .grid .tile:nth-child(7){animation-delay:.33s}
+  .tile:active { transform: scale(.95); }
+  @media (hover:hover) {
+    .tile:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .tile:hover .ico { animation: bounce .6s ease; }
+  }
   .tile .ico { font-size: 30px; display: block; margin-bottom: 8px; }
-  .tile .ttl { font-size: 14px; font-weight: 600; }
+  .tile .ttl { font-size: 14px; font-weight: 600; color: var(--tile-text); }
+
   .page { display: none; }
-  .page.active { display: block; }
-  label { display: block; font-size: 14px; margin: 12px 0 5px; font-weight: 500; }
-  select, input, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e8; border-radius: 12px; font-size: 16px; min-height: 48px; font-family: inherit; }
-  select:focus, input:focus, textarea:focus { border-color: #667eea; outline: none; }
-  .btn { width: 100%; margin-top: 12px; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; }
-  .btn:active { transform: scale(.98); }
-  .btn:disabled { opacity: .5; cursor: not-allowed; }
-  .btn.gray { background: #e8e8f0; color: #555; }
-  .btn.sel { background: #4caf50; }
-  .item { background: #f7f7fc; border-left: 4px solid #667eea; border-radius: 10px; padding: 12px; margin-top: 10px; font-size: 15px; white-space: pre-wrap; line-height: 1.6; }
-  .item.ai { border-left-color: #f7971e; }
-  .item.loading { background: #fff8e1; border-left-color: #f7971e; text-align: center; }
-  .row2 { display: flex; gap: 10px; }
-  .row2 > * { flex: 1; }
-  .row3 { display: flex; gap: 8px; }
-  .row3 > * { flex: 1; }
-  .mini-link { display: inline-block; margin: 4px 6px 0 0; font-size: 12px; color: #667eea; text-decoration: none; background: #eef; padding: 4px 8px; border-radius: 8px; }
-  .sched-row { display: flex; justify-content: space-between; gap: 8px; background: #f7f7fc; border-radius: 10px; padding: 10px 12px; margin-top: 6px; font-size: 14px; align-items: center; }
-  .sched-row.today { background: #fff8e1; border: 2px solid #f7971e; font-weight: 700; }
-  .sched-row .act { font-size: 12px; color: #888; font-weight: 400; text-align: right; }
-  .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0 6px; text-align: center; min-height: 48px; }
-  .hint { font-size: 13px; color: #888; margin-top: 4px; text-align: center; }
+  .page.active { display: block; animation: fadeUp .35s ease both; }
+
+  label { display: block; font-size: 14px; margin: 12px 0 5px; font-weight: 500; color: var(--text); }
+  select, input, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; min-height: 48px; font-family: inherit; background: var(--input-bg); color: var(--text); }
+  select:focus, input:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(102,126,234,.22); }
+
+  .btn { width: 100%; margin-top: 12px; padding: 14px; border: none; border-radius: 14px; background: var(--btn-grad); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; box-shadow: 0 4px 14px rgba(102,126,234,.35); }
+  .btn:hover { filter: brightness(1.07); }
+  .btn:active { transform: scale(.97); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+  .btn.gray { background: var(--tile); color: var(--text); box-shadow: none; }
+  .btn.sel { background: linear-gradient(135deg, #43a047, #66bb6a); }
+
+  .item { background: var(--tile); border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px; margin-top: 10px; font-size: 15px; white-space: pre-wrap; line-height: 1.6; color: var(--text); animation: fadeUp .3s ease both; }
+  .item.ai { border-left-color: var(--warn); }
+  .item.loading { background: var(--warn-bg); border-left-color: var(--warn); text-align: center; }
+  .item.loading::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px; vertical-align: -2px; }
+
+  .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
+  .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
+  .mini-link { display: inline-block; margin: 4px 6px 0 0; font-size: 12px; color: var(--accent); text-decoration: none; background: var(--tile); padding: 4px 8px; border-radius: 8px; }
+  .mini-link:hover { filter: brightness(1.1); }
+
+  .sched-row { display: flex; justify-content: space-between; gap: 8px; background: var(--tile); border-radius: 12px; padding: 10px 12px; margin-top: 6px; font-size: 14px; align-items: center; color: var(--text); animation: fadeUp .3s ease both; }
+  .sched-row.today { background: var(--warn-bg); border: 2px solid var(--warn); font-weight: 700; animation: glowPulse 2.2s ease infinite; }
+  .sched-row .act { font-size: 12px; color: var(--muted); font-weight: 400; text-align: right; }
+
+  .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0 6px; text-align: center; min-height: 48px; color: var(--text); animation: fadeUp .3s ease both; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 4px; text-align: center; }
   .quiz-input { display: flex; gap: 8px; margin-top: 12px; }
   .quiz-input input { flex: 1; }
   .quiz-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
-  .score { text-align: center; color: #667eea; font-weight: 700; margin-top: 12px; }
-  .grade-row { display: flex; justify-content: space-between; align-items: center; background: #f7f7fc; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 14px; }
-  .grade-row button { background: #fdd; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
-  .avg { text-align: center; font-size: 36px; font-weight: 800; color: #667eea; margin: 12px 0; }
-  .link-item { display: block; background: #f7f7fc; border-radius: 10px; padding: 14px; margin-top: 8px; text-decoration: none; color: #667eea; font-weight: 600; text-align: center; }
-  .quote { background: #f7f7fc; border-radius: 16px; padding: 24px 20px; font-size: 17px; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-  .about { font-size: 15px; line-height: 1.6; }
+  .quiz-opt { animation: popIn .3s ease both; }
+  .quiz-opt.correct { animation: popIn .35s ease; }
+  .quiz-opt.wrong { animation: shake .4s ease; }
+  .score { text-align: center; color: var(--accent); font-weight: 700; margin-top: 12px; }
+
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--tile); border-radius: 12px; padding: 12px; margin-top: 8px; font-size: 14px; color: var(--text); animation: fadeUp .3s ease both; }
+  .grade-row button { background: var(--err-bg); border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; color: var(--text); }
+  .avg { text-align: center; font-size: 36px; font-weight: 800; color: var(--accent); margin: 12px 0; animation: popIn .4s ease both; }
+
+  .link-item { display: block; background: var(--tile); border-radius: 12px; padding: 14px; margin-top: 8px; text-decoration: none; color: var(--accent); font-weight: 600; text-align: center; animation: fadeUp .3s ease both; }
+  .link-item:hover { filter: brightness(1.05); transform: translateY(-2px); }
+
+  .quote { background: var(--tile); border-radius: 18px; padding: 24px 20px; font-size: 17px; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--text); animation: fadeUp .35s ease both; }
+
+  .about { font-size: 15px; line-height: 1.6; color: var(--text); }
   .about li { margin: 8px 0 8px 20px; }
-  .chat-box { height: 52vh; overflow-y: auto; background: #f7f7fc; border-radius: 12px; padding: 12px; margin-top: 10px; }
-  .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
-  .msg.user { background: #667eea; color: #fff; margin-left: auto; }
-  .msg.bot { background: #fff; border: 1px solid #e0e0e8; }
-  .msg.sys { background: #d4f7d4; border: 1px solid #4caf50; font-size: 14px; }
-  .msg.loading { background: #fff8e1; border: 1px solid #f7971e; text-align: center; }
+
+  /* ===== ЧАТ ===== */
+  .chat-box { height: 52vh; overflow-y: auto; background: var(--box); border-radius: 14px; padding: 12px; margin-top: 10px; }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+  .msg.user { background: var(--btn-grad); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; animation: slideR .3s ease both; }
+  .msg.bot { background: var(--bubble-bot); border: 1px solid var(--border); color: var(--bubble-bot-text); border-bottom-left-radius: 4px; animation: slideL .3s ease both; }
+  .msg.sys { background: var(--ok-bg); border: 1px solid var(--ok-bd); font-size: 14px; animation: slideL .3s ease both; }
+  .msg.loading { background: var(--warn-bg); border: 1px solid var(--warn); text-align: center; }
+  .msg.loading::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px; vertical-align: -2px; }
   .chat-input { display: flex; gap: 8px; margin-top: 10px; }
   .chat-input input { flex: 1; }
   .chat-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
-  .legal { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e0e0e8; font-size: 13px; text-align: center; }
-  .legal a { color: #667eea; text-decoration: none; margin: 0 8px; }
+
+  .legal { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; text-align: center; color: var(--muted); }
+  .legal a { color: var(--accent); text-decoration: none; margin: 0 8px; }
   .katex-display { overflow-x: auto; padding: 4px 0; }
+
+  /* ===== ПЕРЕКЛЮЧАТЕЛЬ ТЕМ ===== */
+  .theme-pill { position: fixed; top: 10px; right: 10px; z-index: 99; display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); opacity: .95; }
+  .theme-pill button { border: none; background: transparent; font-size: 16px; padding: 6px 10px; border-radius: 999px; cursor: pointer; transition: transform .2s, background .2s; }
+  .theme-pill button:hover { transform: scale(1.15); }
+  .theme-pill button.on { background: var(--btn-grad); }
+
+  /* ===== АНИМАЦИИ ===== */
+  @keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+  @keyframes floatBlob { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-30px) scale(1.12)} 66%{transform:translate(-25px,25px) scale(.94)} }
+  @keyframes fadeUp { from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none} }
+  @keyframes popIn { from{opacity:0; transform:scale(.92)} to{opacity:1; transform:scale(1)} }
+  @keyframes slideL { from{opacity:0; transform:translateX(-24px)} to{opacity:1; transform:none} }
+  @keyframes slideR { from{opacity:0; transform:translateX(24px)} to{opacity:1; transform:none} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} 60%{transform:translateY(0)} 80%{transform:translateY(-3px)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  @keyframes glowPulse { 0%,100%{box-shadow:0 0 0 0 rgba(247,151,30,.35)} 50%{box-shadow:0 0 0 10px rgba(247,151,30,0)} }
+  @keyframes growBar { from{width:0} to{width:56px} }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
+
+<div class="theme-pill">
+  <button id="thLight" onclick="setTheme('light')" title="Светлая тема">☀️</button>
+  <button id="thDark" onclick="setTheme('dark')" title="Тёмная тема">🌙</button>
+  <button id="thAuto" onclick="setTheme('auto')" title="Как в системе">🖥️</button>
+</div>
+
 <div class="card">
 
   <div id="home" class="page active">
@@ -224,10 +367,10 @@
       <ul>
         <li>🔄 Чат синхронизирован с ботом MAX в обе стороны</li>
         <li>🧮 Красивые формулы LaTeX (KaTeX)</li>
-        <li>📚 Дневник распознаёт несколько предметов</li>
-        <li>🔒 Тема засчитывается только после теста из 20 вопросов</li>
+        <li>🎨 Темы: светлая, тёмная, как в системе</li>
+        <li>✨ Плавные анимации интерфейса</li>
       </ul>
-      <p style="margin-top:10px;color:#888;font-size:13px;">Версия 15</p>
+      <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 16</p>
     </div>
     <div class="legal">
       <a href="terms.html">Соглашение</a> ·
@@ -238,13 +381,25 @@
 </div>
 
 <script>
+// ===== ТЕМЫ =====
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('sn_theme', t);
+  ['Light','Dark','Auto'].forEach(n => {
+    const b = document.getElementById('th' + n);
+    if (b) b.classList.toggle('on', n.toLowerCase() === t);
+  });
+}
+function setTheme(t) { applyTheme(t); }
+applyTheme(localStorage.getItem('sn_theme') || 'auto');
+
 const GIGA_ID = '01a0bafa-206f-7e07-a2e7-df9e0acea285';
 const GIGA_SECRET = '93e085d7-803b-4fe2-b1da-468aff78a450';
 const CODESPACE_NAME = 'automatic-system-p7gg76p4wqqwf99rj';
 const PROXY_BASE = 'https://' + CODESPACE_NAME + '-8000.app.github.dev';
 const DAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const TEST_SIZE = 20;
-const CHANNEL = 'main';   // общий канал чата с ботом MAX
+const CHANNEL = 'main';
 const MATH_SYSTEM = 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
 
 let gigaToken = null, gigaExp = 0;
@@ -255,7 +410,6 @@ function uuid() {
   });
 }
 
-// ===== KATEX =====
 function mathIn(el) {
   if (!el || !window.renderMathInElement) return;
   try {
@@ -316,10 +470,10 @@ function cleanResponse(text) {
   return text.replace(/\*\*/g,'').replace(/(^|\n)#{1,3}\s*/g,'$1').replace(/`/g,'').replace(/\n{3,}/g,'\n\n').trim();
 }
 function showLoading(id, msg) {
-  document.getElementById(id).innerHTML = '<div class="item loading">⏳ ' + msg + '</div>';
+  document.getElementById(id).innerHTML = '<div class="item loading">' + msg + '</div>';
 }
 function showError(id, msg) {
-  document.getElementById(id).innerHTML = '<div class="item" style="border-left-color:#e57373;">❌ ' + msg + '</div>';
+  document.getElementById(id).innerHTML = '<div class="item" style="border-left-color:var(--err-bd);">❌ ' + msg + '</div>';
 }
 async function ensureSpaces(text) {
   if (!text) return '';
@@ -352,7 +506,7 @@ function videoLinks(topic, available) {
   if (available.youtube) h += '<a class="mini-link" target="_blank" href="https://www.youtube.com/results?search_query='+t+'">▶ YouTube</a>';
   if (available.vk) h += '<a class="mini-link" target="_blank" href="https://vk.com/video?q='+t+'">▶ VK</a>';
   if (available.rutube) h += '<a class="mini-link" target="_blank" href="https://rutube.ru/search/?q='+t+'">▶ RuTube</a>';
-  if (!h) h = '<span style="font-size:12px;color:#888;">📭 видео не найдено</span>';
+  if (!h) h = '<span style="font-size:12px;color:var(--muted);">📭 видео не найдено</span>';
   return h;
 }
 function todayIdx() { return (new Date().getDay() + 6) % 7; }
@@ -415,7 +569,7 @@ function renderG() {
   document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
 }
 
-// ===== ОБЩИЙ ЧАТ: двусторонняя синхронизация =====
+// ===== ОБЩИЙ ЧАТ =====
 let chatHistory = [];
 try { chatHistory = JSON.parse(localStorage.getItem('sn_chat') || '[]'); } catch (e) { chatHistory = []; }
 
@@ -497,7 +651,7 @@ async function sendChat() {
     addMsg('📚 Записал в дневник: ' + local.map(p => p.subject + ' → ' + p.grades.join(', ')).join('; '), 'sys');
   }
 
-  const loading = addMsg('⏳ Думаю...', 'loading');
+  const loading = addMsg('Думаю...', 'loading');
   document.getElementById('chatBtn').disabled = true;
   try {
     await syncChatHistory();
@@ -900,7 +1054,7 @@ async function checkAnswer() {
   let ok = variants.map(normalize).includes(normalize(userRaw));
   let bySense = false;
   if (!ok) {
-    document.getElementById('quizResult').innerHTML = '<div class="item loading">🤔 Проверяю по смыслу...</div>';
+    document.getElementById('quizResult').innerHTML = '<div class="item loading">Проверяю по смыслу...</div>';
     for (const v of variants) {
       if (await semanticCheck(qCurrent.question, v, userRaw)) { ok = true; bySense = true; break; }
     }
@@ -911,7 +1065,7 @@ async function checkAnswer() {
     qBatchScore++;
     box.innerHTML = '<div class="item ai">✅ Верно!' + (bySense ? ' (зачёл по смыслу)' : '') + ' Отличная работа!</div>';
   } else {
-    box.innerHTML = '<div class="item" style="border-left-color:#e57373;">❌ Неверно. Правильный ответ: ' + escapeHtml(qCurrent.answer) + '</div>';
+    box.innerHTML = '<div class="item" style="border-left-color:var(--err-bd);">❌ Неверно. Правильный ответ: ' + escapeHtml(qCurrent.answer) + '</div>';
   }
   mathIn(box);
   document.getElementById('score').textContent = 'Счёт: ' + qC + ' / ' + qT;
@@ -927,7 +1081,7 @@ async function addGradeAI() {
   if (!text) return alert('Напиши, например: математика 5 4, физика 3, инфа 5 5 5');
   const btn = document.getElementById('gAddBtn');
   btn.disabled = true;
-  document.getElementById('gAi').innerHTML = '<div class="item loading">⏳ GigaChat разбирает несколько предметов...</div>';
+  document.getElementById('gAi').innerHTML = '<div class="item loading">GigaChat разбирает несколько предметов...</div>';
   let parsed = null;
   try {
     const response = await askGiga('Ученик написал про свои оценки: «' + text + '». Определи ВСЕ школьные предметы (полные нормальные названия по-русски, с учётом сленга и сокращений) и список оценок для каждого (числа 1-5). Предметы бери СТРОГО из текста ученика. Верни СТРОГО JSON-массив: [{"subject":"название предмета","grades":[5,4]}, {"subject":"другой предмет","grades":[3]}]', 'Верни только валидный JSON-массив, без пояснений.', 500);
@@ -940,7 +1094,7 @@ async function addGradeAI() {
   } catch (e) {}
   if (!parsed || !parsed.length) parsed = extractGradesLocal(text);
   if (!parsed || !parsed.length) {
-    document.getElementById('gAi').innerHTML = '<div class="item" style="border-left-color:#e57373;">Не нашёл оценок. Напиши предметы и цифры, например: математика 5 4, физика 3</div>';
+    document.getElementById('gAi').innerHTML = '<div class="item" style="border-left-color:var(--err-bd);">Не нашёл оценок. Напиши предметы и цифры, например: математика 5 4, физика 3</div>';
     btn.disabled = false;
     return;
   }
@@ -1044,7 +1198,7 @@ if (savedPlan) renderPlan(savedPlan);
 renderG();
 syncChatHistory().then(() => restoreChatHistory());
 checkWeekUpdate();
-setInterval(syncChatHistory, 12000);   // живая синхронизация с MAX каждые 12 секунд
+setInterval(syncChatHistory, 12000);
 </script>
 </body>
 </html>
