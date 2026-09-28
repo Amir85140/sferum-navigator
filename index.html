@@ -29,6 +29,7 @@
     --warn-bg: #fff6e0; --warn: #f7971e;
     --shadow: 0 10px 40px rgba(30, 30, 60, .12);
     --blob-op: .35;
+    --particle-col: rgba(102, 126, 234, .5);
   }
   :root[data-theme="dark"] {
     --bg-grad: linear-gradient(135deg, #0e1020 0%, #1b1030 50%, #0e1020 100%);
@@ -50,131 +51,157 @@
     --warn-bg: #3a2c17; --warn: #ffb74d;
     --shadow: 0 10px 40px rgba(0, 0, 0, .5);
     --blob-op: .22;
+    --particle-col: rgba(139, 156, 248, .6);
   }
   @media (prefers-color-scheme: dark) {
     :root[data-theme="auto"] {
       --bg-grad: linear-gradient(135deg, #0e1020 0%, #1b1030 50%, #0e1020 100%);
-      --card: #1b1d2a;
-      --text: #e8eaf6;
-      --muted: #9aa0b5;
-      --tile: #252838;
-      --tile-text: #dfe3f9;
-      --border: #343850;
-      --input-bg: #252838;
-      --box: #20222f;
-      --bubble-bot: #252838;
-      --bubble-bot-text: #e8eaf6;
-      --accent: #8b9cf8;
-      --accent2: #b08cf8;
-      --btn-grad: linear-gradient(135deg, #7c8cf8, #9b6cf8);
-      --ok-bg: #1d3323; --ok-bd: #66bb6a;
-      --err-bg: #3a2226; --err-bd: #ef9a9a;
+      --card: #1b1d2a; --text: #e8eaf6; --muted: #9aa0b5; --tile: #252838; --tile-text: #dfe3f9;
+      --border: #343850; --input-bg: #252838; --box: #20222f;
+      --bubble-bot: #252838; --bubble-bot-text: #e8eaf6;
+      --accent: #8b9cf8; --accent2: #b08cf8; --btn-grad: linear-gradient(135deg, #7c8cf8, #9b6cf8);
+      --ok-bg: #1d3323; --ok-bd: #66bb6a; --err-bg: #3a2226; --err-bd: #ef9a9a;
       --warn-bg: #3a2c17; --warn: #ffb74d;
-      --shadow: 0 10px 40px rgba(0, 0, 0, .5);
-      --blob-op: .22;
+      --shadow: 0 10px 40px rgba(0, 0, 0, .5); --blob-op: .22;
+      --particle-col: rgba(139, 156, 248, .6);
     }
   }
 
-  /* ===== БАЗА ===== */
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; }
   body {
-    background: var(--bg-grad);
-    background-size: 200% 200%;
+    background: var(--bg-grad); background-size: 200% 200%;
     animation: gradShift 14s ease infinite;
-    min-height: 100vh; padding: 12px;
-    color: var(--text);
+    min-height: 100vh; padding: 12px; color: var(--text);
+    position: relative; overflow-x: hidden;
   }
+  body, .card, .tile, .item, .msg, input, select, textarea, .btn, .sched-row, .grade-row, .quote, .chat-box, .link-item, .back {
+    transition: background-color .4s ease, color .4s ease, border-color .4s ease, box-shadow .4s ease;
+  }
+
+  /* Частицы на фоне */
+  #particles { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
+
   body::before, body::after {
     content: ''; position: fixed; border-radius: 50%;
     filter: blur(70px); z-index: -1; opacity: var(--blob-op); pointer-events: none;
   }
-  body::before { width: 340px; height: 340px; background: #667eea; top: -80px; left: -80px; animation: floatBlob 16s ease-in-out infinite; }
-  body::after { width: 300px; height: 300px; background: #f7971e; bottom: -60px; right: -60px; animation: floatBlob 20s ease-in-out infinite reverse; }
+  body::before { width: 360px; height: 360px; background: #667eea; top: -80px; left: -80px; animation: floatBlob 16s ease-in-out infinite; }
+  body::after { width: 320px; height: 320px; background: #f7971e; bottom: -60px; right: -60px; animation: floatBlob 20s ease-in-out infinite reverse; }
 
-  body, .card, .tile, .item, .msg, input, select, textarea, .btn, .sched-row, .grade-row, .quote, .chat-box, .link-item, .back, .quiz-opt {
-    transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
+  .card { background: var(--card); border-radius: 24px; padding: 18px; max-width: 480px; margin: 0 auto; min-height: 90vh; box-shadow: var(--shadow); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; position: relative; overflow: hidden; }
+
+  h1 { font-size: 21px; text-align: center; color: var(--text); position: relative; }
+  h1::after { content: ''; display: block; width: 0; height: 4px; margin: 8px auto 0; border-radius: 2px; background: var(--btn-grad); animation: growBar .8s cubic-bezier(.4,0,.2,1) forwards; }
+  .subtitle { text-align: center; color: var(--muted); font-size: 13px; margin: 6px 0 14px; animation: fadeUp .5s ease both; animation-delay: .2s; opacity: 0; }
+
+  .back { background: var(--tile); border: none; border-radius: 12px; padding: 10px 14px; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: var(--text); display: inline-flex; align-items: center; gap: 4px; }
+  .back:hover { filter: brightness(1.05); transform: translateX(-4px); transition: transform .25s ease; }
+
+  /* ===== ГЛАВНАЯ — плитки ===== */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; perspective: 800px; }
+  .tile { background: var(--tile); border: none; border-radius: 18px; padding: 18px 10px; cursor: pointer; text-align: center; min-height: 90px; animation: tileIn .6s cubic-bezier(.34,1.56,.64,1) both; position: relative; overflow: hidden; }
+  .tile::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+    transform: translateX(-100%); transition: transform .6s ease;
   }
-
-  .card { background: var(--card); border-radius: 24px; padding: 18px; max-width: 480px; margin: 0 auto; min-height: 90vh; box-shadow: var(--shadow); animation: popIn .4s ease both; }
-  h1 { font-size: 21px; text-align: center; color: var(--text); }
-  h1::after { content: ''; display: block; width: 56px; height: 4px; margin: 8px auto 0; border-radius: 2px; background: var(--btn-grad); animation: growBar .6s ease both; }
-  .subtitle { text-align: center; color: var(--muted); font-size: 13px; margin: 6px 0 14px; }
-  .back { background: var(--tile); border: none; border-radius: 12px; padding: 10px 14px; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: var(--text); }
-  .back:hover { filter: brightness(1.05); }
-
-  /* ===== ПЛИТКИ ===== */
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tile { background: var(--tile); border: none; border-radius: 18px; padding: 18px 10px; cursor: pointer; text-align: center; min-height: 90px; animation: popIn .45s ease both; }
-  .grid .tile:nth-child(1){animation-delay:.03s} .grid .tile:nth-child(2){animation-delay:.08s}
-  .grid .tile:nth-child(3){animation-delay:.13s} .grid .tile:nth-child(4){animation-delay:.18s}
-  .grid .tile:nth-child(5){animation-delay:.23s} .grid .tile:nth-child(6){animation-delay:.28s}
-  .grid .tile:nth-child(7){animation-delay:.33s}
-  .tile:active { transform: scale(.95); }
+  .tile:hover::before { transform: translateX(100%); }
+  .grid .tile:nth-child(1){animation-delay:.03s} .grid .tile:nth-child(2){animation-delay:.09s}
+  .grid .tile:nth-child(3){animation-delay:.15s} .grid .tile:nth-child(4){animation-delay:.21s}
+  .grid .tile:nth-child(5){animation-delay:.27s} .grid .tile:nth-child(6){animation-delay:.33s}
+  .grid .tile:nth-child(7){animation-delay:.39s}
   @media (hover:hover) {
-    .tile:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-    .tile:hover .ico { animation: bounce .6s ease; }
+    .tile:hover { transform: translateY(-6px) rotateX(4deg); box-shadow: var(--shadow); }
+    .tile:hover .ico { animation: bounce .6s ease; transform: scale(1.15); }
   }
-  .tile .ico { font-size: 30px; display: block; margin-bottom: 8px; }
+  .tile:active { transform: scale(.94); }
+  .tile .ico { font-size: 32px; display: block; margin-bottom: 8px; transition: transform .3s ease; }
   .tile .ttl { font-size: 14px; font-weight: 600; color: var(--tile-text); }
 
   .page { display: none; }
-  .page.active { display: block; animation: fadeUp .35s ease both; }
+  .page.active { display: block; animation: pageEnter .45s cubic-bezier(.22,.61,.36,1) both; }
 
-  label { display: block; font-size: 14px; margin: 12px 0 5px; font-weight: 500; color: var(--text); }
+  label { display: block; font-size: 14px; margin: 12px 0 5px; font-weight: 500; color: var(--text); animation: fadeUp .4s ease both; }
   select, input, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; min-height: 48px; font-family: inherit; background: var(--input-bg); color: var(--text); }
-  select:focus, input:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(102,126,234,.22); }
+  select:focus, input:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 4px rgba(102,126,234,.18); animation: inputPulse 1.2s ease infinite; }
 
-  .btn { width: 100%; margin-top: 12px; padding: 14px; border: none; border-radius: 14px; background: var(--btn-grad); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; box-shadow: 0 4px 14px rgba(102,126,234,.35); }
-  .btn:hover { filter: brightness(1.07); }
+  .btn { width: 100%; margin-top: 12px; padding: 14px; border: none; border-radius: 14px; background: var(--btn-grad); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; box-shadow: 0 4px 14px rgba(102,126,234,.35); position: relative; overflow: hidden; }
+  .btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.25) 50%, transparent 70%);
+    transform: translateX(-100%);
+  }
+  .btn:hover::after { transform: translateX(100%); transition: transform .6s ease; }
   .btn:active { transform: scale(.97); }
   .btn:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+  .btn:disabled::after { display: none; }
   .btn.gray { background: var(--tile); color: var(--text); box-shadow: none; }
   .btn.sel { background: linear-gradient(135deg, #43a047, #66bb6a); }
 
-  .item { background: var(--tile); border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px; margin-top: 10px; font-size: 15px; white-space: pre-wrap; line-height: 1.6; color: var(--text); animation: fadeUp .3s ease both; }
-  .item.ai { border-left-color: var(--warn); }
+  .item { background: var(--tile); border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px; margin-top: 10px; font-size: 15px; white-space: pre-wrap; line-height: 1.6; color: var(--text); animation: fadeUp .4s ease both; }
+  .item.ai { border-left-color: var(--warn); position: relative; }
+  .item.ai::before {
+    content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--warn), var(--accent), var(--accent2), var(--warn));
+    background-size: 100% 300%;
+    animation: rainbow 3s linear infinite;
+  }
   .item.loading { background: var(--warn-bg); border-left-color: var(--warn); text-align: center; }
-  .item.loading::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  .item.loading::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
 
   .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
-  .mini-link { display: inline-block; margin: 4px 6px 0 0; font-size: 12px; color: var(--accent); text-decoration: none; background: var(--tile); padding: 4px 8px; border-radius: 8px; }
-  .mini-link:hover { filter: brightness(1.1); }
+  .mini-link { display: inline-block; margin: 4px 6px 0 0; font-size: 12px; color: var(--accent); text-decoration: none; background: var(--tile); padding: 4px 8px; border-radius: 8px; animation: popIn .4s ease both; }
+  .mini-link:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-  .sched-row { display: flex; justify-content: space-between; gap: 8px; background: var(--tile); border-radius: 12px; padding: 10px 12px; margin-top: 6px; font-size: 14px; align-items: center; color: var(--text); animation: fadeUp .3s ease both; }
-  .sched-row.today { background: var(--warn-bg); border: 2px solid var(--warn); font-weight: 700; animation: glowPulse 2.2s ease infinite; }
+  .sched-row { display: flex; justify-content: space-between; gap: 8px; background: var(--tile); border-radius: 12px; padding: 10px 12px; margin-top: 6px; font-size: 14px; align-items: center; color: var(--text); animation: slideRow .45s cubic-bezier(.22,.61,.36,1) both; }
+  .sched-row.today { background: var(--warn-bg); border: 2px solid var(--warn); font-weight: 700; animation: glowPulse 2s ease infinite; }
   .sched-row .act { font-size: 12px; color: var(--muted); font-weight: 400; text-align: right; }
 
-  .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0 6px; text-align: center; min-height: 48px; color: var(--text); animation: fadeUp .3s ease both; }
-  .hint { font-size: 13px; color: var(--muted); margin-top: 4px; text-align: center; }
-  .quiz-input { display: flex; gap: 8px; margin-top: 12px; }
+  /* ===== ТРЕНАЖЁР ===== */
+  .quiz-q { font-size: 19px; font-weight: 700; margin: 14px 0 6px; text-align: center; min-height: 48px; color: var(--text); animation: questionIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 4px; text-align: center; animation: fadeUp .35s ease both; }
+  .quiz-input { display: flex; gap: 8px; margin-top: 12px; animation: fadeUp .35s ease both; }
   .quiz-input input { flex: 1; }
   .quiz-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
-  .quiz-opt { animation: popIn .3s ease both; }
-  .quiz-opt.correct { animation: popIn .35s ease; }
-  .quiz-opt.wrong { animation: shake .4s ease; }
-  .score { text-align: center; color: var(--accent); font-weight: 700; margin-top: 12px; }
+  .score { text-align: center; color: var(--accent); font-weight: 700; margin-top: 12px; animation: popIn .4s ease both; }
 
-  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--tile); border-radius: 12px; padding: 12px; margin-top: 8px; font-size: 14px; color: var(--text); animation: fadeUp .3s ease both; }
+  /* Прогресс-бар тренажёра */
+  .progress-wrap { margin: 12px 0 4px; height: 8px; background: var(--tile); border-radius: 4px; overflow: hidden; animation: fadeUp .4s ease both; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--warn)); background-size: 200% 100%; animation: progressFill .5s ease forwards, progressShine 2s linear infinite; width: 0; border-radius: 4px; transition: width .5s ease; }
+
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--tile); border-radius: 12px; padding: 12px; margin-top: 8px; font-size: 14px; color: var(--text); animation: slideRow .4s ease both; }
   .grade-row button { background: var(--err-bg); border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; color: var(--text); }
-  .avg { text-align: center; font-size: 36px; font-weight: 800; color: var(--accent); margin: 12px 0; animation: popIn .4s ease both; }
+  .avg { text-align: center; font-size: 42px; font-weight: 800; color: var(--accent); margin: 12px 0; animation: popIn .6s cubic-bezier(.34,1.56,.64,1) both; background: var(--btn-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-  .link-item { display: block; background: var(--tile); border-radius: 12px; padding: 14px; margin-top: 8px; text-decoration: none; color: var(--accent); font-weight: 600; text-align: center; animation: fadeUp .3s ease both; }
+  .link-item { display: block; background: var(--tile); border-radius: 12px; padding: 14px; margin-top: 8px; text-decoration: none; color: var(--accent); font-weight: 600; text-align: center; animation: fadeUp .4s ease both; }
   .link-item:hover { filter: brightness(1.05); transform: translateY(-2px); }
 
-  .quote { background: var(--tile); border-radius: 18px; padding: 24px 20px; font-size: 17px; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--text); animation: fadeUp .35s ease both; }
+  /* ===== МОТИВАЦИЯ — typewriter ===== */
+  .quote { background: var(--tile); border-radius: 18px; padding: 24px 20px; font-size: 17px; line-height: 1.6; text-align: center; margin-top: 12px; font-style: italic; min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--text); animation: quoteIn .6s cubic-bezier(.34,1.56,.64,1) both; position: relative; }
+  .quote.typing::after { content: '|'; display: inline-block; margin-left: 2px; animation: blink .7s step-end infinite; color: var(--accent); }
 
   .about { font-size: 15px; line-height: 1.6; color: var(--text); }
-  .about li { margin: 8px 0 8px 20px; }
+  .about li { margin: 8px 0 8px 20px; animation: slideRow .45s ease both; }
+  .about li:nth-child(1){animation-delay:.1s} .about li:nth-child(2){animation-delay:.2s}
+  .about li:nth-child(3){animation-delay:.3s} .about li:nth-child(4){animation-delay:.4s}
 
   /* ===== ЧАТ ===== */
   .chat-box { height: 52vh; overflow-y: auto; background: var(--box); border-radius: 14px; padding: 12px; margin-top: 10px; }
-  .msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
-  .msg.user { background: var(--btn-grad); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; animation: slideR .3s ease both; }
-  .msg.bot { background: var(--bubble-bot); border: 1px solid var(--border); color: var(--bubble-bot-text); border-bottom-left-radius: 4px; animation: slideL .3s ease both; }
-  .msg.sys { background: var(--ok-bg); border: 1px solid var(--ok-bd); font-size: 14px; animation: slideL .3s ease both; }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; margin-top: 8px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; position: relative; }
+  .msg.user { background: var(--btn-grad); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; animation: slideR .4s cubic-bezier(.22,.61,.36,1) both; box-shadow: 0 2px 8px rgba(102,126,234,.25); }
+  .msg.bot { background: var(--bubble-bot); border: 1px solid var(--border); color: var(--bubble-bot-text); border-bottom-left-radius: 4px; animation: slideL .4s cubic-bezier(.22,.61,.36,1) both; }
+  .msg.bot.ai-glow { animation: slideL .4s cubic-bezier(.22,.61,.36,1) both, aiGlow 2s ease infinite; }
+  .msg.sys { background: var(--ok-bg); border: 1px solid var(--ok-bd); font-size: 14px; animation: slideL .4s ease both; }
   .msg.loading { background: var(--warn-bg); border: 1px solid var(--warn); text-align: center; }
-  .msg.loading::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  .msg.loading::before { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  /* «прыгающие точки» загрузки */
+  .msg.typing-dots::after {
+    content: ''; display: inline-block; width: 4px; height: 4px; margin-left: 6px;
+    background: var(--warn); border-radius: 50%;
+    box-shadow: 8px 0 0 var(--warn), 16px 0 0 var(--warn);
+    animation: dotsJump 1.2s ease infinite;
+  }
   .chat-input { display: flex; gap: 8px; margin-top: 10px; }
   .chat-input input { flex: 1; }
   .chat-input .btn { width: auto; padding: 12px 20px; margin-top: 0; }
@@ -183,28 +210,50 @@
   .legal a { color: var(--accent); text-decoration: none; margin: 0 8px; }
   .katex-display { overflow-x: auto; padding: 4px 0; }
 
-  /* ===== ПЕРЕКЛЮЧАТЕЛЬ ТЕМ ===== */
-  .theme-pill { position: fixed; top: 10px; right: 10px; z-index: 99; display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); opacity: .95; }
+  /* ===== ТЕМА-ПИЛЛ ===== */
+  .theme-pill { position: fixed; top: 10px; right: 10px; z-index: 99; display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); opacity: .95; animation: fadeDown .5s ease both; }
   .theme-pill button { border: none; background: transparent; font-size: 16px; padding: 6px 10px; border-radius: 999px; cursor: pointer; transition: transform .2s, background .2s; }
-  .theme-pill button:hover { transform: scale(1.15); }
-  .theme-pill button.on { background: var(--btn-grad); }
+  .theme-pill button:hover { transform: scale(1.2) rotate(10deg); }
+  .theme-pill button.on { background: var(--btn-grad); animation: popIn .3s ease both; }
 
-  /* ===== АНИМАЦИИ ===== */
+  /* ===== КОНФЕТТИ ===== */
+  #confetti { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
+
+  /* ===== KEYFRAMES ===== */
   @keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
   @keyframes floatBlob { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-30px) scale(1.12)} 66%{transform:translate(-25px,25px) scale(.94)} }
-  @keyframes fadeUp { from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none} }
-  @keyframes popIn { from{opacity:0; transform:scale(.92)} to{opacity:1; transform:scale(1)} }
-  @keyframes slideL { from{opacity:0; transform:translateX(-24px)} to{opacity:1; transform:none} }
-  @keyframes slideR { from{opacity:0; transform:translateX(24px)} to{opacity:1; transform:none} }
+  @keyframes fadeUp { from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:none} }
+  @keyframes fadeDown { from{opacity:0; transform:translateY(-18px)} to{opacity:1; transform:none} }
+  @keyframes popIn { from{opacity:0; transform:scale(.85)} to{opacity:1; transform:scale(1)} }
+  @keyframes slideL { from{opacity:0; transform:translateX(-30px)} to{opacity:1; transform:none} }
+  @keyframes slideR { from{opacity:0; transform:translateX(30px)} to{opacity:1; transform:none} }
+  @keyframes slideRow { from{opacity:0; transform:translateX(20px)} to{opacity:1; transform:none} }
+  @keyframes tileIn { 0%{opacity:0; transform:translateY(30px) rotateX(-20deg) scale(.85)} 100%{opacity:1; transform:none} }
+  @keyframes pageEnter { from{opacity:0; transform:translateY(25px) scale(.97)} to{opacity:1; transform:none} }
+  @keyframes questionIn { 0%{opacity:0; transform:scale(.7) rotate(-3deg)} 60%{transform:scale(1.05) rotate(1deg)} 100%{opacity:1; transform:none} }
+  @keyframes quoteIn { 0%{opacity:0; transform:translateY(20px) scale(.9)} 100%{opacity:1; transform:none} }
   @keyframes spin { to{transform:rotate(360deg)} }
-  @keyframes bounce { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} 60%{transform:translateY(0)} 80%{transform:translateY(-3px)} }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-  @keyframes glowPulse { 0%,100%{box-shadow:0 0 0 0 rgba(247,151,30,.35)} 50%{box-shadow:0 0 0 10px rgba(247,151,30,0)} }
+  @keyframes bounce { 0%,100%{transform:translateY(0) scale(1)} 30%{transform:translateY(-8px) scale(1.1)} 60%{transform:translateY(0) scale(1)} 80%{transform:translateY(-3px) scale(1.05)} }
+  @keyframes shake { 0%,100%{transform:translateX(0) rotate(0)} 20%{transform:translateX(-8px) rotate(-2deg)} 40%{transform:translateX(8px) rotate(2deg)} 60%{transform:translateX(-6px) rotate(-1deg)} 80%{transform:translateX(6px) rotate(1deg)} }
+  @keyframes glowPulse { 0%,100%{box-shadow:0 0 0 0 rgba(247,151,30,.45)} 50%{box-shadow:0 0 0 12px rgba(247,151,30,0)} }
+  @keyframes aiGlow { 0%,100%{box-shadow:0 0 0 0 rgba(247,151,30,.3)} 50%{box-shadow:0 0 0 8px rgba(247,151,30,0)} }
   @keyframes growBar { from{width:0} to{width:56px} }
+  @keyframes rainbow { 0%{background-position:0% 0%} 100%{background-position:0% 300%} }
+  @keyframes blink { 50%{opacity:0} }
+  @keyframes dotsJump { 0%,20%,100%{box-shadow:8px 0 0 var(--warn), 16px 0 0 var(--warn); transform:translateY(0)} 40%{box-shadow:8px -4px 0 var(--warn), 16px 0 0 var(--warn); transform:translateY(-2px)} 60%{box-shadow:8px 0 0 var(--warn), 16px -4px 0 var(--warn); transform:translateY(-2px)} }
+  @keyframes inputPulse { 0%,100%{box-shadow:0 0 0 3px rgba(102,126,234,.2)} 50%{box-shadow:0 0 0 6px rgba(102,126,234,.05)} }
+  @keyframes progressShine { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+  @keyframes wrongShake { 0%,100%{transform:translateX(0) rotate(0)} 15%{transform:translateX(-10px) rotate(-3deg)} 30%{transform:translateX(10px) rotate(3deg)} 45%{transform:translateX(-8px) rotate(-2deg)} 60%{transform:translateX(8px) rotate(2deg)} 75%{transform:translateX(-4px) rotate(-1deg)} }
+  @keyframes correctPop { 0%{transform:scale(1)} 30%{transform:scale(1.08)} 60%{transform:scale(.98)} 100%{transform:scale(1)} }
+  @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
+
+<canvas id="particles"></canvas>
+<canvas id="confetti"></canvas>
 
 <div class="theme-pill">
   <button id="thLight" onclick="setTheme('light')" title="Светлая тема">☀️</button>
@@ -311,6 +360,9 @@
       </div>
     </div>
     <button class="btn" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
+    <div class="progress-wrap" id="quizProgressWrap" style="display:none;">
+      <div class="progress-bar" id="quizProgress"></div>
+    </div>
     <div class="quiz-q" id="quizQ">Введи предмет и нажми кнопку 👆</div>
     <div class="hint" id="quizHint"></div>
     <div class="quiz-input" id="quizAnswerBox" style="display:none;">
@@ -368,9 +420,9 @@
         <li>🔄 Чат синхронизирован с ботом MAX в обе стороны</li>
         <li>🧮 Красивые формулы LaTeX (KaTeX)</li>
         <li>🎨 Темы: светлая, тёмная, как в системе</li>
-        <li>✨ Плавные анимации интерфейса</li>
+        <li>✨ Много уникальных анимаций для каждой функции</li>
       </ul>
-      <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 16</p>
+      <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 17</p>
     </div>
     <div class="legal">
       <a href="terms.html">Соглашение</a> ·
@@ -381,7 +433,7 @@
 </div>
 
 <script>
-// ===== ТЕМЫ =====
+// ===== ТЕМА =====
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
   localStorage.setItem('sn_theme', t);
@@ -390,8 +442,145 @@ function applyTheme(t) {
     if (b) b.classList.toggle('on', n.toLowerCase() === t);
   });
 }
-function setTheme(t) { applyTheme(t); }
+function setTheme(t) { applyTheme(t); initParticles(); }
 applyTheme(localStorage.getItem('sn_theme') || 'auto');
+
+// ===== ЧАСТИЦЫ НА ФОНЕ =====
+const particlesCv = document.getElementById('particles');
+const pCtx = particlesCv.getContext('2d');
+let particles = [];
+function sizeParticles() {
+  particlesCv.width = window.innerWidth;
+  particlesCv.height = window.innerHeight;
+  const count = Math.min(40, Math.floor(window.innerWidth * window.innerHeight / 18000));
+  particles = [];
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * particlesCv.width,
+      y: Math.random() * particlesCv.height,
+      r: Math.random() * 2.5 + .8,
+      vx: (Math.random() - .5) * .4,
+      vy: (Math.random() - .5) * .4,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+}
+function drawParticles() {
+  if (!particlesCv || !pCtx) return;
+  pCtx.clearRect(0, 0, particlesCv.width, particlesCv.height);
+  const col = getComputedStyle(document.documentElement).getPropertyValue('--particle-col').trim() || 'rgba(102,126,234,.5)';
+  const t = Date.now() / 1000;
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > particlesCv.width) p.vx *= -1;
+    if (p.y < 0 || p.y > particlesCv.height) p.vy *= -1;
+    const a = .3 + .3 * Math.sin(t * 2 + p.phase);
+    pCtx.globalAlpha = a;
+    pCtx.fillStyle = col;
+    pCtx.beginPath();
+    pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    pCtx.fill();
+  });
+  pCtx.globalAlpha = 1;
+  // соединения между близкими
+  pCtx.strokeStyle = col; pCtx.lineWidth = .5;
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d2 = dx*dx + dy*dy;
+      if (d2 < 12000) {
+        pCtx.globalAlpha = .15 * (1 - d2 / 12000);
+        pCtx.beginPath();
+        pCtx.moveTo(particles[i].x, particles[i].y);
+        pCtx.lineTo(particles[j].x, particles[j].y);
+        pCtx.stroke();
+      }
+    }
+  }
+  pCtx.globalAlpha = 1;
+  requestAnimationFrame(drawParticles);
+}
+function initParticles() { sizeParticles(); }
+sizeParticles();
+drawParticles();
+window.addEventListener('resize', sizeParticles);
+
+// ===== КОНФЕТТИ =====
+const confettiCv = document.getElementById('confetti');
+const cCtx = confettiCv.getContext('2d');
+let confetti = [];
+function sizeConfetti() { confettiCv.width = window.innerWidth; confettiCv.height = window.innerHeight; }
+sizeConfetti();
+window.addEventListener('resize', sizeConfetti);
+function fireConfetti(fromX, fromY) {
+  const colors = ['#667eea','#764ba2','#f7971e','#4caf50','#ffb74d','#ef5350'];
+  for (let i = 0; i < 35; i++) {
+    confetti.push({
+      x: fromX, y: fromY,
+      vx: (Math.random() - .5) * 10,
+      vy: -Math.random() * 8 - 4,
+      g: .25,
+      size: Math.random() * 6 + 4,
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - .5) * .4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      life: 0,
+      maxLife: 80 + Math.random() * 30
+    });
+  }
+}
+function drawConfetti() {
+  cCtx.clearRect(0, 0, confettiCv.width, confettiCv.height);
+  confetti = confetti.filter(c => c.life < c.maxLife && c.y < confettiCv.height + 30);
+  confetti.forEach(c => {
+    c.x += c.vx; c.y += c.vy; c.vy += c.g;
+    c.vx *= .99; c.rot += c.vr; c.life++;
+    const alpha = Math.max(0, 1 - c.life / c.maxLife);
+    cCtx.save();
+    cCtx.globalAlpha = alpha;
+    cCtx.translate(c.x, c.y);
+    cCtx.rotate(c.rot);
+    cCtx.fillStyle = c.color;
+    cCtx.fillRect(-c.size/2, -c.size/2, c.size, c.size * .6);
+    cCtx.restore();
+  });
+  requestAnimationFrame(drawConfetti);
+}
+drawConfetti();
+
+// ===== TYPEWRITER =====
+function typeWriter(el, text, speed = 22) {
+  el.classList.add('typing');
+  el.textContent = '';
+  let i = 0;
+  return new Promise(resolve => {
+    const step = () => {
+      if (i <= text.length) {
+        el.textContent = text.slice(0, i);
+        i++;
+        setTimeout(step, speed);
+      } else {
+        el.classList.remove('typing');
+        resolve();
+      }
+    };
+    step();
+  });
+}
+
+// ===== COUNT-UP для среднего балла =====
+function animateCount(el, from, to, duration = 700) {
+  const start = performance.now();
+  const update = now => {
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const v = from + (to - from) * eased;
+    el.textContent = v.toFixed(2);
+    if (p < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
 
 const GIGA_ID = '01a0bafa-206f-7e07-a2e7-df9e0acea285';
 const GIGA_SECRET = '93e085d7-803b-4fe2-b1da-468aff78a450';
@@ -563,13 +752,17 @@ function addGradeToStorage(parsed) {
 function renderG() {
   const g = loadG(); let h = '', all = [];
   for (const s in g) { const a = g[s]; all = all.concat(a); const avg = a.reduce((x,y)=>x+y,0)/a.length;
-    h += '<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';
+    h += '<div class="grade-row" style="animation-delay:'+(Object.keys(g).indexOf(s)*60)+'ms;"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';
   }
   document.getElementById('gList').innerHTML = h || '<div class="item">Напиши предметы и оценки — GigaChat разберёт 👆</div>';
-  document.getElementById('gAvg').textContent = all.length ? (all.reduce((a,b)=>a+b,0)/all.length).toFixed(2) : '—';
+  const avgEl = document.getElementById('gAvg');
+  const newAvg = all.length ? (all.reduce((a,b)=>a+b,0)/all.length) : null;
+  const oldVal = parseFloat(avgEl.textContent) || 0;
+  if (newAvg !== null) animateCount(avgEl, oldVal, newAvg, 700);
+  else avgEl.textContent = '—';
 }
 
-// ===== ОБЩИЙ ЧАТ =====
+// ===== ЧАТ =====
 let chatHistory = [];
 try { chatHistory = JSON.parse(localStorage.getItem('sn_chat') || '[]'); } catch (e) { chatHistory = []; }
 
@@ -651,7 +844,11 @@ async function sendChat() {
     addMsg('📚 Записал в дневник: ' + local.map(p => p.subject + ' → ' + p.grades.join(', ')).join('; '), 'sys');
   }
 
-  const loading = addMsg('Думаю...', 'loading');
+  const loading = document.createElement('div');
+  loading.className = 'msg loading typing-dots';
+  loading.textContent = 'Думаю';
+  document.getElementById('chatBox').appendChild(loading);
+  document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
   document.getElementById('chatBtn').disabled = true;
   try {
     await syncChatHistory();
@@ -660,7 +857,7 @@ async function sendChat() {
     const response = await askGiga(t, MATH_SYSTEM + ' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про свои оценки — порадуйся или поддержи.', 800, historyForModel);
     const cleaned = cleanResponse(response);
     loading.remove();
-    addMsg(cleaned, 'bot', 'web');
+    const botMsg = addMsg(cleaned, 'bot ai-glow', 'web');
     chatHistory.push({ role: 'assistant', content: cleaned, timestamp: Date.now(), source: 'web' });
     saveChatHistory();
 
@@ -744,7 +941,7 @@ function renderPlan(data) {
     h += '<div class="item ai">📆 Расписание недели ' + (data.scheduleWeek || '') + ' · учебных дней: ' + studyCount + ':</div>';
     const ti = todayIdx();
     data.schedule.forEach((s, i) => {
-      h += '<div class="sched-row' + (i === ti ? ' today' : '') + '"><span>' + (s.day || DAYS[i]) + (i === ti ? ' 👉' : '') + '</span><b>' + escapeHtml(s.subject || '') + '</b><span class="act">' + escapeHtml(s.topic || '') + (s.activity ? ' · ' + escapeHtml(s.activity) : '') + '</span></div>';
+      h += '<div class="sched-row' + (i === ti ? ' today' : '') + '" style="animation-delay:'+i*70+'ms;"><span>' + (s.day || DAYS[i]) + (i === ti ? ' 👉' : '') + '</span><b>' + escapeHtml(s.subject || '') + '</b><span class="act">' + escapeHtml(s.topic || '') + (s.activity ? ' · ' + escapeHtml(s.activity) : '') + '</span></div>';
     });
     const todayItem = data.schedule[ti];
     if (todayItem && !isRestDay(todayItem)) {
@@ -785,7 +982,7 @@ function renderPlan(data) {
   if (data.steps && data.steps.length) {
     h += '<div class="item ai">🗺 Этапы подготовки с темами:</div>';
     data.steps.forEach((s, i) => {
-      h += '<div class="item"><b>' + (i+1) + '. ' + escapeHtml(s.period||'') + ' · ' + escapeHtml(s.subject||'') + '</b>\nТема: ' + escapeHtml(s.topic||'') + '\n' + escapeHtml(s.advice||'') + '\n' + videoLinks(s.topic || s.subject || 'урок', {youtube: true, vk: true, rutube: true}) + '</div>';
+      h += '<div class="item" style="animation-delay:'+i*80+'ms;"><b>' + (i+1) + '. ' + escapeHtml(s.period||'') + ' · ' + escapeHtml(s.subject||'') + '</b>\nТема: ' + escapeHtml(s.topic||'') + '\n' + escapeHtml(s.advice||'') + '\n' + videoLinks(s.topic || s.subject || 'урок', {youtube: true, vk: true, rutube: true}) + '</div>';
     });
   }
   if (data.summary) h += '<div class="item ai">💡 ' + escapeHtml(cleanResponse(data.summary)) + '</div>';
@@ -955,10 +1152,21 @@ async function fetchBatch(topic, diff, n, grade, type) {
 function updateNextLabel() {
   document.getElementById('nextBtn').textContent = '➡️ Следующее задание (в запасе: ' + qQueue.length + ')';
 }
+function updateProgress() {
+  const pct = qBatchTotal ? (qBatchAnswered / qBatchTotal) * 100 : 0;
+  const bar = document.getElementById('quizProgress');
+  if (bar) bar.style.width = pct + '%';
+  const wrap = document.getElementById('quizProgressWrap');
+  if (wrap) wrap.style.display = (qBatchTotal ? 'block' : 'none');
+}
 function showQuestion(obj) {
   qCurrent = obj;
   qAnswered = false;
   const q = document.getElementById('quizQ');
+  // перезапускаем анимацию вопроса
+  q.style.animation = 'none';
+  void q.offsetWidth;
+  q.style.animation = '';
   q.innerHTML = escapeHtml(obj.question);
   mathIn(q);
   const hEl = document.getElementById('quizHint');
@@ -970,6 +1178,7 @@ function showQuestion(obj) {
   document.getElementById('quizAnswer').value = '';
   document.getElementById('quizAnswer').focus();
   updateNextLabel();
+  updateProgress();
 }
 async function startQuiz(pendingTopic, count) {
   const topic = document.getElementById('qTopic').value.trim();
@@ -1060,18 +1269,29 @@ async function checkAnswer() {
     }
   }
   const box = document.getElementById('quizResult');
+  const qEl = document.getElementById('quizQ');
   if (ok) {
     qC++;
     qBatchScore++;
     box.innerHTML = '<div class="item ai">✅ Верно!' + (bySense ? ' (зачёл по смыслу)' : '') + ' Отличная работа!</div>';
+    // анимация правильного ответа: pop + конфетти
+    qEl.style.animation = 'correctPop .5s ease';
+    box.firstElementChild && (box.firstElementChild.style.animation = 'popIn .4s ease both');
+    const rect = box.getBoundingClientRect();
+    fireConfetti(rect.left + rect.width / 2, rect.top);
   } else {
     box.innerHTML = '<div class="item" style="border-left-color:var(--err-bd);">❌ Неверно. Правильный ответ: ' + escapeHtml(qCurrent.answer) + '</div>';
+    // тряска неверного ответа
+    qEl.style.animation = 'wrongShake .6s ease';
+    box.firstElementChild && (box.firstElementChild.style.animation = 'shake .5s ease');
   }
+  setTimeout(() => { qEl.style.animation = ''; }, 700);
   mathIn(box);
   document.getElementById('score').textContent = 'Счёт: ' + qC + ' / ' + qT;
   document.getElementById('quizAnswerBox').style.display = 'none';
   document.getElementById('nextBtn').style.display = 'block';
   updateNextLabel();
+  updateProgress();
   if (qBatchTotal && qBatchAnswered >= qBatchTotal && qQueue.length === 0) finishBatch();
 }
 
@@ -1159,14 +1379,15 @@ async function buildVideo() {
   }
 }
 
-// ===== МОТИВАЦИЯ =====
+// ===== МОТИВАЦИЯ (typewriter) =====
 async function motivationAI() {
   const mood = document.getElementById('mMood').value;
   const moodText = {tired:'Устал', worried:'Переживаю', lazy:'Лень', ok:'Нормально'}[mood];
   const situation = document.getElementById('mText').value.trim();
   const btn = document.getElementById('mBtn');
   btn.disabled = true;
-  document.getElementById('quoteBox').textContent = '⏳ GigaChat читает и подбирает поддержку...';
+  const box = document.getElementById('quoteBox');
+  box.textContent = '⏳ GigaChat читает и подбирает поддержку...';
   try {
     let prompt;
     if (situation) {
@@ -1175,11 +1396,11 @@ async function motivationAI() {
       prompt = 'Школьник чувствует: ' + moodText + '. Поддержи его 2-3 тёплыми предложениями, как старший друг, без банальностей.';
     }
     const response = await askGiga(prompt);
-    const box = document.getElementById('quoteBox');
-    box.innerHTML = escapeHtml(cleanResponse(response));
+    box.textContent = '';
+    await typeWriter(box, cleanResponse(response), 18);
     mathIn(box);
   } catch (e) {
-    document.getElementById('quoteBox').textContent = '❌ Ошибка: ' + e.message;
+    box.textContent = '❌ Ошибка: ' + e.message;
   } finally {
     btn.disabled = false;
   }
@@ -1190,6 +1411,7 @@ function go(id) {
   document.getElementById(id).classList.add('active');
   if (id === 'plan') checkWeekUpdate();
   if (id === 'chat') syncChatHistory().then(() => restoreChatHistory());
+  if (id === 'grades') renderG();
 }
 
 // ===== СТАРТ =====
