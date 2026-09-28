@@ -11,124 +11,133 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
-  /* ===== ПАЛИТРА: CLAY / CANDY ===== */
+  /* ============ СВЕТЛАЯ = iOS NATIVE ============ */
   :root, :root[data-theme="light"] {
-    --bg1: #FFF1EC; --bg2: #F3EEFF; --bg3: #EAFBF3;
-    --card: #FFFFFF;
-    --ink: #3A3760;
-    --muted: #918FB0;
-    --field: #F4F2FB;
-    --field-in: inset 0 2px 8px rgba(90,80,160,.10);
-    --card-sh: 0 18px 44px rgba(120,105,190,.16);
-    --card-in: inset 0 1.5px 0 rgba(255,255,255,.9);
-    --p1: #FFB5C2; --p2: #B9ECD6; --p3: #C9D0FF; --p4: #FFE3A9; --p5: #BFE4FF; --p6: #E5C8FF;
-    --btn-grad: linear-gradient(180deg, #FFC7D1, #FF9FB2);
-    --btn-sh: 0 8px 18px rgba(255,150,170,.45), inset 0 2px 0 rgba(255,255,255,.65), inset 0 -3px 0 rgba(190,80,110,.18);
-    --ok: #57D9A3; --err: #FF8A8A; --warn: #FFC24B;
+    --bg-base: #F2F2F7;
+    --bg-grid: none;
+    --blobA: rgba(255,120,150,.30); --blobB: rgba(90,200,250,.30);
+    --card: #FFFFFF; --card-bd: transparent; --card-blur: none;
+    --card-sh: 0 10px 30px rgba(60,60,90,.08);
+    --ink: #1C1C1E; --muted: #8E8E93;
+    --field: #F2F2F7; --field-bd: transparent; --field-focus: 0 0 0 4px rgba(0,122,255,.18);
+    --accent: #007AFF;
+    --c1-bg: linear-gradient(180deg,#409CFF,#007AFF); --c1-c: #fff; --c1-bd: transparent; --c1-sh: 0 8px 18px rgba(0,122,255,.35);
+    --c2-bg: linear-gradient(180deg,#4CD97B,#34C759); --c2-c: #fff; --c2-bd: transparent; --c2-sh: 0 8px 18px rgba(52,199,89,.35);
+    --c3-bg: linear-gradient(180deg,#63C4FF,#32ADE6); --c3-c: #fff; --c3-bd: transparent; --c3-sh: 0 8px 18px rgba(50,173,230,.35);
+    --c4-bg: linear-gradient(180deg,#FFD60A,#FF9F0A); --c4-c: #fff; --c4-bd: transparent; --c4-sh: 0 8px 18px rgba(255,159,10,.35);
+    --c0-bg: rgba(120,120,128,.12); --c0-c: #3A3A3C; --c0-bd: transparent; --c0-sh: none;
+    --gloss: rgba(255,255,255,.35);
+    --press: scale(.96);
+    --dock-bg: rgba(255,255,255,.8); --dock-bd: rgba(0,0,0,.05);
     --ok-bg: #E4FAF0; --err-bg: #FFE9E9; --warn-bg: #FFF4DC;
-    --dock: rgba(255,255,255,.82);
-    --ring: rgba(150,130,230,.25);
+    --em-sh: 0 6px 14px rgba(60,60,90,.18);
+    --hero-bg: #FFFFFF; --hero-sh: 0 14px 34px rgba(60,60,90,.10);
+    --orb-bg: linear-gradient(135deg,#409CFF,#007AFF); --orb-sh: 0 10px 24px rgba(0,122,255,.4);
+    --scan: none;
   }
+  /* ============ ТЁМНАЯ = NEON CYBER ============ */
   :root[data-theme="dark"] {
-    --bg1: #191734; --bg2: #221A44; --bg3: #1A2140;
-    --card: #262347;
-    --ink: #EDEBFF;
-    --muted: #A09DC6;
-    --field: #2E2B52;
-    --field-in: inset 0 2px 8px rgba(0,0,0,.30);
-    --card-sh: 0 18px 44px rgba(0,0,0,.45);
-    --card-in: inset 0 1.5px 0 rgba(255,255,255,.08);
-    --p1: #E58A9B; --p2: #7FCBAE; --p3: #97A0E8; --p4: #E8C77E; --p5: #86C3E8; --p6: #C39BE8;
-    --btn-grad: linear-gradient(180deg, #F08CA0, #E06A85);
-    --btn-sh: 0 8px 18px rgba(224,106,133,.4), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(120,30,60,.3);
-    --ok: #6FE0B0; --err: #FF9A9A; --warn: #FFCE6B;
-    --ok-bg: #234034; --err-bg: #46282C; --warn-bg: #453722;
-    --dock: rgba(38,35,71,.85);
-    --ring: rgba(160,140,255,.3);
+    --bg-base: #04060E;
+    --bg-grid: linear-gradient(rgba(0,229,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,.05) 1px, transparent 1px);
+    --blobA: rgba(0,229,255,.10); --blobB: rgba(255,46,210,.09);
+    --card: rgba(8,14,30,.66); --card-bd: 1px solid rgba(0,229,255,.28); --card-blur: blur(14px);
+    --card-sh: 0 0 26px rgba(0,229,255,.12), inset 0 0 22px rgba(0,229,255,.05);
+    --ink: #E3FBFF; --muted: #7FA8B8;
+    --field: rgba(0,229,255,.07); --field-bd: 1px solid rgba(0,229,255,.25); --field-focus: 0 0 0 4px rgba(0,229,255,.15), 0 0 18px rgba(0,229,255,.25);
+    --accent: #00E5FF;
+    --c1-bg: rgba(0,229,255,.07); --c1-c: #7FF3FF; --c1-bd: 1px solid rgba(0,229,255,.65); --c1-sh: 0 0 18px rgba(0,229,255,.35), inset 0 0 14px rgba(0,229,255,.10);
+    --c2-bg: rgba(57,255,136,.07); --c2-c: #8CFFC0; --c2-bd: 1px solid rgba(57,255,136,.6); --c2-sh: 0 0 18px rgba(57,255,136,.3), inset 0 0 14px rgba(57,255,136,.1);
+    --c3-bg: rgba(90,160,255,.08); --c3-c: #9CC3FF; --c3-bd: 1px solid rgba(90,160,255,.65); --c3-sh: 0 0 18px rgba(90,160,255,.35), inset 0 0 14px rgba(90,160,255,.1);
+    --c4-bg: rgba(255,214,10,.07); --c4-c: #FFE08A; --c4-bd: 1px solid rgba(255,214,10,.6); --c4-sh: 0 0 18px rgba(255,214,10,.3), inset 0 0 14px rgba(255,214,10,.1);
+    --c0-bg: rgba(255,255,255,.06); --c0-c: #9FB6C4; --c0-bd: 1px solid rgba(255,255,255,.14); --c0-sh: none;
+    --gloss: rgba(0,229,255,.16);
+    --press: translateY(3px);
+    --dock-bg: rgba(5,10,24,.82); --dock-bd: rgba(0,229,255,.25);
+    --ok-bg: #12302A; --err-bg: #33161C; --warn-bg: #33290F;
+    --em-sh: 0 0 16px rgba(0,229,255,.35);
+    --hero-bg: rgba(8,14,30,.66); --hero-sh: 0 0 30px rgba(0,229,255,.15), inset 0 0 26px rgba(0,229,255,.06);
+    --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,229,255,.9), rgba(0,120,255,.5) 45%, rgba(255,46,210,.35) 75%); --orb-sh: 0 0 30px rgba(0,229,255,.55);
+    --scan: block;
   }
   @media (prefers-color-scheme: dark) {
     :root[data-theme="auto"] {
-      --bg1: #191734; --bg2: #221A44; --bg3: #1A2140; --card: #262347; --ink: #EDEBFF; --muted: #A09DC6;
-      --field: #2E2B52; --field-in: inset 0 2px 8px rgba(0,0,0,.30);
-      --card-sh: 0 18px 44px rgba(0,0,0,.45); --card-in: inset 0 1.5px 0 rgba(255,255,255,.08);
-      --p1: #E58A9B; --p2: #7FCBAE; --p3: #97A0E8; --p4: #E8C77E; --p5: #86C3E8; --p6: #C39BE8;
-      --btn-grad: linear-gradient(180deg, #F08CA0, #E06A85);
-      --btn-sh: 0 8px 18px rgba(224,106,133,.4), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(120,30,60,.3);
-      --ok: #6FE0B0; --err: #FF9A9A; --warn: #FFCE6B;
-      --ok-bg: #234034; --err-bg: #46282C; --warn-bg: #453722;
-      --dock: rgba(38,35,71,.85); --ring: rgba(160,140,255,.3);
+      --bg-base: #04060E;
+      --bg-grid: linear-gradient(rgba(0,229,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,.05) 1px, transparent 1px);
+      --blobA: rgba(0,229,255,.10); --blobB: rgba(255,46,210,.09);
+      --card: rgba(8,14,30,.66); --card-bd: 1px solid rgba(0,229,255,.28); --card-blur: blur(14px);
+      --card-sh: 0 0 26px rgba(0,229,255,.12), inset 0 0 22px rgba(0,229,255,.05);
+      --ink: #E3FBFF; --muted: #7FA8B8;
+      --field: rgba(0,229,255,.07); --field-bd: 1px solid rgba(0,229,255,.25); --field-focus: 0 0 0 4px rgba(0,229,255,.15), 0 0 18px rgba(0,229,255,.25);
+      --accent: #00E5FF;
+      --c1-bg: rgba(0,229,255,.07); --c1-c: #7FF3FF; --c1-bd: 1px solid rgba(0,229,255,.65); --c1-sh: 0 0 18px rgba(0,229,255,.35), inset 0 0 14px rgba(0,229,255,.10);
+      --c2-bg: rgba(57,255,136,.07); --c2-c: #8CFFC0; --c2-bd: 1px solid rgba(57,255,136,.6); --c2-sh: 0 0 18px rgba(57,255,136,.3), inset 0 0 14px rgba(57,255,136,.1);
+      --c3-bg: rgba(90,160,255,.08); --c3-c: #9CC3FF; --c3-bd: 1px solid rgba(90,160,255,.65); --c3-sh: 0 0 18px rgba(90,160,255,.35), inset 0 0 14px rgba(90,160,255,.1);
+      --c4-bg: rgba(255,214,10,.07); --c4-c: #FFE08A; --c4-bd: 1px solid rgba(255,214,10,.6); --c4-sh: 0 0 18px rgba(255,214,10,.3), inset 0 0 14px rgba(255,214,10,.1);
+      --c0-bg: rgba(255,255,255,.06); --c0-c: #9FB6C4; --c0-bd: 1px solid rgba(255,255,255,.14); --c0-sh: none;
+      --gloss: rgba(0,229,255,.16);
+      --press: translateY(3px);
+      --dock-bg: rgba(5,10,24,.82); --dock-bd: rgba(0,229,255,.25);
+      --ok-bg: #12302A; --err-bg: #33161C; --warn-bg: #33290F;
+      --em-sh: 0 0 16px rgba(0,229,255,.35);
+      --hero-bg: rgba(8,14,30,.66); --hero-sh: 0 0 30px rgba(0,229,255,.15), inset 0 0 26px rgba(0,229,255,.06);
+      --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,229,255,.9), rgba(0,120,255,.5) 45%, rgba(255,46,210,.35) 75%); --orb-sh: 0 0 30px rgba(0,229,255,.55);
+      --scan: block;
     }
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
-    background: linear-gradient(160deg, var(--bg1), var(--bg2) 45%, var(--bg3));
-    min-height: 100vh;
-    padding: 18px 16px 110px;
-    color: var(--ink);
+    background-color: var(--bg-base);
+    background-image: var(--bg-grid);
+    background-size: 42px 42px;
+    min-height: 100vh; padding: 18px 16px 110px; color: var(--ink);
     position: relative; overflow-x: hidden;
   }
-  body, .card, .puff, .btn, input, select, textarea, .msg, .dock { transition: background-color .3s ease, color .3s ease, box-shadow .3s ease; }
+  body::before, body::after { content: ''; position: fixed; border-radius: 50%; filter: blur(70px); z-index: -1; opacity: .8; pointer-events: none; }
+  body::before { width: 320px; height: 320px; background: var(--blobA); top: -90px; right: -70px; animation: drift 18s ease-in-out infinite; }
+  body::after { width: 300px; height: 300px; background: var(--blobB); bottom: -80px; left: -70px; animation: drift 22s ease-in-out infinite reverse; }
 
-  /* мягкие цветные пятна на фоне */
-  body::before, body::after {
-    content: ''; position: fixed; border-radius: 50%; filter: blur(60px); z-index: -1; opacity: .5; pointer-events: none;
-  }
-  body::before { width: 320px; height: 320px; background: var(--p1); top: -90px; right: -70px; animation: drift 18s ease-in-out infinite; }
-  body::after { width: 300px; height: 300px; background: var(--p5); bottom: -80px; left: -70px; animation: drift 22s ease-in-out infinite reverse; }
+  /* сканлайны (только тёмная) */
+  .fx-scan { display: var(--scan); position: fixed; inset: 0; pointer-events: none; z-index: 40;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px);
+    mix-blend-mode: overlay; animation: scanMove 9s linear infinite; }
 
-  .wrap { max-width: 480px; margin: 0 auto; }
+  .wrap { max-width: 480px; margin: 0 auto; position: relative; }
+  .puff { background: var(--card); border: var(--card-bd); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); border-radius: 22px; box-shadow: var(--card-sh); padding: 18px; }
 
-  /* ===== ПУХЛЫЕ КАРТОЧКИ ===== */
-  .puff {
-    background: var(--card);
-    border-radius: 28px;
-    box-shadow: var(--card-sh), var(--card-in);
-    padding: 18px;
-  }
-
-  /* ===== ЗАГОЛОВКИ ===== */
   .head { margin-bottom: 16px; animation: dropIn .5s cubic-bezier(.34,1.56,.64,1) both; }
   .head .hi { display: flex; align-items: center; gap: 12px; }
-  .head .mascot {
-    width: 54px; height: 54px; border-radius: 50%;
-    background: linear-gradient(160deg, var(--p4), var(--p1));
-    display: flex; align-items: center; justify-content: center; font-size: 27px;
-    box-shadow: 0 8px 18px rgba(255,150,170,.35), inset 0 2px 0 rgba(255,255,255,.6);
-    animation: bob 3.2s ease-in-out infinite; flex-shrink: 0;
-  }
+  .head .mascot { width: 54px; height: 54px; border-radius: 16px; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 27px; box-shadow: var(--orb-sh); animation: bob 3.2s ease-in-out infinite; flex-shrink: 0; }
   .head h1 { font-size: 25px; font-weight: 900; letter-spacing: -.3px; }
+  :root[data-theme="dark"] .head h1 { text-shadow: 0 0 10px rgba(0,229,255,.55), 2px 0 rgba(255,46,210,.35), -2px 0 rgba(0,229,255,.35); animation: flick 6s linear infinite; }
+  @media (prefers-color-scheme: dark) { :root[data-theme="auto"] .head h1 { text-shadow: 0 0 10px rgba(0,229,255,.55), 2px 0 rgba(255,46,210,.35), -2px 0 rgba(0,229,255,.35); animation: flick 6s linear infinite; } }
   .head .sub { font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 2px; }
 
-  /* ===== КНОПКИ-ПЛАСТИЛИН ===== */
+  /* ===== КНОПКИ ===== */
   .btn {
-    display: block; width: 100%; margin-top: 12px; padding: 15px;
-    border: none; border-radius: 999px;
-    background: var(--btn-grad); color: #fff;
-    font-family: inherit; font-size: 16px; font-weight: 800; cursor: pointer;
-    box-shadow: var(--btn-sh);
-    text-shadow: 0 1px 2px rgba(150,50,80,.25);
-    transition: transform .12s cubic-bezier(.34,1.56,.64,1), box-shadow .12s ease, filter .2s;
+    position: relative; display: block; width: 100%; margin-top: 12px; padding: 15px;
+    border-radius: 999px; overflow: hidden; cursor: pointer;
+    font-family: inherit; font-size: 16px; font-weight: 800;
+    background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); box-shadow: var(--c1-sh);
+    transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s;
+    animation: btnIn .45s cubic-bezier(.34,1.56,.64,1) both;
   }
-  .btn:hover { filter: brightness(1.04); transform: translateY(-1px); }
-  .btn:active { transform: translateY(3px) scale(.98); box-shadow: 0 3px 8px rgba(255,150,170,.35), inset 0 2px 0 rgba(255,255,255,.5); }
-  .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
-  .btn.mint { background: linear-gradient(180deg, #A9E8CE, #6FD3AC); box-shadow: 0 8px 18px rgba(110,210,170,.45), inset 0 2px 0 rgba(255,255,255,.6), inset 0 -3px 0 rgba(40,140,100,.2); text-shadow: 0 1px 2px rgba(30,110,80,.25); }
-  .btn.sky { background: linear-gradient(180deg, #B7E0FF, #7FC4F5); box-shadow: 0 8px 18px rgba(130,195,245,.45), inset 0 2px 0 rgba(255,255,255,.6), inset 0 -3px 0 rgba(50,120,180,.2); text-shadow: 0 1px 2px rgba(40,100,160,.25); }
-  .btn.lilac { background: linear-gradient(180deg, #DCC4FF, #B98FF0); box-shadow: 0 8px 18px rgba(185,143,240,.45), inset 0 2px 0 rgba(255,255,255,.6), inset 0 -3px 0 rgba(110,60,180,.2); text-shadow: 0 1px 2px rgba(90,50,160,.25); }
-  .btn.sun { background: linear-gradient(180deg, #FFE3A0, #FFC24B); box-shadow: 0 8px 18px rgba(255,194,75,.45), inset 0 2px 0 rgba(255,255,255,.7), inset 0 -3px 0 rgba(190,130,20,.2); color: #6b4a10; text-shadow: none; }
-  .btn.ghost { background: var(--field); color: var(--muted); box-shadow: var(--field-in); text-shadow: none; }
+  .btn::before { content: ''; position: absolute; left: 10%; right: 10%; top: 2px; height: 42%; background: linear-gradient(180deg, var(--gloss), transparent); border-radius: 999px; pointer-events: none; }
+  .btn::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.4), transparent); transform: skewX(-20deg); transition: left .55s ease; pointer-events: none; }
+  .btn:hover::after { left: 130%; }
+  .btn:hover { filter: brightness(1.06); }
+  .btn:active { transform: var(--press); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.mint { background: var(--c2-bg); color: var(--c2-c); border: var(--c2-bd); box-shadow: var(--c2-sh); }
+  .btn.sky { background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); box-shadow: var(--c3-sh); }
+  .btn.sun { background: var(--c4-bg); color: var(--c4-c); border: var(--c4-bd); box-shadow: var(--c4-sh); }
+  .btn.ghost { background: var(--c0-bg); color: var(--c0-c); border: var(--c0-bd); box-shadow: var(--c0-sh); }
+  .btn.ghost::before { display: none; }
 
-  /* ===== ФОРМЫ ===== */
   label { display: block; font-size: 13px; font-weight: 800; color: var(--muted); margin: 14px 0 6px; }
-  select, input, textarea {
-    width: 100%; padding: 13px 16px; border: none; border-radius: 18px;
-    background: var(--field); color: var(--ink);
-    font-family: inherit; font-size: 16px; font-weight: 700; min-height: 50px;
-    box-shadow: var(--field-in);
-  }
-  select:focus, input:focus, textarea:focus { outline: none; box-shadow: var(--field-in), 0 0 0 4px var(--ring); }
+  select, input, textarea { width: 100%; padding: 13px 16px; border: var(--field-bd); border-radius: 14px; background: var(--field); color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700; min-height: 50px; }
+  select:focus, input:focus, textarea:focus { outline: none; box-shadow: var(--field-focus); }
   .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
 
@@ -137,147 +146,107 @@
 
   /* ===== ГЛАВНАЯ ===== */
   .chips { display: flex; gap: 8px; margin: 16px 0; }
-  .chip-stat {
-    flex: 1; text-align: center; padding: 12px 6px; border-radius: 22px;
-    box-shadow: var(--card-sh), var(--card-in);
-    animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both;
-  }
-  .chip-stat:nth-child(1){background:linear-gradient(160deg,var(--p5),var(--p3)); animation-delay:.05s}
-  .chip-stat:nth-child(2){background:linear-gradient(160deg,var(--p4),var(--p1)); animation-delay:.12s}
-  .chip-stat:nth-child(3){background:linear-gradient(160deg,var(--p2),var(--p5)); animation-delay:.19s}
-  .chip-stat .v { font-size: 21px; font-weight: 900; color: var(--ink); line-height: 1; }
-  .chip-stat .l { font-size: 10px; font-weight: 800; color: var(--ink); opacity: .65; text-transform: uppercase; letter-spacing: .6px; margin-top: 4px; }
+  .chip-stat { flex: 1; text-align: center; padding: 12px 6px; border-radius: 18px; background: var(--card); border: var(--card-bd); box-shadow: var(--card-sh); backdrop-filter: var(--card-blur); animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both; }
+  .chip-stat:nth-child(1){animation-delay:.05s}.chip-stat:nth-child(2){animation-delay:.12s}.chip-stat:nth-child(3){animation-delay:.19s}
+  .chip-stat .v { font-size: 21px; font-weight: 900; color: var(--accent); line-height: 1; }
+  .chip-stat .l { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-top: 4px; }
 
-  .hero {
-    display: block; width: 100%; text-align: left; cursor: pointer; border: none;
-    background: linear-gradient(150deg, var(--p3), var(--p6) 60%, var(--p1));
-    border-radius: 30px; padding: 22px; margin-bottom: 16px;
-    box-shadow: 0 20px 44px rgba(150,120,220,.35), inset 0 2px 0 rgba(255,255,255,.55);
-    animation: heroIn .55s cubic-bezier(.34,1.56,.64,1) both;
-    transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
-    font-family: inherit; color: var(--ink);
-  }
-  .hero:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 26px 54px rgba(150,120,220,.42), inset 0 2px 0 rgba(255,255,255,.55); }
-  .hero:active { transform: translateY(2px) scale(.99); }
-  .hero .orb {
-    width: 62px; height: 62px; border-radius: 50%; background: rgba(255,255,255,.55);
-    display: flex; align-items: center; justify-content: center; font-size: 32px;
-    box-shadow: inset 0 2px 6px rgba(255,255,255,.8), 0 8px 18px rgba(120,90,200,.25);
-    margin-bottom: 12px; animation: bob 3s ease-in-out infinite;
-  }
+  .hero { display: block; width: 100%; text-align: left; cursor: pointer; border: var(--card-bd); background: var(--hero-bg); backdrop-filter: var(--card-blur); border-radius: 26px; padding: 22px; margin-bottom: 16px; box-shadow: var(--hero-sh); font-family: inherit; color: var(--ink); animation: heroIn .55s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+  .hero:hover { transform: translateY(-4px); }
+  .hero:active { transform: var(--press); }
+  .hero .orb { width: 64px; height: 64px; border-radius: 50%; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: var(--orb-sh); margin-bottom: 12px; animation: bob 3s ease-in-out infinite, orbPulse 2.6s ease-in-out infinite; }
   .hero h2 { font-size: 22px; font-weight: 900; margin-bottom: 5px; }
-  .hero p { font-size: 13.5px; font-weight: 700; opacity: .8; line-height: 1.5; }
-  .hero .pill { display: inline-block; margin-top: 12px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 7px 16px; font-size: 13px; font-weight: 900; box-shadow: 0 4px 10px rgba(120,90,200,.18); }
+  .hero p { font-size: 13.5px; font-weight: 700; color: var(--muted); line-height: 1.5; }
+  .hero .pill { display: inline-block; margin-top: 12px; background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); box-shadow: var(--c1-sh); border-radius: 999px; padding: 7px 16px; font-size: 13px; font-weight: 900; }
 
   .cloud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .cloud {
-    border: none; cursor: pointer; text-align: left; padding: 16px; border-radius: 26px;
-    box-shadow: var(--card-sh), var(--card-in);
-    font-family: inherit; color: var(--ink);
-    animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
-    transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
-  }
-  .cloud:hover { transform: translateY(-5px) scale(1.02); }
-  .cloud:active { transform: translateY(2px) scale(.97); }
-  .cloud-grid .cloud:nth-child(1){background:linear-gradient(160deg,#fff,var(--p5)); animation-delay:.06s}
-  .cloud-grid .cloud:nth-child(2){background:linear-gradient(160deg,#fff,var(--p2)); animation-delay:.12s}
-  .cloud-grid .cloud:nth-child(3){background:linear-gradient(160deg,#fff,var(--p4)); animation-delay:.18s}
-  .cloud-grid .cloud:nth-child(4){background:linear-gradient(160deg,#fff,var(--p1)); animation-delay:.24s}
-  .cloud-grid .cloud:nth-child(5){background:linear-gradient(160deg,#fff,var(--p6)); animation-delay:.3s}
-  .cloud-grid .cloud:nth-child(6){background:linear-gradient(160deg,#fff,var(--p3)); animation-delay:.36s}
-  :root[data-theme="dark"] .cloud-grid .cloud:nth-child(n){background:linear-gradient(160deg,var(--card),var(--field));}
-  .cloud .em {
-    width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.85);
-    display: flex; align-items: center; justify-content: center; font-size: 24px;
-    box-shadow: 0 6px 14px rgba(120,100,190,.18), inset 0 2px 0 #fff; margin-bottom: 10px;
-  }
-  :root[data-theme="dark"] .cloud .em { background: var(--field); box-shadow: var(--field-in); }
+  .cloud { border: var(--card-bd); cursor: pointer; text-align: left; padding: 16px; border-radius: 22px; background: var(--card); backdrop-filter: var(--card-blur); box-shadow: var(--card-sh); font-family: inherit; color: var(--ink); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+  .cloud:hover { transform: translateY(-5px); }
+  .cloud:active { transform: var(--press); }
+  .cloud-grid .cloud:nth-child(1){animation-delay:.06s}.cloud-grid .cloud:nth-child(2){animation-delay:.12s}
+  .cloud-grid .cloud:nth-child(3){animation-delay:.18s}.cloud-grid .cloud:nth-child(4){animation-delay:.24s}
+  .cloud-grid .cloud:nth-child(5){animation-delay:.3s}.cloud-grid .cloud:nth-child(6){animation-delay:.36s}
+  .cloud .em { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; box-shadow: var(--em-sh); }
+  .cloud:nth-child(1) .em { background: linear-gradient(135deg,#5AC8FA,#007AFF); }
+  .cloud:nth-child(2) .em { background: linear-gradient(135deg,#4CD97B,#28A745); }
+  .cloud:nth-child(3) .em { background: linear-gradient(135deg,#FF7A9E,#FF2D55); }
+  .cloud:nth-child(4) .em { background: linear-gradient(135deg,#AF52DE,#7A3BBF); }
+  .cloud:nth-child(5) .em { background: linear-gradient(135deg,#FFD60A,#FF9F0A); }
+  .cloud:nth-child(6) .em { background: linear-gradient(135deg,#8E8E93,#48484A); }
   .cloud .t { font-size: 15.5px; font-weight: 900; }
   .cloud .d { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
 
   /* ===== ЧАТ ===== */
-  .chat-box { height: 52vh; overflow-y: auto; padding: 14px; background: var(--field); border-radius: 26px; box-shadow: var(--field-in); }
-  .msg { max-width: 85%; padding: 12px 16px; margin-top: 10px; font-size: 15px; font-weight: 700; line-height: 1.5; white-space: pre-wrap; border-radius: 22px; }
-  .msg.user { background: var(--btn-grad); color: #fff; margin-left: auto; border-bottom-right-radius: 8px; box-shadow: 0 6px 14px rgba(255,150,170,.35); animation: msgR .35s cubic-bezier(.34,1.56,.64,1) both; }
-  .msg.bot { background: var(--card); color: var(--ink); border-bottom-left-radius: 8px; box-shadow: 0 6px 14px rgba(120,100,190,.15); animation: msgL .35s cubic-bezier(.34,1.56,.64,1) both; }
+  .chat-box { height: 52vh; overflow-y: auto; padding: 14px; background: var(--field); border: var(--field-bd); border-radius: 22px; }
+  .msg { max-width: 85%; padding: 12px 16px; margin-top: 10px; font-size: 15px; font-weight: 700; line-height: 1.5; white-space: pre-wrap; border-radius: 20px; }
+  .msg.user { background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); margin-left: auto; border-bottom-right-radius: 6px; box-shadow: var(--c1-sh); animation: msgR .35s cubic-bezier(.34,1.56,.64,1) both; }
+  .msg.bot { background: var(--card); color: var(--ink); border: var(--card-bd); border-bottom-left-radius: 6px; box-shadow: var(--card-sh); animation: msgL .35s cubic-bezier(.34,1.56,.64,1) both; }
   .msg.sys { background: var(--ok-bg); color: var(--ink); font-size: 13.5px; animation: msgL .35s ease both; }
   .msg.loading { background: var(--warn-bg); text-align: center; }
-  .msg.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2.5px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
-  .msg.typing-dots::after { content: ''; display: inline-block; width: 5px; height: 5px; margin-left: 6px; background: var(--warn); border-radius: 50%; box-shadow: 9px 0 0 var(--warn), 18px 0 0 var(--warn); animation: dots 1.2s ease infinite; }
+  .msg.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2.5px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  .msg.typing-dots::after { content: ''; display: inline-block; width: 5px; height: 5px; margin-left: 6px; background: var(--accent); border-radius: 50%; box-shadow: 9px 0 0 var(--accent), 18px 0 0 var(--accent); animation: dots 1.2s ease infinite; }
   .chat-input { display: flex; gap: 8px; margin-top: 12px; }
   .chat-input input { flex: 1; margin: 0; }
   .chat-input .btn { width: 54px; margin: 0; padding: 0; height: 50px; flex-shrink: 0; }
 
-  /* ===== БЛОКИ КОНТЕНТА ===== */
-  .item { background: var(--card); border-radius: 22px; box-shadow: var(--card-sh), var(--card-in); padding: 14px 16px; margin-top: 12px; font-size: 15px; font-weight: 700; line-height: 1.6; white-space: pre-wrap; animation: cardIn .4s ease both; }
-  .item.ai { background: linear-gradient(160deg, var(--card), var(--warn-bg)); }
+  /* ===== КОНТЕНТ ===== */
+  .item { background: var(--card); border: var(--card-bd); backdrop-filter: var(--card-blur); border-radius: 18px; box-shadow: var(--card-sh); padding: 14px 16px; margin-top: 12px; font-size: 15px; font-weight: 700; line-height: 1.6; white-space: pre-wrap; animation: cardIn .4s ease both; }
+  .item.ai { border-left: 4px solid var(--accent); }
   .item.loading { background: var(--warn-bg); text-align: center; }
-  .item.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2.5px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
-  .sched-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--card); border-radius: 18px; box-shadow: 0 8px 20px rgba(120,100,190,.12), var(--card-in); padding: 12px 14px; margin-top: 8px; font-size: 14px; font-weight: 800; animation: rowIn .4s ease both; }
-  .sched-row .day { background: var(--p5); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 900; }
-  .sched-row.today { background: linear-gradient(160deg, var(--warn-bg), var(--card)); box-shadow: 0 8px 22px rgba(255,194,75,.3), var(--card-in); animation: softGlow 2s ease infinite; }
-  .sched-row.today .day { background: var(--warn); color: #6b4a10; }
+  .item.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2.5px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  .sched-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 12px 14px; margin-top: 8px; font-size: 14px; font-weight: 800; animation: rowIn .4s ease both; }
+  .sched-row .day { background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 900; }
+  .sched-row.today { border-color: var(--accent); animation: neonPulse 2s ease infinite; }
   .sched-row .act { font-size: 11px; color: var(--muted); font-weight: 700; text-align: right; }
-  .mini-link { display: inline-block; margin: 6px 6px 0 0; font-size: 12px; font-weight: 900; color: var(--ink); text-decoration: none; background: var(--p5); border-radius: 999px; padding: 5px 12px; box-shadow: 0 4px 10px rgba(130,195,245,.3); }
-  .mini-link:hover { transform: translateY(-2px); }
+  .mini-link { display: inline-block; margin: 6px 6px 0 0; font-size: 12px; font-weight: 900; color: var(--c3-c); background: var(--c3-bg); border: var(--c3-bd); border-radius: 999px; padding: 5px 12px; text-decoration: none; box-shadow: var(--c3-sh); }
 
   .quiz-q { font-size: 20px; font-weight: 900; text-align: center; margin: 18px 0 8px; min-height: 48px; animation: qIn .45s cubic-bezier(.34,1.56,.64,1) both; }
   .hint { font-size: 13px; color: var(--muted); font-weight: 700; text-align: center; }
   .quiz-input { display: flex; gap: 8px; margin-top: 14px; }
   .quiz-input input { flex: 1; margin: 0; }
   .quiz-input .btn { width: 54px; margin: 0; padding: 0; height: 50px; flex-shrink: 0; }
-  .progress-wrap { margin: 16px 0 4px; height: 14px; background: var(--field); border-radius: 999px; box-shadow: var(--field-in); overflow: hidden; }
-  .progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--p2), var(--p5), var(--p3)); background-size: 200% 100%; animation: shine 2.5s linear infinite; transition: width .5s cubic-bezier(.22,.61,.36,1); }
+  .progress-wrap { margin: 16px 0 4px; height: 14px; background: var(--field); border: var(--field-bd); border-radius: 999px; overflow: hidden; }
+  .progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--accent), #FF2ED2, var(--accent)); background-size: 200% 100%; animation: shine 2.5s linear infinite; transition: width .5s cubic-bezier(.22,.61,.36,1); }
   .score { text-align: center; font-weight: 900; font-size: 15px; margin-top: 12px; color: var(--muted); }
 
-  .avg { text-align: center; font-size: 48px; font-weight: 900; margin: 6px 0; background: linear-gradient(160deg, var(--p1), var(--p3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
-  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border-radius: 18px; box-shadow: 0 8px 20px rgba(120,100,190,.12), var(--card-in); padding: 13px 15px; margin-top: 8px; font-size: 14px; font-weight: 800; animation: rowIn .4s ease both; }
-  .grade-row button { background: var(--err-bg); color: var(--err); border: none; border-radius: 999px; padding: 7px 12px; cursor: pointer; font-weight: 900; font-family: inherit; }
+  .avg { text-align: center; font-size: 48px; font-weight: 900; margin: 6px 0; color: var(--accent); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 13px 15px; margin-top: 8px; font-size: 14px; font-weight: 800; animation: rowIn .4s ease both; }
+  .grade-row button { background: var(--err-bg); color: var(--ink); border: none; border-radius: 999px; padding: 7px 12px; cursor: pointer; font-weight: 900; font-family: inherit; }
 
-  .link-item { display: block; background: var(--card); border-radius: 20px; box-shadow: var(--card-sh), var(--card-in); padding: 15px; margin-top: 10px; text-decoration: none; color: var(--ink); font-weight: 900; text-align: center; animation: cardIn .4s ease both; }
-  .link-item:hover { transform: translateY(-3px); }
-  .quote { background: linear-gradient(160deg, var(--card), var(--p6)); border-radius: 28px; box-shadow: var(--card-sh), var(--card-in); padding: 26px 22px; font-size: 17px; font-weight: 700; line-height: 1.6; text-align: center; margin-top: 14px; min-height: 130px; display: flex; align-items: center; justify-content: center; animation: cardIn .45s ease both; }
-  .quote.typing::after { content: '|'; margin-left: 2px; animation: blink .7s step-end infinite; color: var(--p1); }
+  .link-item { display: block; background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); padding: 15px; margin-top: 10px; text-decoration: none; color: var(--ink); font-weight: 900; text-align: center; animation: cardIn .4s ease both; }
+  .quote { background: var(--card); border: var(--card-bd); border-radius: 24px; box-shadow: var(--card-sh); padding: 26px 22px; font-size: 17px; font-weight: 700; line-height: 1.6; text-align: center; margin-top: 14px; min-height: 130px; display: flex; align-items: center; justify-content: center; animation: cardIn .45s ease both; }
+  .quote.typing::after { content: '|'; margin-left: 2px; animation: blink .7s step-end infinite; color: var(--accent); }
   .about { font-size: 15px; line-height: 1.7; font-weight: 700; }
   .about li { margin: 8px 0 8px 20px; animation: rowIn .4s ease both; }
-  .legal { margin-top: 18px; padding-top: 14px; border-top: 2px dashed var(--field); font-size: 13px; text-align: center; font-weight: 800; color: var(--muted); }
-  .legal a { color: var(--ink); text-decoration: none; background: var(--p3); border-radius: 999px; padding: 4px 10px; margin: 0 4px; }
+  .legal { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--field); font-size: 13px; text-align: center; font-weight: 800; color: var(--muted); }
+  .legal a { color: var(--accent); text-decoration: none; margin: 0 6px; }
 
-  /* ===== ПЛАВАЮЩИЙ ДОК ===== */
-  .dock {
-    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-    width: calc(100% - 32px); max-width: 448px;
-    display: flex; gap: 4px; padding: 8px;
-    background: var(--dock); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-    border-radius: 999px; box-shadow: 0 16px 40px rgba(90,70,160,.28), inset 0 1.5px 0 rgba(255,255,255,.6);
-    z-index: 90; animation: dockIn .55s cubic-bezier(.34,1.56,.64,1) both;
-  }
-  .dock button {
-    flex: 1; border: none; background: transparent; border-radius: 999px;
-    padding: 9px 4px; cursor: pointer; font-family: inherit;
-    display: flex; flex-direction: column; align-items: center; gap: 1px;
-    font-size: 10px; font-weight: 800; color: var(--muted);
-    transition: background .25s, color .25s, transform .2s cubic-bezier(.34,1.56,.64,1);
-  }
+  /* ===== ДОК ===== */
+  .dock { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; display: flex; gap: 4px; padding: 8px; background: var(--dock-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 16px 40px rgba(0,0,0,.18); z-index: 90; animation: dockIn .55s cubic-bezier(.34,1.56,.64,1) both; }
+  .dock button { flex: 1; border: none; background: transparent; border-radius: 999px; padding: 9px 4px; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 10px; font-weight: 800; color: var(--muted); transition: background .25s, color .25s, transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .25s; }
   .dock button .ic { font-size: 20px; }
   .dock button:hover { transform: translateY(-2px); }
-  .dock button.active { background: var(--card); color: var(--ink); box-shadow: 0 6px 14px rgba(120,100,190,.2), inset 0 1.5px 0 #fff; }
+  .dock button.active { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
 
-  .theme-pill { position: fixed; top: 14px; right: 14px; z-index: 95; display: flex; gap: 2px; padding: 5px; background: var(--dock); backdrop-filter: blur(14px); border-radius: 999px; box-shadow: 0 10px 26px rgba(90,70,160,.22); }
+  .theme-pill { position: fixed; top: 14px; right: 14px; z-index: 95; display: flex; gap: 2px; padding: 5px; background: var(--dock-bg); backdrop-filter: blur(14px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 10px 26px rgba(0,0,0,.15); }
   .theme-pill button { border: none; background: transparent; font-size: 15px; padding: 6px 9px; border-radius: 999px; cursor: pointer; }
-  .theme-pill button.on { background: var(--card); box-shadow: 0 4px 10px rgba(120,100,190,.18); }
+  .theme-pill button.on { background: var(--c1-bg); box-shadow: var(--c1-sh); }
 
   #confetti { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
   .katex-display { overflow-x: auto; padding: 4px 0; }
 
-  /* ===== KEYFRAMES ===== */
   @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-30px,25px) scale(1.1)} }
   @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  @keyframes orbPulse { 0%,100%{box-shadow: var(--orb-sh)} 50%{box-shadow: var(--orb-sh), 0 0 40px rgba(0,229,255,.4)} }
+  @keyframes neonPulse { 0%,100%{box-shadow: var(--card-sh), 0 0 0 0 rgba(0,229,255,.0)} 50%{box-shadow: var(--card-sh), 0 0 22px rgba(0,229,255,.35)} }
+  @keyframes scanMove { to { background-position: 0 220px; } }
+  @keyframes flick { 0%,97%,100%{opacity:1} 98%{opacity:.6} 99%{opacity:.9} }
   @keyframes dropIn { from{opacity:0; transform:translateY(-16px)} to{opacity:1; transform:none} }
   @keyframes pageIn { from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:none} }
   @keyframes cardIn { from{opacity:0; transform:translateY(14px) scale(.97)} to{opacity:1; transform:none} }
   @keyframes rowIn { from{opacity:0; transform:translateX(18px)} to{opacity:1; transform:none} }
   @keyframes popIn { from{opacity:0; transform:scale(.8)} to{opacity:1; transform:scale(1)} }
+  @keyframes btnIn { from{opacity:0; transform:translateY(14px) scale(.9)} to{opacity:1; transform:none} }
   @keyframes heroIn { from{opacity:0; transform:translateY(28px) scale(.94)} to{opacity:1; transform:none} }
   @keyframes dockIn { from{opacity:0; transform:translate(-50%,40px)} to{opacity:1; transform:translate(-50%,0)} }
   @keyframes msgL { from{opacity:0; transform:translateX(-22px)} to{opacity:1; transform:none} }
@@ -286,8 +255,7 @@
   @keyframes spin { to{transform:rotate(360deg)} }
   @keyframes blink { 50%{opacity:0} }
   @keyframes shine { to{background-position:-200% 0} }
-  @keyframes softGlow { 0%,100%{box-shadow:0 8px 22px rgba(255,194,75,.3), var(--card-in)} 50%{box-shadow:0 8px 30px rgba(255,194,75,.55), var(--card-in)} }
-  @keyframes dots { 0%,20%,100%{box-shadow:9px 0 0 var(--warn),18px 0 0 var(--warn)} 40%{box-shadow:9px -4px 0 var(--warn),18px 0 0 var(--warn)} 60%{box-shadow:9px 0 0 var(--warn),18px -4px 0 var(--warn)} }
+  @keyframes dots { 0%,20%,100%{box-shadow:9px 0 0 var(--accent),18px 0 0 var(--accent)} 40%{box-shadow:9px -4px 0 var(--accent),18px 0 0 var(--accent)} 60%{box-shadow:9px 0 0 var(--accent),18px -4px 0 var(--accent)} }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
   @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 100%{transform:scale(1)} }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
@@ -296,20 +264,20 @@
 <body>
 
 <canvas id="confetti"></canvas>
+<div class="fx-scan"></div>
 
 <div class="theme-pill">
-  <button id="thLight" onclick="setTheme('light')" title="Светлая">☀️</button>
-  <button id="thDark" onclick="setTheme('dark')" title="Тёмная">🌙</button>
+  <button id="thLight" onclick="setTheme('light')" title="Светлая (iOS)">☀️</button>
+  <button id="thDark" onclick="setTheme('dark')" title="Тёмная (Cyber)">🌙</button>
   <button id="thAuto" onclick="setTheme('auto')" title="Системная">🖥️</button>
 </div>
 
 <div class="wrap">
 
-  <!-- ГЛАВНАЯ -->
   <div id="home" class="page active">
     <div class="head">
       <div class="hi">
-        <div class="mascot">🎯</div>
+        <div class="mascot">🤖</div>
         <div>
           <h1 id="heroGreet">Привет!</h1>
           <div class="sub">Sferum Navigator · GigaChat</div>
@@ -336,11 +304,10 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 20</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 22</div></button>
     </div>
   </div>
 
-  <!-- ЧАТ -->
   <div id="chat" class="page">
     <div class="head"><div class="hi"><div class="mascot">🤖</div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
     <div class="chat-box" id="chatBox"></div>
@@ -351,7 +318,6 @@
     <button class="btn ghost" onclick="clearChat()">🗑 Очистить общий чат</button>
   </div>
 
-  <!-- ПЛАН -->
   <div id="plan" class="page">
     <div class="head"><div class="hi"><div class="mascot">📅</div><div><h1>Персональный план</h1><div class="sub">GigaChat составит под тебя</div></div></div></div>
     <div class="puff">
@@ -377,7 +343,6 @@
     <div id="planResult"></div>
   </div>
 
-  <!-- ТРЕНАЖЁР -->
   <div id="quiz" class="page">
     <div class="head"><div class="hi"><div class="mascot">✅</div><div><h1>Тренажёр</h1><div class="sub">Письменный ответ · проверка по смыслу</div></div></div></div>
     <div class="puff">
@@ -402,7 +367,6 @@
     <div class="score" id="score">Счёт: 0 / 0</div>
   </div>
 
-  <!-- ДНЕВНИК -->
   <div id="grades" class="page">
     <div class="head"><div class="hi"><div class="mascot">📚</div><div><h1>Дневник</h1><div class="sub">Пиши словами — ИИ разберёт</div></div></div></div>
     <div class="avg" id="gAvg">—</div>
@@ -417,19 +381,17 @@
     <div id="gAi"></div>
   </div>
 
-  <!-- ВИДЕО -->
   <div id="video" class="page">
     <div class="head"><div class="hi"><div class="mascot">🎥</div><div><h1>Видеоуроки</h1><div class="sub">Объяснение + рабочие ссылки</div></div></div></div>
     <div class="puff">
       <label>Тема</label>
       <input type="text" id="vTopic" placeholder="фотосинтез">
-      <button class="btn lilac" id="vBtn" onclick="buildVideo()">🤖 Объяснить и найти</button>
+      <button class="btn sun" id="vBtn" onclick="buildVideo()">🤖 Объяснить и найти</button>
     </div>
     <div id="vAi"></div>
     <div id="videoResult"></div>
   </div>
 
-  <!-- МОТИВАЦИЯ -->
   <div id="motivation" class="page">
     <div class="head"><div class="hi"><div class="mascot">💪</div><div><h1>Мотивация</h1><div class="sub">Расскажи, что случилось</div></div></div></div>
     <div class="puff">
@@ -437,12 +399,11 @@
       <select id="mMood"><option value="tired">Устал</option><option value="worried">Переживаю</option><option value="lazy">Лень</option><option value="ok">Нормально</option></select>
       <label>✍️ Что случилось?</label>
       <textarea id="mText" rows="3" placeholder="необязательно"></textarea>
-      <button class="btn sun" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
+      <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
     </div>
     <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
   </div>
 
-  <!-- О БОТЕ -->
   <div id="about" class="page">
     <div class="head"><div class="hi"><div class="mascot">ℹ️</div><div><h1>О проекте</h1></div></div></div>
     <div class="puff">
@@ -451,29 +412,27 @@
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
           <li>🧮 Формулы LaTeX (KaTeX)</li>
-          <li>🎨 Светлая / тёмная / системная тема</li>
+          <li>🌗 Светлая = iOS, тёмная = Neon Cyber</li>
           <li>🔒 Тема засчитывается после теста (20)</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 20</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 22</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
   </div>
 
-  <!-- ЕЩЁ -->
   <div id="more" class="page">
     <div class="head"><div class="hi"><div class="mascot">⋯</div><div><h1>Ещё разделы</h1></div></div></div>
     <div class="cloud-grid">
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 20</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 22</div></button>
     </div>
   </div>
 
 </div>
 
-<!-- ДОК -->
 <nav class="dock">
   <button data-tab="home" onclick="go('home')"><span class="ic">🏠</span>Дом</button>
   <button data-tab="chat" onclick="go('chat')"><span class="ic">🤖</span>Чат</button>
@@ -483,21 +442,15 @@
 </nav>
 
 <script>
-// ===== ТЕМА =====
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('sn_theme',t);['Light','Dark','Auto'].forEach(n=>{const b=document.getElementById('th'+n);if(b)b.classList.toggle('on',n.toLowerCase()===t);});}
 function setTheme(t){applyTheme(t);}
 applyTheme(localStorage.getItem('sn_theme')||'auto');
 
-// ===== ПРИВЕТСТВИЕ =====
-function updateGreeting(){const h=new Date().getHours();let g='Доброй ночи!';if(h>=5&&h<12)g='Доброе утро!';else if(h>=12&&h<18)g='Добрый день!';else if(h>=18&&h<23)g='Добрый вечер!';const el=document.getElementById('heroGreet');if(el)el.textContent=g;}
-updateGreeting();setInterval(updateGreeting,60000);
-
-// ===== КОНФЕТТИ =====
 const confettiCv=document.getElementById('confetti');const cCtx=confettiCv.getContext('2d');let confetti=[];
 function sizeConfetti(){confettiCv.width=window.innerWidth;confettiCv.height=window.innerHeight;}
 sizeConfetti();window.addEventListener('resize',sizeConfetti);
-function fireConfetti(x,y){const cols=['#FFB5C2','#B9ECD6','#C9D0FF','#FFE3A9','#BFE4FF','#E5C8FF'];for(let i=0;i<35;i++){confetti.push({x,y,vx:(Math.random()-.5)*10,vy:-Math.random()*8-4,g:.25,size:Math.random()*7+4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.4,color:cols[i%cols.length],life:0,maxLife:80+Math.random()*30});}}
-function drawConfetti(){cCtx.clearRect(0,0,confettiCv.width,confettiCv.height);confetti=confetti.filter(c=>c.life<c.maxLife&&c.y<confettiCv.height+30);confetti.forEach(c=>{c.x+=c.vx;c.y+=c.vy;c.vy+=c.g;c.vx*=.99;c.rot+=c.vr;c.life++;cCtx.save();cCtx.globalAlpha=Math.max(0,1-c.life/c.maxLife);cCtx.translate(c.x,c.y);cCtx.rotate(c.rot);cCtx.fillStyle=c.color;cCtx.beginPath();cCtx.arc(0,0,c.size/2,0,Math.PI*2);cCtx.fill();cCtx.restore();});requestAnimationFrame(drawConfetti);}
+function fireConfetti(x,y){const cols=['#00E5FF','#FF2ED2','#39FF88','#FFD60A','#5AA0FF','#FF8FA6'];for(let i=0;i<40;i++){confetti.push({x,y,vx:(Math.random()-.5)*11,vy:-Math.random()*9-4,g:.25,size:Math.random()*6+4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.4,color:cols[i%cols.length],life:0,maxLife:80+Math.random()*30});}}
+function drawConfetti(){cCtx.clearRect(0,0,confettiCv.width,confettiCv.height);confetti=confetti.filter(c=>c.life<c.maxLife&&c.y<confettiCv.height+30);confetti.forEach(c=>{c.x+=c.vx;c.y+=c.vy;c.vy+=c.g;c.vx*=.99;c.rot+=c.vr;c.life++;cCtx.save();cCtx.globalAlpha=Math.max(0,1-c.life/c.maxLife);cCtx.translate(c.x,c.y);cCtx.rotate(c.rot);cCtx.fillStyle=c.color;cCtx.fillRect(-c.size/2,-c.size/2,c.size,c.size*.6);cCtx.restore();});requestAnimationFrame(drawConfetti);}
 drawConfetti();
 
 function typeWriter(el,text,speed=20){el.classList.add('typing');el.textContent='';let i=0;return new Promise(res=>{const step=()=>{if(i<=text.length){el.textContent=text.slice(0,i);i++;setTimeout(step,speed);}else{el.classList.remove('typing');res();}};step();});}
@@ -536,7 +489,7 @@ async function askGiga(prompt,systemPrompt,maxTokens,history){
 }
 function cleanResponse(t){return t.replace(/\*\*/g,'').replace(/(^|\n)#{1,3}\s*/g,'$1').replace(/`/g,'').replace(/\n{3,}/g,'\n\n').trim();}
 function showLoading(id,m){document.getElementById(id).innerHTML='<div class="item loading">'+m+'</div>';}
-function showError(id,m){document.getElementById(id).innerHTML='<div class="item" style="background:var(--err-bg);">❌ '+m+'</div>';}
+function showError(id,m){document.getElementById(id).innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ '+m+'</div>';}
 async function ensureSpaces(text){if(!text)return '';if(text.length<15||/\s/.test(text.trim()))return text;try{const f=await askGiga('Расставь пропущенные пробелы между словами, сохрани знаки, цифры и LaTeX. Верни ТОЛЬКО текст:\n'+text,'Верни только текст.',400);return (f||text).trim();}catch(e){return text;}}
 function parseJSONArraySafe(text){const m=text.match(/\[[\s\S]*\]/);if(!m)throw new Error('Не JSON');const raw=m[0];try{return JSON.parse(raw);}catch(e){}const lc=raw.lastIndexOf('}');if(lc>0){try{return JSON.parse(raw.slice(0,lc+1).replace(/,\s*$/,'')+']');}catch(e){}}throw new Error('JSON обрезан');}
 function parseJSONObjectSafe(text){const m=text.match(/\{[\s\S]*\}/);if(!m)return null;try{return JSON.parse(m[0]);}catch(e){return null;}}
@@ -563,7 +516,6 @@ function renderG(){
   const sa=document.getElementById('statAvg');if(sa)sa.textContent=nv!==null?nv.toFixed(2):'—';
 }
 
-// ===== ЧАТ =====
 let chatHistory=[];try{chatHistory=JSON.parse(localStorage.getItem('sn_chat')||'[]');}catch(e){chatHistory=[];}
 function msgKey(m){return (m.role||'')+'|'+(m.timestamp||'')+'|'+(m.content||'');}
 async function syncChatHistory(){try{const r=await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL));if(!r.ok)return;const server=await r.json();if(!Array.isArray(server))return;const keys=new Set(chatHistory.map(msgKey));let ch=false;server.forEach(m=>{const k=msgKey(m);if(!keys.has(k)){chatHistory.push(m);keys.add(k);ch=true;}});if(ch){chatHistory.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));if(document.getElementById('chat').classList.contains('active'))restoreChatHistory();}}catch(e){}}
@@ -593,7 +545,6 @@ async function sendChat(){
 function clearChat(){if(!confirm('Удалить общий чат (и в MAX, и на сайте)?'))return;chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';addMsg('Общий чат очищен. Начнём заново! 🎓','bot');saveChatToServer();}
 function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';if(!chatHistory.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX 🔄','bot');}else{chatHistory.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
 
-// ===== ПЛАН =====
 function examInfo(grade,examText){const now=new Date();const t=(examText||'').toLowerCase();let tg=grade,mo=4,da=25;if(t.includes('огэ')){tg=9;da=20;}else if(t.includes('егэ')){tg=11;da=25;}const yl=Math.max(0,tg-grade);let ed=new Date(now.getFullYear()+yl,mo,da);if(ed<now)ed=new Date(now.getFullYear()+yl+1,mo,da);const w=Math.max(1,Math.round((ed-now)/(7*24*3600*1000)));return{name:examText||'экзамен',examDate:ed,weeks:w};}
 function normalizeSchedule(sch,days){let st=0;return (sch||[]).map(s=>{const rest=/отдых|выходной/i.test(s.subject||'');if(!rest&&st<days){st++;return s;}if(!rest)return{day:s.day,subject:'отдых',topic:'',activity:'отдых'};return s;});}
 function loadPlan(){try{return JSON.parse(localStorage.getItem('sn_plan')||'null');}catch(e){return null;}}
@@ -653,7 +604,6 @@ function selectTopic(key){const p=loadPlan();if(!p)return;p.selectedTopic=(p.sel
 function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return alert('Выбери тему');document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
 function markSelectedDone(){const p=loadPlan();if(!p)return;const k=p.selectedTopic;if(!k)return alert('Выбери тему');const passed=p.testPassed&&p.testPassed[k];if(!passed||passed.week!==currentWeekKey()||passed.total<TEST_SIZE||passed.answered<passed.total)return alert('Нужно полностью пройти тест из '+TEST_SIZE+' вопросов на этой неделе');if(!p.done)p.done=[];if(!p.done.some(d=>d.topic===k)){const si=(p.schedule||[]).find(s=>topicKey(s)===k);p.done.push({date:new Date().toLocaleDateString('ru-RU'),subject:(si&&si.subject)||k,topic:k,score:passed.score+'/'+passed.total});}p.selectedTopic=null;savePlan(p);renderPlan(p);}
 
-// ===== ТРЕНАЖЁР =====
 let qC=0,qT=0,qCurrent=null,qAnswered=false,qQueue=[],qLastTopic='';
 let qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0;
 function normalize(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();}
@@ -665,26 +615,24 @@ function showQuestion(o){qCurrent=o;qAnswered=false;const q=document.getElementB
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return alert('Напиши тему');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;const btn=document.getElementById('quizBtn');btn.disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';document.getElementById('quizHint').textContent='';document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
 function finishBatch(){let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+'</div>';if(qPendingTopic){const p=loadPlan();if(p){if(!p.testPassed)p.testPassed={};p.testPassed[qPendingTopic]={score:qBatchScore,total:qBatchTotal,answered:qBatchAnswered,week:currentWeekKey(),date:new Date().toLocaleDateString('ru-RU')};savePlan(p);extra+='<div class="item ai">Тема «'+escapeHtml(qPendingTopic)+'» подтверждена!\nВернись в план и нажми «✅ Я прошёл тему».</div><button class="btn mint" onclick="go(\'plan\')">📅 В план</button>';}qPendingTopic=null;}const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);}
-async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u));let bySense=false;if(!ok){document.getElementById('quizResult').innerHTML='<div class="item loading">Проверяю по смыслу...</div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);}else{box.innerHTML='<div class="item" style="background:var(--err-bg);">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();}
+async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u));let bySense=false;if(!ok){document.getElementById('quizResult').innerHTML='<div class="item loading">Проверяю по смыслу...</div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();}
 
-// ===== ДНЕВНИК =====
-async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return alert('Напиши: математика 5 4, физика 3');const btn=document.getElementById('gAddBtn');btn.disabled=true;document.getElementById('gAi').innerHTML='<div class="item loading">GigaChat разбирает...</div>';let parsed=null;try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (полные названия, учти сленг) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}if(!parsed||!parsed.length)parsed=extractGradesLocal(text);if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="background:var(--err-bg);">Не нашёл оценок. Напиши: математика 5 4, физика 3</div>';btn.disabled=false;return;}parsed.forEach(p=>addGradeToStorage(p));document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';btn.disabled=false;}
+async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return alert('Напиши: математика 5 4, физика 3');const btn=document.getElementById('gAddBtn');btn.disabled=true;document.getElementById('gAi').innerHTML='<div class="item loading">GigaChat разбирает...</div>';let parsed=null;try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (полные названия, учти сленг) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}if(!parsed||!parsed.length)parsed=extractGradesLocal(text);if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: математика 5 4, физика 3</div>';btn.disabled=false;return;}parsed.forEach(p=>addGradeToStorage(p));document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';btn.disabled=false;}
 function delG(s){const g=loadG();delete g[s];saveG(g);renderG();}
 function clearGrades(){if(confirm('Удалить все?')){localStorage.removeItem('g');renderG();document.getElementById('gAi').innerHTML='';}}
 async function gradesAI(){const g=loadG();const k=Object.keys(g);if(!k.length)return alert('Сначала добавь оценки');let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.');const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}catch(e){showError('gAi','Ошибка: '+e.message);}finally{btn.disabled=false;}}
 
-// ===== ВИДЕО =====
 async function buildVideo(){const topic=document.getElementById('vTopic').value.trim()||'математика';const btn=document.getElementById('vBtn');btn.disabled=true;showLoading('vAi','Объясняю и проверяю видео...');try{const r=await askGiga('Кратко (3-4 предложения) объясни школьнику тему «'+topic+'» с примером. Формулы в LaTeX ($...$).');const box=document.getElementById('vAi');box.innerHTML='<div class="item ai">🎓 Объяснение:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);const av={youtube:true,vk:true,rutube:true};try{const cr=await fetch(PROXY_BASE+'/check_video?q='+encodeURIComponent(topic));if(cr.ok){const d=await cr.json();if(d.available){av.youtube=d.available.includes('youtube');av.vk=d.available.includes('vk');av.rutube=d.available.includes('rutube');}}}catch(e){}document.getElementById('videoResult').innerHTML=videoLinks(topic,av);}catch(e){showError('vAi','Ошибка: '+e.message);}finally{btn.disabled=false;}}
 
-// ===== МОТИВАЦИЯ =====
 async function motivationAI(){const mood=document.getElementById('mMood').value;const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[mood];const sit=document.getElementById('mText').value.trim();const btn=document.getElementById('mBtn');btn.disabled=true;const box=document.getElementById('quoteBox');box.textContent='⏳ Читаю и подбираю слова...';try{let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';const r=await askGiga(prompt);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);}catch(e){box.textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 
-// ===== НАВИГАЦИЯ =====
+function updateGreeting(){const h=new Date().getHours();let g='Доброй ночи!';if(h>=5&&h<12)g='Доброе утро!';else if(h>=12&&h<18)g='Добрый день!';else if(h>=18&&h<23)g='Добрый вечер!';const el=document.getElementById('heroGreet');if(el)el.textContent=g;}
+updateGreeting();setInterval(updateGreeting,60000);
+
 function setTab(id){const map={home:'home',chat:'chat',plan:'plan',quiz:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===map[id]));}
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');setTab(id);if(id==='plan')checkWeekUpdate();if(id==='chat')syncChatHistory().then(()=>restoreChatHistory());if(id==='grades')renderG();if(id==='home')updateHomeStats();window.scrollTo({top:0,behavior:'smooth'});}
 function updateHomeStats(){try{const plan=loadPlan();const w=document.getElementById('statWeeks'),d=document.getElementById('statDone');if(plan){if(w)w.textContent=plan.weeks||'—';if(d)d.textContent=(plan.done||[]).length;}else{if(w)w.textContent='—';if(d)d.textContent='0';}}catch(e){}}
 
-// ===== СТАРТ =====
 const savedPlan=loadPlan();if(savedPlan)renderPlan(savedPlan);
 renderG();updateHomeStats();setTab('home');
 syncChatHistory().then(()=>restoreChatHistory());
