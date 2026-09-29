@@ -11,10 +11,8 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
-  /* ============ СВЕТЛАЯ = iOS NATIVE ============ */
   :root, :root[data-theme="light"] {
-    --bg-base: #F2F2F7;
-    --bg-grid: none;
+    --bg-base: #F2F2F7; --bg-grid: none;
     --blobA: rgba(255,120,150,.30); --blobB: rgba(90,200,250,.30);
     --card: #FFFFFF; --card-bd: transparent; --card-blur: none;
     --card-sh: 0 10px 30px rgba(60,60,90,.08);
@@ -26,16 +24,14 @@
     --c3-bg: linear-gradient(180deg,#63C4FF,#32ADE6); --c3-c: #fff; --c3-bd: transparent; --c3-sh: 0 8px 18px rgba(50,173,230,.35);
     --c4-bg: linear-gradient(180deg,#FFD60A,#FF9F0A); --c4-c: #fff; --c4-bd: transparent; --c4-sh: 0 8px 18px rgba(255,159,10,.35);
     --c0-bg: rgba(120,120,128,.12); --c0-c: #3A3A3C; --c0-bd: transparent; --c0-sh: none;
-    --gloss: rgba(255,255,255,.35);
-    --press: scale(.96);
+    --gloss: rgba(255,255,255,.35); --press: scale(.96);
     --dock-bg: rgba(255,255,255,.8); --dock-bd: rgba(0,0,0,.05);
     --ok-bg: #E4FAF0; --err-bg: #FFE9E9; --warn-bg: #FFF4DC;
     --em-sh: 0 6px 14px rgba(60,60,90,.18);
     --hero-bg: #FFFFFF; --hero-sh: 0 14px 34px rgba(60,60,90,.10);
     --orb-bg: linear-gradient(135deg,#409CFF,#007AFF); --orb-sh: 0 10px 24px rgba(0,122,255,.4);
-    --scan: none;
+    --scan: none; --ring2: #FF2D55;
   }
-  /* ============ ТЁМНАЯ = NEON CYBER (контраст!) ============ */
   :root[data-theme="dark"] {
     --bg-base: #04060E;
     --bg-grid: linear-gradient(rgba(0,229,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,.05) 1px, transparent 1px);
@@ -50,14 +46,13 @@
     --c3-bg: rgba(90,160,255,.10); --c3-c: #AECBFF; --c3-bd: 1px solid rgba(90,160,255,.7); --c3-sh: 0 0 18px rgba(90,160,255,.4), inset 0 0 14px rgba(90,160,255,.12);
     --c4-bg: rgba(255,214,10,.10); --c4-c: #FFE59A; --c4-bd: 1px solid rgba(255,214,10,.65); --c4-sh: 0 0 18px rgba(255,214,10,.35), inset 0 0 14px rgba(255,214,10,.12);
     --c0-bg: rgba(255,255,255,.08); --c0-c: #B8CBD6; --c0-bd: 1px solid rgba(255,255,255,.18); --c0-sh: none;
-    --gloss: rgba(0,229,255,.16);
-    --press: translateY(3px);
+    --gloss: rgba(0,229,255,.16); --press: translateY(3px);
     --dock-bg: rgba(5,10,24,.88); --dock-bd: rgba(0,229,255,.3);
     --ok-bg: #12302A; --err-bg: #33161C; --warn-bg: #33290F;
     --em-sh: 0 0 16px rgba(0,229,255,.35);
     --hero-bg: rgba(6,10,24,.88); --hero-sh: 0 0 30px rgba(0,229,255,.18), inset 0 0 26px rgba(0,229,255,.06);
     --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,229,255,.9), rgba(0,120,255,.5) 45%, rgba(255,46,210,.35) 75%); --orb-sh: 0 0 30px rgba(0,229,255,.55);
-    --scan: block;
+    --scan: block; --ring2: #FF2ED2;
   }
   @media (prefers-color-scheme: dark) {
     :root[data-theme="auto"] {
@@ -74,23 +69,29 @@
       --c3-bg: rgba(90,160,255,.10); --c3-c: #AECBFF; --c3-bd: 1px solid rgba(90,160,255,.7); --c3-sh: 0 0 18px rgba(90,160,255,.4), inset 0 0 14px rgba(90,160,255,.12);
       --c4-bg: rgba(255,214,10,.10); --c4-c: #FFE59A; --c4-bd: 1px solid rgba(255,214,10,.65); --c4-sh: 0 0 18px rgba(255,214,10,.35), inset 0 0 14px rgba(255,214,10,.12);
       --c0-bg: rgba(255,255,255,.08); --c0-c: #B8CBD6; --c0-bd: 1px solid rgba(255,255,255,.18); --c0-sh: none;
-      --gloss: rgba(0,229,255,.16);
-      --press: translateY(3px);
+      --gloss: rgba(0,229,255,.16); --press: translateY(3px);
       --dock-bg: rgba(5,10,24,.88); --dock-bd: rgba(0,229,255,.3);
       --ok-bg: #12302A; --err-bg: #33161C; --warn-bg: #33290F;
       --em-sh: 0 0 16px rgba(0,229,255,.35);
       --hero-bg: rgba(6,10,24,.88); --hero-sh: 0 0 30px rgba(0,229,255,.18), inset 0 0 26px rgba(0,229,255,.06);
       --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,229,255,.9), rgba(0,120,255,.5) 45%, rgba(255,46,210,.35) 75%); --orb-sh: 0 0 30px rgba(0,229,255,.55);
-      --scan: block;
+      --scan: block; --ring2: #FF2ED2;
     }
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* ===== КРАСИВЫЙ ТОНКИЙ СКРОЛЛБАР ===== */
+  html { scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
+  :root[data-theme="dark"] ::-webkit-scrollbar-thumb, 
+  @media (prefers-color-scheme: dark) { }
+  ::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
+
   body {
     font-family: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
-    background-color: var(--bg-base);
-    background-image: var(--bg-grid);
-    background-size: 42px 42px;
+    background-color: var(--bg-base); background-image: var(--bg-grid); background-size: 42px 42px;
     min-height: 100vh; padding: 18px 16px 110px; color: var(--ink);
     position: relative; overflow-x: hidden;
   }
@@ -98,29 +99,21 @@
   body::before { width: 320px; height: 320px; background: var(--blobA); top: -90px; right: -70px; animation: drift 18s ease-in-out infinite; }
   body::after { width: 300px; height: 300px; background: var(--blobB); bottom: -80px; left: -70px; animation: drift 22s ease-in-out infinite reverse; }
 
-  .fx-scan { display: var(--scan); position: fixed; inset: 0; pointer-events: none; z-index: 40;
-    background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px);
-    mix-blend-mode: overlay; animation: scanMove 9s linear infinite; }
+  .fx-scan { display: var(--scan); position: fixed; inset: 0; pointer-events: none; z-index: 40; background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); mix-blend-mode: overlay; animation: scanMove 9s linear infinite; }
 
   .wrap { max-width: 480px; margin: 0 auto; position: relative; }
   .puff { background: var(--card); border: var(--card-bd); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); border-radius: 22px; box-shadow: var(--card-sh); padding: 18px; color: var(--ink); }
 
   .head { margin-bottom: 16px; animation: dropIn .5s cubic-bezier(.34,1.56,.64,1) both; }
   .head .hi { display: flex; align-items: center; gap: 12px; }
-  .head .mascot { width: 54px; height: 54px; border-radius: 16px; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 27px; box-shadow: var(--orb-sh); animation: bob 3.2s ease-in-out infinite; flex-shrink: 0; }
+  .head .mascot { position: relative; width: 54px; height: 54px; border-radius: 16px; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 27px; box-shadow: var(--orb-sh); animation: bob 3.2s ease-in-out infinite; flex-shrink: 0; }
+  .head .mascot::after { content: ''; position: absolute; inset: -4px; border-radius: 20px; background: conic-gradient(from 0deg, var(--accent), var(--ring2), var(--accent)); z-index: -1; filter: blur(7px); opacity: .65; animation: spin 5s linear infinite; }
   .head h1 { font-size: 25px; font-weight: 900; letter-spacing: -.3px; color: var(--ink); }
   :root[data-theme="dark"] .head h1 { text-shadow: 0 0 10px rgba(0,229,255,.55), 2px 0 rgba(255,46,210,.35), -2px 0 rgba(0,229,255,.35); animation: flick 6s linear infinite; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] .head h1 { text-shadow: 0 0 10px rgba(0,229,255,.55), 2px 0 rgba(255,46,210,.35), -2px 0 rgba(0,229,255,.35); animation: flick 6s linear infinite; } }
   .head .sub { font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 2px; }
 
-  .btn {
-    position: relative; display: block; width: 100%; margin-top: 12px; padding: 15px;
-    border-radius: 999px; overflow: hidden; cursor: pointer;
-    font-family: inherit; font-size: 16px; font-weight: 800;
-    background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); box-shadow: var(--c1-sh);
-    transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s;
-    animation: btnIn .45s cubic-bezier(.34,1.56,.64,1) both;
-  }
+  .btn { position: relative; display: block; width: 100%; margin-top: 12px; padding: 15px; border-radius: 999px; overflow: hidden; cursor: pointer; font-family: inherit; font-size: 16px; font-weight: 800; background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); box-shadow: var(--c1-sh); transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s; animation: btnIn .45s cubic-bezier(.34,1.56,.64,1) both; }
   .btn::before { content: ''; position: absolute; left: 10%; right: 10%; top: 2px; height: 42%; background: linear-gradient(180deg, var(--gloss), transparent); border-radius: 999px; pointer-events: none; }
   .btn::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.4), transparent); transform: skewX(-20deg); transition: left .55s ease; pointer-events: none; }
   .btn:hover::after { left: 130%; }
@@ -139,16 +132,31 @@
   .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
 
+  /* ===== ПЕРЕКЛЮЧАТЕЛЬ ВКЛАДОК (против длинных страниц) ===== */
+  .seg { display: flex; gap: 6px; background: var(--field); border: var(--field-bd); border-radius: 999px; padding: 5px; margin-bottom: 14px; animation: dropIn .4s ease both; }
+  .seg button { flex: 1; border: none; border-radius: 999px; padding: 11px; font-family: inherit; font-weight: 900; font-size: 14px; background: transparent; color: var(--muted); cursor: pointer; transition: .25s; }
+  .seg button.on { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
+
   .page { display: none; }
   .page.active { display: block; animation: pageIn .4s cubic-bezier(.22,.61,.36,1) both; }
 
+  /* ===== ГЛАВНАЯ + ЖИВЫЕ АНИМАЦИИ ===== */
+  #home { position: relative; }
+  .sp { position: absolute; pointer-events: none; z-index: 2; animation: twinkle 2.8s ease-in-out infinite; font-size: 14px; }
+  .sp.s1 { top: 6%; left: 4%; color: var(--accent); }
+  .sp.s2 { top: 22%; right: 6%; color: var(--ring2); animation-delay: .6s; font-size: 18px; }
+  .sp.s3 { top: 48%; left: 3%; color: var(--c4-c); animation-delay: 1.2s; }
+  .sp.s4 { top: 66%; right: 4%; color: var(--c2-c); animation-delay: 1.8s; font-size: 16px; }
+  .sp.s5 { top: 86%; left: 46%; color: var(--c3-c); animation-delay: 2.4s; }
+
   .chips { display: flex; gap: 8px; margin: 16px 0; }
-  .chip-stat { flex: 1; text-align: center; padding: 12px 6px; border-radius: 18px; background: var(--card); border: var(--card-bd); box-shadow: var(--card-sh); backdrop-filter: var(--card-blur); animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both; }
-  .chip-stat:nth-child(1){animation-delay:.05s}.chip-stat:nth-child(2){animation-delay:.12s}.chip-stat:nth-child(3){animation-delay:.19s}
+  .chip-stat { flex: 1; text-align: center; padding: 12px 6px; border-radius: 18px; background: var(--card); border: var(--card-bd); box-shadow: var(--card-sh); backdrop-filter: var(--card-blur); animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both, chipBob 4s ease-in-out infinite; }
+  .chip-stat:nth-child(1){animation-delay:.05s,.0s}.chip-stat:nth-child(2){animation-delay:.12s,.5s}.chip-stat:nth-child(3){animation-delay:.19s,1s}
   .chip-stat .v { font-size: 21px; font-weight: 900; color: var(--accent); line-height: 1; }
   .chip-stat .l { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-top: 4px; }
 
-  .hero { display: block; width: 100%; text-align: left; cursor: pointer; border: var(--card-bd); background: var(--hero-bg); backdrop-filter: var(--card-blur); border-radius: 26px; padding: 22px; margin-bottom: 16px; box-shadow: var(--hero-sh); font-family: inherit; color: var(--ink); animation: heroIn .55s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+  .hero { display: block; width: 100%; text-align: left; cursor: pointer; border: var(--card-bd); background: var(--hero-bg); backdrop-filter: var(--card-blur); border-radius: 26px; padding: 22px; margin-bottom: 16px; box-shadow: var(--hero-sh); font-family: inherit; color: var(--ink); animation: heroIn .55s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; position: relative; overflow: hidden; }
+  .hero::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.22), transparent); transform: skewX(-20deg); animation: sweep 4.5s ease-in-out infinite; pointer-events: none; }
   .hero:hover { transform: translateY(-4px); }
   .hero:active { transform: var(--press); }
   .hero .orb { width: 64px; height: 64px; border-radius: 50%; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: var(--orb-sh); margin-bottom: 12px; animation: bob 3s ease-in-out infinite, orbPulse 2.6s ease-in-out infinite; }
@@ -163,7 +171,9 @@
   .cloud-grid .cloud:nth-child(1){animation-delay:.06s}.cloud-grid .cloud:nth-child(2){animation-delay:.12s}
   .cloud-grid .cloud:nth-child(3){animation-delay:.18s}.cloud-grid .cloud:nth-child(4){animation-delay:.24s}
   .cloud-grid .cloud:nth-child(5){animation-delay:.3s}.cloud-grid .cloud:nth-child(6){animation-delay:.36s}
-  .cloud .em { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; box-shadow: var(--em-sh); }
+  .cloud .em { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; box-shadow: var(--em-sh); animation: emFloat 3.6s ease-in-out infinite; }
+  .cloud:nth-child(2) .em{animation-delay:.4s}.cloud:nth-child(3) .em{animation-delay:.8s}
+  .cloud:nth-child(4) .em{animation-delay:1.2s}.cloud:nth-child(5) .em{animation-delay:1.6s}.cloud:nth-child(6) .em{animation-delay:2s}
   .cloud:nth-child(1) .em { background: linear-gradient(135deg,#5AC8FA,#007AFF); }
   .cloud:nth-child(2) .em { background: linear-gradient(135deg,#4CD97B,#28A745); }
   .cloud:nth-child(3) .em { background: linear-gradient(135deg,#FF7A9E,#FF2D55); }
@@ -201,7 +211,7 @@
   .quiz-input input { flex: 1; margin: 0; }
   .quiz-input .btn { width: 54px; margin: 0; padding: 0; height: 50px; flex-shrink: 0; }
   .progress-wrap { margin: 16px 0 4px; height: 14px; background: var(--field); border: var(--field-bd); border-radius: 999px; overflow: hidden; }
-  .progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--accent), #FF2ED2, var(--accent)); background-size: 200% 100%; animation: shine 2.5s linear infinite; transition: width .5s cubic-bezier(.22,.61,.36,1); }
+  .progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--ring2), var(--accent)); background-size: 200% 100%; animation: shine 2.5s linear infinite; transition: width .5s cubic-bezier(.22,.61,.36,1); }
   .score { text-align: center; font-weight: 900; font-size: 15px; margin-top: 12px; color: var(--muted); }
 
   .avg { text-align: center; font-size: 48px; font-weight: 900; margin: 6px 0; color: var(--accent); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
@@ -221,6 +231,7 @@
   .dock button .ic { font-size: 20px; }
   .dock button:hover { transform: translateY(-2px); }
   .dock button.active { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
+  .dock button.active .ic { animation: bob 2s ease-in-out infinite; }
 
   .theme-pill { position: fixed; top: 14px; right: 14px; z-index: 95; display: flex; gap: 2px; padding: 5px; background: var(--dock-bg); backdrop-filter: blur(14px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 10px 26px rgba(0,0,0,.15); }
   .theme-pill button { border: none; background: transparent; font-size: 15px; padding: 6px 9px; border-radius: 999px; cursor: pointer; }
@@ -231,6 +242,10 @@
 
   @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-30px,25px) scale(1.1)} }
   @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  @keyframes chipBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+  @keyframes emFloat { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-5px) rotate(-4deg)} }
+  @keyframes twinkle { 0%,100%{opacity:.15; transform:scale(.7) rotate(0)} 50%{opacity:.9; transform:scale(1.25) rotate(25deg)} }
+  @keyframes sweep { 0%{left:-70%} 55%{left:130%} 100%{left:130%} }
   @keyframes orbPulse { 0%,100%{box-shadow: var(--orb-sh)} 50%{box-shadow: var(--orb-sh), 0 0 40px rgba(0,229,255,.4)} }
   @keyframes neonPulse { 0%,100%{box-shadow: var(--card-sh), 0 0 0 0 rgba(0,229,255,.0)} 50%{box-shadow: var(--card-sh), 0 0 22px rgba(0,229,255,.35)} }
   @keyframes scanMove { to { background-position: 0 220px; } }
@@ -269,6 +284,7 @@
 <div class="wrap">
 
   <div id="home" class="page active">
+    <span class="sp s1">✦</span><span class="sp s2">✧</span><span class="sp s3">★</span><span class="sp s4">✦</span><span class="sp s5">✧</span>
     <div class="head">
       <div class="hi">
         <div class="mascot">🤖</div>
@@ -298,7 +314,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 23</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 24</div></button>
     </div>
   </div>
 
@@ -314,27 +330,35 @@
 
   <div id="plan" class="page">
     <div class="head"><div class="hi"><div class="mascot">📅</div><div><h1>Персональный план</h1><div class="sub">GigaChat составит под тебя</div></div></div></div>
-    <div class="puff">
-      <label>🎓 Твой класс</label>
-      <select id="pGrade"><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select>
-      <label>🎯 Что сдаёшь</label>
-      <input type="text" id="pExam" placeholder="ЕГЭ по математике, ОГЭ...">
-      <label>📚 Предметы</label>
-      <textarea id="pSubjects" rows="2" placeholder="математика, русский, физика"></textarea>
-      <label>🏆 Цель</label>
-      <input type="text" id="pGoal" placeholder="сдать на 90+">
-      <div class="row2">
-        <div><label>⏰ Мин/день</label><input type="number" id="pMinutes" value="60" min="15" max="480" step="15"></div>
-        <div><label>📅 Дней/нед</label><select id="pDays"><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option></select></div>
+    <div class="seg">
+      <button id="segForm" class="on" onclick="planTab('form')">⚙️ Настройки</button>
+      <button id="segView" onclick="planTab('view')">📋 Мой план</button>
+    </div>
+    <div id="planFormBox">
+      <div class="puff">
+        <label>🎓 Твой класс</label>
+        <select id="pGrade"><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select>
+        <label>🎯 Что сдаёшь</label>
+        <input type="text" id="pExam" placeholder="ЕГЭ по математике, ОГЭ...">
+        <label>📚 Предметы</label>
+        <textarea id="pSubjects" rows="2" placeholder="математика, русский, физика"></textarea>
+        <label>🏆 Цель</label>
+        <input type="text" id="pGoal" placeholder="сдать на 90+">
+        <div class="row2">
+          <div><label>⏰ Мин/день</label><input type="number" id="pMinutes" value="60" min="15" max="480" step="15"></div>
+          <div><label>📅 Дней/нед</label><select id="pDays"><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option></select></div>
+        </div>
+        <label>📊 Уровень</label>
+        <select id="pLevel"><option value="начальный">Начальный</option><option value="средний" selected>Средний</option><option value="продвинутый">Продвинутый</option></select>
+        <label>😓 Слабые места</label>
+        <textarea id="pWeak" rows="2" placeholder="необязательно"></textarea>
+        <button class="btn mint" id="planBtn" onclick="buildPlan()">✨ Составить план</button>
       </div>
-      <label>📊 Уровень</label>
-      <select id="pLevel"><option value="начальный">Начальный</option><option value="средний" selected>Средний</option><option value="продвинутый">Продвинутый</option></select>
-      <label>😓 Слабые места</label>
-      <textarea id="pWeak" rows="2" placeholder="необязательно"></textarea>
-      <button class="btn mint" id="planBtn" onclick="buildPlan()">✨ Составить план</button>
+    </div>
+    <div id="planViewBox" style="display:none;">
+      <div id="planResult"></div>
       <button class="btn ghost" onclick="deletePlan()">🗑 Удалить план</button>
     </div>
-    <div id="planResult"></div>
   </div>
 
   <div id="quiz" class="page">
@@ -409,7 +433,7 @@
           <li>🌗 Светлая = iOS, тёмная = Neon Cyber</li>
           <li>🔒 Тема засчитывается после теста (20)</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 23</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 24</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -421,7 +445,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 23</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 24</div></button>
     </div>
   </div>
 
@@ -546,6 +570,14 @@ function savePlan(p){localStorage.setItem('sn_plan',JSON.stringify(p));updateHom
 function todayPlanItem(){const p=loadPlan();if(!p||!p.schedule)return null;return p.schedule[todayIdx()]||null;}
 function isRestDay(i){return !i||/отдых|выходной/i.test(i.subject||'');}
 function topicKey(s){return s.topic||s.subject||'';}
+
+function planTab(t){
+  document.getElementById('planFormBox').style.display = t==='form' ? 'block' : 'none';
+  document.getElementById('planViewBox').style.display = t==='view' ? 'block' : 'none';
+  document.getElementById('segForm').classList.toggle('on', t==='form');
+  document.getElementById('segView').classList.toggle('on', t==='view');
+}
+
 function renderPlan(data){
   let h='';
   if(data.examName)h+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
@@ -580,6 +612,7 @@ async function buildPlan(){
   const params={grade,exam:examText,subjects:document.getElementById('pSubjects').value||'не указано',goal:document.getElementById('pGoal').value||'не указано',minutes:document.getElementById('pMinutes').value,days:+document.getElementById('pDays').value,level:document.getElementById('pLevel').value,weak:document.getElementById('pWeak').value||'нет'};
   const ei=examInfo(grade,examText);const btn=document.getElementById('planBtn');btn.disabled=true;
   showLoading('planResult','GigaChat продумывает план...');
+  planTab('view');
   try{
     const prompt='Ученик '+params.grade+' класса сдаёт: '+params.exam+'. До экзамена '+ei.weeks+' недель.\nПредметы: '+params.subjects+'\nЦель: '+params.goal+'\nЗанятия: '+params.minutes+' мин/день, РОВНО '+params.days+' УЧЕБНЫХ дней в неделю.\nУровень: '+params.level+'\nСлабые места: '+params.weak+'\n\nСАМ продумай логичное расписание: РОВНО '+params.days+' учебных и '+(7-params.days)+' дней отдыха (subject="отдых"), чередуй сложное/лёгкое, укажи тему каждого дня. Обоснуй в activity.\nТакже план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"...","topic":"...","activity":"..."},...7],"steps":[{"period":"...","subject":"...","topic":"...","advice":"..."}],"summary":"..."}';
     const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.',3000);
@@ -591,7 +624,7 @@ async function buildPlan(){
   finally{btn.disabled=false;}
 }
 async function checkWeekUpdate(){const plan=loadPlan();if(!plan||!plan.params||!plan.schedule)return;if(plan.scheduleWeek===currentWeekKey())return;showLoading('planResult','Новая неделя — обновляю темы...');try{const p=plan.params;const ei=examInfo(p.grade,p.exam);const done=(plan.done||[]).map(d=>d.subject+': '+d.topic).join('; ')||'ещё нет';const prompt='Новая неделя. Ученик '+p.grade+' кл., сдаёт '+p.exam+' ('+ei.weeks+' нед.). Предметы: '+p.subjects+'. '+p.minutes+' мин/день, РОВНО '+p.days+' учебных дней. Уровень: '+p.level+'. Слабые: '+p.weak+'.\nПройдено: '+done+'.\nСоставь расписание на НОВУЮ неделю (Пн-Вс): РОВНО '+p.days+' учебных и '+(7-p.days)+' отдыха, новые темы. Верни СТРОГО JSON: {"schedule":[...7 {"day","subject","topic","activity"}]}';const resp=await askGiga(prompt,'Верни только валидный JSON.',2000);const data=parseJSONObjectSafe(resp);if(data&&data.schedule&&data.schedule.length===7){plan.schedule=normalizeSchedule(data.schedule,p.days);plan.scheduleWeek=currentWeekKey();plan.selectedTopic=null;plan.testPassed={};savePlan(plan);}renderPlan(plan);}catch(e){renderPlan(plan);}}
-function deletePlan(){if(confirm('Удалить план?')){localStorage.removeItem('sn_plan');document.getElementById('planResult').innerHTML='';updateHomeStats();}}
+function deletePlan(){if(confirm('Удалить план?')){localStorage.removeItem('sn_plan');document.getElementById('planResult').innerHTML='';updateHomeStats();planTab('form');}}
 function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');startQuiz();}
 function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');return;}document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
 function selectTopic(key){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===key)?null:key;savePlan(p);renderPlan(p);}
@@ -608,7 +641,7 @@ function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100
 function showQuestion(o){qCurrent=o;qAnswered=false;const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';q.innerHTML=escapeHtml(o.question);mathIn(q);const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';document.getElementById('quizAnswer').focus();updateNextLabel();updateProgress();}
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return alert('Напиши тему');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;const btn=document.getElementById('quizBtn');btn.disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';document.getElementById('quizHint').textContent='';document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
-function finishBatch(){let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+'</div>';if(qPendingTopic){const p=loadPlan();if(p){if(!p.testPassed)p.testPassed={};p.testPassed[qPendingTopic]={score:qBatchScore,total:qBatchTotal,answered:qBatchAnswered,week:currentWeekKey(),date:new Date().toLocaleDateString('ru-RU')};savePlan(p);extra+='<div class="item ai">Тема «'+escapeHtml(qPendingTopic)+'» подтверждена!\nВернись в план и нажми «✅ Я прошёл тему».</div><button class="btn mint" onclick="go(\'plan\')">📅 В план</button>';}qPendingTopic=null;}const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);}
+function finishBatch(){let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+'</div>';if(qPendingTopic){const p=loadPlan();if(p){if(!p.testPassed)p.testPassed={};p.testPassed[qPendingTopic]={score:qBatchScore,total:qBatchTotal,answered:qBatchAnswered,week:currentWeekKey(),date:new Date().toLocaleDateString('ru-RU')};savePlan(p);extra+='<div class="item ai">Тема «'+escapeHtml(qPendingTopic)+'» подтверждена!\nВернись в план и нажми «✅ Я прошёл тему».</div><button class="btn mint" onclick="go(\'plan\');planTab(\'view\')">📅 В план</button>';}qPendingTopic=null;}const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);}
 async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u));let bySense=false;if(!ok){document.getElementById('quizResult').innerHTML='<div class="item loading">Проверяю по смыслу...</div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();}
 
 async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return alert('Напиши: математика 5 4, физика 3');const btn=document.getElementById('gAddBtn');btn.disabled=true;document.getElementById('gAi').innerHTML='<div class="item loading">GigaChat разбирает...</div>';let parsed=null;try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (полные названия, учти сленг) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}if(!parsed||!parsed.length)parsed=extractGradesLocal(text);if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: математика 5 4, физика 3</div>';btn.disabled=false;return;}parsed.forEach(p=>addGradeToStorage(p));document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';btn.disabled=false;}
@@ -624,7 +657,7 @@ function updateGreeting(){const h=new Date().getHours();let g='Доброй но
 updateGreeting();setInterval(updateGreeting,60000);
 
 function setTab(id){const map={home:'home',chat:'chat',plan:'plan',quiz:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===map[id]));}
-function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');setTab(id);if(id==='plan')checkWeekUpdate();if(id==='chat')syncChatHistory().then(()=>restoreChatHistory());if(id==='grades')renderG();if(id==='home')updateHomeStats();window.scrollTo({top:0,behavior:'smooth'});}
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');setTab(id);if(id==='plan'){checkWeekUpdate();planTab(loadPlan()?'view':'form');}if(id==='chat')syncChatHistory().then(()=>restoreChatHistory());if(id==='grades')renderG();if(id==='home')updateHomeStats();window.scrollTo({top:0,behavior:'smooth'});}
 function updateHomeStats(){try{const plan=loadPlan();const w=document.getElementById('statWeeks'),d=document.getElementById('statDone');if(plan){if(w)w.textContent=plan.weeks||'—';if(d)d.textContent=(plan.done||[]).length;}else{if(w)w.textContent='—';if(d)d.textContent='0';}}catch(e){}}
 
 const savedPlan=loadPlan();if(savedPlan)renderPlan(savedPlan);
