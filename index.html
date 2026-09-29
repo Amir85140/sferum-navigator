@@ -11,30 +11,32 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
+  /* ===== СВЕТЛАЯ = MAX (насыщенный синий #2787F5) ===== */
   :root, :root[data-theme="light"] {
-    --bg-color: #F0F6FF;
-    --bg-img: linear-gradient(160deg, #E8F1FF 0%, #F4F9FF 45%, #E3F5FF 100%);
+    --bg-color: #D6E8FF;
+    --bg-img: linear-gradient(160deg, #BDD8FF 0%, #D6E8FF 45%, #C9E2FF 100%);
     --bg-size: auto;
-    --blobA: rgba(0,119,255,.20); --blobB: rgba(0,194,255,.22);
+    --blobA: rgba(39,135,245,.30); --blobB: rgba(0,163,255,.32);
     --card: #FFFFFF; --card-bd: transparent; --card-blur: none;
-    --card-sh: 0 10px 30px rgba(0,80,180,.10);
-    --ink: #10243E; --muted: #5C7185;
-    --field: #EDF4FF; --field-bd: transparent; --field-focus: 0 0 0 4px rgba(0,119,255,.16);
-    --accent: #0077FF;
-    --c1-bg: linear-gradient(180deg,#4DA3FF,#0077FF); --c1-c: #fff; --c1-bd: transparent; --c1-sh: 0 8px 18px rgba(0,119,255,.35);
-    --c2-bg: linear-gradient(180deg,#4CD97B,#34C759); --c2-c: #fff; --c2-bd: transparent; --c2-sh: 0 8px 18px rgba(52,199,89,.35);
-    --c3-bg: linear-gradient(180deg,#63D4FF,#00A3E6); --c3-c: #fff; --c3-bd: transparent; --c3-sh: 0 8px 18px rgba(0,163,230,.35);
-    --c4-bg: linear-gradient(180deg,#FFD60A,#FF9F0A); --c4-c: #fff; --c4-bd: transparent; --c4-sh: 0 8px 18px rgba(255,159,10,.35);
-    --c0-bg: rgba(90,113,133,.12); --c0-c: #33475C; --c0-bd: transparent; --c0-sh: none;
+    --card-sh: 0 10px 30px rgba(0,60,140,.14);
+    --ink: #0E2540; --muted: #4A6585;
+    --field: #C8DDFF; --field-bd: 1px solid rgba(39,135,245,.25); --field-focus: 0 0 0 4px rgba(39,135,245,.25);
+    --accent: #2787F5;
+    --c1-bg: linear-gradient(180deg,#5AA8FF,#2787F5); --c1-c: #fff; --c1-bd: transparent; --c1-sh: 0 8px 18px rgba(39,135,245,.45);
+    --c2-bg: linear-gradient(180deg,#4CD97B,#28A745); --c2-c: #fff; --c2-bd: transparent; --c2-sh: 0 8px 18px rgba(40,167,69,.40);
+    --c3-bg: linear-gradient(180deg,#5AC8FA,#0A84FF); --c3-c: #fff; --c3-bd: transparent; --c3-sh: 0 8px 18px rgba(10,132,255,.45);
+    --c4-bg: linear-gradient(180deg,#FFD60A,#FF9F0A); --c4-c: #fff; --c4-bd: transparent; --c4-sh: 0 8px 18px rgba(255,159,10,.45);
+    --c0-bg: rgba(39,135,245,.12); --c0-c: #0E2540; --c0-bd: 1px solid rgba(39,135,245,.2); --c0-sh: none;
     --gloss: rgba(255,255,255,.35); --press: scale(.96);
-    --dock-bg: rgba(255,255,255,.82); --dock-bd: rgba(0,80,180,.08);
+    --dock-bg: rgba(255,255,255,.85); --dock-bd: rgba(39,135,245,.15);
     --ok-bg: #E4FAF0; --err-bg: #FFE9E9; --warn-bg: #FFF4DC;
-    --em-sh: 0 6px 14px rgba(0,80,180,.18);
-    --hero-bg: #FFFFFF; --hero-sh: 0 14px 34px rgba(0,80,180,.12);
-    --orb-bg: linear-gradient(135deg,#4DA3FF,#0077FF); --orb-sh: 0 10px 24px rgba(0,119,255,.4);
-    --halo: rgba(0,119,255,.18);
+    --em-sh: 0 6px 14px rgba(0,60,140,.20);
+    --hero-bg: #FFFFFF; --hero-sh: 0 14px 34px rgba(0,60,140,.14);
+    --orb-bg: linear-gradient(135deg,#5AA8FF,#2787F5); --orb-sh: 0 10px 24px rgba(39,135,245,.45);
+    --halo: rgba(39,135,245,.22);
     --scan: none; --ring2: #00C2FF;
   }
+  /* ===== ТЁМНАЯ = CYBER MAX ===== */
   :root[data-theme="dark"] {
     --bg-color: #050D1A;
     --bg-img: linear-gradient(rgba(0,163,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,163,255,.06) 1px, transparent 1px);
@@ -87,11 +89,11 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  /* нативные контролы (select и т.д.) под тему + читаемые опции */
+  /* нативные контролы под тему + читаемые опции select */
   :root { color-scheme: light; }
   :root[data-theme="dark"] { color-scheme: dark; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] { color-scheme: dark; } }
-  select option { background: #FFFFFF; color: #10243E; }
+  select option { background: #FFFFFF; color: #0E2540; }
   :root[data-theme="dark"] select option { background: #0A1626; color: #F0FAFF; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] select option { background: #0A1626; color: #F0FAFF; } }
 
@@ -101,6 +103,7 @@
   ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
   ::-webkit-scrollbar-thumb:hover { filter: brightness(1.25); }
 
+  /* красивое переключение темы */
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
   ::view-transition-old(root) { z-index: 1; }
   ::view-transition-new(root) { z-index: 2; }
@@ -150,7 +153,7 @@
   label { display: block; font-size: 13px; font-weight: 800; color: var(--muted); margin: 14px 0 6px; }
   select, input, textarea { width: 100%; padding: 13px 16px; border: var(--field-bd); border-radius: 14px; background: var(--field); color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700; min-height: 50px; transition: box-shadow .2s, transform .2s; }
   select:focus, input:focus, textarea:focus { outline: none; box-shadow: var(--field-focus); transform: translateY(-1px); }
-  select:hover, input:hover, textarea:hover { box-shadow: 0 4px 14px rgba(0,60,140,.10); }
+  select:hover, input:hover, textarea:hover { box-shadow: 0 4px 14px rgba(0,60,140,.12); }
   .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
 
@@ -199,9 +202,9 @@
   .cloud .em { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; box-shadow: var(--em-sh); animation: emFloat 3.6s ease-in-out infinite; }
   .cloud:nth-child(2) .em{animation-delay:.4s}.cloud:nth-child(3) .em{animation-delay:.8s}
   .cloud:nth-child(4) .em{animation-delay:1.2s}.cloud:nth-child(5) .em{animation-delay:1.6s}.cloud:nth-child(6) .em{animation-delay:2s}
-  .cloud:nth-child(1) .em { background: linear-gradient(135deg,#4DA3FF,#0077FF); }
+  .cloud:nth-child(1) .em { background: linear-gradient(135deg,#5AA8FF,#2787F5); }
   .cloud:nth-child(2) .em { background: linear-gradient(135deg,#4CD97B,#28A745); }
-  .cloud:nth-child(3) .em { background: linear-gradient(135deg,#63D4FF,#00A3E6); }
+  .cloud:nth-child(3) .em { background: linear-gradient(135deg,#5AC8FA,#0A84FF); }
   .cloud:nth-child(4) .em { background: linear-gradient(135deg,#7FB9FF,#0057D6); }
   .cloud:nth-child(5) .em { background: linear-gradient(135deg,#FFD60A,#FF9F0A); }
   .cloud:nth-child(6) .em { background: linear-gradient(135deg,#8E9BAE,#5C7185); }
@@ -353,7 +356,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 27</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 28</div></button>
     </div>
   </div>
 
@@ -474,10 +477,10 @@
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
           <li>🧮 Формулы LaTeX (KaTeX)</li>
-          <li>💙 Светлая = MAX, тёмная = Cyber MAX</li>
+          <li>💙 Светлая = MAX blue, тёмная = Cyber MAX</li>
           <li>🔒 Тема засчитывается после теста (20)</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 27</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 28</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -489,7 +492,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 27</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 28</div></button>
     </div>
   </div>
 
@@ -532,7 +535,7 @@ document.addEventListener('visibilitychange', () => {
 const confettiCv=document.getElementById('confetti');const cCtx=confettiCv.getContext('2d');let confetti=[];let confettiRunning=false;
 function sizeConfetti(){confettiCv.width=window.innerWidth;confettiCv.height=window.innerHeight;}
 sizeConfetti();window.addEventListener('resize',sizeConfetti);
-function fireConfetti(x,y){const cols=['#0077FF','#00C2FF','#39FF88','#FFD60A','#7FB9FF','#FF8FA6'];for(let i=0;i<40;i++){confetti.push({x,y,vx:(Math.random()-.5)*11,vy:-Math.random()*9-4,g:.25,size:Math.random()*6+4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.4,color:cols[i%cols.length],life:0,maxLife:80+Math.random()*30});}if(!confettiRunning){confettiRunning=true;requestAnimationFrame(confettiLoop);}}
+function fireConfetti(x,y){const cols=['#2787F5','#00C2FF','#39FF88','#FFD60A','#7FB9FF','#FF8FA6'];for(let i=0;i<40;i++){confetti.push({x,y,vx:(Math.random()-.5)*11,vy:-Math.random()*9-4,g:.25,size:Math.random()*6+4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.4,color:cols[i%cols.length],life:0,maxLife:80+Math.random()*30});}if(!confettiRunning){confettiRunning=true;requestAnimationFrame(confettiLoop);}}
 function confettiLoop(){
   cCtx.clearRect(0,0,confettiCv.width,confettiCv.height);
   confetti=confetti.filter(c=>c.life<c.maxLife&&c.y<confettiCv.height+30);
@@ -657,7 +660,6 @@ function planView(t){
   document.getElementById('segTopics').classList.toggle('on', t==='topics');
 }
 
-/* ===== РЕНДЕР: вкладка 1 = расписание, вкладка 2 = темы и тесты ===== */
 function renderPlan(data){
   let sch='', top='';
   if(data.examName)sch+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
