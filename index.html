@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="auto">
+<html lang="ru" data-theme="auto" data-bg="default" data-acc="default">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#050D1A" media="(prefers-color-scheme: dark)">
 <title>Sferum Navigator Mini</title>
 <script>
-(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('sn_theme')||'auto');}catch(e){}})();
+(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('sn_theme')||'auto');var s=JSON.parse(localStorage.getItem('sn_skin')||'{}');document.documentElement.setAttribute('data-bg',s.bg||'default');document.documentElement.setAttribute('data-acc',s.acc||'default');}catch(e){}})();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,8 +17,9 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
   :root, :root[data-theme="light"] {
+    --grid-c: rgba(0,163,255,.06);
     --bg-color: #D6E8FF;
-    --bg-img: linear-gradient(160deg, #BDD8FF 0%, #D6E8FF 45%, #C9E2FF 100%);
+    --bg-img: var(--skin-light, linear-gradient(160deg, #BDD8FF 0%, #D6E8FF 45%, #C9E2FF 100%));
     --bg-size: 200% 200%;
     --bg-anim: gradShift 18s ease infinite;
     --shine: block;
@@ -44,11 +45,10 @@
   }
   :root[data-theme="dark"] {
     --bg-color: #050D1A;
-    --bg-img: linear-gradient(rgba(0,163,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,163,255,.06) 1px, transparent 1px);
+    --bg-img: var(--skin-dark, linear-gradient(var(--grid-c) 1px, transparent 1px), linear-gradient(90deg, var(--grid-c) 1px, transparent 1px));
     --bg-size: 42px 42px;
     --bg-anim: none;
     --shine: none;
-    --blobA: rgba(0,194,255,.12); --blobB: rgba(0,119,255,.12);
     --card: rgba(6,14,28,.88); --card-bd: 1px solid rgba(0,194,255,.35); --card-blur: blur(14px);
     --card-sh: 0 0 26px rgba(0,194,255,.14), inset 0 0 22px rgba(0,194,255,.05);
     --ink: #F0FAFF; --muted: #9FBDD0;
@@ -71,11 +71,10 @@
   @media (prefers-color-scheme: dark) {
     :root[data-theme="auto"] {
       --bg-color: #050D1A;
-      --bg-img: linear-gradient(rgba(0,163,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,163,255,.06) 1px, transparent 1px);
+      --bg-img: var(--skin-dark, linear-gradient(var(--grid-c) 1px, transparent 1px), linear-gradient(90deg, var(--grid-c) 1px, transparent 1px));
       --bg-size: 42px 42px;
       --bg-anim: none;
       --shine: none;
-      --blobA: rgba(0,194,255,.12); --blobB: rgba(0,119,255,.12);
       --card: rgba(6,14,28,.88); --card-bd: 1px solid rgba(0,194,255,.35); --card-blur: blur(14px);
       --card-sh: 0 0 26px rgba(0,194,255,.14), inset 0 0 22px rgba(0,194,255,.05);
       --ink: #F0FAFF; --muted: #9FBDD0;
@@ -97,8 +96,18 @@
     }
   }
 
+  /* ===== СКИНЫ ФОНОВ ===== */
+  :root[data-bg="sunset"]{--skin-light:linear-gradient(160deg,#FFD9B8 0%,#FFE9D6 45%,#FFD3E0 100%);--skin-dark:linear-gradient(rgba(255,140,80,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,140,80,.07) 1px,transparent 1px);--blobA:rgba(255,110,60,.30);--blobB:rgba(255,70,140,.30);}
+  :root[data-bg="forest"]{--skin-light:linear-gradient(160deg,#D3F5DE 0%,#E6F7EA 45%,#D9F2E3 100%);--skin-dark:linear-gradient(rgba(60,220,130,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(60,220,130,.07) 1px,transparent 1px);--blobA:rgba(40,190,110,.30);--blobB:rgba(120,220,80,.28);}
+  :root[data-bg="space"]{--skin-light:linear-gradient(160deg,#E4DCFF 0%,#EFE9FF 45%,#DCD3FF 100%);--skin-dark:linear-gradient(rgba(150,120,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(150,120,255,.08) 1px,transparent 1px);--blobA:rgba(120,90,255,.30);--blobB:rgba(200,80,255,.26);}
+  :root[data-bg="candy"]{--skin-light:linear-gradient(160deg,#FFDDE8 0%,#FFEAF1 45%,#FFD6E8 100%);--skin-dark:linear-gradient(rgba(255,90,150,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,90,150,.07) 1px,transparent 1px);--blobA:rgba(255,90,150,.30);--blobB:rgba(255,150,90,.28);}
+  /* ===== СКИНЫ АКЦЕНТА ===== */
+  :root[data-acc="violet"]{--accent:#8B5CF6;--ring2:#D946EF;}
+  :root[data-acc="green"]{--accent:#22C55E;--ring2:#84CC16;}
+  :root[data-acc="orange"]{--accent:#F97316;--ring2:#FACC15;}
+
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  button, a, .btn, .cloud, .dock button, .theme-pill button, .seg button, .grade-row button, .hero, .mini-link, .link-item, .qchips button {
+  button, a, .btn, .cloud, .dock button, .theme-pill button, .seg button, .grade-row button, .hero, .mini-link, .link-item, .qchips button, .shop-item button {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -197,7 +206,8 @@
   .sp.s4 { top: 66%; right: 4%; color: var(--c2-c); animation-delay: 1.8s; font-size: 16px; }
   .sp.s5 { top: 86%; left: 46%; color: var(--c3-c); animation-delay: 2.4s; }
 
-  .gamebar { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin-bottom: 12px; animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .gamebar { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin-bottom: 12px; animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; cursor: pointer; transition: transform .2s; }
+  .gamebar:hover { transform: translateY(-2px); }
   .gb-lvl { width: 46px; height: 46px; border-radius: 50%; background: var(--c4-bg); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; box-shadow: var(--c4-sh); flex-shrink: 0; }
   .gb-mid { flex: 1; min-width: 0; }
   .gb-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 5px; }
@@ -246,10 +256,20 @@
   .cloud:nth-child(3) .em { background: linear-gradient(135deg,#5AC8FA,#0A84FF); }
   .cloud:nth-child(4) .em { background: linear-gradient(135deg,#7FB9FF,#0057D6); }
   .cloud:nth-child(5) .em { background: linear-gradient(135deg,#FFD60A,#FF9F0A); }
-  .cloud:nth-child(6) .em { background: linear-gradient(135deg,#8E9BAE,#5C7185); }
+  .cloud:nth-child(6) .em { background: linear-gradient(135deg,#FF7AA2,#8B5CF6); }
   .cloud .t { font-size: 15.5px; font-weight: 900; color: var(--ink); transition: letter-spacing .25s; }
   .cloud:hover .t { letter-spacing: .3px; }
   .cloud .d { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
+
+  /* ===== МАГАЗИН ===== */
+  .shop-cat { margin-top: 18px; font-size: 15px; font-weight: 900; color: var(--ink); }
+  .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .shop-item { background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); padding: 14px; text-align: center; animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+  .si-prev { width: 54px; height: 54px; border-radius: 14px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: var(--em-sh); overflow: hidden; color: #fff; font-weight: 900; }
+  .si-prev.mini { font-size: 15px; letter-spacing: 1px; }
+  .si-name { font-size: 13px; font-weight: 900; color: var(--ink); }
+  .si-price { font-size: 11px; font-weight: 800; color: var(--muted); margin: 3px 0 8px; }
+  .shop-item .btn { margin-top: 0; padding: 10px; font-size: 13px; }
 
   .chat-search { margin-bottom: 8px; }
   .chat-search input { min-height: 42px; padding: 9px 14px; font-size: 14px; }
@@ -268,7 +288,6 @@
   .chat-input input { flex: 1; margin: 0; }
   .chat-input .btn { width: 54px; margin: 0; padding: 0; height: 50px; flex-shrink: 0; }
 
-  /* ===== СКЕЛЕТОНЫ ===== */
   .skel { position: relative; overflow: hidden; background: var(--field); border-radius: 14px; }
   .skel::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(128,160,200,.28), transparent); animation: shimmer 1.2s infinite; }
   .skel-msg { width: 72%; height: 54px; margin: 10px auto 0 auto; border-radius: 20px; }
@@ -419,7 +438,7 @@
       </div>
     </div>
 
-    <div class="gamebar puff" id="gameBar"></div>
+    <div class="gamebar puff" id="gameBar" onclick="go('shop')" title="Открыть магазин"></div>
 
     <div class="chips">
       <div class="chip-stat"><div class="v" id="statAvg">—</div><div class="l">Ср. балл</div></div>
@@ -442,8 +461,16 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 35</div></button>
+      <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
     </div>
+  </div>
+
+  <div id="shop" class="page">
+    <div class="head"><div class="hi"><div class="mascot">🛍</div><div><h1>Магазин скинов</h1><div class="sub">Трать XP на кастомизацию</div></div></div></div>
+    <div class="puff" style="margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика 🔥). Подсказка в тесте стоит 100 XP.</div>
+    </div>
+    <div id="shopBox"></div>
   </div>
 
   <div id="chat" class="page">
@@ -502,7 +529,7 @@
   </div>
 
   <div id="quiz" class="page">
-    <div class="head"><div class="hi"><div class="mascot">✅</div><div><h1>Тренажёр</h1><div class="sub">Тесты письменно · карточки на запоминание</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">✅</div><div><h1>Тренажёр</h1><div class="sub">Тест 80%+ = тема пройдена = +30 XP</div></div></div></div>
     <div class="seg">
       <button id="segQuiz" class="on" onclick="quizMode('test')">🎲 Тест</button>
       <button id="segCards" onclick="quizMode('cards')">🃏 Карточки</button>
@@ -521,7 +548,7 @@
       <div class="progress-wrap" id="quizProgressWrap" style="display:none;"><div class="progress-bar" id="quizProgress"></div></div>
       <div class="quiz-q" id="quizQ">Введи тему и жми кнопку 👆</div>
       <div class="hint" id="quizHint"></div>
-      <button class="btn ghost" id="buyHintBtn" style="display:none;" onclick="buyHint()">💡 Купить подсказку (−25 XP)</button>
+      <button class="btn ghost" id="buyHintBtn" style="display:none;" onclick="buyHint()">💡 Купить подсказку (−100 XP)</button>
       <div class="quiz-input" id="quizAnswerBox" style="display:none;">
         <input id="quizAnswer" placeholder="Твой ответ..." onkeydown="if(event.key==='Enter')checkAnswer()">
         <button class="btn mint" onclick="checkAnswer()">✔</button>
@@ -590,10 +617,10 @@
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
           <li>🔐 Ключи GigaChat хранятся только на сервере</li>
-          <li>🏆 XP — только за реальную учёбу; 🔥 стрик — за дневную норму 30 XP; 💡 XP тратятся на подсказки</li>
+          <li>🏆 XP — только за проход темы (тест 80%+); 🛍 тратятся на скины</li>
           <li>🃏 Флеш-карточки, график оценок, поиск по чату</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 35</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 36</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -605,7 +632,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 35</div></button>
+      <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
     </div>
   </div>
 
@@ -647,9 +674,9 @@ document.addEventListener('visibilitychange', () => {
 
 /* ===== ОНБОРДИНГ ===== */
 const ONB=[
-  ['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит с формулами. Чат общий с ботом MAX: пиши оттуда или здесь.'],
-  ['📅','План и «Сегодня»','План соберёт твою неделю по целям, а карточка «Сегодня» на главной подскажет, что учить прямо сейчас.'],
-  ['🏆','Прогресс со смыслом','XP даётся только за учёбу. Норма дня — 30 XP: выполнил — продлил стрик 🔥. XP можно тратить на подсказки в тестах.']
+  ['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит с формулами. Чат общий с ботом MAX.'],
+  ['📅','План и «Сегодня»','План соберёт твою неделю, а карточка «Сегодня» подскажет, что учить прямо сейчас.'],
+  ['🏆','XP со смыслом','XP даётся ТОЛЬКО за проход темы: тест на 80–100% = +30 XP = дневная норма для стрика 🔥. XP трать в магазине 🛍 на скины.']
 ];
 let onbI=0;
 function onbStart(){if(localStorage.getItem('sn_onb'))return;onbI=0;document.getElementById('onb').style.display='flex';onbShow();}
@@ -658,7 +685,6 @@ function onbNext(){onbI++;if(onbI>=ONB.length)onbEnd();else onbShow();}
 function onbSkip(){onbEnd();}
 function onbEnd(){localStorage.setItem('sn_onb','1');document.getElementById('onb').style.display='none';}
 
-/* ===== ПОИСК ПО ЧАТУ ===== */
 function searchChat(q){const msgs=Array.prototype.slice.call(document.querySelectorAll('#chatBox .msg'));const s=q.trim().toLowerCase();if(!s){msgs.forEach(m=>m.classList.remove('dim','hit'));return;}let first=null;msgs.forEach(m=>{const hit=m.textContent.toLowerCase().includes(s);m.classList.toggle('hit',hit);m.classList.toggle('dim',!hit);if(hit&&!first)first=m;});if(first)first.scrollIntoView({block:'center',behavior:'smooth'});}
 function chipSet(t){const i=document.getElementById('chatInput');i.value=t;i.focus();}
 
@@ -678,22 +704,23 @@ function typeWriter(el,text,speed=20){el.classList.add('typing');el.textContent=
 function animateCount(el,from,to,dur=700){const st=performance.now();const up=now=>{const p=Math.min((now-st)/dur,1);el.textContent=(from+(to-from)*(1-Math.pow(1-p,3))).toFixed(2);if(p<1)requestAnimationFrame(up);};requestAnimationFrame(up);}
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.classList.add('out'),1900);setTimeout(()=>t.remove(),2400);}
 
-/* ===== ГЕЙМИФИКАЦИЯ СО СМЫСЛОМ ===== */
+/* ===== ГЕЙМИФИКАЦИЯ v2: XP только за проход темы (80%+) ===== */
 const DAILY_GOAL=30;
-const HINT_COST=25;
+const HINT_COST=100;
+const PASS_PCT=0.8;
 const BADGES=[
-  ['step','🎬','Первый шаг'],
+  ['step','🎬','Первый XP'],
   ['goal1','📅','Первая норма дня'],
   ['quiz10','🎯','Снайпер: 10 верных'],
   ['plan','🗺','Стратег: план составлен'],
   ['done','🎓','Тема закрыта'],
+  ['done5','📚','Эрудит: 5 тем'],
   ['cards20','🃏','Мастер карточек: 20'],
   ['streak3','🔥','3 дня подряд'],
   ['streak7','⚡','Неделя огня'],
 ];
-function loadGame(){try{return Object.assign({xp:0,correct:0,cards:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false},JSON.parse(localStorage.getItem('sn_game')||'{}'));}catch(e){return{xp:0,correct:0,cards:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false};}}
+function loadGame(){try{return Object.assign({xp:0,correct:0,cards:0,doneN:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false},JSON.parse(localStorage.getItem('sn_game')||'{}'));}catch(e){return{xp:0,correct:0,cards:0,doneN:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false};}}
 function saveGame(g){localStorage.setItem('sn_game',JSON.stringify(g));}
-function mascotFor(lvl){return lvl>=9?'👑':lvl>=7?'🐉':lvl>=5?'🧠':lvl>=3?'🚀':'';}
 function addXP(n,reason){
   const g=loadGame();const t=new Date().toDateString();
   if(g.dayDate!==t){g.dayDate=t;g.dayXp=0;}
@@ -709,13 +736,81 @@ function addXP(n,reason){
   renderGame();checkBadges();
 }
 function spendXP(n){const g=loadGame();if(g.xp<n)return false;g.xp-=n;g.spent=(g.spent||0)+n;saveGame(g);renderGame();return true;}
-function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,cards20:g.cards>=20,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
+function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,cards20:g.cards>=20,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
 function renderGame(){
   const g=loadGame();const lvl=Math.floor(g.xp/100)+1;const prog=g.xp%100;const t=new Date().toDateString();
   const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');
-  const goalTxt='📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅ норма':' · норма = стрик');
-  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+' · '+mascotFor(lvl)+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 потрачено: '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">XP — только за учёбу · норма дня продлевает стрик</span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
-  const mh=document.getElementById('mascotHome');if(mh)mh.textContent=mascotFor(lvl);
+  const goalTxt='📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
+  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин 🛍</span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
+}
+
+/* ===== МАГАЗИН СКИНОВ ===== */
+const SHOP=[
+  {id:'bg_default',cat:'bg',name:'Классика MAX',css:'linear-gradient(135deg,#5AA8FF,#2787F5)',price:0,val:'default'},
+  {id:'bg_sunset',cat:'bg',name:'Закат',css:'linear-gradient(135deg,#FFB060,#FF6090)',price:60,val:'sunset'},
+  {id:'bg_forest',cat:'bg',name:'Лес',css:'linear-gradient(135deg,#4CD97B,#1F8F4E)',price:60,val:'forest'},
+  {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
+  {id:'bg_candy',cat:'bg',name:'Конфеты',css:'linear-gradient(135deg,#FF7AA2,#FFB1C9)',price:60,val:'candy'},
+  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠🤖✅',price:0,val:'default'},
+  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🐼🐯',price:40,val:'zoo'},
+  {id:'ic_space',cat:'icons',name:'Космос',prev:'🌍🛸',price:40,val:'space'},
+  {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🍕🍩',price:40,val:'food'},
+  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
+  {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
+  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐲',price:50,val:'🐲'},
+  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
+  {id:'ms_octo',cat:'mascot',name:'Осьминог',prev:'🐙',price:50,val:'🐙'},
+  {id:'ac_default',cat:'acc',name:'Синий',css:'#2787F5',price:0,val:'default'},
+  {id:'ac_violet',cat:'acc',name:'Фиолет',css:'#8B5CF6',price:30,val:'violet'},
+  {id:'ac_green',cat:'acc',name:'Зелёный',css:'#22C55E',price:30,val:'green'},
+  {id:'ac_orange',cat:'acc',name:'Оранж',css:'#F97316',price:30,val:'orange'},
+];
+const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:'🎨 Акцентный цвет'};
+const ICON_SETS={default:['🏠','🤖','','✅',''],zoo:['🐻','🐼','','🐯','🦊'],space:['🌍','🛸','🗺','🎯',''],food:['','🍟','🍕','🌭','🍩']};
+function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
+function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
+function applySkin(){
+  const s=loadSkin();
+  document.documentElement.setAttribute('data-bg',s.bg);
+  document.documentElement.setAttribute('data-acc',s.acc);
+  const icons=ICON_SETS[s.icons]||ICON_SETS.default;
+  document.querySelectorAll('.dock button .ic').forEach((el,i)=>{el.textContent=icons[i]||el.textContent;});
+  document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});
+}
+function renderShop(){
+  const s=loadSkin();const g=loadGame();let h='';
+  ['bg','icons','mascot','acc'].forEach(cat=>{
+    h+='<div class="shop-cat">'+CAT_NAMES[cat]+'</div><div class="shop-grid">';
+    SHOP.filter(x=>x.cat===cat).forEach((it,idx)=>{
+      const owned=s.owned.includes(it.id);
+      const selected=(cat==='mascot')?(s.mascot===it.val):(s[cat]===it.val);
+      const prev=it.css?'<div class="si-prev" style="background:'+it.css+'"></div>':'<div class="si-prev'+(it.prev&&it.prev.length>2?' mini':'')+'">'+(it.prev||'')+'</div>';
+      let btn;
+      if(selected)btn='<button class="btn ghost" disabled>✓ Выбрано</button>';
+      else if(owned)btn='<button class="btn sky" onclick="selectSkin(\''+it.id+'\')">Выбрать</button>';
+      else btn='<button class="btn mint" '+(g.xp<it.price?'disabled':'')+' onclick="buySkin(\''+it.id+'\')">Купить · '+it.price+' XP</button>';
+      h+='<div class="shop-item" style="animation-delay:'+(idx*60)+'ms;">'+prev+'<div class="si-name">'+it.name+'</div><div class="si-price">'+(it.price?it.price+' XP':'бесплатно')+'</div>'+btn+'</div>';
+    });
+    h+='</div>';
+  });
+  document.getElementById('shopBox').innerHTML=h;
+}
+function buySkin(id){
+  const it=SHOP.find(x=>x.id===id);if(!it)return;
+  const s=loadSkin();if(s.owned.includes(id))return selectSkin(id);
+  const g=loadGame();
+  if(g.xp<it.price){toast('Не хватает XP: нужно '+it.price);return;}
+  spendXP(it.price);
+  s.owned.push(id);saveSkin(s);
+  selectSkin(id,true);
+  toast('🛍 Куплено: '+it.name+' (−'+it.price+' XP)');
+}
+function selectSkin(id,silent){
+  const it=SHOP.find(x=>x.id===id);if(!it)return;
+  const s=loadSkin();
+  if(it.cat==='mascot')s.mascot=it.val;else s[it.cat]=it.val;
+  saveSkin(s);applySkin();renderShop();
+  if(!silent)toast('✨ Применено: '+it.name);
 }
 
 /* ===== КАРТОЧКА СЕГОДНЯ ===== */
@@ -761,7 +856,7 @@ const GRADE_TRIGGERS=/оценк|получил|получила|постави�
 
 function loadG(){try{return JSON.parse(localStorage.getItem('g')||'{}');}catch(e){return{};}}
 function saveG(g){localStorage.setItem('g',JSON.stringify(g));}
-function addGradeToStorage(p){const g=loadG();if(!g[p.subject])g[p.subject]=[];g[p.subject]=g[p.subject].concat(p.grades);saveG(g);renderG();pushHist();addXP(5,'оценка записана');}
+function addGradeToStorage(p){const g=loadG();if(!g[p.subject])g[p.subject]=[];g[p.subject]=g[p.subject].concat(p.grades);saveG(g);renderG();pushHist();}
 
 let gHist=[];try{gHist=JSON.parse(localStorage.getItem('sn_g_hist')||'[]');}catch(e){gHist=[];}
 function pushHist(){const g=loadG();let all=[];for(const s in g)all=all.concat(g[s]);if(!all.length)return;const avg=all.reduce((a,b)=>a+b,0)/all.length;const d=new Date().toLocaleDateString('ru-RU');const last=gHist[gHist.length-1];if(last&&last.d===d){last.v=+avg.toFixed(2);}else{gHist.push({d:d,v:+avg.toFixed(2)});if(gHist.length>30)gHist.shift();}localStorage.setItem('sn_g_hist',JSON.stringify(gHist));drawGraph();}
@@ -865,15 +960,13 @@ function renderPlan(data){
 
     const wt=data.schedule.filter(s=>!isRestDay(s));
     if(wt.length){
-      top+='<div class="item ai">🎯 Темы недели: выбери пройденную и подтверди тестом ('+TEST_SIZE+'):</div>';
-      wt.forEach(s=>{const key=topicKey(s);if(!key)return;const passed=data.testPassed&&data.testPassed[key]&&data.testPassed[key].week===currentWeekKey()?data.testPassed[key]:null;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
-        top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(passed?'\n✅ тест '+passed.score+'/'+passed.total:'')+(done?'\n🎓 пройдено':'')+'</span></div>';
+      top+='<div class="item ai">🎯 Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
+      wt.forEach(s=>{const key=topicKey(s);if(!key)return;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
+        top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
         if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
-          if(sel){top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+')</button>';
-            if(passed)top+='<button class="btn mint" onclick="markSelectedDone()">✅ Я прошёл тему</button>';
-            else top+='<button class="btn ghost" disabled>✅ Сначала пройди тест ('+TEST_SIZE+')</button>';}}});
+          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
       if(data.done&&data.done.length)top+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
-      else top+='<div class="item">Пока ничего не пройдено — выбери тему и пройди тест 👆</div>';
+      else top+='<div class="item">Пока ничего не пройдено — выбери тему и сдай тест на 80%+ 👆</div>';
     }
   }
   if(data.summary)top+='<div class="item ai">💡 '+escapeHtml(cleanResponse(data.summary))+'</div>';
@@ -895,19 +988,19 @@ async function buildPlan(){
     if(data.schedule)data.schedule=normalizeSchedule(data.schedule,params.days);
     data.examName=ei.name;data.examDate=ei.examDate.toLocaleDateString('ru-RU');data.weeks=ei.weeks;data.savedAt=new Date().toLocaleDateString('ru-RU');data.scheduleWeek=currentWeekKey();data.params=params;data.done=[];data.testPassed={};data.selectedTopic=null;
     savePlan(data);renderPlan(data);renderToday();
-    const g=loadGame();g.plan=true;saveGame(g);addXP(30,'план составлен');
+    const g=loadGame();g.plan=true;saveGame(g);checkBadges();
   }catch(e){showError('planSched','Ошибка: '+e.message);}
   finally{btn.disabled=false;}
 }
 async function checkWeekUpdate(){const plan=loadPlan();if(!plan||!plan.params||!plan.schedule)return;if(plan.scheduleWeek===currentWeekKey())return;planTab('view');planView('sched');showLoading('planSched','Новая неделя — обновляю темы...');try{const p=plan.params;const ei=examInfo(p.grade,p.exam);const done=(plan.done||[]).map(d=>d.subject+': '+d.topic).join('; ')||'ещё нет';const prompt='Новая неделя. Ученик '+p.grade+' кл., сдаёт '+p.exam+' ('+ei.weeks+' нед.). Предметы: '+p.subjects+'. '+p.minutes+' мин/день, РОВНО '+p.days+' учебных дней. Уровень: '+p.level+'. Слабые: '+p.weak+'.\nПройдено: '+done+'.\nСоставь расписание на НОВУЮ неделю (Пн-Вс): РОВНО '+p.days+' учебных и '+(7-p.days)+' отдыха, новые темы. Верни СТРОГО JSON: {"schedule":[...7 {"day","subject","topic","activity"}]}';const resp=await askGiga(prompt,'Верни только валидный JSON.',2000);const data=parseJSONObjectSafe(resp);if(data&&data.schedule&&data.schedule.length===7){plan.schedule=normalizeSchedule(data.schedule,p.days);plan.scheduleWeek=currentWeekKey();plan.selectedTopic=null;plan.testPassed={};savePlan(plan);}renderPlan(plan);renderToday();}catch(e){renderPlan(plan);renderToday();}}
 function deletePlan(){if(confirm('Удалить план?')){localStorage.removeItem('sn_plan');document.getElementById('planSched').innerHTML='';document.getElementById('planTopics').innerHTML='';document.getElementById('todayCard').innerHTML='';updateHomeStats();planTab('form');}}
-function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');quizMode('test');startQuiz();}
+function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');quizMode('test');startQuiz(topicKey(it),TEST_SIZE);}
 function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');return;}document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
 function selectTopic(key){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===key)?null:key;savePlan(p);renderPlan(p);}
 function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return alert('Выбери тему');document.getElementById('qTopic').value=k;go('quiz');quizMode('test');startQuiz(k,TEST_SIZE);}
-function markSelectedDone(){const p=loadPlan();if(!p)return;const k=p.selectedTopic;if(!k)return alert('Выбери тему');const passed=p.testPassed&&p.testPassed[k];if(!passed||passed.week!==currentWeekKey()||passed.total<TEST_SIZE||passed.answered<passed.total)return alert('Нужно полностью пройти тест из '+TEST_SIZE+' вопросов на этой неделе');if(!p.done)p.done=[];if(!p.done.some(d=>d.topic===k)){const si=(p.schedule||[]).find(s=>topicKey(s)===k);p.done.push({date:new Date().toLocaleDateString('ru-RU'),subject:(si&&si.subject)||k,topic:k,score:passed.score+'/'+passed.total});}p.selectedTopic=null;savePlan(p);renderPlan(p);updateHomeStats();addXP(50,'тема закрыта');}
+function retryTopicTest(key){document.getElementById('qTopic').value=key;go('quiz');quizMode('test');startQuiz(key,TEST_SIZE);}
 
-/* ===== ТЕСТЫ + ПОДСКАЗКА ЗА XP ===== */
+/* ===== ТЕСТЫ: XP только за 80%+ ===== */
 let qC=0,qT=0,qCurrent=null,qAnswered=false,qQueue=[],qLastTopic='';
 let qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0,qHintUsed=false;
 function normalize(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();}
@@ -921,8 +1014,26 @@ function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=docu
 async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}if(!spendXP(HINT_COST))return;qHintUsed=true;const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}}
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return alert('Напиши тему');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;const btn=document.getElementById('quizBtn');btn.disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';document.getElementById('quizHint').textContent='';document.getElementById('buyHintBtn').style.display='none';document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
-function finishBatch(){let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+'</div>';addXP(20,'тест завершён');if(qPendingTopic){const p=loadPlan();if(p){if(!p.testPassed)p.testPassed={};p.testPassed[qPendingTopic]={score:qBatchScore,total:qBatchTotal,answered:qBatchAnswered,week:currentWeekKey(),date:new Date().toLocaleDateString('ru-RU')};savePlan(p);extra+='<div class="item ai">Тема «'+escapeHtml(qPendingTopic)+'» подтверждена!\nВернись в план → «🎯 Темы и тесты» → нажми «✅ Я прошёл тему».</div><button class="btn mint" onclick="go(\'plan\');planView(\'topics\')">🎯 К темам и тестам</button>';}qPendingTopic=null;}const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);}
-async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u));let bySense=false;if(!ok){document.getElementById('quizResult').innerHTML='<div class="skel skel-card" style="height:56px"></div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;const g=loadGame();g.correct++;saveGame(g);addXP(10,'верный ответ');box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);checkBadges();}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();}
+function finishBatch(){
+  const pct=qBatchTotal?qBatchScore/qBatchTotal:0;
+  let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';
+  if(qPendingTopic){
+    const key=qPendingTopic;const p=loadPlan();
+    if(p&&pct>=PASS_PCT){
+      if(!p.done)p.done=[];
+      if(!p.done.some(d=>d.topic===key)){const si=(p.schedule||[]).find(s=>topicKey(s)===key);p.done.push({date:new Date().toLocaleDateString('ru-RU'),subject:(si&&si.subject)||key,topic:key,score:qBatchScore+'/'+qBatchTotal});}
+      p.selectedTopic=null;savePlan(p);renderPlan(p);updateHomeStats();
+      extra+='<div class="item ai">🎓 ТЕМА ПРОЙДЕНА (80%+)! +30 XP — это и есть дневная норма для стрика 🔥</div>';
+      addXP(30,'тема пройдена');
+      const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
+    }else{
+      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
+    }
+    qPendingTopic=null;
+  }
+  const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);
+}
+async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u));let bySense=false;if(!ok){document.getElementById('quizResult').innerHTML='<div class="skel skel-card" style="height:56px"></div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;const g=loadGame();g.correct++;saveGame(g);box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);checkBadges();}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();}
 
 /* ===== ФЛЕШ-КАРТОЧКИ ===== */
 let fcQueue=[],fcKnown=0,fcTotal=0,fcCurrent=null;
@@ -936,14 +1047,14 @@ async function makeCards(){const topic=document.getElementById('cTopic').value.t
   finally{btn.disabled=false;}
 }
 function showCard(){const area=document.getElementById('cardArea');
-  if(!fcQueue.length){area.innerHTML='<div class="item ai">🃏 Готово! Знано '+fcKnown+' из '+fcTotal+'</div>';document.getElementById('cardScore').textContent='';if(fcTotal&&fcKnown===fcTotal){const r=area.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);addXP(10,'все карточки знаны');}return;}
+  if(!fcQueue.length){area.innerHTML='<div class="item ai">🃏 Готово! Знано '+fcKnown+' из '+fcTotal+'</div>';document.getElementById('cardScore').textContent='';if(fcTotal&&fcKnown===fcTotal){const r=area.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);}return;}
   fcCurrent=fcQueue.shift();
   area.innerHTML='<div class="fc-wrap"><div class="fc-card" id="fcCard" onclick="flipCard()"><div class="fc-face fc-front"><div class="fc-q">'+escapeHtml(fcCurrent.q)+'</div><div class="fc-hint">нажми, чтобы перевернуть</div></div><div class="fc-face fc-back"><div class="fc-a">'+escapeHtml(fcCurrent.a)+'</div></div></div></div><div class="row2" id="fcBtns" style="display:none;"><button class="btn mint" onclick="cardKnow()">✅ Знал</button><button class="btn ghost" onclick="cardRepeat()">🔁 Повторить</button></div>';
   mathIn(area);
   document.getElementById('cardScore').textContent='Осталось: '+(fcQueue.length+1)+' · Знано: '+fcKnown+' / '+fcTotal;
 }
 function flipCard(){const c=document.getElementById('fcCard');if(!c||c.classList.contains('flipped'))return;c.classList.add('flipped');document.getElementById('fcBtns').style.display='flex';}
-function cardKnow(){const g=loadGame();g.cards++;saveGame(g);fcKnown++;addXP(4,'карточка');checkBadges();showCard();}
+function cardKnow(){const g=loadGame();g.cards++;saveGame(g);fcKnown++;checkBadges();showCard();}
 function cardRepeat(){fcQueue.push(fcCurrent);showCard();}
 
 async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return alert('Напиши: математика 5 4, физика 3');const btn=document.getElementById('gAddBtn');btn.disabled=true;document.getElementById('gAi').innerHTML='<div class="skel skel-card"></div>';let parsed=null;try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (полные названия, учти сленг) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}if(!parsed||!parsed.length)parsed=extractGradesLocal(text);if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: математика 5 4, физика 3</div>';btn.disabled=false;return;}parsed.forEach(p=>addGradeToStorage(p));document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';btn.disabled=false;}
@@ -953,15 +1064,16 @@ async function gradesAI(){const g=loadG();const k=Object.keys(g);if(!k.length)re
 
 async function buildVideo(){const topic=document.getElementById('vTopic').value.trim()||'математика';const btn=document.getElementById('vBtn');btn.disabled=true;showLoading('vAi','Объясняю и проверяю видео...');try{const r=await askGiga('Кратко (3-4 предложения) объясни школьнику тему «'+topic+'» с примером. Формулы в LaTeX ($...$).');const box=document.getElementById('vAi');box.innerHTML='<div class="item ai">🎓 Объяснение:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);const av={youtube:true,vk:true,rutube:true};try{const cr=await fetch(PROXY_BASE+'/check_video?q='+encodeURIComponent(topic));if(cr.ok){const d=await cr.json();if(d.available){av.youtube=d.available.includes('youtube');av.vk=d.available.includes('vk');av.rutube=d.available.includes('rutube');}}}catch(e){}document.getElementById('videoResult').innerHTML=videoLinks(topic,av);}catch(e){showError('vAi','Ошибка: '+e.message);}finally{btn.disabled=false;}}
 
-async function motivationAI(){const mood=document.getElementById('mMood').value;const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[mood];const sit=document.getElementById('mText').value.trim();const btn=document.getElementById('mBtn');btn.disabled=true;const box=document.getElementById('quoteBox');box.textContent='⏳ Читаю и подбираю слова...';try{let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';const r=await askGiga(prompt);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);addXP(2,'заботишься о себе');}catch(e){box.textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
+async function motivationAI(){const mood=document.getElementById('mMood').value;const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[mood];const sit=document.getElementById('mText').value.trim();const btn=document.getElementById('mBtn');btn.disabled=true;const box=document.getElementById('quoteBox');box.textContent='⏳ Читаю и подбираю слова...';try{let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';const r=await askGiga(prompt);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);}catch(e){box.textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 
 function updateGreeting(){const h=new Date().getHours();let g='Доброй ночи!';if(h>=5&&h<12)g='Доброе утро!';else if(h>=12&&h<18)g='Добрый день!';else if(h>=18&&h<23)g='Добрый вечер!';const el=document.getElementById('heroGreet');if(el)el.textContent=g;}
 updateGreeting();setInterval(updateGreeting,60000);
 
-function setTab(id){const map={home:'home',chat:'chat',plan:'plan',quiz:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===map[id]));}
-function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');setTab(id);if(id==='plan'){checkWeekUpdate();planTab(loadPlan()?'view':'form');}if(id==='chat')syncChatHistory().then(()=>restoreChatHistory());if(id==='grades')renderG();if(id==='home')updateHomeStats();window.scrollTo({top:0,behavior:'smooth'});}
+function setTab(id){const map={home:'home',chat:'chat',plan:'plan',quiz:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more',shop:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===map[id]));}
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');setTab(id);if(id==='plan'){checkWeekUpdate();planTab(loadPlan()?'view':'form');}if(id==='chat')syncChatHistory().then(()=>restoreChatHistory());if(id==='grades')renderG();if(id==='shop')renderShop();if(id==='home')updateHomeStats();window.scrollTo({top:0,behavior:'smooth'});}
 function updateHomeStats(){try{const plan=loadPlan();const w=document.getElementById('statWeeks'),d=document.getElementById('statDone');if(plan){if(w)w.textContent=plan.weeks||'—';if(d)d.textContent=(plan.done||[]).length;}else{if(w)w.textContent='—';if(d)d.textContent='0';}}catch(e){}renderToday();renderGame();}
 
+applySkin();
 const savedPlan=loadPlan();if(savedPlan)renderPlan(savedPlan);
 renderG();updateHomeStats();setTab('home');renderGame();renderToday();drawGraph();
 syncChatHistory().then(()=>restoreChatHistory());
