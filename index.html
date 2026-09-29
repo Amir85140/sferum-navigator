@@ -3,10 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#D6E8FF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#050D1A" media="(prefers-color-scheme: dark)">
 <title>Sferum Navigator Mini</title>
+<script>
+(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('sn_theme')||'auto');}catch(e){}})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
@@ -136,12 +141,14 @@
     position: relative; overflow-x: hidden;
   }
   body.paused *, body.paused *::before, body.paused *::after { animation-play-state: paused !important; }
-  body::before, body::after { content: ''; position: fixed; border-radius: 50%; filter: blur(70px); z-index: -1; opacity: .8; pointer-events: none; }
-  body::before { width: 320px; height: 320px; background: var(--blobA); top: -90px; right: -70px; animation: drift 18s ease-in-out infinite; }
-  body::after { width: 300px; height: 300px; background: var(--blobB); bottom: -80px; left: -70px; animation: drift 22s ease-in-out infinite reverse; }
+  /* лёгкие пятна без blur-фильтра (дешевле для GPU) */
+  body::before, body::after { content: ''; position: fixed; border-radius: 50%; z-index: -1; pointer-events: none; }
+  body::before { width: 420px; height: 420px; background: radial-gradient(circle, var(--blobA) 0%, transparent 70%); top: -120px; right: -100px; animation: drift 18s ease-in-out infinite; will-change: transform; }
+  body::after { width: 400px; height: 400px; background: radial-gradient(circle, var(--blobB) 0%, transparent 70%); bottom: -110px; left: -100px; animation: drift 22s ease-in-out infinite reverse; will-change: transform; }
 
-  .fx-scan { display: var(--scan); position: fixed; inset: 0; pointer-events: none; z-index: 40; background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); mix-blend-mode: overlay; animation: scanMove 9s linear infinite; }
-  .fx-shine { display: var(--shine, none); position: fixed; inset: -60%; z-index: -1; pointer-events: none;
+  /* сканлайны через transform (GPU), а не background-position */
+  .fx-scan { display: var(--scan); position: fixed; left: 0; right: 0; top: -120px; bottom: -120px; pointer-events: none; z-index: 40; background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); mix-blend-mode: overlay; animation: scanMove 9s linear infinite; will-change: transform; }
+  .fx-shine { display: var(--shine, none); position: fixed; inset: -60%; z-index: -1; pointer-events: none; will-change: transform;
     background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(255,255,255,.55) 35deg, transparent 80deg, transparent 170deg, rgba(39,135,245,.20) 210deg, transparent 260deg);
     animation: rotateSlow 32s linear infinite; }
 
@@ -311,7 +318,7 @@
   @keyframes sweep { 0%{left:-70%} 55%{left:130%} 100%{left:130%} }
   @keyframes orbPulse { 0%,100%{box-shadow: var(--orb-sh)} 50%{box-shadow: var(--orb-sh), 0 0 40px rgba(0,194,255,.4)} }
   @keyframes neonPulse { 0%,100%{box-shadow: var(--card-sh), 0 0 0 0 rgba(0,194,255,.0)} 50%{box-shadow: var(--card-sh), 0 0 22px rgba(0,194,255,.35)} }
-  @keyframes scanMove { to { background-position: 0 220px; } }
+  @keyframes scanMove { from{transform:translateY(0)} to{transform:translateY(120px)} }
   @keyframes flick { 0%,97%,100%{opacity:1} 98%{opacity:.6} 99%{opacity:.9} }
   @keyframes dropIn { from{opacity:0; transform:translateY(-16px)} to{opacity:1; transform:none} }
   @keyframes pageIn { from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:none} }
@@ -378,7 +385,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 32</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 33</div></button>
     </div>
   </div>
 
@@ -498,11 +505,11 @@
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
+          <li>🔐 Ключи GigaChat хранятся только на сервере</li>
           <li>🧮 Формулы LaTeX (KaTeX)</li>
           <li>💙 Светлая = живой MAX blue, тёмная = Cyber MAX</li>
-          <li>🔒 Тема засчитывается после теста (20)</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 32</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 33</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -514,7 +521,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 32</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 33</div></button>
     </div>
   </div>
 
@@ -569,8 +576,6 @@ function confettiLoop(){
 function typeWriter(el,text,speed=20){el.classList.add('typing');el.textContent='';let i=0;return new Promise(res=>{const step=()=>{if(i<=text.length){el.textContent=text.slice(0,i);i++;setTimeout(step,speed);}else{el.classList.remove('typing');res();}};step();});}
 function animateCount(el,from,to,dur=700){const st=performance.now();const up=now=>{const p=Math.min((now-st)/dur,1);el.textContent=(from+(to-from)*(1-Math.pow(1-p,3))).toFixed(2);if(p<1)requestAnimationFrame(up);};requestAnimationFrame(up);}
 
-const GIGA_ID='01a0bafa-206f-7e07-a2e7-df9e0acea285';
-const GIGA_SECRET='93e085d7-803b-4fe2-b1da-468aff78a450';
 const CODESPACE_NAME='automatic-system-p7gg76p4wqqwf99rj';
 const PROXY_BASE='https://'+CODESPACE_NAME+'-8000.app.github.dev';
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -578,26 +583,17 @@ const TEST_SIZE=20;
 const CHANNEL='main';
 const MATH_SYSTEM='Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
 
-let gigaToken=null,gigaExp=0;
-function uuid(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);});}
 function mathIn(el){if(!el||!window.renderMathInElement)return;try{renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false});}catch(e){}}
 window.addEventListener('load',()=>mathIn(document.body));
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
+/* ===== ВСЕ запросы к ИИ идут через прокси /chat (секретов на клиенте нет) ===== */
 async function askGiga(prompt,systemPrompt,maxTokens,history){
   const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),60000);
   try{
-    if(!gigaToken||Date.now()>gigaExp){
-      const r1=await fetch(PROXY_BASE+'/proxy?url='+encodeURIComponent('https://ngw.devices.sberbank.ru:9443/api/v2/oauth'),{method:'POST',headers:{'Authorization':'Basic '+btoa(GIGA_ID+':'+GIGA_SECRET),'Content-Type':'application/x-www-form-urlencoded','RqUID':uuid()},body:'scope=GIGACHAT_API_PERS',signal:ctrl.signal});
-      if(!r1.ok)throw new Error('Auth failed: '+r1.status);
-      const d1=await r1.json();gigaToken=d1.access_token;gigaExp=Date.now()+1700*1000;
-    }
-    const messages=[{role:'system',content:systemPrompt||MATH_SYSTEM}];
-    if(history&&history.length)messages.push.apply(messages,history);
-    messages.push({role:'user',content:prompt});
-    const r2=await fetch(PROXY_BASE+'/proxy?url='+encodeURIComponent('https://gigachat.devices.sberbank.ru/api/v1/chat/completions'),{method:'POST',headers:{'Authorization':'Bearer '+gigaToken,'Content-Type':'application/json'},body:JSON.stringify({model:'GigaChat:latest',messages,max_tokens:maxTokens||800,temperature:0.7}),signal:ctrl.signal});
-    if(!r2.ok)throw new Error('Chat failed: '+r2.status);
-    const d2=await r2.json();return d2.choices[0].message.content;
+    const r=await fetch(PROXY_BASE+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,system:systemPrompt||MATH_SYSTEM,max_tokens:maxTokens||800,history:history||[]}),signal:ctrl.signal});
+    if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error('Chat failed: '+r.status+(d?' '+d:''));}
+    const j=await r.json();return j.reply;
   }finally{clearTimeout(timer);}
 }
 function cleanResponse(t){return t.replace(/\*\*/g,'').replace(/(^|\n)#{1,3}\s*/g,'$1').replace(/`/g,'').replace(/\n{3,}/g,'\n\n').trim();}
@@ -630,10 +626,13 @@ function renderG(){
 }
 
 let chatHistory=[];try{chatHistory=JSON.parse(localStorage.getItem('sn_chat')||'[]');}catch(e){chatHistory=[];}
+let syncInFlight=false;
 function msgKey(m){return (m.role||'')+'|'+(m.timestamp||'')+'|'+(m.content||'');}
 async function syncChatHistory(){
-  if(document.hidden)return;
+  if(document.hidden||syncInFlight)return;
+  syncInFlight=true;
   try{const r=await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL));if(!r.ok)return;const server=await r.json();if(!Array.isArray(server))return;const keys=new Set(chatHistory.map(msgKey));let ch=false;server.forEach(m=>{const k=msgKey(m);if(!keys.has(k)){chatHistory.push(m);keys.add(k);ch=true;}});if(ch){chatHistory.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));if(document.getElementById('chat').classList.contains('active'))restoreChatHistory();}}catch(e){}
+  finally{syncInFlight=false;}
 }
 async function saveChatToServer(){try{await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(chatHistory.slice(-50))});}catch(e){}}
 function saveChatHistory(){if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));saveChatToServer();}
@@ -660,7 +659,7 @@ async function sendChat(){
   finally{document.getElementById('chatBtn').disabled=false;}
 }
 function clearChat(){if(!confirm('Удалить общий чат (и в MAX, и на сайте)?'))return;chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';addMsg('Общий чат очищен. Начнём заново! 🎓','bot');saveChatToServer();}
-function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';if(!chatHistory.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX 🔄','bot');}else{chatHistory.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
+function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';const list=chatHistory.slice(-30);if(!list.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX 🔄','bot');}else{list.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
 
 function examInfo(grade,examText){const now=new Date();const t=(examText||'').toLowerCase();let tg=grade,mo=4,da=25;if(t.includes('огэ')){tg=9;da=20;}else if(t.includes('егэ')){tg=11;da=25;}const yl=Math.max(0,tg-grade);let ed=new Date(now.getFullYear()+yl,mo,da);if(ed<now)ed=new Date(now.getFullYear()+yl+1,mo,da);const w=Math.max(1,Math.round((ed-now)/(7*24*3600*1000)));return{name:examText||'экзамен',examDate:ed,weeks:w};}
 function normalizeSchedule(sch,days){let st=0;return (sch||[]).map(s=>{const rest=/отдых|выходной/i.test(s.subject||'');if(!rest&&st<days){st++;return s;}if(!rest)return{day:s.day,subject:'отдых',topic:'',activity:'отдых'};return s;});}
@@ -771,7 +770,7 @@ const savedPlan=loadPlan();if(savedPlan)renderPlan(savedPlan);
 renderG();updateHomeStats();setTab('home');
 syncChatHistory().then(()=>restoreChatHistory());
 checkWeekUpdate();
-setInterval(syncChatHistory,12000);
+setInterval(syncChatHistory,30000);
 </script>
 </body>
 </html>
