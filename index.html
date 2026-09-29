@@ -30,6 +30,7 @@
     --em-sh: 0 6px 14px rgba(60,60,90,.18);
     --hero-bg: #FFFFFF; --hero-sh: 0 14px 34px rgba(60,60,90,.10);
     --orb-bg: linear-gradient(135deg,#409CFF,#007AFF); --orb-sh: 0 10px 24px rgba(0,122,255,.4);
+    --halo: rgba(0,122,255,.18);
     --scan: none; --ring2: #FF2D55;
   }
   :root[data-theme="dark"] {
@@ -52,6 +53,7 @@
     --em-sh: 0 0 16px rgba(0,229,255,.35);
     --hero-bg: rgba(6,10,24,.88); --hero-sh: 0 0 30px rgba(0,229,255,.18), inset 0 0 26px rgba(0,229,255,.06);
     --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,229,255,.9), rgba(0,120,255,.5) 45%, rgba(255,46,210,.35) 75%); --orb-sh: 0 0 30px rgba(0,229,255,.55);
+    --halo: rgba(0,229,255,.22);
     --scan: block; --ring2: #FF2ED2;
   }
   @media (prefers-color-scheme: dark) {
@@ -75,19 +77,17 @@
       --em-sh: 0 0 16px rgba(0,229,255,.35);
       --hero-bg: rgba(6,10,24,.88); --hero-sh: 0 0 30px rgba(0,229,255,.18), inset 0 0 26px rgba(0,229,255,.06);
       --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,229,255,.9), rgba(0,120,255,.5) 45%, rgba(255,46,210,.35) 75%); --orb-sh: 0 0 30px rgba(0,229,255,.55);
+      --halo: rgba(0,229,255,.22);
       --scan: block; --ring2: #FF2ED2;
     }
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  /* ===== КРАСИВЫЙ ТОНКИЙ СКРОЛЛБАР ===== */
   html { scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
-  :root[data-theme="dark"] ::-webkit-scrollbar-thumb, 
-  @media (prefers-color-scheme: dark) { }
-  ::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
+  ::-webkit-scrollbar-thumb:hover { filter: brightness(1.25); }
 
   body {
     font-family: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
@@ -106,19 +106,19 @@
 
   .head { margin-bottom: 16px; animation: dropIn .5s cubic-bezier(.34,1.56,.64,1) both; }
   .head .hi { display: flex; align-items: center; gap: 12px; }
-  .head .mascot { position: relative; width: 54px; height: 54px; border-radius: 16px; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 27px; box-shadow: var(--orb-sh); animation: bob 3.2s ease-in-out infinite; flex-shrink: 0; }
-  .head .mascot::after { content: ''; position: absolute; inset: -4px; border-radius: 20px; background: conic-gradient(from 0deg, var(--accent), var(--ring2), var(--accent)); z-index: -1; filter: blur(7px); opacity: .65; animation: spin 5s linear infinite; }
+  .head .mascot { width: 54px; height: 54px; border-radius: 16px; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 27px; animation: bob 3.2s ease-in-out infinite, haloPulse 2.8s ease-in-out infinite; flex-shrink: 0; }
   .head h1 { font-size: 25px; font-weight: 900; letter-spacing: -.3px; color: var(--ink); }
   :root[data-theme="dark"] .head h1 { text-shadow: 0 0 10px rgba(0,229,255,.55), 2px 0 rgba(255,46,210,.35), -2px 0 rgba(0,229,255,.35); animation: flick 6s linear infinite; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] .head h1 { text-shadow: 0 0 10px rgba(0,229,255,.55), 2px 0 rgba(255,46,210,.35), -2px 0 rgba(0,229,255,.35); animation: flick 6s linear infinite; } }
   .head .sub { font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 2px; }
 
-  .btn { position: relative; display: block; width: 100%; margin-top: 12px; padding: 15px; border-radius: 999px; overflow: hidden; cursor: pointer; font-family: inherit; font-size: 16px; font-weight: 800; background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); box-shadow: var(--c1-sh); transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s; animation: btnIn .45s cubic-bezier(.34,1.56,.64,1) both; }
+  /* ===== КНОПКИ + HOVER-АНИМАЦИИ ===== */
+  .btn { position: relative; display: block; width: 100%; margin-top: 12px; padding: 15px; border-radius: 999px; overflow: hidden; cursor: pointer; font-family: inherit; font-size: 16px; font-weight: 800; background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); box-shadow: var(--c1-sh); transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s; animation: btnIn .45s cubic-bezier(.34,1.56,.64,1) both; }
   .btn::before { content: ''; position: absolute; left: 10%; right: 10%; top: 2px; height: 42%; background: linear-gradient(180deg, var(--gloss), transparent); border-radius: 999px; pointer-events: none; }
-  .btn::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.4), transparent); transform: skewX(-20deg); transition: left .55s ease; pointer-events: none; }
+  .btn::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent); transform: skewX(-20deg); transition: left .55s ease; pointer-events: none; }
+  .btn:hover { transform: translateY(-3px); filter: brightness(1.08) saturate(1.12); animation: btnPulse .5s cubic-bezier(.34,1.56,.64,1); }
   .btn:hover::after { left: 130%; }
-  .btn:hover { filter: brightness(1.06); }
-  .btn:active { transform: var(--press); }
+  .btn:active { transform: var(--press); filter: brightness(.95); }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
   .btn.mint { background: var(--c2-bg); color: var(--c2-c); border: var(--c2-bd); box-shadow: var(--c2-sh); }
   .btn.sky { background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); box-shadow: var(--c3-sh); }
@@ -127,20 +127,20 @@
   .btn.ghost::before { display: none; }
 
   label { display: block; font-size: 13px; font-weight: 800; color: var(--muted); margin: 14px 0 6px; }
-  select, input, textarea { width: 100%; padding: 13px 16px; border: var(--field-bd); border-radius: 14px; background: var(--field); color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700; min-height: 50px; }
-  select:focus, input:focus, textarea:focus { outline: none; box-shadow: var(--field-focus); }
+  select, input, textarea { width: 100%; padding: 13px 16px; border: var(--field-bd); border-radius: 14px; background: var(--field); color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700; min-height: 50px; transition: box-shadow .2s, transform .2s; }
+  select:focus, input:focus, textarea:focus { outline: none; box-shadow: var(--field-focus); transform: translateY(-1px); }
+  select:hover, input:hover, textarea:hover { box-shadow: 0 4px 14px rgba(0,0,0,.10); }
   .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
 
-  /* ===== ПЕРЕКЛЮЧАТЕЛЬ ВКЛАДОК (против длинных страниц) ===== */
   .seg { display: flex; gap: 6px; background: var(--field); border: var(--field-bd); border-radius: 999px; padding: 5px; margin-bottom: 14px; animation: dropIn .4s ease both; }
   .seg button { flex: 1; border: none; border-radius: 999px; padding: 11px; font-family: inherit; font-weight: 900; font-size: 14px; background: transparent; color: var(--muted); cursor: pointer; transition: .25s; }
+  .seg button:hover:not(.on) { background: var(--c0-bg); color: var(--ink); transform: translateY(-1px); }
   .seg button.on { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
 
   .page { display: none; }
   .page.active { display: block; animation: pageIn .4s cubic-bezier(.22,.61,.36,1) both; }
 
-  /* ===== ГЛАВНАЯ + ЖИВЫЕ АНИМАЦИИ ===== */
   #home { position: relative; }
   .sp { position: absolute; pointer-events: none; z-index: 2; animation: twinkle 2.8s ease-in-out infinite; font-size: 14px; }
   .sp.s1 { top: 6%; left: 4%; color: var(--accent); }
@@ -150,14 +150,17 @@
   .sp.s5 { top: 86%; left: 46%; color: var(--c3-c); animation-delay: 2.4s; }
 
   .chips { display: flex; gap: 8px; margin: 16px 0; }
-  .chip-stat { flex: 1; text-align: center; padding: 12px 6px; border-radius: 18px; background: var(--card); border: var(--card-bd); box-shadow: var(--card-sh); backdrop-filter: var(--card-blur); animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both, chipBob 4s ease-in-out infinite; }
-  .chip-stat:nth-child(1){animation-delay:.05s,.0s}.chip-stat:nth-child(2){animation-delay:.12s,.5s}.chip-stat:nth-child(3){animation-delay:.19s,1s}
+  .chip-stat { flex: 1; text-align: center; padding: 12px 6px; border-radius: 18px; background: var(--card); border: var(--card-bd); box-shadow: var(--card-sh); backdrop-filter: var(--card-blur); animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both, chipBob 4s ease-in-out infinite; transition: transform .2s; }
+  .chip-stat:hover { transform: translateY(-4px) scale(1.04); }
+  .chip-stat:nth-child(1){animation-delay:.05s,0s}.chip-stat:nth-child(2){animation-delay:.12s,.5s}.chip-stat:nth-child(3){animation-delay:.19s,1s}
   .chip-stat .v { font-size: 21px; font-weight: 900; color: var(--accent); line-height: 1; }
   .chip-stat .l { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-top: 4px; }
 
   .hero { display: block; width: 100%; text-align: left; cursor: pointer; border: var(--card-bd); background: var(--hero-bg); backdrop-filter: var(--card-blur); border-radius: 26px; padding: 22px; margin-bottom: 16px; box-shadow: var(--hero-sh); font-family: inherit; color: var(--ink); animation: heroIn .55s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; position: relative; overflow: hidden; }
   .hero::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.22), transparent); transform: skewX(-20deg); animation: sweep 4.5s ease-in-out infinite; pointer-events: none; }
   .hero:hover { transform: translateY(-4px); }
+  .hero:hover .orb { animation: bob 3s ease-in-out infinite, orbSpin .9s ease; }
+  .hero:hover .pill { animation: btnPulse .5s cubic-bezier(.34,1.56,.64,1); }
   .hero:active { transform: var(--press); }
   .hero .orb { width: 64px; height: 64px; border-radius: 50%; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: var(--orb-sh); margin-bottom: 12px; animation: bob 3s ease-in-out infinite, orbPulse 2.6s ease-in-out infinite; }
   .hero h2 { font-size: 22px; font-weight: 900; margin-bottom: 5px; color: var(--ink); }
@@ -167,6 +170,8 @@
   .cloud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .cloud { border: var(--card-bd); cursor: pointer; text-align: left; padding: 16px; border-radius: 22px; background: var(--card); backdrop-filter: var(--card-blur); box-shadow: var(--card-sh); font-family: inherit; color: var(--ink); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
   .cloud:hover { transform: translateY(-5px); }
+  .cloud:hover .em { animation: emFloat 3.6s ease-in-out infinite, emPop .45s cubic-bezier(.34,1.56,.64,1); }
+  .cloud:hover .t { letter-spacing: .3px; }
   .cloud:active { transform: var(--press); }
   .cloud-grid .cloud:nth-child(1){animation-delay:.06s}.cloud-grid .cloud:nth-child(2){animation-delay:.12s}
   .cloud-grid .cloud:nth-child(3){animation-delay:.18s}.cloud-grid .cloud:nth-child(4){animation-delay:.24s}
@@ -180,11 +185,12 @@
   .cloud:nth-child(4) .em { background: linear-gradient(135deg,#AF52DE,#7A3BBF); }
   .cloud:nth-child(5) .em { background: linear-gradient(135deg,#FFD60A,#FF9F0A); }
   .cloud:nth-child(6) .em { background: linear-gradient(135deg,#8E8E93,#48484A); }
-  .cloud .t { font-size: 15.5px; font-weight: 900; color: var(--ink); }
+  .cloud .t { font-size: 15.5px; font-weight: 900; color: var(--ink); transition: letter-spacing .25s; }
   .cloud .d { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
 
   .chat-box { height: 52vh; overflow-y: auto; padding: 14px; background: var(--field); border: var(--field-bd); border-radius: 22px; }
-  .msg { max-width: 85%; padding: 12px 16px; margin-top: 10px; font-size: 15px; font-weight: 700; line-height: 1.5; white-space: pre-wrap; border-radius: 20px; }
+  .msg { max-width: 85%; padding: 12px 16px; margin-top: 10px; font-size: 15px; font-weight: 700; line-height: 1.5; white-space: pre-wrap; border-radius: 20px; transition: transform .2s; }
+  .msg:hover { transform: scale(1.02); }
   .msg.user { background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); margin-left: auto; border-bottom-right-radius: 6px; box-shadow: var(--c1-sh); animation: msgR .35s cubic-bezier(.34,1.56,.64,1) both; }
   .msg.bot { background: var(--card); color: var(--ink); border: var(--card-bd); border-bottom-left-radius: 6px; box-shadow: var(--card-sh); animation: msgL .35s cubic-bezier(.34,1.56,.64,1) both; }
   .msg.sys { background: var(--ok-bg); color: var(--ink); font-size: 13.5px; animation: msgL .35s ease both; }
@@ -199,11 +205,13 @@
   .item.ai { border-left: 4px solid var(--accent); }
   .item.loading { background: var(--warn-bg); text-align: center; }
   .item.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2.5px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
-  .sched-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 12px 14px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; }
+  .sched-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 12px 14px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; transition: transform .2s; }
+  .sched-row:hover { transform: translateX(4px); }
   .sched-row .day { background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 900; }
   .sched-row.today { border-color: var(--accent); animation: neonPulse 2s ease infinite; }
   .sched-row .act { font-size: 11px; color: var(--muted); font-weight: 700; text-align: right; }
-  .mini-link { display: inline-block; margin: 6px 6px 0 0; font-size: 12px; font-weight: 900; color: var(--c3-c); background: var(--c3-bg); border: var(--c3-bd); border-radius: 999px; padding: 5px 12px; text-decoration: none; box-shadow: var(--c3-sh); }
+  .mini-link { display: inline-block; margin: 6px 6px 0 0; font-size: 12px; font-weight: 900; color: var(--c3-c); background: var(--c3-bg); border: var(--c3-bd); border-radius: 999px; padding: 5px 12px; text-decoration: none; box-shadow: var(--c3-sh); transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+  .mini-link:hover { transform: translateY(-3px) scale(1.06); }
 
   .quiz-q { font-size: 20px; font-weight: 900; text-align: center; margin: 18px 0 8px; min-height: 48px; color: var(--ink); animation: qIn .45s cubic-bezier(.34,1.56,.64,1) both; }
   .hint { font-size: 13px; color: var(--muted); font-weight: 700; text-align: center; }
@@ -215,26 +223,32 @@
   .score { text-align: center; font-weight: 900; font-size: 15px; margin-top: 12px; color: var(--muted); }
 
   .avg { text-align: center; font-size: 48px; font-weight: 900; margin: 6px 0; color: var(--accent); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
-  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 13px 15px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; }
-  .grade-row button { background: var(--err-bg); color: var(--ink); border: none; border-radius: 999px; padding: 7px 12px; cursor: pointer; font-weight: 900; font-family: inherit; }
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 13px 15px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; transition: transform .2s; }
+  .grade-row:hover { transform: translateX(4px); }
+  .grade-row button { background: var(--err-bg); color: var(--ink); border: none; border-radius: 999px; padding: 7px 12px; cursor: pointer; font-weight: 900; font-family: inherit; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+  .grade-row button:hover { transform: scale(1.15) rotate(8deg); }
 
-  .link-item { display: block; background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); padding: 15px; margin-top: 10px; text-decoration: none; color: var(--ink); font-weight: 900; text-align: center; animation: cardIn .4s ease both; }
+  .link-item { display: block; background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); padding: 15px; margin-top: 10px; text-decoration: none; color: var(--ink); font-weight: 900; text-align: center; animation: cardIn .4s ease both; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+  .link-item:hover { transform: translateY(-3px) scale(1.02); }
   .quote { background: var(--card); border: var(--card-bd); border-radius: 24px; box-shadow: var(--card-sh); padding: 26px 22px; font-size: 17px; font-weight: 700; line-height: 1.6; text-align: center; margin-top: 14px; min-height: 130px; display: flex; align-items: center; justify-content: center; color: var(--ink); animation: cardIn .45s ease both; }
   .quote.typing::after { content: '|'; margin-left: 2px; animation: blink .7s step-end infinite; color: var(--accent); }
   .about { font-size: 15px; line-height: 1.7; font-weight: 700; color: var(--ink); }
-  .about li { margin: 8px 0 8px 20px; animation: rowIn .4s ease both; }
+  .about li { margin: 8px 0 8px 20px; animation: rowIn .4s ease both; transition: transform .2s; }
+  .about li:hover { transform: translateX(6px); }
   .legal { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--field); font-size: 13px; text-align: center; font-weight: 800; color: var(--muted); }
   .legal a { color: var(--accent); text-decoration: none; margin: 0 6px; }
 
   .dock { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; display: flex; gap: 4px; padding: 8px; background: var(--dock-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 16px 40px rgba(0,0,0,.18); z-index: 90; animation: dockIn .55s cubic-bezier(.34,1.56,.64,1) both; }
   .dock button { flex: 1; border: none; background: transparent; border-radius: 999px; padding: 9px 4px; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 10px; font-weight: 800; color: var(--muted); transition: background .25s, color .25s, transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .25s; }
   .dock button .ic { font-size: 20px; }
-  .dock button:hover { transform: translateY(-2px); }
+  .dock button:hover { transform: translateY(-3px); color: var(--ink); }
+  .dock button:hover .ic { animation: bob .6s ease; }
   .dock button.active { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
   .dock button.active .ic { animation: bob 2s ease-in-out infinite; }
 
   .theme-pill { position: fixed; top: 14px; right: 14px; z-index: 95; display: flex; gap: 2px; padding: 5px; background: var(--dock-bg); backdrop-filter: blur(14px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 10px 26px rgba(0,0,0,.15); }
-  .theme-pill button { border: none; background: transparent; font-size: 15px; padding: 6px 9px; border-radius: 999px; cursor: pointer; }
+  .theme-pill button { border: none; background: transparent; font-size: 15px; padding: 6px 9px; border-radius: 999px; cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+  .theme-pill button:hover { transform: scale(1.3) rotate(15deg); }
   .theme-pill button.on { background: var(--c1-bg); box-shadow: var(--c1-sh); }
 
   #confetti { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
@@ -244,6 +258,10 @@
   @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
   @keyframes chipBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
   @keyframes emFloat { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-5px) rotate(-4deg)} }
+  @keyframes emPop { 0%{transform:scale(1) rotate(0)} 50%{transform:scale(1.2) rotate(-12deg)} 100%{transform:scale(1) rotate(0)} }
+  @keyframes btnPulse { 0%{transform:translateY(-3px) scale(1)} 40%{transform:translateY(-3px) scale(1.04)} 100%{transform:translateY(-3px) scale(1)} }
+  @keyframes orbSpin { 0%{transform:rotate(0) scale(1)} 50%{transform:rotate(180deg) scale(1.18)} 100%{transform:rotate(360deg) scale(1)} }
+  @keyframes haloPulse { 0%,100%{box-shadow: var(--orb-sh), 0 0 0 0 var(--halo)} 50%{box-shadow: var(--orb-sh), 0 0 0 12px transparent} }
   @keyframes twinkle { 0%,100%{opacity:.15; transform:scale(.7) rotate(0)} 50%{opacity:.9; transform:scale(1.25) rotate(25deg)} }
   @keyframes sweep { 0%{left:-70%} 55%{left:130%} 100%{left:130%} }
   @keyframes orbPulse { 0%,100%{box-shadow: var(--orb-sh)} 50%{box-shadow: var(--orb-sh), 0 0 40px rgba(0,229,255,.4)} }
@@ -314,7 +332,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 24</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 25</div></button>
     </div>
   </div>
 
@@ -356,7 +374,12 @@
       </div>
     </div>
     <div id="planViewBox" style="display:none;">
-      <div id="planResult"></div>
+      <div class="seg">
+        <button id="segWeek" class="on" onclick="planView('week')">📆 Эта неделя</button>
+        <button id="segFull" onclick="planView('full')">🗺 Этапы и темы</button>
+      </div>
+      <div id="planWeek"></div>
+      <div id="planFull" style="display:none;"></div>
       <button class="btn ghost" onclick="deletePlan()">🗑 Удалить план</button>
     </div>
   </div>
@@ -433,7 +456,7 @@
           <li>🌗 Светлая = iOS, тёмная = Neon Cyber</li>
           <li>🔒 Тема засчитывается после теста (20)</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 24</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 25</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -445,7 +468,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 24</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 25</div></button>
     </div>
   </div>
 
@@ -577,42 +600,49 @@ function planTab(t){
   document.getElementById('segForm').classList.toggle('on', t==='form');
   document.getElementById('segView').classList.toggle('on', t==='view');
 }
+function planView(t){
+  document.getElementById('planWeek').style.display = t==='week' ? 'block' : 'none';
+  document.getElementById('planFull').style.display = t==='full' ? 'block' : 'none';
+  document.getElementById('segWeek').classList.toggle('on', t==='week');
+  document.getElementById('segFull').classList.toggle('on', t==='full');
+}
 
 function renderPlan(data){
-  let h='';
-  if(data.examName)h+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
+  let wk='', fl='';
+  if(data.examName)wk+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
   if(data.schedule&&data.schedule.length){
     const sc=data.schedule.filter(s=>!isRestDay(s)).length;
-    h+='<div class="item ai">📆 Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
+    wk+='<div class="item ai">📆 Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
     const ti=todayIdx();
-    data.schedule.forEach((s,i)=>{h+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
+    data.schedule.forEach((s,i)=>{wk+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
     const td=data.schedule[ti];
-    if(td&&!isRestDay(td)){h+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';h+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';h+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
-    else if(td){h+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
+    if(td&&!isRestDay(td)){wk+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';wk+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';wk+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
+    else if(td){wk+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
     const wt=data.schedule.filter(s=>!isRestDay(s));
     if(wt.length){
-      h+='<div class="item ai">📚 Темы недели: выбери и подтверди тестом ('+TEST_SIZE+'):</div>';
+      wk+='<div class="item ai">📚 Темы недели: выбери и подтверди тестом ('+TEST_SIZE+'):</div>';
       wt.forEach(s=>{const key=topicKey(s);if(!key)return;const passed=data.testPassed&&data.testPassed[key]&&data.testPassed[key].week===currentWeekKey()?data.testPassed[key]:null;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
-        h+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(passed?'\n✅ тест '+passed.score+'/'+passed.total:'')+(done?'\n🎓 пройдено':'')+'</span></div>';
-        if(!done){h+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
-          if(sel){h+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+')</button>';
-            if(passed)h+='<button class="btn mint" onclick="markSelectedDone()">✅ Я прошёл тему</button>';
-            else h+='<button class="btn ghost" disabled>✅ Сначала пройди тест ('+TEST_SIZE+')</button>';}}});
-      if(data.done&&data.done.length)h+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
+        wk+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(passed?'\n✅ тест '+passed.score+'/'+passed.total:'')+(done?'\n🎓 пройдено':'')+'</span></div>';
+        if(!done){wk+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
+          if(sel){wk+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+')</button>';
+            if(passed)wk+='<button class="btn mint" onclick="markSelectedDone()">✅ Я прошёл тему</button>';
+            else wk+='<button class="btn ghost" disabled>✅ Сначала пройди тест ('+TEST_SIZE+')</button>';}}});
+      if(data.done&&data.done.length)wk+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
     }
   }
-  if(data.steps&&data.steps.length){h+='<div class="item ai">🗺 Этапы подготовки:</div>';data.steps.forEach((s,i)=>{h+='<div class="item" style="animation-delay:'+i*70+'ms;"><b>'+(i+1)+'. '+escapeHtml(s.period||'')+' · '+escapeHtml(s.subject||'')+'</b>\nТема: '+escapeHtml(s.topic||'')+'\n'+escapeHtml(s.advice||'')+'\n'+videoLinks(s.topic||s.subject||'урок',{youtube:true,vk:true,rutube:true})+'</div>';});}
-  if(data.summary)h+='<div class="item ai">💡 '+escapeHtml(cleanResponse(data.summary))+'</div>';
-  if(data.text)h+='<div class="item ai">'+escapeHtml(cleanResponse(data.text))+'</div>';
-  const box=document.getElementById('planResult');box.innerHTML=h;mathIn(box);
+  if(data.steps&&data.steps.length){fl+='<div class="item ai">🗺 Этапы подготовки:</div>';data.steps.forEach((s,i)=>{fl+='<div class="item" style="animation-delay:'+i*70+'ms;"><b>'+(i+1)+'. '+escapeHtml(s.period||'')+' · '+escapeHtml(s.subject||'')+'</b>\nТема: '+escapeHtml(s.topic||'')+'\n'+escapeHtml(s.advice||'')+'\n'+videoLinks(s.topic||s.subject||'урок',{youtube:true,vk:true,rutube:true})+'</div>';});}
+  if(data.summary)fl+='<div class="item ai">💡 '+escapeHtml(cleanResponse(data.summary))+'</div>';
+  if(data.text){wk+='<div class="item ai">'+escapeHtml(cleanResponse(data.text))+'</div>';}
+  const bw=document.getElementById('planWeek');bw.innerHTML=wk;mathIn(bw);
+  const bf=document.getElementById('planFull');bf.innerHTML=fl||'<div class="item">Этапы появятся после составления плана.</div>';mathIn(bf);
 }
 async function buildPlan(){
   const grade=+document.getElementById('pGrade').value;const examText=document.getElementById('pExam').value.trim();
   if(!examText)return alert('Напиши, что сдаёшь');
   const params={grade,exam:examText,subjects:document.getElementById('pSubjects').value||'не указано',goal:document.getElementById('pGoal').value||'не указано',minutes:document.getElementById('pMinutes').value,days:+document.getElementById('pDays').value,level:document.getElementById('pLevel').value,weak:document.getElementById('pWeak').value||'нет'};
   const ei=examInfo(grade,examText);const btn=document.getElementById('planBtn');btn.disabled=true;
-  showLoading('planResult','GigaChat продумывает план...');
-  planTab('view');
+  planTab('view');planView('week');
+  showLoading('planWeek','GigaChat продумывает план...');
   try{
     const prompt='Ученик '+params.grade+' класса сдаёт: '+params.exam+'. До экзамена '+ei.weeks+' недель.\nПредметы: '+params.subjects+'\nЦель: '+params.goal+'\nЗанятия: '+params.minutes+' мин/день, РОВНО '+params.days+' УЧЕБНЫХ дней в неделю.\nУровень: '+params.level+'\nСлабые места: '+params.weak+'\n\nСАМ продумай логичное расписание: РОВНО '+params.days+' учебных и '+(7-params.days)+' дней отдыха (subject="отдых"), чередуй сложное/лёгкое, укажи тему каждого дня. Обоснуй в activity.\nТакже план из 6-8 этапов с темами.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"...","topic":"...","activity":"..."},...7],"steps":[{"period":"...","subject":"...","topic":"...","advice":"..."}],"summary":"..."}';
     const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.',3000);
@@ -620,11 +650,11 @@ async function buildPlan(){
     if(data.schedule)data.schedule=normalizeSchedule(data.schedule,params.days);
     data.examName=ei.name;data.examDate=ei.examDate.toLocaleDateString('ru-RU');data.weeks=ei.weeks;data.savedAt=new Date().toLocaleDateString('ru-RU');data.scheduleWeek=currentWeekKey();data.params=params;data.done=[];data.testPassed={};data.selectedTopic=null;
     savePlan(data);renderPlan(data);
-  }catch(e){showError('planResult','Ошибка: '+e.message);}
+  }catch(e){showError('planWeek','Ошибка: '+e.message);}
   finally{btn.disabled=false;}
 }
-async function checkWeekUpdate(){const plan=loadPlan();if(!plan||!plan.params||!plan.schedule)return;if(plan.scheduleWeek===currentWeekKey())return;showLoading('planResult','Новая неделя — обновляю темы...');try{const p=plan.params;const ei=examInfo(p.grade,p.exam);const done=(plan.done||[]).map(d=>d.subject+': '+d.topic).join('; ')||'ещё нет';const prompt='Новая неделя. Ученик '+p.grade+' кл., сдаёт '+p.exam+' ('+ei.weeks+' нед.). Предметы: '+p.subjects+'. '+p.minutes+' мин/день, РОВНО '+p.days+' учебных дней. Уровень: '+p.level+'. Слабые: '+p.weak+'.\nПройдено: '+done+'.\nСоставь расписание на НОВУЮ неделю (Пн-Вс): РОВНО '+p.days+' учебных и '+(7-p.days)+' отдыха, новые темы. Верни СТРОГО JSON: {"schedule":[...7 {"day","subject","topic","activity"}]}';const resp=await askGiga(prompt,'Верни только валидный JSON.',2000);const data=parseJSONObjectSafe(resp);if(data&&data.schedule&&data.schedule.length===7){plan.schedule=normalizeSchedule(data.schedule,p.days);plan.scheduleWeek=currentWeekKey();plan.selectedTopic=null;plan.testPassed={};savePlan(plan);}renderPlan(plan);}catch(e){renderPlan(plan);}}
-function deletePlan(){if(confirm('Удалить план?')){localStorage.removeItem('sn_plan');document.getElementById('planResult').innerHTML='';updateHomeStats();planTab('form');}}
+async function checkWeekUpdate(){const plan=loadPlan();if(!plan||!plan.params||!plan.schedule)return;if(plan.scheduleWeek===currentWeekKey())return;planTab('view');planView('week');showLoading('planWeek','Новая неделя — обновляю темы...');try{const p=plan.params;const ei=examInfo(p.grade,p.exam);const done=(plan.done||[]).map(d=>d.subject+': '+d.topic).join('; ')||'ещё нет';const prompt='Новая неделя. Ученик '+p.grade+' кл., сдаёт '+p.exam+' ('+ei.weeks+' нед.). Предметы: '+p.subjects+'. '+p.minutes+' мин/день, РОВНО '+p.days+' учебных дней. Уровень: '+p.level+'. Слабые: '+p.weak+'.\nПройдено: '+done+'.\nСоставь расписание на НОВУЮ неделю (Пн-Вс): РОВНО '+p.days+' учебных и '+(7-p.days)+' отдыха, новые темы. Верни СТРОГО JSON: {"schedule":[...7 {"day","subject","topic","activity"}]}';const resp=await askGiga(prompt,'Верни только валидный JSON.',2000);const data=parseJSONObjectSafe(resp);if(data&&data.schedule&&data.schedule.length===7){plan.schedule=normalizeSchedule(data.schedule,p.days);plan.scheduleWeek=currentWeekKey();plan.selectedTopic=null;plan.testPassed={};savePlan(plan);}renderPlan(plan);}catch(e){renderPlan(plan);}}
+function deletePlan(){if(confirm('Удалить план?')){localStorage.removeItem('sn_plan');document.getElementById('planWeek').innerHTML='';document.getElementById('planFull').innerHTML='';updateHomeStats();planTab('form');}}
 function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');startQuiz();}
 function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){alert('Сегодня отдых 😴');return;}document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
 function selectTopic(key){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===key)?null:key;savePlan(p);renderPlan(p);}
@@ -641,7 +671,7 @@ function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100
 function showQuestion(o){qCurrent=o;qAnswered=false;const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';q.innerHTML=escapeHtml(o.question);mathIn(q);const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';document.getElementById('quizAnswer').focus();updateNextLabel();updateProgress();}
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return alert('Напиши тему');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;const btn=document.getElementById('quizBtn');btn.disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';document.getElementById('quizHint').textContent='';document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
-function finishBatch(){let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+'</div>';if(qPendingTopic){const p=loadPlan();if(p){if(!p.testPassed)p.testPassed={};p.testPassed[qPendingTopic]={score:qBatchScore,total:qBatchTotal,answered:qBatchAnswered,week:currentWeekKey(),date:new Date().toLocaleDateString('ru-RU')};savePlan(p);extra+='<div class="item ai">Тема «'+escapeHtml(qPendingTopic)+'» подтверждена!\nВернись в план и нажми «✅ Я прошёл тему».</div><button class="btn mint" onclick="go(\'plan\');planTab(\'view\')">📅 В план</button>';}qPendingTopic=null;}const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);}
+function finishBatch(){let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+'</div>';if(qPendingTopic){const p=loadPlan();if(p){if(!p.testPassed)p.testPassed={};p.testPassed[qPendingTopic]={score:qBatchScore,total:qBatchTotal,answered:qBatchAnswered,week:currentWeekKey(),date:new Date().toLocaleDateString('ru-RU')};savePlan(p);extra+='<div class="item ai">Тема «'+escapeHtml(qPendingTopic)+'» подтверждена!\nВернись в план и нажми «✅ Я прошёл тему».</div><button class="btn mint" onclick="go(\'plan\')">📅 В план</button>';}qPendingTopic=null;}const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);}
 async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u));let bySense=false;if(!ok){document.getElementById('quizResult').innerHTML='<div class="item loading">Проверяю по смыслу...</div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();}
 
 async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return alert('Напиши: математика 5 4, физика 3');const btn=document.getElementById('gAddBtn');btn.disabled=true;document.getElementById('gAi').innerHTML='<div class="item loading">GigaChat разбирает...</div>';let parsed=null;try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (полные названия, учти сленг) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}if(!parsed||!parsed.length)parsed=extractGradesLocal(text);if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: математика 5 4, физика 3</div>';btn.disabled=false;return;}parsed.forEach(p=>addGradeToStorage(p));document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';btn.disabled=false;}
