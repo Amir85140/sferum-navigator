@@ -240,15 +240,6 @@
   .msg.loading { background: var(--warn-bg); color: var(--ink); text-align: center; }
   .msg.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2.5px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
   .msg.typing-dots::after { content: ''; display: inline-block; width: 5px; height: 5px; margin-left: 6px; background: var(--accent); border-radius: 50%; box-shadow: 9px 0 0 var(--accent), 18px 0 0 var(--accent); animation: dots 1.2s ease infinite; }
-  .msg.user .mini-img { display: block; max-width: 180px; max-height: 140px; border-radius: 12px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,.35); }
-
-  /* ===== АККУРАТНОЕ ПРЕВЬЮ ФОТО ===== */
-  .chat-preview { display: none; margin-top: 10px; animation: popIn .3s cubic-bezier(.34,1.56,.64,1) both; }
-  .pv-wrap { position: relative; display: inline-block; }
-  .chat-preview img { display: block; max-height: 150px; max-width: 240px; border-radius: 16px; border: 2px solid var(--accent); box-shadow: var(--card-sh); object-fit: cover; }
-  .chat-preview .x { position: absolute; top: -9px; right: -9px; width: 28px; height: 28px; border-radius: 50%; background: var(--card); color: var(--err); border: 2px solid var(--err); font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--card-sh); }
-  .chat-preview .x:hover { background: var(--err); color: #fff; transform: scale(1.12); }
-
   .chat-input { display: flex; gap: 8px; margin-top: 12px; }
   .chat-input input { flex: 1; margin: 0; }
   .chat-input .btn { width: 54px; margin: 0; padding: 0; height: 50px; flex-shrink: 0; }
@@ -377,7 +368,7 @@
     <button class="hero" onclick="go('chat')">
       <div class="orb">🤖</div>
       <h2>Спроси GigaChat</h2>
-      <p>Текст или фото 📎 — решу задачу по картинке, объясню график. Чат общий с ботом MAX!</p>
+      <p>Любой вопрос по учёбе, формулы LaTeX, объяснения простым языком. Чат общий с ботом MAX!</p>
       <span class="pill">Начать диалог →</span>
     </button>
 
@@ -387,23 +378,15 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 31</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 32</div></button>
     </div>
   </div>
 
   <div id="chat" class="page">
-    <div class="head"><div class="hi"><div class="mascot">🤖</div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX · 📎 понимает фото</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">🤖</div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
     <div class="chat-box" id="chatBox"></div>
-    <div class="chat-preview" id="chatPreview">
-      <div class="pv-wrap">
-        <img id="chatPreviewImg" src="" alt="preview">
-        <button class="x" onclick="clearImage()" title="Убрать фото">✕</button>
-      </div>
-    </div>
-    <input type="file" id="chatImage" accept="image/*" style="display:none" onchange="previewImage(this)">
     <div class="chat-input">
-      <button class="btn ghost" style="width:50px;margin:0;padding:0;height:50px;flex-shrink:0" onclick="document.getElementById('chatImage').click()" title="Прикрепить фото">📎</button>
-      <input id="chatInput" placeholder="Вопрос или прикрепи фото..." onkeydown="if(event.key==='Enter')sendChat()">
+      <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
       <button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
     <button class="btn ghost" onclick="clearChat()">🗑 Очистить общий чат</button>
@@ -515,11 +498,11 @@
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
-          <li>📸 Чат понимает фото (vision GigaChat-Max)</li>
           <li>🧮 Формулы LaTeX (KaTeX)</li>
           <li>💙 Светлая = живой MAX blue, тёмная = Cyber MAX</li>
+          <li>🔒 Тема засчитывается после теста (20)</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 31</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 32</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -531,7 +514,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 31</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 32</div></button>
     </div>
   </div>
 
@@ -657,72 +640,27 @@ function saveChatHistory(){if(chatHistory.length>50)chatHistory=chatHistory.slic
 function addMsg(t,c,source){const b=document.getElementById('chatBox');const d=document.createElement('div');d.className='msg '+c;if(source==='max'&&c==='user')t='📱 MAX: '+t;d.innerHTML=escapeHtml(t);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
 async function tryParseGradesViaGiga(text){const digits=(text.match(/\b[1-5]\b/g)||[]).length;if(!digits||!GRADE_TRIGGERS.test(text))return null;try{const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы и оценки. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[...]}]. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}return null;}
 
-// ===== ФОТО В ЧАТЕ (vision, сжатие на устройстве) =====
-let chatImageFile=null;let chatImageB64=null;
-function previewImage(input){const f=input.files&&input.files[0];if(!f)return;if(!f.type.startsWith('image/')){alert('Нужна картинка (jpg/png/webp)');input.value='';return;}if(f.size>8*1024*1024){alert('Картинка больше 8 МБ');input.value='';return;}
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const img=new Image();
-    img.onload=()=>{
-      const max=1280;let w=img.width,h=img.height;
-      if(w>max||h>max){const k=max/Math.max(w,h);w=Math.round(w*k);h=Math.round(h*k);}
-      const cv=document.createElement('canvas');cv.width=w;cv.height=h;
-      cv.getContext('2d').drawImage(img,0,0,w,h);
-      chatImageB64=cv.toDataURL('image/jpeg',0.82);
-      chatImageFile=f;
-      document.getElementById('chatPreviewImg').src=chatImageB64;
-      document.getElementById('chatPreview').style.display='block';
-    };
-    img.onerror=()=>alert('Не удалось прочитать картинку');
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(f);
-}
-function clearImage(){chatImageFile=null;chatImageB64=null;const inp=document.getElementById('chatImage');if(inp)inp.value='';document.getElementById('chatPreview').style.display='none';document.getElementById('chatPreviewImg').src='';}
-
 async function sendChat(){
-  const i=document.getElementById('chatInput');const t=i.value.trim();
-  const hasImage=!!chatImageFile;
-  if(!t&&!hasImage)return;
-  const b=document.getElementById('chatBox');
-  const d=document.createElement('div');d.className='msg user';
-  let html='';
-  if(hasImage)html+='<img class="mini-img" src="'+chatImageB64+'" alt="photo">';
-  if(t)html+=escapeHtml(t);
-  d.innerHTML=html;b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;
-  const savedText=t;const savedFile=chatImageFile;const savedB64=chatImageB64;
-  i.value='';clearImage();
-  const loading=document.createElement('div');loading.className='msg loading typing-dots';loading.textContent=hasImage?'Смотрю на картинку':'Думаю';
-  b.appendChild(loading);b.scrollTop=b.scrollHeight;
+  const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
+  i.value='';addMsg(t,'user','web');
+  const local=extractGradesLocal(t);
+  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
+  const loading=document.createElement('div');loading.className='msg loading typing-dots';loading.textContent='Думаю';
+  const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
   document.getElementById('chatBtn').disabled=true;
   try{
     await syncChatHistory();
-    const hist=chatHistory.slice(-8);
-    let reply='';
-    if(hasImage){
-      const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:savedText,dataUrl:savedB64,history:hist})});
-      if(!r.ok){let detail='';try{const j=await r.json();detail=j.detail||'';}catch(e){}throw new Error('Vision '+r.status+(detail?': '+detail:''));}
-      const j=await r.json();reply=j.reply||'(пустой ответ)';
-    }else{
-      chatHistory.push({role:'user',content:savedText,timestamp:Date.now(),source:'web'});
-      const resp=await askGiga(savedText,MATH_SYSTEM+' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про оценки — порадуйся или поддержи.',800,hist);
-      reply=cleanResponse(resp);
-      chatHistory.push({role:'assistant',content:reply,timestamp:Date.now(),source:'web'});
-    }
-    loading.remove();
-    const botMsg=document.createElement('div');botMsg.className='msg bot';botMsg.innerHTML=escapeHtml(reply);b.appendChild(botMsg);mathIn(botMsg);b.scrollTop=b.scrollHeight;
-    if(hasImage){chatHistory.push({role:'user',content:'[фото] '+(savedText||'опиши картинку'),timestamp:Date.now(),source:'web'});chatHistory.push({role:'assistant',content:reply,timestamp:Date.now(),source:'web'});}
-    saveChatHistory();
-    if(!hasImage){
-      const local=extractGradesLocal(savedText);
-      if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
-      else{const p=await tryParseGradesViaGiga(savedText);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
-    }
+    const hist=chatHistory.slice(-16);
+    chatHistory.push({role:'user',content:t,timestamp:Date.now(),source:'web'});
+    const resp=await askGiga(t,MATH_SYSTEM+' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про оценки — порадуйся или поддержи.',800,hist);
+    const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
+    chatHistory.push({role:'assistant',content:cl,timestamp:Date.now(),source:'web'});saveChatHistory();
+    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
   }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
   finally{document.getElementById('chatBtn').disabled=false;}
 }
 function clearChat(){if(!confirm('Удалить общий чат (и в MAX, и на сайте)?'))return;chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';addMsg('Общий чат очищен. Начнём заново! 🎓','bot');saveChatToServer();}
-function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';if(!chatHistory.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX 🔄 Могу разбирать фото — жми 📎','bot');}else{chatHistory.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
+function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';if(!chatHistory.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX 🔄','bot');}else{chatHistory.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
 
 function examInfo(grade,examText){const now=new Date();const t=(examText||'').toLowerCase();let tg=grade,mo=4,da=25;if(t.includes('огэ')){tg=9;da=20;}else if(t.includes('егэ')){tg=11;da=25;}const yl=Math.max(0,tg-grade);let ed=new Date(now.getFullYear()+yl,mo,da);if(ed<now)ed=new Date(now.getFullYear()+yl+1,mo,da);const w=Math.max(1,Math.round((ed-now)/(7*24*3600*1000)));return{name:examText||'экзамен',examDate:ed,weeks:w};}
 function normalizeSchedule(sch,days){let st=0;return (sch||[]).map(s=>{const rest=/отдых|выходной/i.test(s.subject||'');if(!rest&&st<days){st++;return s;}if(!rest)return{day:s.day,subject:'отдых',topic:'',activity:'отдых'};return s;});}
