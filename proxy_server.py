@@ -24,6 +24,9 @@ GIGA_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
 FILES_URL = "https://gigachat.devices.sberbank.ru/api/v1/files"
 CHAT_FILE = Path("chat_sync.json")
 
+VISION_MODELS = ("GigaChat-Max", "GigaChat-Pro", "GigaChat-2-Max", "GigaChat-2-Pro")
+STUB_MARKERS = ("изображение не предоставлено", "прикрепи картинку", "опиши её словами", "не вижу изображения", "изображение не получено")
+
 VISION_SYSTEM = (
     "Ты — дружелюбный ИИ-наставник для школьников. "
     "Анализируй прикреплённое изображение внимательно. "
@@ -75,6 +78,11 @@ async def _get_giga_token():
 
 def _clean_ans(t):
     return t.replace("**", "").replace("`", "").strip()
+
+
+def _is_stub(content):
+    low = (content or "").lower()
+    return any(m in low for m in STUB_MARKERS)
 
 
 def _chat(token, messages, model, attachments=None):
@@ -202,7 +210,7 @@ async def vision(request: Request):
         errors = []
         file_id = None
 
-        # ВАРИАНТ 1: загрузка файла multipart/form-data (как делает SDK Сбера)
+        # загрузка файла multipart
         try:
             raw = base64.b64decode(b64)
             fr = requests.post(
@@ -213,42 +221,28 @@ async def vision(request: Request):
                 timeout=60,
                 verify=False,
             )
-            log.info("VISION files-multipart -> %s %s", fr.status_code, fr.text[:200])
+            log.info("VISION files-multipart -> %s %s", fr.status_code, fr.text[:150])
             if fr.status_code == 200:
                 file_id = fr.json().get("id")
         except Exception as e:
             log.info("VISION files-multipart exc: %s", e)
 
-        # ВАРИАНТ 2: загрузка файла JSON base64
-        if not file_id:
-            try:
-                fr = requests.post(
-                    FILES_URL,
-                    headers={
-                        "Authorization": f"Bearer {token}",
-                        "Content-Type": "application/json",
-                    },
-                    json={"base64_content": b64, "purpose": "general", "filename": "photo.jpg"},
-                    timeout=60,
-                    verify=False,
-                )
-                log.info("VISION files-json -> %s %s", fr.status_code, fr.text[:200])
-                if fr.status_code == 200:
-                    file_id = fr.json().get("id")
-            except Exception as e:
-                log.info("VISION files-json exc: %s", e)
-
-        # ЧАТ С ATTACHMENTS (Max, затем Pro)
+        # СПОСОБ 1: attachments + перебор моделей (заглушка = провал)
         if file_id:
             msgs = [{"role": "system", "content": VISION_SYSTEM}] + hist_msgs + [{"role": "user", "content": q}]
-            for model in ("GigaChat-Max", "GigaChat-Pro"):
+            for model in VISION_MODELS:
                 r = _chat(token, msgs, model, [file_id])
-                log.info("VISION att-%s -> %s %s", model, r.status_code, r.text[:200])
                 if r.status_code == 200:
-                    return {"reply": _clean_ans(r.json()["choices"][0]["message"]["content"])}
-                errors.append(f"att-{model} {r.status_code}: {r.text[:100]}")
+                    content = r.json()["choices"][0]["message"]["content"]
+                    log.info("VISION att-%s -> 200 stub=%s %s", model, _is_stub(content), content[:100])
+                    if not _is_stub(content):
+                        return {"reply": _clean_ans(content)}
+                    errors.append(f"att-{model}: заглушка")
+                else:
+                    log.info("VISION att-%s -> %s %s", model, r.status_code, r.text[:150])
+                    errors.append(f"att-{model} {r.status_code}")
 
-        # ФОЛБЭК: inline base64 в content (Max, затем Pro)
+        # СПОСОБ 2: inline base64 + перебор моделей
         msgs2 = (
             [{"role": "system", "content": VISION_SYSTEM}]
             + hist_msgs
@@ -257,14 +251,19 @@ async def vision(request: Request):
                 {"type": "image_url", "image_url": {"url": data_url}},
             ]}]
         )
-        for model in ("GigaChat-Max", "GigaChat-Pro"):
+        for model in VISION_MODELS:
             r = _chat(token, msgs2, model)
-            log.info("VISION inline-%s -> %s %s", model, r.status_code, r.text[:200])
             if r.status_code == 200:
-                return {"reply": _clean_ans(r.json()["choices"][0]["message"]["content"])}
-            errors.append(f"inline-{model} {r.status_code}: {r.text[:100]}")
+                content = r.json()["choices"][0]["message"]["content"]
+                log.info("VISION inline-%s -> 200 stub=%s %s", model, _is_stub(content), content[:100])
+                if not _is_stub(content):
+                    return {"reply": _clean_ans(content)}
+                errors.append(f"inline-{model}: заглушка")
+            else:
+                log.info("VISION inline-%s -> %s %s", model, r.status_code, r.text[:150])
+                errors.append(f"inline-{model} {r.status_code}")
 
-        raise HTTPException(502, "Vision не прошёл: " + " | ".join(errors))
+        raise HTTPException(502, "Vision не прошёл ни на одной модели: " + " | ".join(errors))
     except HTTPException:
         raise
     except Exception as e:
