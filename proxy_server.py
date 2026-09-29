@@ -273,7 +273,44 @@ async def vision(request: Request):
     except Exception as e:
         raise HTTPException(500, f"Ошибка vision: {str(e)}")
 
+MATH_SYSTEM_DEFAULT = (
+    "Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. "
+    "Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: "
+    "инлайн в $...$, блочные в $$...$$."
+)
 
+
+@app.post("/chat")
+async def chat(request: Request):
+    try:
+        payload = await request.json()
+        prompt = payload.get("prompt", "")
+        system = payload.get("system") or MATH_SYSTEM_DEFAULT
+        max_tokens = int(payload.get("max_tokens") or 800)
+        history = payload.get("history") or []
+        if not prompt:
+            raise HTTPException(400, "empty prompt")
+        token = await _get_giga_token()
+        messages = [{"role": "system", "content": system}]
+        for m in history[-16:]:
+            if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
+                messages.append({"role": m["role"], "content": str(m.get("content", ""))})
+        messages.append({"role": "user", "content": prompt})
+        r = requests.post(
+            GIGA_URL,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={"model": "GigaChat:latest", "messages": messages, "max_tokens": max_tokens, "temperature": 0.7},
+            timeout=60,
+            verify=False,
+        )
+        log.info("CHAT -> %s", r.status_code)
+        if r.status_code != 200:
+            raise HTTPException(r.status_code, f"GigaChat error: {r.text[:200]}")
+        return {"reply": r.json()["choices"][0]["message"]["content"]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Ошибка chat: {str(e)}")
 @app.get("/health")
 async def health():
     return {"status": "ok", "chat_sync": CHAT_FILE.exists()}
