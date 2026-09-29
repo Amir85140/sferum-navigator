@@ -21,7 +21,6 @@ GIGA_ID = "01a0bafa-206f-7e07-a2e7-df9e0acea285"
 GIGA_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
 OAUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
 GIGA_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
-FILES_URL = "https://gigachat.devices.sberbank.ru/api/v1/files"
 CHAT_FILE = Path("chat_sync.json")
 
 VISION_SYSTEM = (
@@ -71,28 +70,6 @@ def _get_giga_token_sync():
 
 async def _get_giga_token():
     return _get_giga_token_sync()
-
-
-def _clean_ans(t):
-    return t.replace("**", "").replace("`", "").strip()
-
-
-def _giga_chat(token, messages, model, attachments=None):
-    body = {
-        "model": model,
-        "messages": messages,
-        "max_tokens": 1200,
-        "temperature": 0.5,
-    }
-    if attachments:
-        body["attachments"] = attachments
-    return requests.post(
-        GIGA_URL,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        json=body,
-        timeout=90,
-        verify=False,
-    )
 
 
 @app.api_route("/proxy", methods=["GET", "POST", "OPTIONS"])
@@ -191,55 +168,17 @@ async def vision(request: Request):
         if len(data_url) > 8 * 1024 * 1024:
             raise HTTPException(400, "Картинка слишком большая")
 
-        b64 = data_url.split(";base64,", 1)[1] if ";base64," in data_url else data_url
         token = await _get_giga_token()
 
         hist_msgs = []
         for m in (history or [])[-8:]:
             if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
                 hist_msgs.append({"role": m["role"], "content": str(m.get("content", ""))})
+
         q = text or "Опиши, что на этой картинке."
 
-        errors = []
-        file_id = None
-
-        # ШАГ 1: пробуем загрузить файл (родной способ Сбера)
-        try:
-            fr = requests.post(
-                FILES_URL,
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                json={"base64_content": b64, "purpose": "general", "filename": "photo.jpg"},
-                timeout=60,
-                verify=False,
-            )
-            log.info("VISION files -> %s %s", fr.status_code, fr.text[:200])
-            if fr.status_code == 200:
-                file_id = fr.json().get("id")
-        except Exception as e:
-            log.info("VISION files exception: %s", e)
-
-        # СПОСОБ 1: attachments + GigaChat-Max
-        if file_id:
-            msgs = [{"role": "system", "content": VISION_SYSTEM}] + hist_msgs + [{"role": "user", "content": q}]
-            r = _giga_chat(token, msgs, "GigaChat-Max", [file_id])
-            log.info("VISION att-max -> %s %s", r.status_code, r.text[:200])
-            if r.status_code == 200:
-                return {"reply": _clean_ans(r.json()["choices"][0]["message"]["content"])}
-            errors.append(f"att-max {r.status_code}: {r.text[:120]}")
-
-            # СПОСОБ 2: attachments + GigaChat-Pro
-            r = _giga_chat(token, msgs, "GigaChat-Pro", [file_id])
-            log.info("VISION att-pro -> %s %s", r.status_code, r.text[:200])
-            if r.status_code == 200:
-                return {"reply": _clean_ans(r.json()["choices"][0]["message"]["content"])}
-            errors.append(f"att-pro {r.status_code}: {r.text[:120]}")
-
-        # СПОСОБ 3: inline base64 в content (формат OpenAI)
-        msgs2 = (
+        # Inline base64 в content (формат OpenAI Vision API)
+        messages = (
             [{"role": "system", "content": VISION_SYSTEM}]
             + hist_msgs
             + [{"role": "user", "content": [
@@ -247,13 +186,31 @@ async def vision(request: Request):
                 {"type": "image_url", "image_url": {"url": data_url}},
             ]}]
         )
-        r = _giga_chat(token, msgs2, "GigaChat-Max")
-        log.info("VISION inline-max -> %s %s", r.status_code, r.text[:200])
-        if r.status_code == 200:
-            return {"reply": _clean_ans(r.json()["choices"][0]["message"]["content"])}
-        errors.append(f"inline-max {r.status_code}: {r.text[:120]}")
 
-        raise HTTPException(502, "Vision не прошёл ни одним способом: " + " | ".join(errors))
+        r = requests.post(
+            GIGA_URL,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "GigaChat-Max",
+                "messages": messages,
+                "max_tokens": 1200,
+                "temperature": 0.5,
+            },
+            timeout=90,
+            verify=False,
+        )
+
+        log.info("VISION -> %s %s", r.status_code, r.text[:300])
+
+        if r.status_code != 200:
+            raise HTTPException(r.status_code, f"GigaChat error: {r.text[:300]}")
+
+        ans = r.json()["choices"][0]["message"]["content"]
+        ans = ans.replace("**", "").replace("`", "").strip()
+        return {"reply": ans}
     except HTTPException:
         raise
     except Exception as e:
