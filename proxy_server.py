@@ -24,18 +24,13 @@ GIGA_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
 FILES_URL = "https://gigachat.devices.sberbank.ru/api/v1/files"
 CHAT_FILE = Path("chat_sync.json")
 
-# ===== БЕСПЛАТНЫЙ GEMINI-КЛЮЧ (2 минуты): https://aistudio.google.com/apikey =====
-# Вставь ключ между кавычек, и фото будут анализироваться через Gemini (vision работает гарантированно)
-GEMINI_KEY = ""
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-
-VISION_MODELS = ("GigaChat-Max", "GigaChat-Pro", "GigaChat-2-Max", "GigaChat-2-Pro")
+VISION_MODELS = ("GigaChat-Pro", "GigaChat-Max", "GigaChat-2-Pro", "GigaChat-2-Max")
 STUB_MARKERS = (
     "изображение не предоставлено", "прикрепи картинку", "опиши её словами",
     "не вижу изображения", "изображение не получено", "приложите изображение",
     "приложите снова", "увидеть саму картинку", "мне нужно увидеть",
     "не могу увидеть", "изображение снова", "attach the image", "image again",
-    "i need to see", "please attach", "no image",
+    "i need to see", "please attach", "no image", "не приложено",
 )
 
 VISION_SYSTEM = (
@@ -112,28 +107,6 @@ def _chat(token, messages, model, attachments=None):
         timeout=90,
         verify=False,
     )
-
-
-def _gemini_vision(b64, mime, q):
-    if not GEMINI_KEY:
-        return None
-    parts = [
-        {"text": VISION_SYSTEM + "\n\nВопрос ученика: " + q},
-        {"inline_data": {"mime_type": mime, "data": b64}},
-    ]
-    r = requests.post(
-        GEMINI_URL,
-        params={"key": GEMINI_KEY},
-        json={"contents": [{"parts": parts}]},
-        timeout=90,
-    )
-    log.info("VISION gemini -> %s %s", r.status_code, r.text[:200])
-    if r.status_code == 200:
-        try:
-            return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-        except Exception:
-            return None
-    return None
 
 
 @app.api_route("/proxy", methods=["GET", "POST", "OPTIONS"])
@@ -233,25 +206,17 @@ async def vision(request: Request):
             raise HTTPException(400, "Картинка слишком большая")
 
         b64 = data_url.split(";base64,", 1)[1] if ";base64," in data_url else data_url
-        mime = data_url.split(";")[0].replace("data:", "") or "image/jpeg"
-        q = text or "Опиши, что на этой картинке."
-        errors = []
-
-        # ПРИОРИТЕТ 1: Gemini (если ключ вставлен) — vision работает гарантированно
-        ans = _gemini_vision(b64, mime, q)
-        if ans and not _is_stub(ans):
-            return {"reply": _clean_ans(ans)}
-        if GEMINI_KEY:
-            errors.append("gemini: заглушка/ошибка")
-
-        # ПРИОРИТЕТ 2: GigaChat (attachments + перебор моделей)
         token = await _get_giga_token()
+
         hist_msgs = []
         for m in (history or [])[-8:]:
             if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
                 hist_msgs.append({"role": m["role"], "content": str(m.get("content", ""))})
-
+        q = text or "Опиши, что на этой картинке."
+        errors = []
         file_id = None
+
+        # 1) загрузка файла multipart
         try:
             raw = base64.b64decode(b64)
             fr = requests.post(
@@ -262,33 +227,47 @@ async def vision(request: Request):
                 timeout=60,
                 verify=False,
             )
-            log.info("VISION files-multipart -> %s %s", fr.status_code, fr.text[:150])
+            log.info("VISION files -> %s %s", fr.status_code, fr.text[:150])
             if fr.status_code == 200:
                 file_id = fr.json().get("id")
         except Exception as e:
-            log.info("VISION files-multipart exc: %s", e)
+            log.info("VISION files exc: %s", e)
 
+        # 2) ждём, пока файл обработается (modalities станет непустым)
+        if file_id:
+            for attempt in range(5):
+                try:
+                    gr = requests.get(
+                        f"{FILES_URL}/{file_id}",
+                        headers={"Authorization": f"Bearer {token}"},
+                        timeout=15,
+                        verify=False,
+                    )
+                    mods = (gr.json() or {}).get("modalities") or []
+                    log.info("VISION file-status #%s -> %s modalities=%s", attempt, gr.status_code, mods)
+                    if mods:
+                        break
+                except Exception as e:
+                    log.info("VISION file-status exc: %s", e)
+                time.sleep(1.2)
+
+        # 3) чат с attachments: перебор всех моделей
         if file_id:
             msgs = [{"role": "system", "content": VISION_SYSTEM}] + hist_msgs + [{"role": "user", "content": q}]
             for model in VISION_MODELS:
                 r = _chat(token, msgs, model, [file_id])
                 if r.status_code == 200:
                     content = r.json()["choices"][0]["message"]["content"]
-                    log.info("VISION att-%s -> 200 stub=%s %s", model, _is_stub(content), content[:100])
-                    if not _is_stub(content):
+                    stub = _is_stub(content)
+                    log.info("VISION att-%s -> 200 stub=%s %s", model, stub, content[:100])
+                    if not stub:
                         return {"reply": _clean_ans(content)}
-                    errors.append(f"att-{model}: заглушка")
+                    errors.append(f"{model}: заглушка")
                 else:
                     log.info("VISION att-%s -> %s %s", model, r.status_code, r.text[:150])
-                    errors.append(f"att-{model} {r.status_code}")
+                    errors.append(f"{model}: {r.status_code}")
 
-        raise HTTPException(
-            502,
-            "GigaChat на бесплатном ключе не видит фото. "
-            "Вставь бесплатный Gemini-ключ в proxy_server.py (строка GEMINI_KEY, "
-            "ключ берётся за 2 минуты на https://aistudio.google.com/apikey) и перезапусти прокси. "
-            "Подробности: " + " | ".join(errors),
-        )
+        raise HTTPException(502, "GigaChat не увидел фото ни на одной модели: " + " | ".join(errors))
     except HTTPException:
         raise
     except Exception as e:
