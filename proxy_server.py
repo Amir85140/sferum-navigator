@@ -18,7 +18,16 @@ GIGA_ID = "01a0bafa-206f-7e07-a2e7-df9e0acea285"
 GIGA_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
 OAUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
 GIGA_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+FILES_URL = "https://gigachat.devices.sberbank.ru/api/v1/files"
 CHAT_FILE = Path("chat_sync.json")
+
+VISION_SYSTEM = (
+    "Ты — дружелюбный ИИ-наставник для школьников. "
+    "Анализируй прикреплённое изображение внимательно. "
+    "Если это задача — реши пошагово. "
+    "Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$. "
+    "Не используй Markdown."
+)
 
 app = FastAPI(title="Sferum Navigator Proxy")
 app.add_middleware(
@@ -157,8 +166,37 @@ async def vision(request: Request):
         if len(data_url) > 8 * 1024 * 1024:
             raise HTTPException(400, "Картинка слишком большая")
 
+        # отделяем чистый base64 от префикса data:image/...;base64,
+        if ";base64," in data_url:
+            b64 = data_url.split(";base64,", 1)[1]
+        else:
+            b64 = data_url
+
         token = await _get_giga_token()
 
+        # ШАГ 1: загружаем файл в GigaChat, получаем id
+        fr = requests.post(
+            FILES_URL,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            json={
+                "base64_content": b64,
+                "purpose": "general",
+                "filename": "photo.jpg",
+            },
+            timeout=60,
+            verify=False,
+        )
+        if fr.status_code != 200:
+            raise HTTPException(fr.status_code, f"Files upload error: {fr.text[:300]}")
+        file_id = fr.json().get("id")
+        if not file_id:
+            raise HTTPException(500, f"Нет id файла: {fr.text[:300]}")
+
+        # ШАГ 2: собираем историю (content — обычные строки)
         hist_msgs = []
         for m in (history or [])[-8:]:
             if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
@@ -167,23 +205,12 @@ async def vision(request: Request):
                     "content": str(m.get("content", "")),
                 })
 
-        user_content = [
-            {"type": "text", "text": text or "Опиши, что на этой картинке."},
-            {"type": "image_url", "image_url": {"url": data_url}},
-        ]
-        system = (
-            "Ты — дружелюбный ИИ-наставник для школьников. "
-            "Анализируй изображение внимательно. "
-            "Если это задача — реши пошагово. "
-            "Математические формулы пиши в LaTeX: инлайн в $...$, "
-            "блочные в $$...$$. Не используй Markdown."
-        )
+        # ШАГ 3: запрос с attachments, content — СТРОКА
         messages = (
-            [{"role": "system", "content": system}]
+            [{"role": "system", "content": VISION_SYSTEM}]
             + hist_msgs
-            + [{"role": "user", "content": user_content}]
+            + [{"role": "user", "content": text or "Опиши, что на этой картинке."}]
         )
-
         resp = requests.post(
             GIGA_URL,
             headers={
@@ -193,6 +220,7 @@ async def vision(request: Request):
             json={
                 "model": "GigaChat-Max",
                 "messages": messages,
+                "attachments": [file_id],
                 "max_tokens": 1200,
                 "temperature": 0.5,
             },
@@ -200,9 +228,7 @@ async def vision(request: Request):
             verify=False,
         )
         if resp.status_code != 200:
-            raise HTTPException(
-                resp.status_code, f"GigaChat error: {resp.text[:300]}"
-            )
+            raise HTTPException(resp.status_code, f"GigaChat error: {resp.text[:300]}")
         ans = resp.json()["choices"][0]["message"]["content"]
         ans = ans.replace("**", "").replace("`", "").strip()
         return {"reply": ans}
