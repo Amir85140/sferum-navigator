@@ -30,7 +30,7 @@
     --c0-bg: rgba(39,135,245,.12); --c0-c: #0E2540; --c0-bd: 1px solid rgba(39,135,245,.2); --c0-sh: none;
     --gloss: rgba(255,255,255,.35); --press: scale(.96);
     --dock-bg: rgba(255,255,255,.85); --dock-bd: rgba(39,135,245,.15);
-    --ok-bg: #E4FAF0; --err-bg: #FFE9E9; --warn-bg: #FFF4DC;
+    --ok-bg: #E4FAF0; --err-bg: #FFE9E9; --err: #E5484D; --warn-bg: #FFF4DC;
     --em-sh: 0 6px 14px rgba(0,60,140,.20);
     --hero-bg: #FFFFFF; --hero-sh: 0 14px 34px rgba(0,60,140,.14);
     --orb-bg: linear-gradient(135deg,#5AA8FF,#2787F5); --orb-sh: 0 10px 24px rgba(39,135,245,.45);
@@ -56,7 +56,7 @@
     --c0-bg: rgba(255,255,255,.08); --c0-c: #B8CBD6; --c0-bd: 1px solid rgba(255,255,255,.18); --c0-sh: none;
     --gloss: rgba(0,194,255,.16); --press: translateY(3px);
     --dock-bg: rgba(5,13,26,.88); --dock-bd: rgba(0,194,255,.3);
-    --ok-bg: #12302A; --err-bg: #33161C; --warn-bg: #33290F;
+    --ok-bg: #12302A; --err-bg: #33161C; --err: #FF6B6B; --warn-bg: #33290F;
     --em-sh: 0 0 16px rgba(0,194,255,.35);
     --hero-bg: rgba(6,14,28,.88); --hero-sh: 0 0 30px rgba(0,194,255,.18), inset 0 0 26px rgba(0,194,255,.06);
     --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,194,255,.95), rgba(0,119,255,.6) 45%, rgba(0,60,160,.4) 75%); --orb-sh: 0 0 30px rgba(0,194,255,.55);
@@ -83,7 +83,7 @@
       --c0-bg: rgba(255,255,255,.08); --c0-c: #B8CBD6; --c0-bd: 1px solid rgba(255,255,255,.18); --c0-sh: none;
       --gloss: rgba(0,194,255,.16); --press: translateY(3px);
       --dock-bg: rgba(5,13,26,.88); --dock-bd: rgba(0,194,255,.3);
-      --ok-bg: #12302A; --err-bg: #33161C; --warn-bg: #33290F;
+      --ok-bg: #12302A; --err-bg: #33161C; --err: #FF6B6B; --warn-bg: #33290F;
       --em-sh: 0 0 16px rgba(0,194,255,.35);
       --hero-bg: rgba(6,14,28,.88); --hero-sh: 0 0 30px rgba(0,194,255,.18), inset 0 0 26px rgba(0,194,255,.06);
       --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,194,255,.95), rgba(0,119,255,.6) 45%, rgba(0,60,160,.4) 75%); --orb-sh: 0 0 30px rgba(0,194,255,.55);
@@ -241,10 +241,14 @@
   .msg.loading::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 2.5px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: -2px; }
   .msg.typing-dots::after { content: ''; display: inline-block; width: 5px; height: 5px; margin-left: 6px; background: var(--accent); border-radius: 50%; box-shadow: 9px 0 0 var(--accent), 18px 0 0 var(--accent); animation: dots 1.2s ease infinite; }
   .msg.user .mini-img { display: block; max-width: 180px; max-height: 140px; border-radius: 12px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,.35); }
-  .chat-preview { display: none; position: relative; margin-top: 10px; animation: popIn .3s cubic-bezier(.34,1.56,.64,1) both; }
-  .chat-preview img { max-height: 160px; max-width: 100%; border-radius: 16px; border: 2px solid var(--accent); box-shadow: var(--card-sh); }
-  .chat-preview .x { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; border: none; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .chat-preview .x:hover { background: #FF4444; transform: scale(1.1); }
+
+  /* ===== АККУРАТНОЕ ПРЕВЬЮ ФОТО ===== */
+  .chat-preview { display: none; margin-top: 10px; animation: popIn .3s cubic-bezier(.34,1.56,.64,1) both; }
+  .pv-wrap { position: relative; display: inline-block; }
+  .chat-preview img { display: block; max-height: 150px; max-width: 240px; border-radius: 16px; border: 2px solid var(--accent); box-shadow: var(--card-sh); object-fit: cover; }
+  .chat-preview .x { position: absolute; top: -9px; right: -9px; width: 28px; height: 28px; border-radius: 50%; background: var(--card); color: var(--err); border: 2px solid var(--err); font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--card-sh); }
+  .chat-preview .x:hover { background: var(--err); color: #fff; transform: scale(1.12); }
+
   .chat-input { display: flex; gap: 8px; margin-top: 12px; }
   .chat-input input { flex: 1; margin: 0; }
   .chat-input .btn { width: 54px; margin: 0; padding: 0; height: 50px; flex-shrink: 0; }
@@ -383,7 +387,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 30</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 31</div></button>
     </div>
   </div>
 
@@ -391,8 +395,10 @@
     <div class="head"><div class="hi"><div class="mascot">🤖</div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX · 📎 понимает фото</div></div></div></div>
     <div class="chat-box" id="chatBox"></div>
     <div class="chat-preview" id="chatPreview">
-      <img id="chatPreviewImg" src="" alt="preview">
-      <button class="x" onclick="clearImage()" title="Убрать фото">✕</button>
+      <div class="pv-wrap">
+        <img id="chatPreviewImg" src="" alt="preview">
+        <button class="x" onclick="clearImage()" title="Убрать фото">✕</button>
+      </div>
     </div>
     <input type="file" id="chatImage" accept="image/*" style="display:none" onchange="previewImage(this)">
     <div class="chat-input">
@@ -513,7 +519,7 @@
           <li>🧮 Формулы LaTeX (KaTeX)</li>
           <li>💙 Светлая = живой MAX blue, тёмная = Cyber MAX</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 30</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 31</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -525,7 +531,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и анализ</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 30</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 31</div></button>
     </div>
   </div>
 
@@ -651,9 +657,27 @@ function saveChatHistory(){if(chatHistory.length>50)chatHistory=chatHistory.slic
 function addMsg(t,c,source){const b=document.getElementById('chatBox');const d=document.createElement('div');d.className='msg '+c;if(source==='max'&&c==='user')t='📱 MAX: '+t;d.innerHTML=escapeHtml(t);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
 async function tryParseGradesViaGiga(text){const digits=(text.match(/\b[1-5]\b/g)||[]).length;if(!digits||!GRADE_TRIGGERS.test(text))return null;try{const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы и оценки. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[...]}]. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}return null;}
 
-// ===== ФОТО В ЧАТЕ (vision) =====
+// ===== ФОТО В ЧАТЕ (vision, сжатие на устройстве) =====
 let chatImageFile=null;let chatImageB64=null;
-function previewImage(input){const f=input.files&&input.files[0];if(!f)return;if(!f.type.startsWith('image/')){alert('Нужна картинка (jpg/png/webp)');input.value='';return;}if(f.size>5*1024*1024){alert('Картинка больше 5 МБ');input.value='';return;}chatImageFile=f;const reader=new FileReader();reader.onload=e=>{chatImageB64=e.target.result;document.getElementById('chatPreviewImg').src=chatImageB64;document.getElementById('chatPreview').style.display='block';};reader.readAsDataURL(f);}
+function previewImage(input){const f=input.files&&input.files[0];if(!f)return;if(!f.type.startsWith('image/')){alert('Нужна картинка (jpg/png/webp)');input.value='';return;}if(f.size>8*1024*1024){alert('Картинка больше 8 МБ');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=1280;let w=img.width,h=img.height;
+      if(w>max||h>max){const k=max/Math.max(w,h);w=Math.round(w*k);h=Math.round(h*k);}
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      chatImageB64=cv.toDataURL('image/jpeg',0.82);
+      chatImageFile=f;
+      document.getElementById('chatPreviewImg').src=chatImageB64;
+      document.getElementById('chatPreview').style.display='block';
+    };
+    img.onerror=()=>alert('Не удалось прочитать картинку');
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(f);
+}
 function clearImage(){chatImageFile=null;chatImageB64=null;const inp=document.getElementById('chatImage');if(inp)inp.value='';document.getElementById('chatPreview').style.display='none';document.getElementById('chatPreviewImg').src='';}
 
 async function sendChat(){
@@ -666,7 +690,7 @@ async function sendChat(){
   if(hasImage)html+='<img class="mini-img" src="'+chatImageB64+'" alt="photo">';
   if(t)html+=escapeHtml(t);
   d.innerHTML=html;b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;
-  const savedText=t;const savedFile=chatImageFile;
+  const savedText=t;const savedFile=chatImageFile;const savedB64=chatImageB64;
   i.value='';clearImage();
   const loading=document.createElement('div');loading.className='msg loading typing-dots';loading.textContent=hasImage?'Смотрю на картинку':'Думаю';
   b.appendChild(loading);b.scrollTop=b.scrollHeight;
@@ -676,8 +700,7 @@ async function sendChat(){
     const hist=chatHistory.slice(-8);
     let reply='';
     if(hasImage){
-      const fd=new FormData();fd.append('image',savedFile);fd.append('text',savedText);fd.append('history',JSON.stringify(hist));
-      const r=await fetch(PROXY_BASE+'/chat_with_image',{method:'POST',body:fd});
+      const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:savedText,dataUrl:savedB64,history:hist})});
       if(!r.ok){let detail='';try{const j=await r.json();detail=j.detail||'';}catch(e){}throw new Error('Vision '+r.status+(detail?': '+detail:''));}
       const j=await r.json();reply=j.reply||'(пустой ответ)';
     }else{
