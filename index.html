@@ -11,6 +11,12 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
+    :root { color-scheme: light; }
+  :root[data-theme="dark"] { color-scheme: dark; }
+  @media (prefers-color-scheme: dark) { :root[data-theme="auto"] { color-scheme: dark; } }
+  select option { background: #FFFFFF; color: #10243E; }
+  :root[data-theme="dark"] select option { background: #0A1626; color: #F0FAFF; }
+  @media (prefers-color-scheme: dark) { :root[data-theme="auto"] select option { background: #0A1626; color: #F0FAFF; } }
   /* ===== СВЕТЛАЯ = MAX (синий/голубой) ===== */
   :root, :root[data-theme="light"] {
     --bg-color: #F0F6FF;
