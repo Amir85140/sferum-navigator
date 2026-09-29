@@ -1,4 +1,3 @@
-import base64
 import json
 import time
 import uuid
@@ -7,7 +6,7 @@ from pathlib import Path
 
 import requests
 import urllib3
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 import uvicorn
@@ -39,7 +38,7 @@ def _get_giga_token_sync():
     r = requests.post(
         OAUTH_URL,
         headers={
-            "Authorization": "Basic " + base64.b64encode(f"{GIGA_ID}:{GIGA_SECRET}".encode()).decode(),
+            "Authorization": "Basic " + base64.b64encode(f"{GIGA_ID}:{GIGA_SECRET}".encode()).decode() if False else __import__("base64").b64encode(f"{GIGA_ID}:{GIGA_SECRET}".encode()).decode(),
             "Content-Type": "application/x-www-form-urlencoded",
             "RqUID": str(uuid.uuid4()),
         },
@@ -120,34 +119,23 @@ async def check_video(q: str = ""):
             res[k] = False
     return {"available": [k for k, v in res.items() if v], "all": res}
 
-# ===== VISION: АНАЛИЗ ФОТО =====
-@app.post("/chat_with_image")
-async def chat_with_image(
-    text: str = Form(""),
-    image: UploadFile = File(...),
-    history: str = Form("")
-):
+# ===== VISION: АНАЛИЗ ФОТО (JSON base64, без multipart) =====
+@app.post("/vision")
+async def vision(request: Request):
     try:
-        if not image.content_type or not image.content_type.startswith("image/"):
-            raise HTTPException(400, "Нужен файл-картинка")
-        data = await image.read()
-        if len(data) > 5 * 1024 * 1024:
-            raise HTTPException(400, "Картинка больше 5 МБ")
-        b64 = base64.b64encode(data).decode("utf-8")
-        mime = image.content_type or "image/jpeg"
-        data_url = f"data:{mime};base64,{b64}"
-
+        payload = await request.json()
+        data_url = payload.get("dataUrl", "")
+        text = payload.get("text", "")
+        history = payload.get("history", [])
+        if not data_url.startswith("data:image/"):
+            raise HTTPException(400, "Нужна картинка data:image/...;base64,...")
+        if len(data_url) > 8 * 1024 * 1024:
+            raise HTTPException(400, "Картинка слишком большая")
         token = await _get_giga_token()
-
         hist_msgs = []
-        if history:
-            try:
-                for m in json.loads(history)[-8:]:
-                    if m.get("role") in ("user", "assistant"):
-                        hist_msgs.append({"role": m["role"], "content": m.get("content", "")})
-            except Exception:
-                pass
-
+        for m in (history or [])[-8:]:
+            if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
+                hist_msgs.append({"role": m["role"], "content": str(m.get("content", ""))})
         user_content = [
             {"type": "text", "text": text or "Опиши, что на этой картинке."},
             {"type": "image_url", "image_url": {"url": data_url}}
@@ -156,7 +144,6 @@ async def chat_with_image(
                   "Если это задача — реши пошагово. Математические формулы пиши в LaTeX: инлайн в $...$, "
                   "блочные в $$...$$. Не используй Markdown.")
         messages = [{"role": "system", "content": system}] + hist_msgs + [{"role": "user", "content": user_content}]
-
         resp = requests.post(
             GIGA_URL,
             headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
@@ -165,7 +152,7 @@ async def chat_with_image(
             verify=False
         )
         if resp.status_code != 200:
-            raise HTTPException(resp.status_code, f"GigaChat error: {resp.text[:200]}")
+            raise HTTPException(resp.status_code, f"GigaChat error: {resp.text[:300]}")
         ans = resp.json()["choices"][0]["message"]["content"]
         ans = ans.replace("**", "").replace("`", "").strip()
         return {"reply": ans}
