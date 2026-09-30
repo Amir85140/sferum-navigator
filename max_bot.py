@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 import requests
 import urllib3
-from max_sdk import Bot, types
+from maxapi import Bot, types
 
 urllib3.disable_warnings()
 logging.basicConfig(level=logging.INFO)
