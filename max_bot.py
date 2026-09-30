@@ -73,6 +73,29 @@ def save_chat_to_server(history, channel=CHANNEL):
     except Exception as e:
         logger.error(f"save chat: {e}")
 
+# ===== ПРЕОБРАЗОВАНИЕ LATEX -> ОБЫЧНЫЙ ТЕКСТ =====
+def latex_to_plain(t):
+    if not t:
+        return t
+    s = t
+    for _ in range(3):
+        s = re.sub(r'\\frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}', r'(\1) / (\2)', s)
+    s = s.replace('\\cdot', '*').replace('\\times', '*').replace('\\div', '/')
+    s = s.replace('\\left', '').replace('\\right', '')
+    s = re.sub(r'\\sqrt\s*\{([^{}]*)\}', r'sqrt(\1)', s)
+    s = s.replace('\\pi', 'пи').replace('\\infty', 'бесконечность')
+    s = s.replace('\\pm', '+-').replace('\\le', '<=').replace('\\ge', '>=').replace('\\ne', '!=')
+    s = s.replace('\\approx', '~').replace('\\degree', '°')
+    s = re.sub(r'_\{([^{}]*)\}', r'\1', s)
+    s = re.sub(r'\^\{([^{}]*)\}', r'^\1', s)
+    s = re.sub(r'_(\w)', r'\1', s)
+    s = re.sub(r'\\([a-zA-Z]+)', r'\1', s)
+    s = s.replace('$$', ' ').replace('$', '')
+    s = s.replace('**', '').replace('`', '')
+    s = re.sub(r'[ \t]+\n', '\n', s)
+    s = re.sub(r'\n{3,}', '\n\n', s)
+    return s.strip()
+
 # ===== GIGACHAT =====
 giga_token = None
 giga_exp = 0
@@ -117,7 +140,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
             verify=False, timeout=60)
         if r.ok:
             _t = r.json()['choices'][0]['message']['content']
-            _t = _t.replace('**', '').replace('`', '').replace('$$', ' ').replace('$', '')
+            _t = latex_to_plain(_t)
             return _t
     except Exception as e:
         logger.error(f"giga: {e}")
@@ -505,13 +528,15 @@ async def handle_message(event):
 
     history = load_chat_from_server()
     history.append({'role': 'user', 'content': text, 'timestamp': now_ms(), 'source': 'max'})
-    thinking = await reply(event, "⏳ Думаю...")
+
+    thinking = None
     response = ask_gigachat(
         text,
         'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни ВЕСЬ предыдущий разговор, включая сообщения с сайта. Если ученик рассказывает про оценки — порадуйся или поддержи.' + NO_LATEX,
         800, history)
     history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
     save_chat_to_server(history)
+
     await delete_msg(thinking)
     await reply(event, response, keyboard=make_menu_keyboard())
 
