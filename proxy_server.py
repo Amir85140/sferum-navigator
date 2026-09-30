@@ -21,24 +21,12 @@ GIGA_ID = "01a0bafa-206f-7e07-a2e7-df9e0acea285"
 GIGA_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
 OAUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
 GIGA_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
-FILES_URL = "https://gigachat.devices.sberbank.ru/api/v1/files"
 CHAT_FILE = Path("chat_sync.json")
 
-VISION_MODELS = ("GigaChat-Pro", "GigaChat-Max", "GigaChat-2-Pro", "GigaChat-2-Max")
-STUB_MARKERS = (
-    "изображение не предоставлено", "прикрепи картинку", "опиши её словами",
-    "не вижу изображения", "изображение не получено", "приложите изображение",
-    "приложите снова", "увидеть саму картинку", "мне нужно увидеть",
-    "не могу увидеть", "изображение снова", "attach the image", "image again",
-    "i need to see", "please attach", "no image", "не приложено",
-)
-
-VISION_SYSTEM = (
-    "Ты — дружелюбный ИИ-наставник для школьников. "
-    "Анализируй прикреплённое изображение внимательно. "
-    "Если это задача — реши пошагово. "
-    "Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$. "
-    "Не используй Markdown."
+MATH_SYSTEM_DEFAULT = (
+    "Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. "
+    "Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: "
+    "инлайн в $...$, блочные в $$...$$."
 )
 
 app = FastAPI(title="Sferum Navigator Proxy")
@@ -82,31 +70,17 @@ async def _get_giga_token():
     return _get_giga_token_sync()
 
 
-def _clean_ans(t):
-    return t.replace("**", "").replace("`", "").strip()
+def _load_store():
+    if CHAT_FILE.exists():
+        try:
+            return json.loads(CHAT_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
 
 
-def _is_stub(content):
-    low = (content or "").lower()
-    return any(m in low for m in STUB_MARKERS)
-
-
-def _chat(token, messages, model, attachments=None):
-    body = {
-        "model": model,
-        "messages": messages,
-        "max_tokens": 1200,
-        "temperature": 0.5,
-    }
-    if attachments:
-        body["attachments"] = attachments
-    return requests.post(
-        GIGA_URL,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        json=body,
-        timeout=90,
-        verify=False,
-    )
+def _save_store(store):
+    CHAT_FILE.write_text(json.dumps(store, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 @app.api_route("/proxy", methods=["GET", "POST", "OPTIONS"])
@@ -134,15 +108,6 @@ async def proxy(request: Request, url: str = ""):
     return resp
 
 
-def _load_store():
-    if CHAT_FILE.exists():
-        try:
-            return json.loads(CHAT_FILE.read_text(encoding="utf-8"))
-        except Exception:
-            return {}
-    return {}
-
-
 @app.get("/chat_history")
 async def chat_history_get(user_id: str = "main"):
     store = _load_store()
@@ -157,13 +122,55 @@ async def chat_history_post(request: Request, user_id: str = "main"):
     data = await request.json()
     store = _load_store()
     store[user_id] = (data or [])[-50:]
-    CHAT_FILE.write_text(
-        json.dumps(store, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    _save_store(store)
     return JSONResponse(
         content={"status": "ok", "count": len(store[user_id])},
         headers={"Access-Control-Allow-Origin": "*"},
     )
+
+
+@app.post("/chat")
+async def chat(request: Request, user_id: str = ""):
+    try:
+        payload = await request.json()
+        prompt = payload.get("prompt", "")
+        system = payload.get("system") or MATH_SYSTEM_DEFAULT
+        max_tokens = int(payload.get("max_tokens") or 800)
+        client_history = payload.get("history") or []
+        use_store = bool(user_id)
+        store_hist = []
+        if use_store:
+            raw = _load_store().get(user_id, [])
+            store_hist = [m for m in raw if isinstance(m, dict) and m.get("role") in ("user", "assistant")][-16:]
+        messages = [{"role": "system", "content": system}]
+        for m in (store_hist + client_history)[-16:]:
+            messages.append({"role": m.get("role"), "content": str(m.get("content", ""))})
+        messages.append({"role": "user", "content": prompt})
+        token = await _get_giga_token()
+        r = requests.post(
+            GIGA_URL,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={"model": "GigaChat:latest", "messages": messages, "max_tokens": max_tokens, "temperature": 0.7},
+            timeout=60,
+            verify=False,
+        )
+        log.info("CHAT -> %s (user_id=%s)", r.status_code, user_id or "-")
+        if r.status_code != 200:
+            raise HTTPException(r.status_code, f"GigaChat error: {r.text[:200]}")
+        reply_text = r.json()["choices"][0]["message"]["content"]
+        if use_store:
+            st = _load_store()
+            arr = st.get(user_id, [])
+            ts = int(time.time() * 1000)
+            arr.append({"role": "user", "content": prompt, "timestamp": ts, "source": "web"})
+            arr.append({"role": "assistant", "content": reply_text, "timestamp": ts + 1, "source": "web"})
+            st[user_id] = arr[-50:]
+            _save_store(st)
+        return {"reply": reply_text}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Ошибка chat: {str(e)}")
 
 
 @app.get("/check_video")
@@ -193,124 +200,6 @@ async def check_video(q: str = ""):
     return {"available": [k for k, v in res.items() if v], "all": res}
 
 
-@app.post("/vision")
-async def vision(request: Request):
-    try:
-        payload = await request.json()
-        data_url = payload.get("dataUrl", "")
-        text = payload.get("text", "")
-        history = payload.get("history", [])
-        if not data_url.startswith("data:image/"):
-            raise HTTPException(400, "Нужна картинка data:image/...;base64,...")
-        if len(data_url) > 8 * 1024 * 1024:
-            raise HTTPException(400, "Картинка слишком большая")
-
-        b64 = data_url.split(";base64,", 1)[1] if ";base64," in data_url else data_url
-        token = await _get_giga_token()
-
-        hist_msgs = []
-        for m in (history or [])[-8:]:
-            if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
-                hist_msgs.append({"role": m["role"], "content": str(m.get("content", ""))})
-        q = text or "Опиши, что на этой картинке."
-        errors = []
-        file_id = None
-
-        # 1) загрузка файла multipart
-        try:
-            raw = base64.b64decode(b64)
-            fr = requests.post(
-                FILES_URL,
-                headers={"Authorization": f"Bearer {token}"},
-                files={"file": ("photo.jpg", raw, "image/jpeg")},
-                data={"purpose": "general"},
-                timeout=60,
-                verify=False,
-            )
-            log.info("VISION files -> %s %s", fr.status_code, fr.text[:150])
-            if fr.status_code == 200:
-                file_id = fr.json().get("id")
-        except Exception as e:
-            log.info("VISION files exc: %s", e)
-
-        # 2) ждём, пока файл обработается (modalities станет непустым)
-        if file_id:
-            for attempt in range(5):
-                try:
-                    gr = requests.get(
-                        f"{FILES_URL}/{file_id}",
-                        headers={"Authorization": f"Bearer {token}"},
-                        timeout=15,
-                        verify=False,
-                    )
-                    mods = (gr.json() or {}).get("modalities") or []
-                    log.info("VISION file-status #%s -> %s modalities=%s", attempt, gr.status_code, mods)
-                    if mods:
-                        break
-                except Exception as e:
-                    log.info("VISION file-status exc: %s", e)
-                time.sleep(1.2)
-
-        # 3) чат с attachments: перебор всех моделей
-        if file_id:
-            msgs = [{"role": "system", "content": VISION_SYSTEM}] + hist_msgs + [{"role": "user", "content": q}]
-            for model in VISION_MODELS:
-                r = _chat(token, msgs, model, [file_id])
-                if r.status_code == 200:
-                    content = r.json()["choices"][0]["message"]["content"]
-                    stub = _is_stub(content)
-                    log.info("VISION att-%s -> 200 stub=%s %s", model, stub, content[:100])
-                    if not stub:
-                        return {"reply": _clean_ans(content)}
-                    errors.append(f"{model}: заглушка")
-                else:
-                    log.info("VISION att-%s -> %s %s", model, r.status_code, r.text[:150])
-                    errors.append(f"{model}: {r.status_code}")
-
-        raise HTTPException(502, "GigaChat не увидел фото ни на одной модели: " + " | ".join(errors))
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(500, f"Ошибка vision: {str(e)}")
-
-MATH_SYSTEM_DEFAULT = (
-    "Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. "
-    "Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: "
-    "инлайн в $...$, блочные в $$...$$."
-)
-
-
-@app.post("/chat")
-async def chat(request: Request):
-    try:
-        payload = await request.json()
-        prompt = payload.get("prompt", "")
-        system = payload.get("system") or MATH_SYSTEM_DEFAULT
-        max_tokens = int(payload.get("max_tokens") or 800)
-        history = payload.get("history") or []
-        if not prompt:
-            raise HTTPException(400, "empty prompt")
-        token = await _get_giga_token()
-        messages = [{"role": "system", "content": system}]
-        for m in history[-16:]:
-            if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
-                messages.append({"role": m["role"], "content": str(m.get("content", ""))})
-        messages.append({"role": "user", "content": prompt})
-        r = requests.post(
-            GIGA_URL,
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-            json={"model": "GigaChat:latest", "messages": messages, "max_tokens": max_tokens, "temperature": 0.7},
-            timeout=60,
-            verify=False,
-        )
-        log.info("CHAT -> %s", r.status_code)
-        if r.status_code != 200:
-            raise HTTPException(r.status_code, f"GigaChat error: {r.text[:200]}")
-        return {"reply": r.json()["choices"][0]["message"]["content"]}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(500, f"Ошибка chat: {str(e)}")
 @app.get("/health")
 async def health():
     return {"status": "ok", "chat_sync": CHAT_FILE.exists()}
