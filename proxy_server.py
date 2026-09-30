@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import re
 import time
 import uuid
 import urllib.parse
@@ -173,13 +174,54 @@ async def chat(request: Request, user_id: str = ""):
         raise HTTPException(500, f"Ошибка chat: {str(e)}")
 
 
+@app.get("/search_video")
+async def search_video(q: str = ""):
+    if not q:
+        return JSONResponse(content={"rutube": [], "vk": []}, headers={"Access-Control-Allow-Origin": "*"})
+    rt = []
+    try:
+        r = requests.get('https://rutube.ru/api/video/',
+                         params={'query': q, 'page': 1, 'per_page': 6},
+                         headers={'User-Agent': 'Mozilla/5.0'}, timeout=10, verify=False)
+        if r.ok:
+            ws = [w for w in re.split(r'\s+', q.lower()) if len(w) > 3]
+            for v in (r.json().get('results') or []):
+                title = re.sub(r'<[^>]+>', '', v.get('title', '') or '')
+                tl = title.lower()
+                if ws and not any(w in tl for w in ws):
+                    continue
+                rt.append({'title': title[:80],
+                           'url': v.get('video_url') or f"https://rutube.ru/video/{v.get('id','')}/"})
+                if len(rt) >= 3:
+                    break
+    except Exception as e:
+        log.info(f"search_video rutube: {e}")
+    vk = []
+    try:
+        r2 = requests.get('https://vk.com/video', params={'q': q},
+                          headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
+                                   'Accept-Language': 'ru-RU,ru;q=0.9'},
+                          timeout=10, verify=False)
+        if r2.ok:
+            seen = set()
+            for pair in re.findall(r'video(-?\d+_\d+)', r2.text):
+                if pair in seen:
+                    continue
+                seen.add(pair)
+                vk.append({'url': f'https://vk.com/video{pair}'})
+                if len(vk) >= 2:
+                    break
+    except Exception as e:
+        log.info(f"search_video vk: {e}")
+    return JSONResponse(content={"rutube": rt, "vk": vk}, headers={"Access-Control-Allow-Origin": "*"})
+
+
 @app.get("/check_video")
 async def check_video(q: str = ""):
     if not q:
         return {"available": []}
     qq = urllib.parse.quote(q)
     checks = {
-        "youtube": f"https://www.youtube.com/results?search_query={qq}",
         "vk": f"https://vk.com/video?q={qq}",
         "rutube": f"https://rutube.ru/search/?q={qq}",
     }
