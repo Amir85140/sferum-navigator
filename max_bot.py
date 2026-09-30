@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ===== НАСТРОЙКИ =====
-BOT_TOKEN = os.environ.get('BOT_TOKEN', 'AgAEAAEAAAAAAAAAAAAAAABgJmUAAAAAYmY0YjEwZjEtNjQ2OC00MjVlLTg2ZDctMjM5ZjQ3ZjQ3ZjQ3')
+BOT_TOKEN = os.environ.get('BOT_TOKEN', 'f9LHodD0cOLAk1Ry-yn7J-4F5oi3mZW9vlXyawwC4SxvVwTZ3DILUsVm6QJhFo2e3ReJ-0ucg1NORcMQ_FNI')
 GIGA_ID = os.environ.get('GIGA_ID', '01a0bafa-206f-7e07-a2e7-df9e0acea285')
 GIGA_SECRET = os.environ.get('GIGA_SECRET', '93e085d7-803b-4fe2-b1da-468aff78a450')
 CODESPACE_NAME = os.environ.get('CODESPACE_NAME', 'automatic-system-p7gg76p4wqqwf99rj')
@@ -50,7 +50,7 @@ def now_ms():
     return int(time.time() * 1000)
 
 # ===== ОБЩИЙ ЧАТ-КАНАЛ НА СЕРВЕРЕ =====
-def load_chat_from_server(channel=CHANNEL) -> List[Dict]:
+def load_chat_from_server(channel=CHANNEL):
     try:
         r = requests.get(f"{PROXY_BASE}/chat_history?user_id={channel}", timeout=5, verify=False)
         if r.ok:
@@ -61,7 +61,7 @@ def load_chat_from_server(channel=CHANNEL) -> List[Dict]:
         logger.error(f"load chat: {e}")
     return []
 
-def save_chat_to_server(history: List[Dict], channel=CHANNEL):
+def save_chat_to_server(history, channel=CHANNEL):
     try:
         requests.post(f"{PROXY_BASE}/chat_history?user_id={channel}",
                       json=history[-50:], timeout=5, verify=False)
@@ -93,7 +93,7 @@ def get_giga_token():
         logger.error(f"token: {e}")
     return None
 
-def ask_gigachat(prompt: str, system_prompt: str = None, max_tokens: int = 800, history: List[Dict] = None) -> str:
+def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
     token = get_giga_token()
     if not token:
         return "❌ Не удалось подключиться к GigaChat"
@@ -119,7 +119,7 @@ def ask_gigachat(prompt: str, system_prompt: str = None, max_tokens: int = 800, 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# --- совместимые хелперы ---
+# --- совместимые хелперы (сами найдут нужные поля/методы maxapi) ---
 def get_uid(event):
     for src in (getattr(event, 'from_user', None), getattr(event, 'user', None),
                 getattr(getattr(event, 'message', None), 'sender', None)):
@@ -192,20 +192,23 @@ async def handle_message(event):
     if user_id not in user_data:
         user_data[user_id] = {'grades': {}}
 
+    # /start
     if text == '/start':
         await reply(event,
             "👋 Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
-            "🔄 Наш чат ОБЩИЙ с мини-приложением.\n"
+            "🔄 Наш чат ОБЩИЙ с мини-приложением: пиши здесь — увидишь на сайте, пиши на сайте — увижу здесь.\n"
             "📚 Пиши про оценки — сам запишу в дневник\n"
             "📱 /мини — открыть приложение\n"
             "📜 /история — общий чат\n"
             "🗑 /очистить — очистить общий чат")
         return
 
+    # /мини
     if text in ('/мини', '/mini'):
-        await reply(event, f"📱 Мини-приложение:\n{MINI_APP_URL}")
+        await reply(event, f"📱 Мини-приложение Sferum Navigator:\n{MINI_APP_URL}\n\nЧат там синхронизирован с этим диалогом 🔄")
         return
 
+    # /история
     if text == '/история':
         hist = load_chat_from_server()
         if not hist:
@@ -216,14 +219,16 @@ async def handle_message(event):
             who = '🧑' if m.get('role') == 'user' else '🤖'
             src = ' (сайт)' if m.get('source') == 'web' else (' (MAX)' if m.get('source') == 'max' else '')
             lines.append(f"{who}{src}: {m.get('content','')[:120]}")
-        await reply(event, "📜 Последние сообщения:\n" + "\n".join(lines))
+        await reply(event, "📜 Последние сообщения общего чата:\n" + "\n".join(lines))
         return
 
+    # /очистить
     if text == '/очистить':
         save_chat_to_server([])
-        await reply(event, "🗑 Общий чат очищен.")
+        await reply(event, "🗑 Общий чат очищен (и в MAX, и на сайте).")
         return
 
+    # оценки -> дневник
     grade_triggers = ['оценк', 'получил', 'получила', 'поставили', 'поставил', 'заработал', 'балл', 'отметк']
     if any(t in text.lower() for t in grade_triggers) and re.search(r'\b[1-5]\b', text):
         try:
@@ -242,13 +247,14 @@ async def handle_message(event):
         except Exception as e:
             logger.error(f"grades parse: {e}")
 
+    # ===== ОБЩИЙ ЧАТ =====
     history = load_chat_from_server()
     history.append({'role': 'user', 'content': text, 'timestamp': now_ms(), 'source': 'max'})
 
     thinking = await reply(event, "⏳ Думаю...")
     response = ask_gigachat(
         text,
-        'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни ВЕСЬ предыдущий разговор. Если ученик рассказывает про оценки — порадуйся или поддержи.',
+        'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни ВЕСЬ предыдущий разговор, включая сообщения с сайта. Если ученик рассказывает про оценки — порадуйся или поддержи.',
         800, history)
     history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
 
@@ -266,4 +272,3 @@ if __name__ == '__main__':
             dp.run(bot)
         except AttributeError:
             bot.run()
-EOF
