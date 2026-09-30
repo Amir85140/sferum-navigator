@@ -53,6 +53,7 @@ load_user_data()
 def now_ms():
     return int(time.time() * 1000)
 
+# ===== ОБЩИЙ ЧАТ-КАНАЛ НА СЕРВЕРЕ =====
 def load_chat_from_server(channel=CHANNEL):
     try:
         r = requests.get(f"{PROXY_BASE}/chat_history?user_id={channel}", timeout=5, verify=False)
@@ -71,6 +72,7 @@ def save_chat_to_server(history, channel=CHANNEL):
     except Exception as e:
         logger.error(f"save chat: {e}")
 
+# ===== ПРЕОБРАЗОВАНИЕ LATEX -> ОБЫЧНЫЙ ТЕКСТ =====
 def latex_to_plain(t):
     if not t:
         return t
@@ -119,15 +121,29 @@ def get_giga_token():
     return None
 
 def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
+    sysp = (system_prompt or 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно.') + NO_LATEX
+    hist = history or []
+    # 1) Через прокси (там уже есть токен и рабочая схема запроса)
+    for base in ('http://localhost:8000', PROXY_BASE):
+        try:
+            r = requests.post(base + '/chat',
+                              json={'prompt': prompt, 'system': sysp,
+                                    'max_tokens': max_tokens, 'history': hist},
+                              timeout=75, verify=False)
+            if r.ok:
+                txt = r.json().get('reply', '')
+                if txt:
+                    return latex_to_plain(txt)
+        except Exception as e:
+            logger.error(f"chat via {base}: {e}")
+    # 2) Фолбэк: напрямую в GigaChat
     token = get_giga_token()
     if not token:
         return "❌ Не удалось подключиться к GigaChat"
     try:
-        messages = [{'role': 'system',
-                     'content': (system_prompt or
-                                 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно.') + NO_LATEX}]
-        if history:
-            messages.extend(history[-16:])
+        messages = [{'role': 'system', 'content': sysp}]
+        if hist:
+            messages.extend(hist[-16:])
         messages.append({'role': 'user', 'content': prompt})
         r = requests.post(
             'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
@@ -136,11 +152,9 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
                   'max_tokens': max_tokens, 'temperature': 0.7},
             verify=False, timeout=60)
         if r.ok:
-            _t = r.json()['choices'][0]['message']['content']
-            _t = latex_to_plain(_t)
-            return _t
+            return latex_to_plain(r.json()['choices'][0]['message']['content'])
     except Exception as e:
-        logger.error(f"giga: {e}")
+        logger.error(f"giga direct: {e}")
     return "❌ Ошибка при обращении к GigaChat"
 
 # ===== РЕАЛЬНЫЙ ПОИСК ВИДЕО =====
@@ -176,7 +190,7 @@ def search_youtube(query, size=3):
             ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
             seen, out = set(), []
             for vid in ids:
-                if vid in seen or vid in ('',):
+                if vid in seen:
                     continue
                 seen.add(vid)
                 out.append({'url': f"https://www.youtube.com/watch?v={vid}", 'src': 'YouTube'})
@@ -188,7 +202,6 @@ def search_youtube(query, size=3):
     return []
 
 def search_vk_video(query, size=2):
-    # VK требует токен для поиска — возвращаем только ссылку на поиск
     return [{'url': f"https://vk.com/video?q={requests.utils.quote(query)}",
              'src': 'VK (поиск)', 'title': 'Открыть поиск видео в VK'}]
 
@@ -196,6 +209,7 @@ def search_vk_video(query, size=2):
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+# ===== КЛАВИАТУРА (защитное построение; если классы недоступны — кнопки отключаются) =====
 MENU_ROWS = [
     [("✅ Тренажёр", "quiz"), ("🎥 Видео", "video")],
     [("💪 Мотивация", "motivation"), ("📅 План", "plan")],
@@ -210,7 +224,7 @@ def make_menu_keyboard():
         fn = getattr(kb, 'as_markup', None)
         return fn() if callable(fn) else kb
     except Exception as e:
-        logger.error(f"kb1: {e}")
+        logger.debug(f"kb1: {e}")
     try:
         from maxapi.types import Keyboard, Button
         rows = [[Button(text=t, payload={"cmd": c}) for t, c in row] for row in MENU_ROWS]
@@ -218,12 +232,14 @@ def make_menu_keyboard():
         fn = getattr(kb, 'as_markup', None)
         return fn() if callable(fn) else kb
     except Exception as e:
-        logger.error(f"kb2: {e}")
+        logger.debug(f"kb2: {e}")
+    # dict не имеет model_dump -> reply() его проигнорирует, бот не упадёт
     return {
         "type": "inline_keyboard",
         "payload": {"buttons": [[{"type": "callback", "text": t, "payload": {"cmd": c}} for t, c in row] for row in MENU_ROWS]},
     }
 
+# ===== ХЕЛПЕРЫ СОБЫТИЙ =====
 def get_uid(event):
     for src in (getattr(event, 'from_user', None), getattr(event, 'user', None),
                 getattr(getattr(event, 'message', None), 'sender', None)):
@@ -319,6 +335,7 @@ def get_callback_cmd(event):
             return p['cmd']
     return None
 
+# ===== РАЗДЕЛЫ =====
 def norm(s):
     return re.sub(r'[.,!?;:"\'\s]', '', str(s).lower().replace('ё', 'е'))
 
@@ -336,7 +353,6 @@ async def act_menu(event, uid):
     ensure(uid)['state'] = None
     await send_menu(event)
 
-# ===== ТРЕНАЖЁР (улучшенный промт) =====
 async def act_quiz(event, uid):
     u = ensure(uid)
     u['state'] = {'mode': 'quiz_topic'}
@@ -345,7 +361,6 @@ async def act_quiz(event, uid):
         "дам задание и объясню решение после твоего ответа.",
         keyboard=make_menu_keyboard())
 
-# ===== ВИДЕО (реальный поиск) =====
 async def act_video(event, uid):
     u = ensure(uid)
     u['state'] = {'mode': 'video_topic'}
@@ -353,7 +368,6 @@ async def act_video(event, uid):
         "🎥 Видеоуроки\n\nНапиши тему — объясню её и подберу конкретные видео с RuTube, YouTube и VK.",
         keyboard=make_menu_keyboard())
 
-# ===== МОТИВАЦИЯ (улучшенный промт) =====
 async def act_motivation(event, uid):
     u = ensure(uid)
     u['state'] = {'mode': 'motivation_mood'}
@@ -365,7 +379,6 @@ async def act_motivation(event, uid):
         "• нормально\n\nИли опиши словами, что случилось — подберу нужные слова.",
         keyboard=make_menu_keyboard())
 
-# ===== ПЛАН (улучшенный промт) =====
 async def act_plan(event, uid):
     u = ensure(uid)
     plan = u.get('plan')
@@ -386,7 +399,6 @@ async def act_plan(event, uid):
             "• 7, подтянуть физику за четверть",
             keyboard=make_menu_keyboard())
 
-# ===== ДНЕВНИК (с анализом) =====
 async def act_grades(event, uid):
     ensure(uid)['state'] = None
     g = user_data[uid].get('grades', {})
@@ -484,7 +496,6 @@ async def handle_state(event, uid, text):
     # --- ВИДЕО: тема → реальный поиск ---
     if mode == 'video_topic':
         u['state'] = None
-        # GigaChat даёт объяснение + оптимальный поисковый запрос
         r = ask_gigachat(
             f'Тема: «{text}».\n'
             f'1) Кратко (2-3 предложения) объясни школьнику простыми словами с примером.\n'
@@ -501,7 +512,6 @@ async def handle_state(event, uid, text):
             except Exception:
                 pass
 
-        # Реальный поиск по трём платформам
         rt = search_rutube(query, 2)
         yt = search_youtube(query, 2)
         vk = search_vk_video(query, 1)
@@ -528,7 +538,6 @@ async def handle_state(event, uid, text):
     # --- МОТИВАЦИЯ: настроение ---
     if mode == 'motivation_mood':
         u['state'] = None
-        mood = text.lower().strip()
         r = ask_gigachat(
             f'Школьник пишет тебе: «{text}».\n'
             f'Ответь как старший друг: 3-4 тёплых предложения. '
@@ -544,7 +553,6 @@ async def handle_state(event, uid, text):
         u['state'] = None
         m = re.search(r'(\d{1,2})', text)
         grade = m.group(1) if m else '9'
-        # Извлекаем цель (после "цель" / "на" / числ.баллов)
         goal = text
         resp = ask_gigachat(
             f'Ученик {grade} класса. Запрос: «{text}».\n'
@@ -585,7 +593,7 @@ async def handle_state(event, uid, text):
 
     return False
 
-# ===== CALLBACK =====
+# ===== CALLBACK (нажатия кнопок, если клавиатура заведётся) =====
 _cb_reg = None
 for _name in ('bot_callback', 'callback_created', 'message_callback'):
     _r = getattr(dp, _name, None)
@@ -659,7 +667,7 @@ async def handle_message(event):
         g = user_data[user_id].get('grades', {})
         if not g:
             await reply(event, "Сначала добавь оценки.")
-            return True
+            return
         ensure(user_id)['state'] = {'mode': 'grades_analyze'}
         await handle_state(event, user_id, 'анализ')
         return
