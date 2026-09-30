@@ -26,6 +26,11 @@ MINI_APP_URL = "https://amir85140.github.io/sferum-navigator/"
 CHANNEL = 'main'
 USER_DATA_FILE = Path('user_data.json')
 
+# Запрет LaTeX/Markdown для MAX (там формулы не рендерятся)
+NO_LATEX = (' СТРОГО ЗАПРЕЩЕНО использовать LaTeX (знаки $, $$, \\frac, \\sqrt и любые бэкслэши) '
+            'и Markdown (**, #, `). Все формулы пиши ПРОСТЫМ текстом в одну строку, '
+            'например: a = F / m, S = v * t, x^2.')
+
 user_data: Dict[int, Dict[str, Any]] = {}
 
 def load_user_data():
@@ -49,6 +54,7 @@ load_user_data()
 def now_ms():
     return int(time.time() * 1000)
 
+# ===== ОБЩИЙ ЧАТ-КАНАЛ НА СЕРВЕРЕ =====
 def load_chat_from_server(channel=CHANNEL):
     try:
         r = requests.get(f"{PROXY_BASE}/chat_history?user_id={channel}", timeout=5, verify=False)
@@ -98,7 +104,8 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
         return "❌ Не удалось подключиться к GigaChat"
     try:
         messages = [{'role': 'system',
-                     'content': system_prompt or 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно, без LaTeX-блоков и Markdown.'}]
+                     'content': (system_prompt or
+                                 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно.') + NO_LATEX}]
         if history:
             messages.extend(history[-16:])
         messages.append({'role': 'user', 'content': prompt})
@@ -109,7 +116,9 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
                   'max_tokens': max_tokens, 'temperature': 0.7},
             verify=False, timeout=60)
         if r.ok:
-            return r.json()['choices'][0]['message']['content'].replace('**', '').replace('`', '')
+            _t = r.json()['choices'][0]['message']['content']
+            _t = _t.replace('**', '').replace('`', '').replace('$$', ' ').replace('$', '')
+            return _t
     except Exception as e:
         logger.error(f"giga: {e}")
     return "❌ Ошибка при обращении к GigaChat"
@@ -118,7 +127,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# ===== КЛАВИАТУРА (защитное построение под разные версии maxapi) =====
+# ===== КЛАВИАТУРА (защитное построение; если классы недоступны — кнопки отключаются) =====
 MENU_ROWS = [
     [("✅ Тренажёр", "quiz"), ("🎥 Видео", "video")],
     [("💪 Мотивация", "motivation"), ("📅 План", "plan")],
@@ -142,6 +151,7 @@ def make_menu_keyboard():
         return fn() if callable(fn) else kb
     except Exception as e:
         logger.error(f"kb2: {e}")
+    # dict не имеет model_dump -> reply() его проигнорирует, бот не упадёт
     return {
         "type": "inline_keyboard",
         "payload": {"buttons": [[{"type": "callback", "text": t, "payload": {"cmd": c}} for t, c in row] for row in MENU_ROWS]},
@@ -255,7 +265,7 @@ def ensure(uid):
     return user_data[uid]
 
 async def send_menu(event):
-    await reply(event, "🏠 Меню — выбери раздел:", keyboard=make_menu_keyboard())
+    await reply(event, "🏠 Меню — выбери раздел (или напиши словами):", keyboard=make_menu_keyboard())
 
 async def act_menu(event, uid):
     ensure(uid)['state'] = None
@@ -273,7 +283,7 @@ async def act_video(event, uid):
 
 async def act_motivation(event, uid):
     ensure(uid)['state'] = None
-    r = ask_gigachat('Школьник устал и переживает перед экзаменами. Поддержи 2-3 тёплыми предложениями как старший друг. Без Markdown.',
+    r = ask_gigachat('Школьник устал и переживает перед экзаменами. Поддержи 2-3 тёплыми предложениями как старший друг.',
                      'Ты — поддерживающий наставник.')
     await reply(event, f"💪 {r}", keyboard=make_menu_keyboard())
 
@@ -330,8 +340,9 @@ async def handle_state(event, uid, text):
 
     if mode == 'quiz_topic':
         q = ask_gigachat(
-            f'Придумай ОДНО задание для школьника по теме «{text}». Без вариантов ответа. Ответ верни отдельно.\nФормат СТРОГО JSON: {{"question":"...","answer":"...","hint":"..."}}',
-            'Верни только валидный JSON.', 400)
+            f'Придумай ОДНО задание для школьника по теме «{text}». Без вариантов ответа.' + NO_LATEX +
+            '\nФормат СТРОГО JSON: {"question":"...","answer":"...","hint":"..."}',
+            'Верни только валидный JSON.' + NO_LATEX, 400)
         m = re.search(r'\{[\s\S]*\}', q)
         if not m:
             u['state'] = None
@@ -369,7 +380,7 @@ async def handle_state(event, uid, text):
         links = (f"▶ YouTube: https://www.youtube.com/results?search_query={t}\n"
                  f"▶ VK: https://vk.com/video?q={t}\n"
                  f"▶ RuTube: https://rutube.ru/search/?q={t}")
-        await reply(event, f"🎓 {expl}\n\n Смотри уроки:\n{links}", keyboard=make_menu_keyboard())
+        await reply(event, f"🎓 {expl}\n\n📺 Смотри уроки:\n{links}", keyboard=make_menu_keyboard())
         return True
 
     if mode == 'plan_wizard':
@@ -377,8 +388,9 @@ async def handle_state(event, uid, text):
         m = re.search(r'(\d{1,2})', text)
         grade = m.group(1) if m else '9'
         resp = ask_gigachat(
-            f'Ученик {grade} класса сдаёт: {text}. Составь расписание на неделю Пн-Вс: учебные дни чередуй с отдыхом, укажи конкретную тему каждого дня.\nВерни СТРОГО JSON: {{"schedule":[{{"day":"Пн","subject":"...","topic":"..."}}, ...7 элементов]}}',
-            'Верни только валидный JSON.', 1500)
+            f'Ученик {grade} класса сдаёт: {text}. Составь расписание на неделю Пн-Вс: учебные дни чередуй с отдыхом, укажи конкретную тему каждого дня.' + NO_LATEX +
+            '\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"...","topic":"..."}, ...7 элементов]}',
+            'Верни только валидный JSON.' + NO_LATEX, 1500)
         mm = re.search(r'\{[\s\S]*\}', resp)
         if not mm:
             await reply(event, "Не смог составить план. Попробуй ещё раз.", keyboard=make_menu_keyboard())
@@ -396,7 +408,7 @@ async def handle_state(event, uid, text):
 
     return False
 
-# ===== CALLBACK (нажатия кнопок) =====
+# ===== CALLBACK (нажатия кнопок, если клавиатура заведётся) =====
 _cb_reg = None
 for _name in ('bot_callback', 'callback_created', 'message_callback'):
     _r = getattr(dp, _name, None)
@@ -438,7 +450,8 @@ async def handle_message(event):
             "📚 Пиши про оценки — сам запишу в дневник\n"
             "📱 /мини — открыть приложение\n"
             "📜 /история — общий чат\n"
-            "🗑 /очистить — очистить общий чат",
+            "🗑 /очистить — очистить общий чат\n\n"
+            "Разделы (кнопками или словами): Тренажёр, Видео, Мотивация, План, Дневник, Меню",
             keyboard=make_menu_keyboard())
         return
 
@@ -464,17 +477,14 @@ async def handle_message(event):
         await reply(event, "🗑 Общий чат очищен.")
         return
 
-    # кнопки словами
     tcmd = detect_text_action(text)
     if tcmd:
         await ACTIONS[tcmd](event, user_id)
         return
 
-    # состояния (тренажёр/видео/план)
     if await handle_state(event, user_id, text):
         return
 
-    # оценки -> дневник
     grade_triggers = ['оценк', 'получил', 'получила', 'поставили', 'поставил', 'заработал', 'балл', 'отметк']
     if any(t in text.lower() for t in grade_triggers) and re.search(r'\b[1-5]\b', text):
         try:
@@ -493,13 +503,12 @@ async def handle_message(event):
         except Exception as e:
             logger.error(f"grades parse: {e}")
 
-    # общий чат
     history = load_chat_from_server()
     history.append({'role': 'user', 'content': text, 'timestamp': now_ms(), 'source': 'max'})
     thinking = await reply(event, "⏳ Думаю...")
     response = ask_gigachat(
         text,
-        'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни ВЕСЬ предыдущий разговор, включая сообщения с сайта. Если ученик рассказывает про оценки — порадуйся или поддержи.',
+        'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни ВЕСЬ предыдущий разговор, включая сообщения с сайта. Если ученик рассказывает про оценки — порадуйся или поддержи.' + NO_LATEX,
         800, history)
     history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
     save_chat_to_server(history)
