@@ -183,27 +183,35 @@ def get_text(event):
     return ''
 
 async def reply(event, text, keyboard=None):
-    atts = [keyboard] if keyboard is not None else None
+    atts = None
+    if keyboard is not None and hasattr(keyboard, 'model_dump'):
+        atts = [keyboard]
+    cid = get_chat_id(event)
+    uid = get_uid(event)
+    variants = []
+    if cid:
+        variants.append({'chat_id': cid})
+    if uid:
+        variants.append({'user_id': uid})
+    last_err = None
+    for kw in variants:
+        for with_att in ((True, False) if atts else (False,)):
+            try:
+                if with_att:
+                    return await bot.send_message(text=text, attachments=atts, **kw)
+                return await bot.send_message(text=text, **kw)
+            except Exception as e:
+                last_err = e
     m = getattr(event, 'message', None)
     fn = getattr(m, 'answer', None)
     if callable(fn):
         try:
-            if atts:
-                return await fn(text, attachments=atts)
             return await fn(text)
-        except TypeError:
-            try:
-                return await fn(text)
-            except Exception as e:
-                logger.error(f"answer2: {e}")
         except Exception as e:
-            logger.error(f"answer: {e}")
-    try:
-        if atts:
-            return await bot.send_message(chat_id=get_chat_id(event), text=text, attachments=atts)
-        return await bot.send_message(chat_id=get_chat_id(event), text=text)
-    except TypeError:
-        return await bot.send_message(get_chat_id(event), text)
+            last_err = e
+    if last_err:
+        raise last_err
+    raise Exception('send failed')
 
 async def delete_msg(msg):
     if msg is None:
