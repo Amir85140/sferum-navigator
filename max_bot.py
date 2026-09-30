@@ -29,7 +29,6 @@ NO_LATEX = (' СТРОГО ЗАПРЕЩЕНО использовать LaTeX (з
             'и Markdown (**, #, `). Все формулы пиши ПРОСТЫМ текстом в одну строку, '
             'например: a = F / m, S = v * t, x^2.')
 
-# ===== ТОЧНЫЕ СИСТЕМНЫЕ ПРОМПТЫ =====
 SYS_CHAT = ('Ты — Sferum Navigator, ИИ-наставник для школьников 5-11 классов. Правила:\n'
             '1) Отвечай СТРОГО на вопрос ученика, не уходи в сторону.\n'
             '2) Учебная тема — дай краткое объяснение сути + один пример.\n'
@@ -62,7 +61,6 @@ load_user_data()
 def now_ms():
     return int(time.time() * 1000)
 
-# ===== ОБЩИЙ ЧАТ-КАНАЛ НА СЕРВЕРЕ =====
 def load_chat_from_server(channel=CHANNEL):
     try:
         r = requests.get(f"{PROXY_BASE}/chat_history?user_id={channel}", timeout=5, verify=False)
@@ -81,7 +79,6 @@ def save_chat_to_server(history, channel=CHANNEL):
     except Exception as e:
         logger.error(f"save chat: {e}")
 
-# ===== LATEX -> ОБЫЧНЫЙ ТЕКСТ =====
 def latex_to_plain(t):
     if not t:
         return t
@@ -164,7 +161,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
         logger.error(f"giga direct: {e}")
     return "❌ Ошибка при обращении к GigaChat"
 
-# ===== РЕАЛЬНЫЙ ПОИСК ВИДЕО (релевантный) =====
+# ===== ПОИСК ВИДЕО: ТОЛЬКО RUTUBE + VK (прямые ссылки) =====
 def _words(query):
     return [w for w in re.split(r'\s+', query.lower()) if len(w) > 3]
 
@@ -176,15 +173,14 @@ def search_rutube(query, size=3):
             headers={'User-Agent': 'Mozilla/5.0'},
             timeout=10, verify=False)
         if r.ok:
-            data = r.json()
-            raw = data.get('results', []) or []
+            raw = (r.json().get('results') or [])
             ws = _words(query)
             out = []
             for v in raw:
                 title = re.sub(r'<[^>]+>', '', v.get('title', '') or '')
                 tl = title.lower()
                 if ws and not any(w in tl for w in ws):
-                    continue  # нерелевантно — пропускаем
+                    continue
                 url = v.get('video_url') or f"https://rutube.ru/video/{v.get('id','')}/"
                 out.append({'title': title[:80], 'url': url})
                 if len(out) >= size:
@@ -194,30 +190,27 @@ def search_rutube(query, size=3):
         logger.error(f"rutube: {e}")
     return []
 
-def search_youtube(query, size=2):
+def search_vk(query, size=2):
     try:
         r = requests.get(
-            'https://www.youtube.com/results',
-            params={'search_query': query},
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'https://vk.com/video',
+            params={'q': query},
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
                      'Accept-Language': 'ru-RU,ru;q=0.9'},
             timeout=10, verify=False)
         if r.ok:
-            # только настоящие видео из выдачи (videoRenderer), без рекламы/превью
-            ids = re.findall(r'"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
-            if not ids:
-                ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
+            pairs = re.findall(r'video(-?\d+_\d+)', r.text)
             seen, out = set(), []
-            for vid in ids:
-                if vid in seen:
+            for p in pairs:
+                if p in seen:
                     continue
-                seen.add(vid)
-                out.append({'url': f"https://www.youtube.com/watch?v={vid}"})
+                seen.add(p)
+                out.append({'url': f'https://vk.com/video{p}'})
                 if len(out) >= size:
                     break
             return out
     except Exception as e:
-        logger.error(f"youtube: {e}")
+        logger.error(f"vk: {e}")
     return []
 
 # ===== БОТ =====
@@ -368,7 +361,7 @@ async def act_quiz(event, uid):
     u = ensure(uid)
     u['state'] = {'mode': 'quiz_topic'}
     await reply(event,
-        "✅ Тренажёр\n\nНапиши тему ТОЧНО (например: «дроби 6 класс», «квадратные уравнения», «столицы Европы») — "
+        "✅ Тренажёр\n\nНапиши тему ТОЧНО (например: «дроби 6 класс», «квадратные уравнения») — "
         "дам одно задание строго по ней и объясню решение.",
         keyboard=make_menu_keyboard())
 
@@ -377,7 +370,7 @@ async def act_video(event, uid):
     u['state'] = {'mode': 'video_topic'}
     await reply(event,
         "🎥 Видеоуроки\n\nНапиши тему ТОЧНО (например: «фотосинтез 6 класс», «теорема Пифагора») — "
-        "объясню её и дам прямые ссылки на обучающие видео RuTube/YouTube именно по этой теме.",
+        "объясню её и дам прямые ссылки на уроки в VK и RuTube именно по этой теме.",
         keyboard=make_menu_keyboard())
 
 async def act_motivation(event, uid):
@@ -450,7 +443,6 @@ def detect_text_action(text):
             return cmd
     return None
 
-# ===== СОСТОЯНИЯ =====
 async def handle_state(event, uid, text):
     u = ensure(uid)
     st = u.get('state')
@@ -458,7 +450,6 @@ async def handle_state(event, uid, text):
         return False
     mode = st.get('mode')
 
-    # --- ТРЕНАЖЁР: тема ---
     if mode == 'quiz_topic':
         q = ask_gigachat(
             f'Составь ОДНО учебное задание СТРОГО по теме «{text}» для школьника. Требования: '
@@ -485,7 +476,6 @@ async def handle_state(event, uid, text):
         await reply(event, f"🎯 Задание по теме «{text}»:\n{task.get('question','')}\n\nНапиши свой ответ." + (f"\n💡 {hint}" if hint else ""))
         return True
 
-    # --- ТРЕНАЖЁР: ответ ---
     if mode == 'quiz_answer':
         correct = st.get('answer', '')
         expl = st.get('explanation', '')
@@ -502,7 +492,7 @@ async def handle_state(event, uid, text):
             await reply(event, f"❌ Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
         return True
 
-    # --- ВИДЕО: тема → ТОЧНЫЙ поиск релевантных видео ---
+    # --- ВИДЕО: только VK + RuTube, прямые ссылки ---
     if mode == 'video_topic':
         u['state'] = None
         r = ask_gigachat(
@@ -522,31 +512,28 @@ async def handle_state(event, uid, text):
             except Exception:
                 pass
 
-        # попытка 1: точный запрос; попытка 2: сама тема
         rt = search_rutube(query, 3)
         if not rt:
             rt = search_rutube(text, 3)
-        yt = search_youtube(query, 2)
-        if not yt:
-            yt = search_youtube(text, 2)
+        vk = search_vk(query, 2)
+        if not vk:
+            vk = search_vk(text, 2)
 
         lines = [f"🎓 {summary}", ""]
-        found = bool(rt or yt)
         if rt:
-            lines.append("📺 RuTube (по твоей теме):")
+            lines.append("📺 RuTube:")
             for i, v in enumerate(rt, 1):
                 lines.append(f"{i}. {v['title']}\n   {v['url']}")
-        if yt:
-            lines.append("▶️ YouTube (по твоей теме):")
-            for i, v in enumerate(yt, 1):
+        if vk:
+            lines.append("🎬 VK:")
+            for i, v in enumerate(vk, 1):
                 lines.append(f"{i}. {v['url']}")
-        if not found:
-            lines.append("😕 Не нашёл готовое видео именно по этой теме на RuTube/YouTube.")
-            lines.append("Объяснение выше — по сути темы. Уточни тему (например, добавь класс) и попробуй ещё раз.")
+        if not rt and not vk:
+            lines.append("😕 Не нашёл готовое видео по этой теме в VK/RuTube.")
+            lines.append("Объяснение выше — по сути. Уточни тему (добавь класс) и попробуй ещё раз.")
         await reply(event, "\n".join(lines), keyboard=make_menu_keyboard())
         return True
 
-    # --- МОТИВАЦИЯ ---
     if mode == 'motivation_mood':
         u['state'] = None
         r = ask_gigachat(
@@ -557,7 +544,6 @@ async def handle_state(event, uid, text):
         await reply(event, f"💪 {r}", keyboard=make_menu_keyboard())
         return True
 
-    # --- ПЛАН ---
     if mode == 'plan_wizard':
         u['state'] = None
         m = re.search(r'(\d{1,2})', text)
@@ -585,7 +571,6 @@ async def handle_state(event, uid, text):
                     keyboard=make_menu_keyboard())
         return True
 
-    # --- ДНЕВНИК: анализ ---
     if mode == 'grades_analyze':
         u['state'] = None
         g = user_data[uid].get('grades', {})
@@ -599,7 +584,6 @@ async def handle_state(event, uid, text):
 
     return False
 
-# ===== CALLBACK =====
 _cb_reg = None
 for _name in ('bot_callback', 'callback_created', 'message_callback'):
     _r = getattr(dp, _name, None)
@@ -627,7 +611,6 @@ if _cb_reg:
 else:
     logger.warning("callback registration not found in this maxapi version")
 
-# ===== СООБЩЕНИЯ =====
 @dp.message_created()
 async def handle_message(event):
     user_id = get_uid(event)
@@ -656,12 +639,12 @@ async def handle_message(event):
             "/очистить — очистить общий чат\n\n"
             "Разделы (словами или кнопками):\n"
             "✅ Тренажёр — одно задание строго по теме + объяснение\n"
-            "🎥 Видео — суть темы + прямые ссылки на уроки RuTube/YouTube\n"
+            "🎥 Видео — суть темы + прямые ссылки на уроки VK и RuTube\n"
             "💪 Мотивация — поддержка по твоему состоянию\n"
             "📅 План — неделя подготовки под твою цель\n"
             "📚 Дневник — оценки, средний балл, анализ\n"
             "🏠 Меню — показать меню\n\n"
-            "Совет: пиши тему ТОЧНО (с классом) — так ссылки и задания будут попадать в цель.")
+            "Совет: пиши тему ТОЧНО (с классом) — так ссылки и задания попадут в цель.")
         return
 
     if text == '/история':
