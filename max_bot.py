@@ -1,4 +1,5 @@
 import os
+import asyncio
 import logging
 import json
 import time
@@ -9,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 import requests
 import urllib3
-from maxapi import Bot, types
+from maxapi import Bot, Dispatcher
 
 urllib3.disable_warnings()
 logging.basicConfig(level=logging.INFO)
@@ -22,7 +23,7 @@ GIGA_SECRET = os.environ.get('GIGA_SECRET', '93e085d7-803b-4fe2-b1da-468aff78a45
 CODESPACE_NAME = os.environ.get('CODESPACE_NAME', 'automatic-system-p7gg76p4wqqwf99rj')
 PROXY_BASE = f"https://{CODESPACE_NAME}-8000.app.github.dev"
 MINI_APP_URL = "https://amir85140.github.io/sferum-navigator/"
-CHANNEL = 'main'                      # общий канал чата для MAX и мини-апа
+CHANNEL = 'main'
 USER_DATA_FILE = Path('user_data.json')
 
 user_data: Dict[int, Dict[str, Any]] = {}
@@ -114,21 +115,87 @@ def ask_gigachat(prompt: str, system_prompt: str = None, max_tokens: int = 800, 
         logger.error(f"giga: {e}")
     return "❌ Ошибка при обращении к GigaChat"
 
-# ===== БОТ =====
+# ===== БОТ (maxapi: Dispatcher + события) =====
 bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
 
-@bot.on.message()
-async def handle_message(message: types.Message):
-    user_id = message.user.user_id
-    text = (message.body.text or '').strip()
+# --- совместимые хелперы (сами найдут нужные поля/методы maxapi) ---
+def get_uid(event):
+    for src in (getattr(event, 'from_user', None), getattr(event, 'user', None),
+                getattr(getattr(event, 'message', None), 'sender', None)):
+        if src is None:
+            continue
+        for attr in ('user_id', 'id'):
+            v = getattr(src, attr, None)
+            if v is not None:
+                try:
+                    return int(v)
+                except Exception:
+                    pass
+    return 0
+
+def get_chat_id(event):
+    v = getattr(event, 'chat_id', None)
+    if v is None:
+        v = getattr(getattr(event, 'message', None), 'chat_id', None)
+    return v
+
+def get_text(event):
+    m = getattr(event, 'message', None)
+    if m is None:
+        return ''
+    for attr in ('body', 'text'):
+        v = getattr(m, attr, None)
+        if isinstance(v, str):
+            return v.strip()
+        if v is not None:
+            t = getattr(v, 'text', None)
+            if isinstance(t, str):
+                return t.strip()
+    return ''
+
+async def reply(event, text):
+    m = getattr(event, 'message', None)
+    fn = getattr(m, 'answer', None)
+    if callable(fn):
+        try:
+            return await fn(text)
+        except Exception as e:
+            logger.error(f"answer: {e}")
+    try:
+        return await bot.send_message(chat_id=get_chat_id(event), text=text)
+    except TypeError:
+        return await bot.send_message(get_chat_id(event), text)
+
+async def delete_msg(msg):
+    if msg is None:
+        return
+    fn = getattr(msg, 'delete', None)
+    if callable(fn):
+        try:
+            await fn()
+            return
+        except Exception:
+            pass
+    mid = getattr(msg, 'message_id', None) or getattr(msg, 'id', None)
+    if mid is not None:
+        try:
+            await bot.delete_message(message_id=mid)
+        except Exception:
+            pass
+
+@dp.message_created()
+async def handle_message(event):
+    user_id = get_uid(event)
+    text = get_text(event)
 
     if user_id not in user_data:
         user_data[user_id] = {'grades': {}}
 
     # /start
     if text == '/start':
-        await message.answer(
-            "👋 Привет! Я **Sferum Navigator** — твой ИИ-наставник.\n\n"
+        await reply(event,
+            "👋 Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
             "🔄 Наш чат ОБЩИЙ с мини-приложением: пиши здесь — увидишь на сайте, пиши на сайте — увижу здесь.\n"
             "📚 Пиши про оценки — сам запишу в дневник\n"
             "📱 /мини — открыть приложение\n"
@@ -138,30 +205,30 @@ async def handle_message(message: types.Message):
 
     # /мини
     if text in ('/мини', '/mini'):
-        await message.answer(f"📱 Мини-приложение Sferum Navigator:\n{MINI_APP_URL}\n\nЧат там синхронизирован с этим диалогом 🔄")
+        await reply(event, f"📱 Мини-приложение Sferum Navigator:\n{MINI_APP_URL}\n\nЧат там синхронизирован с этим диалогом 🔄")
         return
 
     # /история
     if text == '/история':
         hist = load_chat_from_server()
         if not hist:
-            await message.answer("Общий чат пока пуст.")
+            await reply(event, "Общий чат пока пуст.")
             return
         lines = []
         for m in hist[-10:]:
             who = '🧑' if m.get('role') == 'user' else '🤖'
             src = ' (сайт)' if m.get('source') == 'web' else (' (MAX)' if m.get('source') == 'max' else '')
             lines.append(f"{who}{src}: {m.get('content','')[:120]}")
-        await message.answer("📜 Последние сообщения общего чата:\n" + "\n".join(lines))
+        await reply(event, "📜 Последние сообщения общего чата:\n" + "\n".join(lines))
         return
 
     # /очистить
     if text == '/очистить':
         save_chat_to_server([])
-        await message.answer("🗑 Общий чат очищен (и в MAX, и на сайте).")
+        await reply(event, "🗑 Общий чат очищен (и в MAX, и на сайте).")
         return
 
-    # оценки -> дневник (локально у бота)
+    # оценки -> дневник
     grade_triggers = ['оценк', 'получил', 'получила', 'поставили', 'поставил', 'заработал', 'балл', 'отметк']
     if any(t in text.lower() for t in grade_triggers) and re.search(r'\b[1-5]\b', text):
         try:
@@ -175,16 +242,16 @@ async def handle_message(message: types.Message):
                     grades = [g for g in item.get('grades', []) if isinstance(g, int) and 1 <= g <= 5]
                     if subj and grades:
                         user_data[user_id]['grades'].setdefault(subj, []).extend(grades)
-                        await message.answer(f"📚 Записал в дневник: **{subj}** → {', '.join(map(str, grades))}")
+                        await reply(event, f"📚 Записал в дневник: {subj} → {', '.join(map(str, grades))}")
                 save_user_data()
         except Exception as e:
             logger.error(f"grades parse: {e}")
 
-    # ===== ОБЩИЙ ЧАТ: читаем серверную историю (включая сообщения с сайта) =====
+    # ===== ОБЩИЙ ЧАТ =====
     history = load_chat_from_server()
     history.append({'role': 'user', 'content': text, 'timestamp': now_ms(), 'source': 'max'})
 
-    thinking = await message.answer("⏳ Думаю...")
+    thinking = await reply(event, "⏳ Думаю...")
     response = ask_gigachat(
         text,
         'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Помни ВЕСЬ предыдущий разговор, включая сообщения с сайта. Если ученик рассказывает про оценки — порадуйся или поддержи.',
@@ -193,12 +260,15 @@ async def handle_message(message: types.Message):
 
     save_chat_to_server(history)
 
-    try:
-        await thinking.delete()
-    except Exception:
-        pass
-    await message.answer(response)
+    await delete_msg(thinking)
+    await reply(event, response)
 
 if __name__ == '__main__':
     logger.info("Bot starting...")
-    bot.run()
+    try:
+        asyncio.run(dp.start_polling(bot))
+    except AttributeError:
+        try:
+            dp.run(bot)
+        except AttributeError:
+            bot.run()
