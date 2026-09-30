@@ -22,7 +22,6 @@ GIGA_ID = os.environ.get('GIGA_ID', '01a0bafa-206f-7e07-a2e7-df9e0acea285')
 GIGA_SECRET = os.environ.get('GIGA_SECRET', '93e085d7-803b-4fe2-b1da-468aff78a450')
 CODESPACE_NAME = os.environ.get('CODESPACE_NAME', 'automatic-system-p7gg76p4wqqwf99rj')
 PROXY_BASE = f"https://{CODESPACE_NAME}-8000.app.github.dev"
-MINI_APP_URL = "https://amir85140.github.io/sferum-navigator/"
 CHANNEL = 'main'
 USER_DATA_FILE = Path('user_data.json')
 
@@ -633,9 +632,9 @@ async def handle_message(event):
             "👋 Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
             "🔄 Наш чат ОБЩИЙ с мини-приложением.\n"
             "📚 Пиши про оценки — сам запишу в дневник\n"
-            "📱 /мини — открыть приложение\n"
             "📜 /история — общий чат\n"
-            "🗑 /очистить — очистить общий чат\n\n"
+            "🗑 /очистить — очистить общий чат\n"
+            "❓ /help — справка\n\n"
             "Разделы: Тренажёр, Видео, Мотивация, План, Дневник, Меню",
             keyboard=make_menu_keyboard())
         return
@@ -646,7 +645,6 @@ async def handle_message(event):
             "Команды:\n"
             "/start — приветствие и меню\n"
             "/help — эта справка\n"
-            "/мини — ссылка на мини-приложение\n"
             "/история — последние сообщения общего чата\n"
             "/очистить — очистить общий чат\n\n"
             "Разделы (словами или кнопками):\n"
@@ -657,10 +655,6 @@ async def handle_message(event):
             "📚 Дневник — оценки, средний балл, анализ\n"
             "🏠 Меню — показать меню\n\n"
             "И просто напиши любой вопрос — отвечу как наставник!")
-        return
-
-    if text in ('/мини', '/mini'):
-        await reply(event, f"📱 Мини-приложение:\n{MINI_APP_URL}")
         return
 
     if text == '/история':
