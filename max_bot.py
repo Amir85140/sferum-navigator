@@ -29,6 +29,16 @@ NO_LATEX = (' СТРОГО ЗАПРЕЩЕНО использовать LaTeX (з
             'и Markdown (**, #, `). Все формулы пиши ПРОСТЫМ текстом в одну строку, '
             'например: a = F / m, S = v * t, x^2.')
 
+# ===== ТОЧНЫЕ СИСТЕМНЫЕ ПРОМПТЫ =====
+SYS_CHAT = ('Ты — Sferum Navigator, ИИ-наставник для школьников 5-11 классов. Правила:\n'
+            '1) Отвечай СТРОГО на вопрос ученика, не уходи в сторону.\n'
+            '2) Учебная тема — дай краткое объяснение сути + один пример.\n'
+            '3) Просят конспект/материал/объяснение темы — дай 3-6 коротких пунктов по теме.\n'
+            '4) Формулы пиши простым текстом (a = F / m).\n'
+            '5) Отвечай коротко, до 10 строк.\n'
+            '6) Не уверен — честно скажи и предложи, как уточнить.\n'
+            'Помни весь предыдущий разговор.')
+
 user_data: Dict[int, Dict[str, Any]] = {}
 
 def load_user_data():
@@ -71,7 +81,7 @@ def save_chat_to_server(history, channel=CHANNEL):
     except Exception as e:
         logger.error(f"save chat: {e}")
 
-# ===== ПРЕОБРАЗОВАНИЕ LATEX -> ОБЫЧНЫЙ ТЕКСТ =====
+# ===== LATEX -> ОБЫЧНЫЙ ТЕКСТ =====
 def latex_to_plain(t):
     if not t:
         return t
@@ -120,9 +130,8 @@ def get_giga_token():
     return None
 
 def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
-    sysp = (system_prompt or 'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно.') + NO_LATEX
+    sysp = (system_prompt or SYS_CHAT) + NO_LATEX
     hist = history or []
-    # 1) Через прокси (там уже есть токен и рабочая схема запроса)
     for base in ('http://localhost:8000', PROXY_BASE):
         try:
             r = requests.post(base + '/chat',
@@ -135,7 +144,6 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
                     return latex_to_plain(txt)
         except Exception as e:
             logger.error(f"chat via {base}: {e}")
-    # 2) Фолбэк: напрямую в GigaChat
     token = get_giga_token()
     if not token:
         return "❌ Не удалось подключиться к GigaChat"
@@ -156,28 +164,37 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
         logger.error(f"giga direct: {e}")
     return "❌ Ошибка при обращении к GigaChat"
 
-# ===== РЕАЛЬНЫЙ ПОИСК ВИДЕО =====
+# ===== РЕАЛЬНЫЙ ПОИСК ВИДЕО (релевантный) =====
+def _words(query):
+    return [w for w in re.split(r'\s+', query.lower()) if len(w) > 3]
+
 def search_rutube(query, size=3):
     try:
         r = requests.get(
             'https://rutube.ru/api/video/',
-            params={'page': 1, 'size': size, 'search': query},
+            params={'query': query, 'page': 1, 'per_page': size * 2},
             headers={'User-Agent': 'Mozilla/5.0'},
             timeout=10, verify=False)
         if r.ok:
             data = r.json()
+            raw = data.get('results', []) or []
+            ws = _words(query)
             out = []
-            for v in data.get('results', [])[:size]:
-                title = v.get('title', '') or ''
-                title = re.sub(r'<[^>]+>', '', title)
+            for v in raw:
+                title = re.sub(r'<[^>]+>', '', v.get('title', '') or '')
+                tl = title.lower()
+                if ws and not any(w in tl for w in ws):
+                    continue  # нерелевантно — пропускаем
                 url = v.get('video_url') or f"https://rutube.ru/video/{v.get('id','')}/"
-                out.append({'title': title[:80], 'url': url, 'src': 'RuTube'})
+                out.append({'title': title[:80], 'url': url})
+                if len(out) >= size:
+                    break
             return out
     except Exception as e:
         logger.error(f"rutube: {e}")
     return []
 
-def search_youtube(query, size=3):
+def search_youtube(query, size=2):
     try:
         r = requests.get(
             'https://www.youtube.com/results',
@@ -186,13 +203,16 @@ def search_youtube(query, size=3):
                      'Accept-Language': 'ru-RU,ru;q=0.9'},
             timeout=10, verify=False)
         if r.ok:
-            ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
+            # только настоящие видео из выдачи (videoRenderer), без рекламы/превью
+            ids = re.findall(r'"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
+            if not ids:
+                ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
             seen, out = set(), []
             for vid in ids:
                 if vid in seen:
                     continue
                 seen.add(vid)
-                out.append({'url': f"https://www.youtube.com/watch?v={vid}", 'src': 'YouTube'})
+                out.append({'url': f"https://www.youtube.com/watch?v={vid}"})
                 if len(out) >= size:
                     break
             return out
@@ -200,15 +220,10 @@ def search_youtube(query, size=3):
         logger.error(f"youtube: {e}")
     return []
 
-def search_vk_video(query, size=2):
-    return [{'url': f"https://vk.com/video?q={requests.utils.quote(query)}",
-             'src': 'VK (поиск)', 'title': 'Открыть поиск видео в VK'}]
-
 # ===== БОТ =====
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# ===== КЛАВИАТУРА (защитное построение; если классы недоступны — кнопки отключаются) =====
 MENU_ROWS = [
     [("✅ Тренажёр", "quiz"), ("🎥 Видео", "video")],
     [("💪 Мотивация", "motivation"), ("📅 План", "plan")],
@@ -232,13 +247,11 @@ def make_menu_keyboard():
         return fn() if callable(fn) else kb
     except Exception as e:
         logger.debug(f"kb2: {e}")
-    # dict не имеет model_dump -> reply() его проигнорирует, бот не упадёт
     return {
         "type": "inline_keyboard",
         "payload": {"buttons": [[{"type": "callback", "text": t, "payload": {"cmd": c}} for t, c in row] for row in MENU_ROWS]},
     }
 
-# ===== ХЕЛПЕРЫ СОБЫТИЙ =====
 def get_uid(event):
     for src in (getattr(event, 'from_user', None), getattr(event, 'user', None),
                 getattr(getattr(event, 'message', None), 'sender', None)):
@@ -334,7 +347,6 @@ def get_callback_cmd(event):
             return p['cmd']
     return None
 
-# ===== РАЗДЕЛЫ =====
 def norm(s):
     return re.sub(r'[.,!?;:"\'\s]', '', str(s).lower().replace('ё', 'е'))
 
@@ -356,26 +368,24 @@ async def act_quiz(event, uid):
     u = ensure(uid)
     u['state'] = {'mode': 'quiz_topic'}
     await reply(event,
-        "✅ Тренажёр\n\nНапиши тему (например: дроби, квадратные уравнения, столицы Европы) — "
-        "дам задание и объясню решение после твоего ответа.",
+        "✅ Тренажёр\n\nНапиши тему ТОЧНО (например: «дроби 6 класс», «квадратные уравнения», «столицы Европы») — "
+        "дам одно задание строго по ней и объясню решение.",
         keyboard=make_menu_keyboard())
 
 async def act_video(event, uid):
     u = ensure(uid)
     u['state'] = {'mode': 'video_topic'}
     await reply(event,
-        "🎥 Видеоуроки\n\nНапиши тему — объясню её и подберу конкретные видео с RuTube, YouTube и VK.",
+        "🎥 Видеоуроки\n\nНапиши тему ТОЧНО (например: «фотосинтез 6 класс», «теорема Пифагора») — "
+        "объясню её и дам прямые ссылки на обучающие видео RuTube/YouTube именно по этой теме.",
         keyboard=make_menu_keyboard())
 
 async def act_motivation(event, uid):
     u = ensure(uid)
     u['state'] = {'mode': 'motivation_mood'}
     await reply(event,
-        "💪 Мотивация\n\nКак ты сейчас? Выбери одним словом:\n"
-        "• устал\n"
-        "• переживаю\n"
-        "• лень\n"
-        "• нормально\n\nИли опиши словами, что случилось — подберу нужные слова.",
+        "💪 Мотивация\n\nКак ты сейчас? Напиши одним словом или фразой:\n"
+        "• устал\n• переживаю\n• лень\n• нормально\n\nИли опиши ситуацию — отвечу по делу.",
         keyboard=make_menu_keyboard())
 
 async def act_plan(event, uid):
@@ -391,11 +401,8 @@ async def act_plan(event, uid):
     else:
         u['state'] = {'mode': 'plan_wizard'}
         await reply(event,
-            "📅 План\n\nНапиши одной строкой:\n"
-            "класс, экзамен, цель\n\nПримеры:\n"
-            "• 9, ОГЭ математика, сдать на 5\n"
-            "• 11, ЕГЭ русский, 90+ баллов\n"
-            "• 7, подтянуть физику за четверть",
+            "📅 План\n\nНапиши одной строкой: класс, экзамен, цель\n"
+            "Примеры:\n• 9, ОГЭ математика, сдать на 5\n• 11, ЕГЭ русский, 90+\n• 7, подтянуть физику",
             keyboard=make_menu_keyboard())
 
 async def act_grades(event, uid):
@@ -420,7 +427,7 @@ async def act_grades(event, uid):
     if strong:
         txt += "\n\n✅ Сильные: " + ", ".join(strong)
     if weak:
-        txt += "\n⚠️ Подтянуть: " + ", ".join(weak) + "\nХочешь, разберу слабые темы? Напиши «разбери»."
+        txt += "\n⚠️ Подтянуть: " + ", ".join(weak) + "\nНапиши «разбери» — сделаю полный анализ."
     await reply(event, txt, keyboard=make_menu_keyboard())
 
 ACTIONS = {
@@ -443,7 +450,7 @@ def detect_text_action(text):
             return cmd
     return None
 
-# ===== ОБРАБОТКА СОСТОЯНИЙ =====
+# ===== СОСТОЯНИЯ =====
 async def handle_state(event, uid, text):
     u = ensure(uid)
     st = u.get('state')
@@ -454,25 +461,28 @@ async def handle_state(event, uid, text):
     # --- ТРЕНАЖЁР: тема ---
     if mode == 'quiz_topic':
         q = ask_gigachat(
-            f'Придумай ОДНО интересное и понятное задание для школьника по теме «{text}». '
-            f'После правильного ответа дай короткое объяснение решения в 1-2 предложениях. Без вариантов ответа.' + NO_LATEX +
-            '\nФормат СТРОГО JSON: {"question":"...","answer":"...","hint":"...","explanation":"..."}',
-            'Верни только валидный JSON.' + NO_LATEX, 500)
+            f'Составь ОДНО учебное задание СТРОГО по теме «{text}» для школьника. Требования: '
+            f'question — короткий однозначный вопрос в рамках темы; '
+            f'answer — одно слово, число или короткая формула простым текстом; '
+            f'hint — одна подсказка; explanation — одно предложение, почему ответ такой. '
+            f'Не выходи за рамки темы.\n'
+            f'Верни СТРОГО JSON: {{"question":"...","answer":"...","hint":"...","explanation":"..."}}',
+            'Ты — учитель-предметник. Верни только валидный JSON.' + NO_LATEX, 500)
         m = re.search(r'\{[\s\S]*\}', q)
         if not m:
             u['state'] = None
-            await reply(event, "Не смог составить задание. Попробуй другую тему.", keyboard=make_menu_keyboard())
+            await reply(event, "Не смог составить задание по этой теме. Уточни тему.", keyboard=make_menu_keyboard())
             return True
         try:
             task = json.loads(m.group())
         except Exception:
             u['state'] = None
-            await reply(event, "Не смог составить задание. Попробуй другую тему.", keyboard=make_menu_keyboard())
+            await reply(event, "Не смог составить задание по этой теме. Уточни тему.", keyboard=make_menu_keyboard())
             return True
         u['state'] = {'mode': 'quiz_answer', 'answer': task.get('answer', ''), 'topic': text,
                       'explanation': task.get('explanation', '')}
         hint = task.get('hint')
-        await reply(event, f"🎯 Задание:\n{task.get('question','')}\n\nНапиши свой ответ." + (f"\n💡 {hint}" if hint else ""))
+        await reply(event, f"🎯 Задание по теме «{text}»:\n{task.get('question','')}\n\nНапиши свой ответ." + (f"\n💡 {hint}" if hint else ""))
         return True
 
     # --- ТРЕНАЖЁР: ответ ---
@@ -492,84 +502,82 @@ async def handle_state(event, uid, text):
             await reply(event, f"❌ Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
         return True
 
-    # --- ВИДЕО: тема → реальный поиск ---
+    # --- ВИДЕО: тема → ТОЧНЫЙ поиск релевантных видео ---
     if mode == 'video_topic':
         u['state'] = None
         r = ask_gigachat(
-            f'Тема: «{text}».\n'
-            f'1) Кратко (2-3 предложения) объясни школьнику простыми словами с примером.\n'
-            f'2) Составь ОДИН короткий поисковый запрос (2-5 слов, без знаков препинания) для поиска обучающего видео.\n'
+            f'Тема запроса ученика: «{text}».\n'
+            f'1) summary — 2 предложения сути темы простыми словами + один пример.\n'
+            f'2) query — ТОЧНЫЙ поисковый запрос для обучающего видео: назови тему словами ученика '
+            f'и добавь слово "урок" или "объяснение"; 2-6 слов, без кавычек и знаков препинания.\n'
             f'Верни СТРОГО JSON: {{"summary":"...","query":"..."}}',
-            'Верни только валидный JSON.' + NO_LATEX, 500)
+            'Ты — методист. Верни только валидный JSON.' + NO_LATEX, 500)
         mm = re.search(r'\{[\s\S]*\}', r)
         summary, query = f"Тема: {text}", text
         if mm:
             try:
                 obj = json.loads(mm.group())
                 summary = obj.get('summary', summary)
-                query = obj.get('query', text)
+                query = obj.get('query', text) or text
             except Exception:
                 pass
 
-        rt = search_rutube(query, 2)
+        # попытка 1: точный запрос; попытка 2: сама тема
+        rt = search_rutube(query, 3)
+        if not rt:
+            rt = search_rutube(text, 3)
         yt = search_youtube(query, 2)
-        vk = search_vk_video(query, 1)
+        if not yt:
+            yt = search_youtube(text, 2)
 
         lines = [f"🎓 {summary}", ""]
+        found = bool(rt or yt)
         if rt:
-            lines.append("📺 RuTube:")
+            lines.append("📺 RuTube (по твоей теме):")
             for i, v in enumerate(rt, 1):
-                lines.append(f"  {i}. {v['url']}")
+                lines.append(f"{i}. {v['title']}\n   {v['url']}")
         if yt:
-            lines.append("▶️ YouTube:")
+            lines.append("▶️ YouTube (по твоей теме):")
             for i, v in enumerate(yt, 1):
-                lines.append(f"  {i}. {v['url']}")
-        if vk:
-            lines.append("🎬 VK:")
-            for v in vk:
-                lines.append(f"  • {v['url']}")
-        if not (rt or yt or vk):
-            lines.append("🔍 Не нашёл конкретных видео, попробуй поиск:")
-            lines.append(f"  • https://rutube.ru/search/?q={requests.utils.quote(query)}")
+                lines.append(f"{i}. {v['url']}")
+        if not found:
+            lines.append("😕 Не нашёл готовое видео именно по этой теме на RuTube/YouTube.")
+            lines.append("Объяснение выше — по сути темы. Уточни тему (например, добавь класс) и попробуй ещё раз.")
         await reply(event, "\n".join(lines), keyboard=make_menu_keyboard())
         return True
 
-    # --- МОТИВАЦИЯ: настроение ---
+    # --- МОТИВАЦИЯ ---
     if mode == 'motivation_mood':
         u['state'] = None
         r = ask_gigachat(
-            f'Школьник пишет тебе: «{text}».\n'
-            f'Ответь как старший друг: 3-4 тёплых предложения. '
-            f'НЕ используй банальности вроде «всё будет хорошо». '
-            f'Отреагируй на конкретику, дай ОДИН мягкий и выполнимый совет прямо сейчас.',
-            'Ты — тёплый, понимающий наставник. Пиши живо, без шаблонов.' + NO_LATEX,
-            400)
+            f'Школьник написал о своём состоянии: «{text}».\n'
+            f'Ответь как старший друг: 3-4 тёплых предложения БЕЗ банальностей. '
+            f'Отреагируй на конкретику его слов и дай ОДИН выполнимый совет прямо сейчас (маленький шаг).',
+            'Ты — тёплый наставник. Пиши живо, по делу, без шаблонов.' + NO_LATEX, 400)
         await reply(event, f"💪 {r}", keyboard=make_menu_keyboard())
         return True
 
-    # --- ПЛАН: мастер ---
+    # --- ПЛАН ---
     if mode == 'plan_wizard':
         u['state'] = None
         m = re.search(r'(\d{1,2})', text)
         grade = m.group(1) if m else '9'
-        goal = text
         resp = ask_gigachat(
             f'Ученик {grade} класса. Запрос: «{text}».\n'
-            f'1) Определи экзамен и цель (например: ОГЭ математика, 90+ баллов).\n'
-            f'2) Составь реалистичное расписание на неделю Пн-Вс: 4-5 учебных дней + 2-3 дня отдыха. '
-            f'Учебные дни чередуй по сложности, конкретные темы и предметы.\n'
-            f'Верни СТРОГО JSON: {{"goal":"краткая цель","schedule":[{{"day":"Пн","subject":"...","topic":"..."}}, ...7 элементов]}}',
-            'Верни только валидный JSON.' + NO_LATEX, 1500)
+            f'1) goal — короткая цель (экзамен + результат).\n'
+            f'2) schedule — расписание Пн-Вс РОВНО 7 элементов: 4-5 учебных дней и 2-3 дня отдыха (subject="отдых"). '
+            f'Учебные дни: конкретный предмет и конкретная тема ИЗ запроса ученика, чередуй сложное/лёгкое.\n'
+            f'Верни СТРОГО JSON: {{"goal":"...","schedule":[{{"day":"Пн","subject":"...","topic":"..."}}, ...7]}}',
+            'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON.' + NO_LATEX, 1500)
         mm = re.search(r'\{[\s\S]*\}', resp)
         if not mm:
-            await reply(event, "Не смог составить план. Попробуй ещё раз.", keyboard=make_menu_keyboard())
+            await reply(event, "Не смог составить план. Напиши ещё раз: класс, экзамен, цель.", keyboard=make_menu_keyboard())
             return True
         try:
             plan = json.loads(mm.group())
         except Exception:
-            await reply(event, "Не смог составить план. Попробуй ещё раз.", keyboard=make_menu_keyboard())
+            await reply(event, "Не смог составить план. Напиши ещё раз: класс, экзамен, цель.", keyboard=make_menu_keyboard())
             return True
-        plan.setdefault('goal', goal)
         u['plan'] = plan
         save_user_data()
         lines = [f"{s.get('day','')}: {s.get('subject','')} — {s.get('topic','')}" for s in plan.get('schedule', [])]
@@ -577,22 +585,21 @@ async def handle_state(event, uid, text):
                     keyboard=make_menu_keyboard())
         return True
 
-    # --- ДНЕВНИК: разбор слабых тем ---
+    # --- ДНЕВНИК: анализ ---
     if mode == 'grades_analyze':
         u['state'] = None
         g = user_data[uid].get('grades', {})
         desc = '\n'.join(f"{s}: {arr} (ср. {sum(arr)/len(arr):.2f})" for s, arr in g.items())
         r = ask_gigachat(
-            f'Оценки ученика:\n{desc}\n\nПроанализируй как педагог-эксперт:\n'
-            f'1) Сильные стороны (2 пункта)\n2) Слабые предметы и что именно подтянуть (2-3 пункта)\n'
-            f'3) Три конкретных совета на ближайшую неделю.',
-            'Пиши конкретно, без воды.' + NO_LATEX, 600)
+            f'Оценки ученика:\n{desc}\n\nКак педагог-эксперт дай:\n'
+            f'1) 2 сильные стороны\n2) 2-3 слабых предмета и ЧТО именно подтянуть\n3) 3 конкретных шага на неделю.',
+            'Пиши конкретно, по оценкам ученика, без воды.' + NO_LATEX, 600)
         await reply(event, f"🤖 Анализ:\n{r}", keyboard=make_menu_keyboard())
         return True
 
     return False
 
-# ===== CALLBACK (нажатия кнопок, если клавиатура заведётся) =====
+# ===== CALLBACK =====
 _cb_reg = None
 for _name in ('bot_callback', 'callback_created', 'message_callback'):
     _r = getattr(dp, _name, None)
@@ -620,7 +627,7 @@ if _cb_reg:
 else:
     logger.warning("callback registration not found in this maxapi version")
 
-# ===== ОБЫЧНЫЕ СООБЩЕНИЯ =====
+# ===== СООБЩЕНИЯ =====
 @dp.message_created()
 async def handle_message(event):
     user_id = get_uid(event)
@@ -648,13 +655,13 @@ async def handle_message(event):
             "/история — последние сообщения общего чата\n"
             "/очистить — очистить общий чат\n\n"
             "Разделы (словами или кнопками):\n"
-            "✅ Тренажёр — задание по теме с проверкой и объяснением\n"
-            "🎥 Видео — объяснение темы + ссылки на уроки\n"
-            "💪 Мотивация — поддержка по настроению\n"
-            "📅 План — план подготовки на неделю\n"
+            "✅ Тренажёр — одно задание строго по теме + объяснение\n"
+            "🎥 Видео — суть темы + прямые ссылки на уроки RuTube/YouTube\n"
+            "💪 Мотивация — поддержка по твоему состоянию\n"
+            "📅 План — неделя подготовки под твою цель\n"
             "📚 Дневник — оценки, средний балл, анализ\n"
             "🏠 Меню — показать меню\n\n"
-            "И просто напиши любой вопрос — отвечу как наставник!")
+            "Совет: пиши тему ТОЧНО (с классом) — так ссылки и задания будут попадать в цель.")
         return
 
     if text == '/история':
@@ -675,7 +682,6 @@ async def handle_message(event):
         await reply(event, "🗑 Общий чат очищен.")
         return
 
-    # «разбери» в дневнике → анализ
     if text.lower().strip() in ('разбери', 'анализ', 'разбери оценки'):
         g = user_data[user_id].get('grades', {})
         if not g:
@@ -697,7 +703,8 @@ async def handle_message(event):
     if any(t in text.lower() for t in grade_triggers) and re.search(r'\b[1-5]\b', text):
         try:
             resp = ask_gigachat(
-                f'Ученик написал про оценки: «{text}». Определи ВСЕ предметы и оценки. Верни СТРОГО JSON-массив: [{{"subject":"...","grades":[5,4]}}]',
+                f'Ученик написал про оценки: «{text}». Определи ВСЕ предметы и оценки ТОЛЬКО из текста. '
+                f'Верни СТРОГО JSON-массив: [{{"subject":"...","grades":[5,4]}}]',
                 'Верни только валидный JSON-массив.', 500)
             m = re.search(r'\[[\s\S]*\]', resp)
             if m:
@@ -715,13 +722,7 @@ async def handle_message(event):
     history.append({'role': 'user', 'content': text, 'timestamp': now_ms(), 'source': 'max'})
 
     thinking = None
-    response = ask_gigachat(
-        text,
-        'Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. '
-        'Если вопрос про формулу — напиши её ПРОСТЫМ текстом (a = F / m), без LaTeX. '
-        'Помни ВЕСЬ предыдущий разговор, включая сообщения с сайта. '
-        'Если ученик рассказывает про оценки — порадуйся или поддержи конкретно.' + NO_LATEX,
-        800, history)
+    response = ask_gigachat(text, SYS_CHAT, 800, history)
     history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
     save_chat_to_server(history)
 
