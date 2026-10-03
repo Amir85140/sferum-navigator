@@ -22,6 +22,7 @@ GIGA_ID = os.environ.get('GIGA_ID', '01a0bafa-206f-7e07-a2e7-df9e0acea285')
 GIGA_SECRET = os.environ.get('GIGA_SECRET', '93e085d7-803b-4fe2-b1da-468aff78a450')
 CODESPACE_NAME = os.environ.get('CODESPACE_NAME', 'automatic-system-p7gg76p4wqqwf99rj')
 PROXY_BASE = f"https://{CODESPACE_NAME}-8000.app.github.dev"
+PROXY_LOCAL = "http://localhost:8000"
 CHANNEL = 'main'
 USER_DATA_FILE = Path('user_data.json')
 
@@ -129,7 +130,7 @@ def get_giga_token():
 def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
     sysp = (system_prompt or SYS_CHAT) + NO_LATEX
     hist = history or []
-    for base in ('http://localhost:8000', PROXY_BASE):
+    for base in (PROXY_LOCAL, PROXY_BASE):
         try:
             r = requests.post(base + '/chat',
                               json={'prompt': prompt, 'system': sysp,
@@ -161,7 +162,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
         logger.error(f"giga direct: {e}")
     return "❌ Ошибка при обращении к GigaChat"
 
-# ===== ПОИСК ВИДЕО: ТОЛЬКО RUTUBE + VK (прямые ссылки) =====
+# ===== ПОИСК ВИДЕО: RuTube + VK + YouTube =====
 def _words(query):
     return [w for w in re.split(r'\s+', query.lower()) if len(w) > 3]
 
@@ -211,6 +212,31 @@ def search_vk(query, size=2):
             return out
     except Exception as e:
         logger.error(f"vk: {e}")
+    return []
+
+def search_youtube(query, size=2):
+    try:
+        r = requests.get(
+            'https://www.youtube.com/results',
+            params={'search_query': query},
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                     'Accept-Language': 'ru-RU,ru;q=0.9'},
+            timeout=10, verify=False)
+        if r.ok:
+            ids = re.findall(r'"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
+            if not ids:
+                ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
+            seen, out = set(), []
+            for vid in ids:
+                if vid in seen:
+                    continue
+                seen.add(vid)
+                out.append({'url': f'https://www.youtube.com/watch?v={vid}'})
+                if len(out) >= size:
+                    break
+            return out
+    except Exception as e:
+        logger.error(f"youtube: {e}")
     return []
 
 # ===== БОТ =====
@@ -370,7 +396,7 @@ async def act_video(event, uid):
     u['state'] = {'mode': 'video_topic'}
     await reply(event,
         "🎥 Видеоуроки\n\nНапиши тему ТОЧНО (например: «фотосинтез 6 класс», «теорема Пифагора») — "
-        "объясню её и дам прямые ссылки на уроки в VK и RuTube именно по этой теме.",
+        "объясню её и дам прямые ссылки на уроки в VK, RuTube и YouTube именно по этой теме.",
         keyboard=make_menu_keyboard())
 
 async def act_motivation(event, uid):
@@ -492,7 +518,6 @@ async def handle_state(event, uid, text):
             await reply(event, f"❌ Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
         return True
 
-    # --- ВИДЕО: только VK + RuTube, прямые ссылки ---
     if mode == 'video_topic':
         u['state'] = None
         r = ask_gigachat(
@@ -518,6 +543,9 @@ async def handle_state(event, uid, text):
         vk = search_vk(query, 2)
         if not vk:
             vk = search_vk(text, 2)
+        yt = search_youtube(query, 2)
+        if not yt:
+            yt = search_youtube(text, 2)
 
         lines = [f"🎓 {summary}", ""]
         if rt:
@@ -528,8 +556,12 @@ async def handle_state(event, uid, text):
             lines.append("🎬 VK:")
             for i, v in enumerate(vk, 1):
                 lines.append(f"{i}. {v['url']}")
-        if not rt and not vk:
-            lines.append("😕 Не нашёл готовое видео по этой теме в VK/RuTube.")
+        if yt:
+            lines.append("▶️ YouTube:")
+            for i, v in enumerate(yt, 1):
+                lines.append(f"{i}. {v['url']}")
+        if not rt and not vk and not yt:
+            lines.append("😕 Не нашёл готовое видео по этой теме.")
             lines.append("Объяснение выше — по сути. Уточни тему (добавь класс) и попробуй ещё раз.")
         await reply(event, "\n".join(lines), keyboard=make_menu_keyboard())
         return True
@@ -611,8 +643,92 @@ if _cb_reg:
 else:
     logger.warning("callback registration not found in this maxapi version")
 
+# ===== ИЗВЛЕЧЕНИЕ ФОТО ИЗ СООБЩЕНИЯ =====
+def extract_photo_url(event):
+    """Ищет вложение типа image и возвращает URL фото."""
+    m = getattr(event, 'message', None)
+    body = getattr(m, 'body', None) if m else None
+    if body is None:
+        return None
+    attachments = getattr(body, 'attachments', None) or []
+    for att in attachments:
+        t = getattr(att, 'type', None)
+        if t == 'image':
+            # Вариант 1: payload.url
+            pu = getattr(att, 'payload', None)
+            if pu is not None:
+                if isinstance(pu, dict):
+                    url = pu.get('url')
+                    if url:
+                        return url
+                else:
+                    url = getattr(pu, 'url', None)
+                    if url:
+                        return url
+            # Вариант 2: att.url
+            url = getattr(att, 'url', None)
+            if url:
+                return url
+    return None
+
+# ===== ОБРАБОТКА ФОТО ЗАДАЧИ =====
+async def handle_photo(event, photo_url):
+    user_id = get_uid(event)
+    ensure(user_id)
+    thinking = await reply(event, "🔍 Распознаю задачу...")
+    try:
+        r = requests.get(photo_url, timeout=30, verify=False,
+                         headers={'User-Agent': 'Mozilla/5.0'})
+        if not r.ok:
+            await delete_msg(thinking)
+            await reply(event, "❌ Не смог скачать фото из MAX.", keyboard=make_menu_keyboard())
+            return
+        b64 = base64.b64encode(r.content).decode()
+        # Сначала пробуем локальный прокси, потом публичный
+        resp = None
+        for base in (PROXY_LOCAL, PROXY_BASE):
+            try:
+                rv = requests.post(
+                    base + '/vision',
+                    json={'image': b64,
+                          'prompt': 'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'},
+                    timeout=120)
+                if rv.ok:
+                    resp = rv
+                    break
+                else:
+                    logger.error(f"vision {base}: {rv.status_code} {rv.text[:150]}")
+            except Exception as e:
+                logger.error(f"vision {base} err: {e}")
+        await delete_msg(thinking)
+        if resp is None or not resp.ok:
+            await reply(event, "❌ Не удалось распознать задачу. Попробуй ещё раз с более чётким фото.", keyboard=make_menu_keyboard())
+            return
+        d = resp.json()
+        sol = d.get('solution', '')
+        sol = latex_to_plain(sol)
+        ocr = d.get('ocr', '')
+        mode = d.get('mode', '')
+        header = ""
+        if ocr:
+            header = "🔤 Распознанный текст:\n" + ocr[:400] + "\n\n"
+        mode_note = " (через OCR)" if mode == 'ocr' else (" (vision)" if mode == 'vision' else "")
+        await reply(event,
+                    f"📸 Решение{mode_note}:\n\n{header}{sol}",
+                    keyboard=make_menu_keyboard())
+    except Exception as e:
+        logger.error(f"photo handler: {e}")
+        await delete_msg(thinking)
+        await reply(event, f"❌ Ошибка: {e}", keyboard=make_menu_keyboard())
+
 @dp.message_created()
 async def handle_message(event):
+    # Сначала проверяем: это фото?
+    photo_url = extract_photo_url(event)
+    if photo_url:
+        await handle_photo(event, photo_url)
+        return
+
     user_id = get_uid(event)
     text = get_text(event)
     ensure(user_id)
@@ -621,6 +737,7 @@ async def handle_message(event):
         await reply(event,
             "👋 Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
             "🔄 Наш чат ОБЩИЙ с мини-приложением.\n"
+            "📸 Скинь ФОТО задачи — решу пошагово\n"
             "📚 Пиши про оценки — сам запишу в дневник\n"
             "📜 /история — общий чат\n"
             "🗑 /очистить — очистить общий чат\n"
@@ -632,6 +749,7 @@ async def handle_message(event):
     if text in ('/help', '/помощь', '/помоги'):
         await reply(event,
             "❓ Справка Sferum Navigator\n\n"
+            "📸 СКИНЬ ФОТО задачи — распознаю и решу пошагово!\n\n"
             "Команды:\n"
             "/start — приветствие и меню\n"
             "/help — эта справка\n"
@@ -639,7 +757,7 @@ async def handle_message(event):
             "/очистить — очистить общий чат\n\n"
             "Разделы (словами или кнопками):\n"
             "✅ Тренажёр — одно задание строго по теме + объяснение\n"
-            "🎥 Видео — суть темы + прямые ссылки на уроки VK и RuTube\n"
+            "🎥 Видео — суть темы + прямые ссылки на уроки VK/RuTube/YouTube\n"
             "💪 Мотивация — поддержка по твоему состоянию\n"
             "📅 План — неделя подготовки под твою цель\n"
             "📚 Дневник — оценки, средний балл, анализ\n"
