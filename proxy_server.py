@@ -16,10 +16,10 @@ from fastapi.responses import JSONResponse, Response
 import uvicorn
 
 try:
-    from PIL import Image
+    from PIL import Image, ImageOps, ImageStat
     import pytesseract
     OCR_OK = True
-except Exception as e:
+except Exception:
     OCR_OK = False
 
 urllib3.disable_warnings()
@@ -92,20 +92,54 @@ def _save_store(store):
     CHAT_FILE.write_text(json.dumps(store, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+# ===== УЛУЧШЕННЫЙ OCR =====
+def _preprocess_variants(img):
+    """Готовит несколько вариантов изображения для OCR (инверсия тёмного фона, увеличение, бинаризация)."""
+    g = img.convert("L")
+    w, h = g.size
+    big = g.resize((w * 3, h * 3), Image.LANCZOS)
+    mean = ImageStat.Stat(big).mean[0]
+    inv = ImageOps.invert(big) if mean < 128 else big
+    variants = [
+        inv.point(lambda p: 255 if p > 140 else 0),   # инверсия + порог
+        big.point(lambda p: 255 if p > 140 else 0),    # просто порог
+        inv,                                           # инверсия без порога
+        big,                                           # оригинал увеличенный
+    ]
+    return variants
+
+
+def _ocr_score(t):
+    """Оценка качества распознанного текста: цифры и мат. символы важнее всего."""
+    digits = sum(ch.isdigit() for ch in t)
+    math = sum(ch in "+-*/=()хxХ^" for ch in t)
+    letters = sum(ch.isalpha() for ch in t)
+    return digits * 3 + math * 3 + letters
+
+
 def _ocr_from_base64(image_b64: str) -> str:
     if not OCR_OK:
         raise RuntimeError("Tesseract не установлен")
     if "," in image_b64:
         image_b64 = image_b64.split(",", 1)[1]
     raw = base64.b64decode(image_b64)
-    img = Image.open(BytesIO(raw)).convert("RGB")
-    # OCR с русским + английским
-    try:
-        txt = pytesseract.image_to_string(img, lang="rus+eng")
-    except Exception:
-        txt = pytesseract.image_to_string(img)
-    txt = re.sub(r"\s+", " ", txt).strip()
-    return txt
+    img = Image.open(BytesIO(raw))
+    best = ""
+    best_score = -1
+    for var in _preprocess_variants(img):
+        for psm in ("6", "3", "7", "11"):
+            try:
+                t = pytesseract.image_to_string(var, lang="rus+eng", config=f"--psm {psm}")
+            except Exception:
+                continue
+            t = re.sub(r"\s+", " ", t).strip()
+            if len(t) < 2:
+                continue
+            sc = _ocr_score(t)
+            if sc > best_score:
+                best_score = sc
+                best = t
+    return best
 
 
 @app.api_route("/proxy", methods=["GET", "POST", "OPTIONS"])
@@ -287,12 +321,7 @@ async def check_video(q: str = ""):
 
 @app.post("/vision")
 async def vision(request: Request):
-    """
-    Принимает фото задачи (base64).
-    1) Пытается native vision (модели Max/Pro).
-    2) Фолбэк: OCR (Tesseract) → GigaChat решает распознанный текст.
-    Возвращает: {"solution": "...", "ocr": "распознанный текст" (если фолбэк), "model": "..."}
-    """
+    """Принимает фото задачи (base64). OCR (Tesseract с предобработкой) -> GigaChat решает."""
     try:
         payload = await request.json()
         image_b64 = payload.get("image")
@@ -301,52 +330,25 @@ async def vision(request: Request):
         if not image_b64:
             raise HTTPException(400, "no image")
 
-        token = await _get_giga_token()
-
-        # ---------- Попытка 1: native vision ----------
-        if "," in image_b64:
-            img_clean = image_b64.split(",", 1)[1]
-        else:
-            img_clean = image_b64
-
-        # пробуем несколько форматов и моделей
-        formats = [
-            lambda t: [{"type": "text", "text": t}, {"type": "image", "image": f"data:image/jpeg;base64,{img_clean}"}],
-            lambda t: [{"type": "text", "text": t}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_clean}"}}],
-        ]
-        for model in ["GigaChat-Max", "GigaChat-Pro"]:
-            for mk in formats:
-                try:
-                    msgs = [{"role": "user", "content": mk(user_prompt)}]
-                    r = requests.post(
-                        GIGA_URL,
-                        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-                        json={"model": model, "messages": msgs, "max_tokens": 1500, "temperature": 0.3},
-                        timeout=60, verify=False,
-                    )
-                    if r.ok:
-                        sol = r.json()["choices"][0]["message"]["content"]
-                        log.info("VISION native OK model=%s", model)
-                        return {"solution": sol, "model": model, "mode": "vision"}
-                except Exception as e:
-                    log.info(f"vision native try failed {model}: {e}")
-
-        # ---------- Попытка 2: OCR + текст ----------
         if not OCR_OK:
-            raise HTTPException(500, "Vision недоступен и Tesseract не установлен")
+            raise HTTPException(500, "Tesseract не установлен")
+
         try:
             text = _ocr_from_base64(image_b64)
         except Exception as e:
             log.error(f"ocr failed: {e}")
             raise HTTPException(500, f"Не удалось распознать изображение: {e}")
 
-        if len(text) < 3:
-            raise HTTPException(400, "На фото нет читаемого текста. Попробуй фото получше.")
+        log.info("OCR result: %r", text[:200])
 
-        # GigaChat решает распознанную задачу
+        if len(text) < 2:
+            raise HTTPException(400, "На фото нет читаемого текста. Попробуй фото получше (светлый фон, крупный текст).")
+
+        token = await _get_giga_token()
         prompt_full = (
-            f"Текст с фото задачи (OCR): «{text}»\n\n"
+            f"Текст с фото задачи (распознан OCR, возможны мелкие искажения): «{text}»\n\n"
             f"{user_prompt}\n\n"
+            f"Если распознанный текст — математическое выражение (например 2 + 2 * 2), просто вычисли его по действиям и дай ответ. "
             f"Если OCR исказил числа/формулы — восстанови их по смыслу и реши."
         )
         msgs = [
