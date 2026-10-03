@@ -6,6 +6,7 @@ import time
 import uuid
 import urllib.parse
 from pathlib import Path
+from io import BytesIO
 
 import requests
 import urllib3
@@ -13,6 +14,13 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 import uvicorn
+
+try:
+    from PIL import Image
+    import pytesseract
+    OCR_OK = True
+except Exception as e:
+    OCR_OK = False
 
 urllib3.disable_warnings()
 logging.basicConfig(level=logging.INFO)
@@ -82,6 +90,22 @@ def _load_store():
 
 def _save_store(store):
     CHAT_FILE.write_text(json.dumps(store, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _ocr_from_base64(image_b64: str) -> str:
+    if not OCR_OK:
+        raise RuntimeError("Tesseract не установлен")
+    if "," in image_b64:
+        image_b64 = image_b64.split(",", 1)[1]
+    raw = base64.b64decode(image_b64)
+    img = Image.open(BytesIO(raw)).convert("RGB")
+    # OCR с русским + английским
+    try:
+        txt = pytesseract.image_to_string(img, lang="rus+eng")
+    except Exception:
+        txt = pytesseract.image_to_string(img)
+    txt = re.sub(r"\s+", " ", txt).strip()
+    return txt
 
 
 @app.api_route("/proxy", methods=["GET", "POST", "OPTIONS"])
@@ -263,61 +287,84 @@ async def check_video(q: str = ""):
 
 @app.post("/vision")
 async def vision(request: Request):
-    """Принимает фото задачи, возвращает пошаговое решение"""
+    """
+    Принимает фото задачи (base64).
+    1) Пытается native vision (модели Max/Pro).
+    2) Фолбэк: OCR (Tesseract) → GigaChat решает распознанный текст.
+    Возвращает: {"solution": "...", "ocr": "распознанный текст" (если фолбэк), "model": "..."}
+    """
     try:
         payload = await request.json()
         image_b64 = payload.get("image")
-        prompt = payload.get("prompt") or "Реши задачу на фото пошагово, с объяснением каждого шага. Формулы пиши простым текстом."
-        
+        user_prompt = payload.get("prompt") or "Реши задачу пошагово, с объяснением каждого шага. Формулы пиши простым текстом (a = F / m)."
+
         if not image_b64:
             raise HTTPException(400, "no image")
-        
-        # Убираем префикс data:image/...;base64, если он есть
-        if "," in image_b64:
-            image_b64 = image_b64.split(",", 1)[1]
-        
+
         token = await _get_giga_token()
-        
-        messages = [
-            {
-                "role": "system",
-                "content": "Ты — эксперт по школьным задачам. Реши задачу пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m). Если задача нечитаема — честно скажи."
-            },
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}}
-                ]
-            }
+
+        # ---------- Попытка 1: native vision ----------
+        if "," in image_b64:
+            img_clean = image_b64.split(",", 1)[1]
+        else:
+            img_clean = image_b64
+
+        # пробуем несколько форматов и моделей
+        formats = [
+            lambda t: [{"type": "text", "text": t}, {"type": "image", "image": f"data:image/jpeg;base64,{img_clean}"}],
+            lambda t: [{"type": "text", "text": t}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_clean}"}}],
         ]
-        
-        # Пробуем разные модели с поддержкой vision
-        models_to_try = ["GigaChat-Max", "GigaChat-Pro", "GigaChat:latest"]
-        last_err = None
-        
-        for model in models_to_try:
-            try:
-                r = requests.post(
-                    GIGA_URL,
-                    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-                    json={"model": model, "messages": messages, "max_tokens": 1500, "temperature": 0.3},
-                    timeout=60,
-                    verify=False,
-                )
-                if r.ok:
-                    solution = r.json()["choices"][0]["message"]["content"]
-                    log.info("VISION -> %s (model=%s)", r.status_code, model)
-                    return {"solution": solution, "model": model}
-                else:
-                    last_err = f"{model}: {r.status_code}"
-                    log.info("VISION fail %s: %s", model, r.text[:100])
-            except Exception as e:
-                last_err = f"{model}: {e}"
-                log.info("VISION err %s: %s", model, e)
-        
-        raise HTTPException(500, f"Все модели не сработали: {last_err}")
-    
+        for model in ["GigaChat-Max", "GigaChat-Pro"]:
+            for mk in formats:
+                try:
+                    msgs = [{"role": "user", "content": mk(user_prompt)}]
+                    r = requests.post(
+                        GIGA_URL,
+                        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                        json={"model": model, "messages": msgs, "max_tokens": 1500, "temperature": 0.3},
+                        timeout=60, verify=False,
+                    )
+                    if r.ok:
+                        sol = r.json()["choices"][0]["message"]["content"]
+                        log.info("VISION native OK model=%s", model)
+                        return {"solution": sol, "model": model, "mode": "vision"}
+                except Exception as e:
+                    log.info(f"vision native try failed {model}: {e}")
+
+        # ---------- Попытка 2: OCR + текст ----------
+        if not OCR_OK:
+            raise HTTPException(500, "Vision недоступен и Tesseract не установлен")
+        try:
+            text = _ocr_from_base64(image_b64)
+        except Exception as e:
+            log.error(f"ocr failed: {e}")
+            raise HTTPException(500, f"Не удалось распознать изображение: {e}")
+
+        if len(text) < 3:
+            raise HTTPException(400, "На фото нет читаемого текста. Попробуй фото получше.")
+
+        # GigaChat решает распознанную задачу
+        prompt_full = (
+            f"Текст с фото задачи (OCR): «{text}»\n\n"
+            f"{user_prompt}\n\n"
+            f"Если OCR исказил числа/формулы — восстанови их по смыслу и реши."
+        )
+        msgs = [
+            {"role": "system", "content": "Ты — эксперт по школьным задачам. Реши пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), НЕ используй LaTeX."},
+            {"role": "user", "content": prompt_full},
+        ]
+        r = requests.post(
+            GIGA_URL,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={"model": "GigaChat:latest", "messages": msgs, "max_tokens": 1500, "temperature": 0.3},
+            timeout=60, verify=False,
+        )
+        if not r.ok:
+            raise HTTPException(r.status_code, f"GigaChat OCR solve error: {r.text[:200]}")
+        sol = r.json()["choices"][0]["message"]["content"]
+        log.info("VISION ocr+giga OK, text_len=%d", len(text))
+        return {"solution": sol, "ocr": text, "model": "GigaChat:latest", "mode": "ocr"}
+
     except HTTPException:
         raise
     except Exception as e:
@@ -327,7 +374,7 @@ async def vision(request: Request):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "chat_sync": CHAT_FILE.exists()}
+    return {"status": "ok", "chat_sync": CHAT_FILE.exists(), "ocr": OCR_OK}
 
 
 if __name__ == "__main__":
