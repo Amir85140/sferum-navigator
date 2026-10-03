@@ -177,7 +177,7 @@ async def chat(request: Request, user_id: str = ""):
 @app.get("/search_video")
 async def search_video(q: str = ""):
     if not q:
-        return JSONResponse(content={"rutube": [], "vk": []}, headers={"Access-Control-Allow-Origin": "*"})
+        return JSONResponse(content={"rutube": [], "vk": [], "youtube": []}, headers={"Access-Control-Allow-Origin": "*"})
     rt = []
     try:
         r = requests.get('https://rutube.ru/api/video/',
@@ -213,7 +213,26 @@ async def search_video(q: str = ""):
                     break
     except Exception as e:
         log.info(f"search_video vk: {e}")
-    return JSONResponse(content={"rutube": rt, "vk": vk}, headers={"Access-Control-Allow-Origin": "*"})
+    yt = []
+    try:
+        r3 = requests.get('https://www.youtube.com/results', params={'search_query': q},
+                          headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                                   'Accept-Language': 'ru-RU,ru;q=0.9'}, timeout=10, verify=False)
+        if r3.ok:
+            ids = re.findall(r'"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})"', r3.text)
+            if not ids:
+                ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', r3.text)
+            seen = set()
+            for vid in ids:
+                if vid in seen:
+                    continue
+                seen.add(vid)
+                yt.append({'url': f'https://www.youtube.com/watch?v={vid}'})
+                if len(yt) >= 2:
+                    break
+    except Exception as e:
+        log.info(f"search_video youtube: {e}")
+    return JSONResponse(content={"rutube": rt, "vk": vk, "youtube": yt}, headers={"Access-Control-Allow-Origin": "*"})
 
 
 @app.get("/check_video")
@@ -240,6 +259,70 @@ async def check_video(q: str = ""):
         except Exception:
             res[k] = False
     return {"available": [k for k, v in res.items() if v], "all": res}
+
+
+@app.post("/vision")
+async def vision(request: Request):
+    """Принимает фото задачи, возвращает пошаговое решение"""
+    try:
+        payload = await request.json()
+        image_b64 = payload.get("image")
+        prompt = payload.get("prompt") or "Реши задачу на фото пошагово, с объяснением каждого шага. Формулы пиши простым текстом."
+        
+        if not image_b64:
+            raise HTTPException(400, "no image")
+        
+        # Убираем префикс data:image/...;base64, если он есть
+        if "," in image_b64:
+            image_b64 = image_b64.split(",", 1)[1]
+        
+        token = await _get_giga_token()
+        
+        messages = [
+            {
+                "role": "system",
+                "content": "Ты — эксперт по школьным задачам. Реши задачу пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m). Если задача нечитаема — честно скажи."
+            },
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}}
+                ]
+            }
+        ]
+        
+        # Пробуем разные модели с поддержкой vision
+        models_to_try = ["GigaChat-Max", "GigaChat-Pro", "GigaChat:latest"]
+        last_err = None
+        
+        for model in models_to_try:
+            try:
+                r = requests.post(
+                    GIGA_URL,
+                    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                    json={"model": model, "messages": messages, "max_tokens": 1500, "temperature": 0.3},
+                    timeout=60,
+                    verify=False,
+                )
+                if r.ok:
+                    solution = r.json()["choices"][0]["message"]["content"]
+                    log.info("VISION -> %s (model=%s)", r.status_code, model)
+                    return {"solution": solution, "model": model}
+                else:
+                    last_err = f"{model}: {r.status_code}"
+                    log.info("VISION fail %s: %s", model, r.text[:100])
+            except Exception as e:
+                last_err = f"{model}: {e}"
+                log.info("VISION err %s: %s", model, e)
+        
+        raise HTTPException(500, f"Все модели не сработали: {last_err}")
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"vision error: {e}")
+        raise HTTPException(500, f"Ошибка vision: {str(e)}")
 
 
 @app.get("/health")
