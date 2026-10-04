@@ -425,6 +425,60 @@
     .hero{padding:18px;}
     .hero h2{font-size:20px;}
   }
+@media (min-width:768px){
+    .wrap{max-width:720px;}
+    .cloud-grid{grid-template-columns:repeat(3,1fr);}
+    .chat-box{height:58vh;}
+    .msg{max-width:75%;}
+    .dock{max-width:560px;}
+  }
+  @media (min-width:1200px){
+    .wrap{max-width:980px;}
+    .chat-box{height:64vh;}
+    .msg{max-width:70%;}
+    .dock{max-width:640px;}
+    .head h1{font-size:28px;}
+    .hero{padding:26px;}
+  }
+  @media (max-width:430px){
+    body{padding:10px 8px calc(92px + env(safe-area-inset-bottom,0px));}
+    .wrap{max-width:100%;}
+    .head{margin-bottom:12px;}
+    .head h1{font-size:20px;}
+    .head .mascot{width:44px;height:44px;font-size:22px;}
+    .head .sub{font-size:11px;}
+    .theme-pill{top:8px;right:8px;padding:3px;}
+    .theme-pill button{font-size:13px;padding:4px 7px;}
+    .btn{padding:12px;font-size:15px;margin-top:10px;}
+    .cloud{padding:12px;border-radius:18px;}
+    .cloud .em{width:38px;height:38px;font-size:20px;margin-bottom:8px;}
+    .cloud .t{font-size:13.5px;}
+    .cloud .d{font-size:10.5px;}
+    .chat-box{height:48vh;padding:10px;border-radius:18px;}
+    .msg{font-size:14px;padding:10px 14px;margin-top:8px;}
+    .chat-search input{min-height:40px;font-size:13px;}
+    .qchips button{font-size:11px;padding:6px 10px;}
+    .chat-input{gap:6px;}
+    .chat-input input{min-height:48px;font-size:15px;}
+    .chat-input .btn{width:48px;height:48px;}
+    .dock{bottom:calc(8px + env(safe-area-inset-bottom,0px));width:calc(100% - 16px);padding:5px;gap:2px;}
+    .dock button{padding:6px 2px;font-size:9px;}
+    .dock button .ic{font-size:18px;}
+    .photo-fab{display:none;}
+    .toast{bottom:84px;font-size:13px;}
+    .gamebar{padding:10px 12px;gap:10px;}
+    .gb-lvl{width:38px;height:38px;font-size:15px;}
+    .gb-streak{font-size:13px;padding:6px 10px;}
+    .chip-stat{padding:10px 4px;}
+    .chip-stat .v{font-size:18px;}
+    .hero{padding:16px;border-radius:22px;}
+    .hero .orb{width:52px;height:52px;font-size:26px;}
+    .hero h2{font-size:19px;}
+    .hero p{font-size:12.5px;}
+    input,select,textarea{min-height:46px;font-size:15px;}
+    .quiz-q{font-size:17px;}
+    .avg{font-size:40px;}
+  }
 </style>
 </head>
 <body>
