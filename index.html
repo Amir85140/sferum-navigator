@@ -1149,6 +1149,7 @@ renderG();updateHomeStats();setTab('home');renderGame();renderToday();drawGraph(
 syncChatHistory().then(()=>restoreChatHistory());
 checkWeekUpdate();
 setInterval(syncChatHistory,30000);
+async function sendPhotoChat(input){const f=input.files&&input.files[0];if(!f)return;input.value='';addMsg('📸 Фото задачи','user','web');const loading=document.createElement('div');loading.className='skel skel-msg';const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;const reader=new FileReader();reader.onload=async function(){try{const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'})});if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}const d=await r.json();let txt='📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';if(d.ocr)txt+='🔤 '+d.ocr+'\n';txt+=cleanResponse(d.solution||'');loading.remove();addMsg(txt,'bot','web');}catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}};reader.readAsDataURL(f);}
 setTimeout(onbStart,700);
 window.addEventListener('resize',()=>{if(document.getElementById('grades').classList.contains('active'))drawGraph();});
 </script>
