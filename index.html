@@ -471,7 +471,7 @@
       <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты и карточки</div></button>
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
-      <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button><button class="cloud" onclick="go('photo')"><div class="em">📸</div><div class="t">Фото</div><div class="d">Реши по фото</div></button>
+      <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
     </div>
@@ -609,16 +609,6 @@
     <div id="videoResult"></div>
   </div>
 
-  <div id="photo" class="page">
-    <div class="head"><div class="hi"><div class="mascot">📸</div><div><h1>Реши по фото</h1><div class="sub">Сфоткай задачу — ИИ решит пошагово</div></div></div></div>
-    <div class="puff">
-      <label>📷 Выбери фото или сфотографируй</label>
-      <input type="file" id="phFile" accept="image/*" onchange="solvePhoto(this)" style="padding:10px;">
-      <div class="hint" style="margin-top:8px;">Совет: светлый фон, крупный текст, держи ровно, без бликов</div>
-    </div>
-    <div id="phAi"></div>
-  </div>
-
   <div id="motivation" class="page">
     <div class="head"><div class="hi"><div class="mascot">💪</div><div><h1>Мотивация</h1><div class="sub">Расскажи, что случилось</div></div></div></div>
     <div class="puff">
@@ -655,7 +645,7 @@
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('photo')"><div class="em">📸</div><div class="t">Фото</div><div class="d">Реши по фото</div></button><button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 38</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 38</div></button>
     </div>
   </div>
 
@@ -1121,31 +1111,12 @@ try{
 finally{btn.disabled=false;}
 }
 
-async function solvePhoto(input){
-  const f=input.files&&input.files[0];if(!f)return;
-  showLoading('phAi','Распознаю и решаю...');
-  const reader=new FileReader();
-  reader.onload=async function(){
-    try{
-      const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'})});
-      if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error('Vision failed: '+r.status+(d?' '+d:''));}
-      const d=await r.json();
-      let h='<div class="item ai">📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'</div>';
-      if(d.ocr)h+='<div class="item">🔤 Распознано:\n'+escapeHtml(d.ocr)+'</div>';
-      h+='<div class="item ai">'+escapeHtml(cleanResponse(d.solution||'Нет решения'))+'</div>';
-      const box=document.getElementById('phAi');box.innerHTML=h;mathIn(box);
-    }catch(e){showError('phAi','Ошибка: '+e.message);}
-    finally{input.value='';}
-  };
-  reader.readAsDataURL(f);
-}
-
 async function motivationAI(){const mood=document.getElementById('mMood').value;const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[mood];const sit=document.getElementById('mText').value.trim();const btn=document.getElementById('mBtn');btn.disabled=true;const box=document.getElementById('quoteBox');box.textContent='⏳ Читаю и подбираю слова...';try{let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';const r=await askGiga(prompt);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);}catch(e){box.textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 
 function updateGreeting(){const h=new Date().getHours();let g='Доброй ночи!';if(h>=5&&h<12)g='Доброе утро!';else if(h>=12&&h<18)g='Добрый день!';else if(h>=18&&h<23)g='Добрый вечер!';const el=document.getElementById('heroGreet');if(el)el.textContent=g;}
 updateGreeting();setInterval(updateGreeting,60000);
 
-function setTab(id){const map={home:'home',chat:'chat',plan:'plan',quiz:'quiz',grades:'more',video:'more',photo:'more',motivation:'more',about:'more',more:'more',shop:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===map[id]));}
+function setTab(id){const map={home:'home',chat:'chat',plan:'plan',quiz:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more',shop:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===map[id]));}
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');setTab(id);if(id==='plan'){checkWeekUpdate();planTab(loadPlan()?'view':'form');}if(id==='chat')syncChatHistory().then(()=>restoreChatHistory());if(id==='grades')renderG();if(id==='shop')renderShop();if(id==='home')updateHomeStats();window.scrollTo({top:0,behavior:'smooth'});}
 function updateHomeStats(){try{const plan=loadPlan();const w=document.getElementById('statWeeks'),d=document.getElementById('statDone');if(plan){if(w)w.textContent=plan.weeks||'—';if(d)d.textContent=(plan.done||[]).length;}else{if(w)w.textContent='—';if(d)d.textContent='0';}}catch(e){}renderToday();renderGame();}
 
