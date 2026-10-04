@@ -644,78 +644,107 @@ else:
     logger.warning("callback registration not found in this maxapi version")
 
 # ===== ИЗВЛЕЧЕНИЕ ФОТО ИЗ СООБЩЕНИЯ =====
-def extract_photo_url(event):
-    """Ищет вложение типа image и возвращает URL фото."""
+def extract_photo_urls(event):
+    """Собирает ВСЕ кандидатные URL фото из вложения (превью + оригинал)."""
     m = getattr(event, 'message', None)
     body = getattr(m, 'body', None) if m else None
     if body is None:
-        return None
+        return []
     attachments = getattr(body, 'attachments', None) or []
+    urls = []
+    def add(u):
+        if isinstance(u, str) and u.startswith('http') and u not in urls:
+            urls.append(u)
     for att in attachments:
         t = getattr(att, 'type', None)
-        if t == 'image':
-            # Вариант 1: payload.url
-            pu = getattr(att, 'payload', None)
-            if pu is not None:
-                if isinstance(pu, dict):
-                    url = pu.get('url')
-                    if url:
-                        return url
-                else:
-                    url = getattr(pu, 'url', None)
-                    if url:
-                        return url
-            # Вариант 2: att.url
-            url = getattr(att, 'url', None)
-            if url:
-                return url
-    return None
+        if t != 'image':
+            continue
+        pu = getattr(att, 'payload', None)
+        if pu is not None:
+            if isinstance(pu, dict):
+                add(pu.get('url'))
+                for v in pu.values():
+                    if isinstance(v, str):
+                        add(v)
+                    elif isinstance(v, dict):
+                        for vv in v.values():
+                            if isinstance(vv, str):
+                                add(vv)
+                    elif isinstance(v, list):
+                        for vv in v:
+                            if isinstance(vv, str):
+                                add(vv)
+                            elif isinstance(vv, dict):
+                                for vvv in vv.values():
+                                    if isinstance(vvv, str):
+                                        add(vvv)
+            else:
+                add(getattr(pu, 'url', None))
+        add(getattr(att, 'url', None))
+    return urls
+
+def _ocr_ok_text(d):
+    ocr = (d or {}).get('ocr', '') or ''
+    digits = sum(ch.isdigit() for ch in ocr)
+    math = sum(ch in '+-*/=()' for ch in ocr)
+    letters = sum(ch.isalpha() for ch in ocr)
+    return (digits + math) >= 2 or letters >= 4
 
 # ===== ОБРАБОТКА ФОТО ЗАДАЧИ =====
-async def handle_photo(event, photo_url):
+async def handle_photo(event, photo_urls):
     user_id = get_uid(event)
     ensure(user_id)
     thinking = await reply(event, "🔍 Распознаю задачу...")
+    best = None
     try:
-        r = requests.get(photo_url, timeout=30, verify=False,
-                         headers={'User-Agent': 'Mozilla/5.0'})
-        if not r.ok:
-            await delete_msg(thinking)
-            await reply(event, "❌ Не смог скачать фото из MAX.", keyboard=make_menu_keyboard())
-            return
-        b64 = base64.b64encode(r.content).decode()
-        # Сначала пробуем локальный прокси, потом публичный
-        resp = None
-        for base in (PROXY_LOCAL, PROXY_BASE):
+        for idx, photo_url in enumerate(photo_urls):
             try:
-                rv = requests.post(
-                    base + '/vision',
-                    json={'image': b64,
-                          'prompt': 'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'},
-                    timeout=120)
-                if rv.ok:
-                    resp = rv
+                r = requests.get(photo_url, timeout=30, verify=False,
+                                 headers={'User-Agent': 'Mozilla/5.0'})
+                if not r.ok:
+                    continue
+                if idx == 0:
+                    try:
+                        with open('debug_photo.bin', 'wb') as f:
+                            f.write(r.content)
+                        logger.info(f"photo saved: {len(r.content)} bytes")
+                    except Exception:
+                        pass
+                b64 = base64.b64encode(r.content).decode()
+                resp = None
+                for base in (PROXY_LOCAL, PROXY_BASE):
+                    try:
+                        rv = requests.post(base + '/vision',
+                                           json={'image': b64,
+                                                 'prompt': 'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'},
+                                           timeout=120)
+                        if rv.ok:
+                            resp = rv
+                            break
+                    except Exception as e:
+                        logger.error(f"vision {base} err: {e}")
+                if resp is None or not resp.ok:
+                    continue
+                d = resp.json()
+                if _ocr_ok_text(d):
+                    best = d
                     break
-                else:
-                    logger.error(f"vision {base}: {rv.status_code} {rv.text[:150]}")
+                if best is None:
+                    best = d
             except Exception as e:
-                logger.error(f"vision {base} err: {e}")
+                logger.error(f"photo url try: {e}")
         await delete_msg(thinking)
-        if resp is None or not resp.ok:
-            await reply(event, "❌ Не удалось распознать задачу. Попробуй ещё раз с более чётким фото.", keyboard=make_menu_keyboard())
+        if best is None:
+            await reply(event, "❌ Не удалось распознать задачу. Попробуй ещё раз с более чётким фото (светлый фон, крупный текст).", keyboard=make_menu_keyboard())
             return
-        d = resp.json()
-        sol = d.get('solution', '')
-        sol = latex_to_plain(sol)
-        ocr = d.get('ocr', '')
-        mode = d.get('mode', '')
+        sol = latex_to_plain(best.get('solution', ''))
+        ocr = best.get('ocr', '')
+        mode = best.get('mode', '')
         header = ""
         if ocr:
             header = "🔤 Распознанный текст:\n" + ocr[:400] + "\n\n"
         mode_note = " (через OCR)" if mode == 'ocr' else (" (vision)" if mode == 'vision' else "")
-        await reply(event,
-                    f"📸 Решение{mode_note}:\n\n{header}{sol}",
-                    keyboard=make_menu_keyboard())
+        await reply(event, f"📸 Решение{mode_note}:\n\n{header}{sol}", keyboard=make_menu_keyboard())
     except Exception as e:
         logger.error(f"photo handler: {e}")
         await delete_msg(thinking)
@@ -724,9 +753,9 @@ async def handle_photo(event, photo_url):
 @dp.message_created()
 async def handle_message(event):
     # Сначала проверяем: это фото?
-    photo_url = extract_photo_url(event)
-    if photo_url:
-        await handle_photo(event, photo_url)
+    photo_urls = extract_photo_urls(event)
+    if photo_urls:
+        await handle_photo(event, photo_urls)
         return
 
     user_id = get_uid(event)

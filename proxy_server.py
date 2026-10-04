@@ -94,19 +94,20 @@ def _save_store(store):
 
 # ===== УЛУЧШЕННЫЙ OCR =====
 def _preprocess_variants(img):
-    """Готовит несколько вариантов изображения для OCR (инверсия тёмного фона, увеличение, бинаризация)."""
+    """Много вариантов: масштабы, инверсия тёмного фона, автоконтраст, бинаризация."""
     g = img.convert("L")
     w, h = g.size
-    big = g.resize((w * 3, h * 3), Image.LANCZOS)
-    mean = ImageStat.Stat(big).mean[0]
-    inv = ImageOps.invert(big) if mean < 128 else big
-    variants = [
-        inv.point(lambda p: 255 if p > 140 else 0),   # инверсия + порог
-        big.point(lambda p: 255 if p > 140 else 0),    # просто порог
-        inv,                                           # инверсия без порога
-        big,                                           # оригинал увеличенный
-    ]
-    return variants
+    out = []
+    for scale in (2, 3):
+        big = g.resize((w * scale, h * scale), Image.LANCZOS)
+        mean = ImageStat.Stat(big).mean[0]
+        inv = ImageOps.invert(big) if mean < 128 else big
+        ac = ImageOps.autocontrast(big, cutoff=2)
+        ac_inv = ImageOps.invert(ac)
+        out += [inv.point(lambda p: 255 if p > 140 else 0),
+                big.point(lambda p: 255 if p > 140 else 0),
+                inv, ac, ac_inv]
+    return out
 
 
 def _ocr_score(t):
@@ -139,6 +140,8 @@ def _ocr_from_base64(image_b64: str) -> str:
             if sc > best_score:
                 best_score = sc
                 best = t
+                if best_score >= 15:
+                    return best
     return best
 
 
