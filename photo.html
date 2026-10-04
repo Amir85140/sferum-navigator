@@ -1,42 +1,70 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="auto">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Реши по фото — Sferum Navigator</title>
+<script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('sn_theme')||'auto');}catch(e){}})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
-  body{font-family:'Nunito',-apple-system,'Segoe UI',sans-serif;background:#050D1A;color:#F0FAFF;margin:0;padding:18px 16px 40px;min-height:100vh;}
+  :root, :root[data-theme="light"]{--bg:#D6E8FF;--bg2:linear-gradient(160deg,#BDD8FF,#D6E8FF 45%,#C9E2FF);--card:#fff;--ink:#0E2540;--muted:#4A6585;--accent:#2787F5;--field:#C8DDFF;--bd:transparent;--sh:0 10px 30px rgba(0,60,140,.14);}
+  :root[data-theme="dark"]{--bg:#050D1A;--bg2:linear-gradient(rgba(0,194,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,194,255,.06) 1px,transparent 1px);--card:rgba(6,14,28,.9);--ink:#F0FAFF;--muted:#9FBDD0;--accent:#00C2FF;--field:rgba(0,194,255,.08);--bd:1px solid rgba(0,194,255,.35);--sh:0 0 26px rgba(0,194,255,.14);}
+  @media (prefers-color-scheme: dark){:root[data-theme="auto"]{--bg:#050D1A;--bg2:linear-gradient(rgba(0,194,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,194,255,.06) 1px,transparent 1px);--card:rgba(6,14,28,.9);--ink:#F0FAFF;--muted:#9FBDD0;--accent:#00C2FF;--field:rgba(0,194,255,.08);--bd:1px solid rgba(0,194,255,.35);--sh:0 0 26px rgba(0,194,255,.14);}}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'Nunito',-apple-system,'Segoe UI',sans-serif;background-color:var(--bg);background-image:var(--bg2);background-size:42px 42px;color:var(--ink);min-height:100vh;padding:18px 16px calc(40px + env(safe-area-inset-bottom,0px));}
   .wrap{max-width:480px;margin:0 auto;}
-  h1{font-size:24px;font-weight:900;margin:8px 0 4px;}
-  .sub{font-size:13px;color:#9FBDD0;font-weight:700;margin-bottom:16px;}
-  .card{background:rgba(6,14,28,.88);border:1px solid rgba(0,194,255,.35);border-radius:22px;padding:18px;box-shadow:0 0 26px rgba(0,194,255,.14);}
-  label{display:block;font-size:13px;font-weight:800;color:#9FBDD0;margin:0 0 8px;}
-  input[type=file]{width:100%;padding:12px;border:1px solid rgba(0,194,255,.3);border-radius:14px;background:rgba(0,194,255,.08);color:#F0FAFF;font-family:inherit;font-size:14px;font-weight:700;}
-  .hint{font-size:12px;color:#9FBDD0;font-weight:700;margin-top:10px;line-height:1.5;}
-  .item{background:rgba(6,14,28,.88);border:1px solid rgba(0,194,255,.25);border-left:4px solid #00C2FF;border-radius:18px;padding:14px 16px;margin-top:12px;font-size:15px;font-weight:700;line-height:1.6;white-space:pre-wrap;}
-  .back{display:inline-block;margin-top:16px;color:#8FE9FF;font-weight:900;text-decoration:none;font-size:14px;}
-  .skel{height:70px;border-radius:16px;background:rgba(0,194,255,.08);position:relative;overflow:hidden;margin-top:12px;}
-  .skel::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,194,255,.25),transparent);animation:sh 1.2s infinite;}
+  .head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .head .em{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#39FF88,#0A84FF);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 8px 20px rgba(0,60,140,.3);}
+  .head h1{font-size:23px;font-weight:900;}
+  .head .sub{font-size:12px;color:var(--muted);font-weight:700;}
+  .theme-pill{position:fixed;top:12px;right:12px;z-index:95;display:flex;gap:2px;padding:5px;background:var(--card);border:var(--bd);border-radius:999px;box-shadow:var(--sh);}
+  .theme-pill button{border:none;background:transparent;font-size:15px;padding:6px 9px;border-radius:999px;cursor:pointer;}
+  .theme-pill button.on{background:var(--field);}
+  .card{background:var(--card);border:var(--bd);border-radius:22px;box-shadow:var(--sh);padding:18px;}
+  .upzone{border:2px dashed var(--accent);border-radius:20px;background:var(--field);padding:28px 16px;text-align:center;cursor:pointer;transition:transform .2s;}
+  .upzone:active{transform:scale(.97);}
+  .upzone .ic{font-size:42px;}
+  .upzone .t{font-size:16px;font-weight:900;margin-top:8px;}
+  .upzone .d{font-size:12px;color:var(--muted);font-weight:700;margin-top:4px;line-height:1.5;}
+  input[type=file]{display:none;}
+  img.prev{width:100%;border-radius:16px;margin-top:14px;border:var(--bd);display:none;}
+  .item{background:var(--card);border:var(--bd);border-left:4px solid var(--accent);border-radius:18px;box-shadow:var(--sh);padding:14px 16px;margin-top:12px;font-size:15px;font-weight:700;line-height:1.6;white-space:pre-wrap;}
+  .item.err{border-left-color:#FF6B6B;}
+  .skel{height:70px;border-radius:16px;background:var(--field);position:relative;overflow:hidden;margin-top:12px;}
+  .skel::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(128,160,200,.3),transparent);animation:sh 1.2s infinite;}
   @keyframes sh{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-  img.prev{max-width:100%;border-radius:14px;margin-top:12px;border:1px solid rgba(0,194,255,.3);}
+  .back{display:inline-block;margin-top:18px;color:var(--accent);font-weight:900;text-decoration:none;font-size:14px;}
+  @media (max-width:430px){body{padding:12px 10px calc(32px + env(safe-area-inset-bottom,0px));}.head h1{font-size:20px;}.head .em{width:44px;height:44px;font-size:22px;}.card{padding:14px;}.upzone{padding:22px 12px;}.item{font-size:14px;padding:12px 14px;}}
 </style>
 </head>
 <body>
+<div class="theme-pill">
+  <button id="thLight" onclick="setTheme('light')">☀️</button>
+  <button id="thDark" onclick="setTheme('dark')">🌙</button>
+  <button id="thAuto" onclick="setTheme('auto')">🖥️</button>
+</div>
 <div class="wrap">
-  <h1>📸 Реши по фото</h1>
-  <div class="sub">Sferum Navigator · OCR + GigaChat</div>
+  <div class="head">
+    <div class="em">📸</div>
+    <div><h1>Реши по фото</h1><div class="sub">Sferum Navigator · OCR + GigaChat</div></div>
+  </div>
   <div class="card">
-    <label>📷 Выбери фото или сфотографируй</label>
+    <label class="upzone" for="phFile">
+      <div class="ic">📷</div>
+      <div class="t">Нажми, чтобы выбрать фото</div>
+      <div class="d">Или сфотографируй задачу сразу.<br>Светлый фон и крупный текст — точнее результат.</div>
+    </label>
     <input type="file" id="phFile" accept="image/*" onchange="solvePhoto(this)">
-    <div class="hint">Совет: светлый фон, крупный текст, держи ровно, без бликов. Тёмный фон тоже работает (автоинверсия).</div>
-    <img id="prev" class="prev" style="display:none;" alt="">
+    <img id="prev" class="prev" alt="">
   </div>
   <div id="phAi"></div>
   <a class="back" href="index.html">← Назад в приложение</a>
 </div>
 <script>
-const CODESPACE_NAME='automatic-system-p7gg76p4wqqwf99rj';
-const PROXY_BASE='https://'+CODESPACE_NAME+'-8000.app.github.dev';
+const PROXY_BASE='https://automatic-system-p7gg76p4wqqwf99rj-8000.app.github.dev';
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('sn_theme',t);markTheme();}
+function markTheme(){const t=document.documentElement.getAttribute('data-theme');['Light','Dark','Auto'].forEach(n=>{const b=document.getElementById('th'+n);if(b)b.classList.toggle('on',n.toLowerCase()===t);});}
+markTheme();
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 async function solvePhoto(input){
   const f=input.files&&input.files[0];if(!f)return;
@@ -47,14 +75,14 @@ async function solvePhoto(input){
     const prev=document.getElementById('prev');prev.src=reader.result;prev.style.display='block';
     try{
       const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'})});
-      if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error('Vision failed: '+r.status+(d?' '+d:''));}
+      if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}
       const d=await r.json();
       let h='<div class="item">📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'</div>';
       if(d.ocr)h+='<div class="item">🔤 Распознано:\n'+esc(d.ocr)+'</div>';
       h+='<div class="item">'+esc(d.solution||'Нет решения')+'</div>';
       box.innerHTML=h;
     }catch(e){
-      box.innerHTML='<div class="item" style="border-left-color:#FF6B6B;">❌ Ошибка: '+esc(e.message)+'</div>';
+      box.innerHTML='<div class="item err">❌ Ошибка: '+esc(e.message)+'</div>';
     }finally{input.value='';}
   };
   reader.readAsDataURL(f);
