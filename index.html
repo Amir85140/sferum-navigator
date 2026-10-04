@@ -1155,5 +1155,50 @@ window.addEventListener('resize',()=>{if(document.getElementById('grades').class
 </script>
 <a href="photo.html" class="photo-fab" title="Реши по фото">📸</a>
 <style>.photo-fab{position:fixed;right:14px;bottom:86px;z-index:95;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#39FF88,#0A84FF);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 10px 24px rgba(0,60,140,.35);text-decoration:none;}.photo-fab:active{transform:scale(.9);}</style>
+<script>
+(function(){
+  function ready(fn){if(document.readyState!=='loading'){fn();}else{document.addEventListener('DOMContentLoaded',fn);}}
+  ready(function(){
+    var oldIn=document.getElementById('chatPhoto');if(oldIn&&oldIn.parentNode)oldIn.parentNode.removeChild(oldIn);
+    var oldIn2=document.getElementById('chatPhoto2');if(oldIn2&&oldIn2.parentNode)oldIn2.parentNode.removeChild(oldIn2);
+    var btns=document.querySelectorAll('.chat-input button');
+    for(var k=0;k<btns.length;k++){if((btns[k].textContent||'').trim()==='\u{1F4F8}')btns[k].parentNode.removeChild(btns[k]);}
+    var box=document.querySelector('.chat-input');
+    if(!box)return;
+    var sendBtn=box.querySelector('button');
+    if(!sendBtn)return;
+    var inp=document.createElement('input');
+    inp.type='file';inp.accept='image/*';inp.style.display='none';inp.id='chatPhoto2';
+    var btn=document.createElement('button');
+    btn.type='button';btn.className='btn sky';
+    btn.style.cssText='width:54px;margin:0;padding:0;height:50px;flex-shrink:0;';
+    btn.textContent='\u{1F4F8}';
+    box.insertBefore(inp,sendBtn);
+    box.insertBefore(btn,sendBtn);
+    btn.addEventListener('click',function(){inp.click();});
+    inp.addEventListener('change',function(){
+      var f=inp.files&&inp.files[0];if(!f)return;inp.value='';
+      var chatBox=document.getElementById('chatBox');
+      function pushMsg(text,cls){var d=document.createElement('div');d.className='msg '+cls;d.textContent=text;chatBox.appendChild(d);chatBox.scrollTop=chatBox.scrollHeight;return d;}
+      pushMsg('\u{1F4F8} Фото задачи','user');
+      var load=pushMsg('⏳ Распознаю задачу...','bot');
+      var reader=new FileReader();
+      reader.onload=function(){
+        fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'})})
+        .then(function(r){if(!r.ok){return r.json().then(function(j){throw new Error(j.detail||('HTTP '+r.status));});}return r.json();})
+        .then(function(d){
+          var txt='\u{1F4F8} Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';
+          if(d.ocr)txt+='\u{1F524} '+d.ocr+'\n';
+          txt+=(d.solution||'Нет решения');
+          load.textContent=txt;
+          chatBox.scrollTop=chatBox.scrollHeight;
+        })
+        .catch(function(e){load.textContent='❌ Ошибка распознавания: '+e.message;});
+      };
+      reader.readAsDataURL(f);
+    });
+  });
+})();
+</script>
 </body>
 </html>
