@@ -402,6 +402,29 @@
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
   @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 100%{transform:scale(1)} }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (max-width:430px){
+    body{padding:12px 10px calc(104px + env(safe-area-inset-bottom,0px));}
+    .wrap{max-width:100%;}
+    .head h1{font-size:21px;}
+    .head .mascot{width:46px;height:46px;font-size:23px;}
+    .btn{padding:13px;font-size:15px;}
+    .cloud{padding:13px;}
+    .cloud .em{width:40px;height:40px;font-size:21px;}
+    .cloud .t{font-size:14px;}
+    .chat-box{height:52vh;}
+    .dock{bottom:calc(10px + env(safe-area-inset-bottom,0px));width:calc(100% - 20px);padding:6px;}
+    .dock button{padding:8px 2px;font-size:9px;}
+    .dock button .ic{font-size:19px;}
+    .theme-pill{top:10px;right:10px;}
+    .photo-fab{right:10px;bottom:calc(78px + env(safe-area-inset-bottom,0px));width:52px;height:52px;font-size:24px;}
+    .toast{bottom:88px;}
+    input,select,textarea{min-height:48px;}
+    .quiz-q{font-size:18px;}
+    .gamebar{padding:12px;}
+    .gb-lvl{width:40px;height:40px;font-size:16px;}
+    .hero{padding:18px;}
+    .hero h2{font-size:20px;}
+  }
 </style>
 </head>
 <body>
@@ -497,7 +520,7 @@
     </div>
     <div class="chat-input">
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
-      <button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
+      <input type="file" id="chatPhoto" accept="image/*" style="display:none" onchange="sendPhotoChat(this)"><button class="btn sky" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()">📸</button><button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
     <button class="btn ghost" onclick="clearChat()">🗑 Очистить общий чат</button>
   </div>
