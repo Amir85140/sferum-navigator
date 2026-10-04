@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Реши по фото — Sferum Navigator</title>
+<style>
+  body{font-family:'Nunito',-apple-system,'Segoe UI',sans-serif;background:#050D1A;color:#F0FAFF;margin:0;padding:18px 16px 40px;min-height:100vh;}
+  .wrap{max-width:480px;margin:0 auto;}
+  h1{font-size:24px;font-weight:900;margin:8px 0 4px;}
+  .sub{font-size:13px;color:#9FBDD0;font-weight:700;margin-bottom:16px;}
+  .card{background:rgba(6,14,28,.88);border:1px solid rgba(0,194,255,.35);border-radius:22px;padding:18px;box-shadow:0 0 26px rgba(0,194,255,.14);}
+  label{display:block;font-size:13px;font-weight:800;color:#9FBDD0;margin:0 0 8px;}
+  input[type=file]{width:100%;padding:12px;border:1px solid rgba(0,194,255,.3);border-radius:14px;background:rgba(0,194,255,.08);color:#F0FAFF;font-family:inherit;font-size:14px;font-weight:700;}
+  .hint{font-size:12px;color:#9FBDD0;font-weight:700;margin-top:10px;line-height:1.5;}
+  .item{background:rgba(6,14,28,.88);border:1px solid rgba(0,194,255,.25);border-left:4px solid #00C2FF;border-radius:18px;padding:14px 16px;margin-top:12px;font-size:15px;font-weight:700;line-height:1.6;white-space:pre-wrap;}
+  .back{display:inline-block;margin-top:16px;color:#8FE9FF;font-weight:900;text-decoration:none;font-size:14px;}
+  .skel{height:70px;border-radius:16px;background:rgba(0,194,255,.08);position:relative;overflow:hidden;margin-top:12px;}
+  .skel::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,194,255,.25),transparent);animation:sh 1.2s infinite;}
+  @keyframes sh{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+  img.prev{max-width:100%;border-radius:14px;margin-top:12px;border:1px solid rgba(0,194,255,.3);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📸 Реши по фото</h1>
+  <div class="sub">Sferum Navigator · OCR + GigaChat</div>
+  <div class="card">
+    <label>📷 Выбери фото или сфотографируй</label>
+    <input type="file" id="phFile" accept="image/*" onchange="solvePhoto(this)">
+    <div class="hint">Совет: светлый фон, крупный текст, держи ровно, без бликов. Тёмный фон тоже работает (автоинверсия).</div>
+    <img id="prev" class="prev" style="display:none;" alt="">
+  </div>
+  <div id="phAi"></div>
+  <a class="back" href="index.html">← Назад в приложение</a>
+</div>
+<script>
+const CODESPACE_NAME='automatic-system-p7gg76p4wqqwf99rj';
+const PROXY_BASE='https://'+CODESPACE_NAME+'-8000.app.github.dev';
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function solvePhoto(input){
+  const f=input.files&&input.files[0];if(!f)return;
+  const box=document.getElementById('phAi');
+  box.innerHTML='<div class="skel"></div><div class="skel"></div>';
+  const reader=new FileReader();
+  reader.onload=async function(){
+    const prev=document.getElementById('prev');prev.src=reader.result;prev.style.display='block';
+    try{
+      const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'})});
+      if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error('Vision failed: '+r.status+(d?' '+d:''));}
+      const d=await r.json();
+      let h='<div class="item">📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'</div>';
+      if(d.ocr)h+='<div class="item">🔤 Распознано:\n'+esc(d.ocr)+'</div>';
+      h+='<div class="item">'+esc(d.solution||'Нет решения')+'</div>';
+      box.innerHTML=h;
+    }catch(e){
+      box.innerHTML='<div class="item" style="border-left-color:#FF6B6B;">❌ Ошибка: '+esc(e.message)+'</div>';
+    }finally{input.value='';}
+  };
+  reader.readAsDataURL(f);
+}
+</script>
+</body>
+</html>
