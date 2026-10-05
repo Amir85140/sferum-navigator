@@ -12,8 +12,6 @@ import requests
 import urllib3
 from maxapi import Bot, Dispatcher
 
-import db as navigator_db
-
 urllib3.disable_warnings()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,7 +24,6 @@ CODESPACE_NAME = os.environ.get('CODESPACE_NAME', 'automatic-system-p7gg76p4wqqw
 PROXY_BASE = f"https://{CODESPACE_NAME}-8000.app.github.dev"
 CHANNEL = 'main'
 USER_DATA_FILE = Path('user_data.json')
-BANK_FILE = Path('bank.json')
 
 NO_LATEX = (' СТРОГО ЗАПРЕЩЕНО использовать LaTeX (знаки $, $$, \\frac, \\sqrt и любые бэкслэши) '
             'и Markdown (**, #, `). Все формулы пиши ПРОСТЫМ текстом в одну строку, '
@@ -41,57 +38,28 @@ SYS_CHAT = ('Ты — Sferum Navigator, ИИ-наставник для школ�
             '6) Не уверен — честно скажи и предложи, как уточнить.\n'
             'Помни весь предыдущий разговор.')
 
-WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
-
-SUBJ_ALIAS = {
-    'матан': 'Математика', 'матем': 'Математика', 'мат-ка': 'Математика', 'математ': 'Математика',
-    'алгебр': 'Алгебра', 'геом': 'Геометрия',
-    'рус': 'Русский язык', 'русский': 'Русский язык', 'рус яз': 'Русский язык',
-    'лит': 'Литература', 'литра': 'Литература', 'лит-ра': 'Литература',
-    'англ': 'Английский язык', 'ин яз': 'Английский язык', 'ин я': 'Английский язык', 'английский': 'Английский язык',
-    'физра': 'Физкультура', 'физ-ра': 'Физкультура', 'физкультура': 'Физкультура',
-    'физ': 'Физика', 'физика': 'Физика',
-    'хим': 'Химия', 'химия': 'Химия',
-    'биол': 'Биология', 'биолог': 'Биология', 'биология': 'Биология',
-    'гео': 'География', 'географ': 'География',
-    'ист': 'История', 'истор': 'История',
-    'общ': 'Обществознание', 'общество': 'Обществознание',
-    'инф': 'Информатика', 'информ': 'Информатика', 'информатика': 'Информатика',
-}
-
-def expand_subject(name):
-    low = str(name or '').lower().strip()
-    if not low:
-        return name
-    if low in SUBJ_ALIAS:
-        return SUBJ_ALIAS[low]
-    for k, v in SUBJ_ALIAS.items():
-        if low.startswith(k):
-            return v
-    return str(name).strip().title()
-
 user_data: Dict[int, Dict[str, Any]] = {}
 
 def load_user_data():
     global user_data
-    user_data = {}
+    if USER_DATA_FILE.exists():
+        try:
+            raw = json.loads(USER_DATA_FILE.read_text(encoding='utf-8'))
+            user_data = {int(k): v for k, v in raw.items()}
+        except Exception as e:
+            logger.error(f"load user_data: {e}")
+            user_data = {}
 
-def save_user_data(uid=None):
-    if uid is None:
-        return
-    d = user_data.get(uid)
-    if not d:
-        return
+def save_user_data():
     try:
-        navigator_db.set_state(uid, {'grades': d.get('grades'), 'plan': d.get('plan')})
+        USER_DATA_FILE.write_text(json.dumps(user_data, ensure_ascii=False, indent=2), encoding='utf-8')
     except Exception as e:
-        logger.error(f"save state: {e}")
+        logger.error(f"save user_data: {e}")
+
+load_user_data()
 
 def now_ms():
     return int(time.time() * 1000)
-
-def cur_week():
-    return time.strftime('%G-W%V')
 
 def load_chat_from_server(channel=CHANNEL):
     try:
@@ -180,7 +148,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
         messages = [{'role': 'system', 'content': sysp}]
         if hist:
             messages.extend(hist[-16:])
-        messages.append([{'role': 'user', 'content': prompt}])
+        messages.append({'role': 'user', 'content': prompt})
         r = requests.post(
             'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
             headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'},
@@ -193,7 +161,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
         logger.error(f"giga direct: {e}")
     return "❌ Ошибка при обращении к GigaChat"
 
-# ===== ПОИСК ВИДЕО: VK + RuTube =====
+# ===== ПОИСК ВИДЕО: ТОЛЬКО VK + RuTube =====
 def _words(query):
     return [w for w in re.split(r'\s+', query.lower()) if len(w) > 3]
 
@@ -244,12 +212,6 @@ def search_vk(query, size=2):
     except Exception as e:
         logger.error(f"vk: {e}")
     return []
-
-def load_bank():
-    try:
-        return json.loads(BANK_FILE.read_text(encoding='utf-8'))
-    except Exception:
-        return {}
 
 # ===== БОТ =====
 bot = Bot(token=BOT_TOKEN)
@@ -383,11 +345,7 @@ def norm(s):
 
 def ensure(uid):
     if uid not in user_data:
-        try:
-            st = navigator_db.get_state(uid)
-        except Exception:
-            st = {}
-        user_data[uid] = {'grades': st.get('grades') or {}, 'state': None, 'plan': st.get('plan')}
+        user_data[uid] = {'grades': {}, 'state': None}
     user_data[uid].setdefault('grades', {})
     user_data[uid].setdefault('state', None)
     return user_data[uid]
@@ -412,7 +370,7 @@ async def act_video(event, uid):
     u['state'] = {'mode': 'video_topic'}
     await reply(event,
         "🎥 Видеоуроки\n\nНапиши тему ТОЧНО (например: «фотосинтез 6 класс», «теорема Пифагора») — "
-        "дам ссылки на уроки VK/RuTube и подробное объяснение темы.",
+        "объясню её и дам прямые ссылки на уроки в VK и RuTube именно по этой теме.",
         keyboard=make_menu_keyboard())
 
 async def act_motivation(event, uid):
@@ -423,44 +381,15 @@ async def act_motivation(event, uid):
         "• устал\n• переживаю\n• лень\n• нормально\n\nИли опиши ситуацию — отвечу по делу.",
         keyboard=make_menu_keyboard())
 
-def rebuild_plan(uid, old_plan):
-    done = old_plan.get('done', []) or []
-    pending = [x for x in old_plan.get('schedule', []) if x.get('topic') not in done]
-    resp = ask_gigachat(
-        f'Началась новая учебная неделя. Цель: {old_plan.get("goal","")}.\n'
-        f'Непройденные темы с прошлой недели (ОБЯЗАТЕЛЬНО включи их): ' +
-        '; '.join(f"{x.get('day')} {x.get('subject')}: {x.get('topic')}" for x in pending) +
-        f'\nСоставь план на новую неделю Пн-Вс РОВНО 7 элементов (4-5 учебных + отдых), включив ВСЕ непройденные темы и добавив новые по цели.\n'
-        f'Верни СТРОГО JSON: {{"goal":"...","schedule":[{{"day":"Пн","subject":"...","topic":"..."}}, ...7]}}',
-        'Ты — эксперт по подготовке. Верни только валидный JSON.' + NO_LATEX, 1500)
-    mm = re.search(r'\{[\s\S]*\}', resp)
-    if not mm:
-        return None
-    try:
-        plan = json.loads(mm.group())
-    except Exception:
-        return None
-    plan['week'] = cur_week()
-    plan['done'] = []
-    return plan
-
 async def act_plan(event, uid):
     u = ensure(uid)
     plan = u.get('plan')
-    if plan and plan.get('week') != cur_week():
-        newp = rebuild_plan(uid, plan)
-        if newp:
-            plan = newp
-            u['plan'] = plan
-            save_user_data(uid)
-            await reply(event, "🔄 Неделя обновилась! Непройденные темы перенесены на эту неделю.\nНапиши «план», чтобы посмотреть.", keyboard=make_menu_keyboard())
-            return
     if plan:
-        lines = [f"{s2.get('day','')}: {s2.get('subject','')} — {s2.get('topic','')}" + (" ✅" if s2.get('topic') in (plan.get('done') or []) else "") for s2 in plan.get('schedule', [])]
+        lines = [f"{s.get('day','')}: {s.get('subject','')} — {s.get('topic','')}" for s in plan.get('schedule', [])]
         goal = plan.get('goal', '')
         header = f"🎯 Цель: {goal}\n\n" if goal else ""
-        await reply(event, "📅 План на эту неделю:\n" + header + "\n".join(lines) +
-                    "\n\nОтметить тему: напиши «пройдено <тема>».\nНовый план: «новый план».",
+        await reply(event, "📅 Твой план на неделю:\n" + header + "\n".join(lines) +
+                    "\n\nНапиши «новый план», чтобы составить заново.",
                     keyboard=make_menu_keyboard())
     else:
         u['state'] = {'mode': 'plan_wizard'}
@@ -473,7 +402,7 @@ async def act_grades(event, uid):
     ensure(uid)['state'] = None
     g = user_data[uid].get('grades', {})
     if not g:
-        await reply(event, "📚 Дневник пуст.\n\nНапиши про оценки словами — сам запишу:\n• «матан 5 4»\n• «получил 3 по физре»",
+        await reply(event, "📚 Дневник пуст.\n\nНапиши про оценки словами — сам запишу:\n• «математика 5 4»\n• «получил 3 по физике»",
                     keyboard=make_menu_keyboard())
         return
     out, allg = [], []
@@ -494,19 +423,9 @@ async def act_grades(event, uid):
         txt += "\n⚠️ Подтянуть: " + ", ".join(weak) + "\nНапиши «разбери» — сделаю полный анализ."
     await reply(event, txt, keyboard=make_menu_keyboard())
 
-async def act_bank(event, uid):
-    u = ensure(uid)
-    bank = load_bank()
-    u['state'] = {'mode': 'bank_subject'}
-    lines = ["📚 Банк заданий (ФИПИ-формат). Выбери предмет:"]
-    for i, (k, v) in enumerate(bank.items(), 1):
-        lines.append(f"{i}. {v.get('title', k)}")
-    lines.append("\nНапиши номер или название.")
-    await reply(event, "\n".join(lines), keyboard=make_menu_keyboard())
-
 ACTIONS = {
     'menu': act_menu, 'quiz': act_quiz, 'video': act_video,
-    'motivation': act_motivation, 'plan': act_plan, 'grades': act_grades, 'bank': act_bank,
+    'motivation': act_motivation, 'plan': act_plan, 'grades': act_grades,
 }
 TEXT_ALIASES = {
     'menu': ['меню', '🏠 меню'],
@@ -515,7 +434,6 @@ TEXT_ALIASES = {
     'motivation': ['мотивация', 'поддержи', '💪 мотивация'],
     'plan': ['план', '📅 план', 'новый план'],
     'grades': ['дневник', 'оценки мои', '📚 дневник'],
-    'bank': ['банк', 'банк заданий'],
 }
 
 def detect_text_action(text):
@@ -524,110 +442,6 @@ def detect_text_action(text):
         if low in aliases:
             return cmd
     return None
-
-async def show_bank_task(event, uid):
-    u = ensure(uid)
-    st = u.get('state') or {}
-    bank = load_bank()
-    subj, topic, idx = st.get('subject'), st.get('topic'), st.get('idx', 0)
-    tasks = []
-    for t in bank.get(subj, {}).get('topics', []):
-        if t.get('id') == topic:
-            tasks = t.get('tasks', [])
-    if idx >= len(tasks):
-        u['state'] = None
-        await reply(event, f"🏁 Итог: {st.get('correct',0)}/{st.get('total',0)}.", keyboard=make_menu_keyboard())
-        return True
-    task = tasks[idx]
-    lines = [f"🎯 Задание {idx+1}/{len(tasks)}: {task.get('q','')}"]
-    for i, o in enumerate(task.get('opts') or [], 1):
-        lines.append(f"{i}) {o}")
-    lines.append("\nНапиши номер варианта или ответ текстом.")
-    await reply(event, "\n".join(lines), keyboard=make_menu_keyboard())
-    return True
-
-async def handle_bank_state(event, uid, text):
-    u = ensure(uid)
-    st = u.get('state') or {}
-    mode = st.get('mode', '')
-    bank = load_bank()
-    low = text.lower().strip()
-
-    if mode == 'bank_subject':
-        keys = list(bank.keys())
-        idx = None
-        if low.isdigit() and 1 <= int(low) <= len(keys):
-            idx = int(low) - 1
-        else:
-            for i, k in enumerate(keys):
-                if low in bank[k].get('title', '').lower() or low == k:
-                    idx = i
-                    break
-        if idx is None:
-            await reply(event, "Не понял предмет. Напиши номер из списка.")
-            return True
-        subj = keys[idx]
-        u['state'] = {'mode': 'bank_topic', 'subject': subj}
-        lines = [f"📖 Темы: {bank[subj].get('title','')}"]
-        for i, t in enumerate(bank[subj].get('topics', []), 1):
-            lines.append(f"{i}. {t.get('title')} ({len(t.get('tasks', []))} зад.)")
-        lines.append("\nНапиши номер темы.")
-        await reply(event, "\n".join(lines), keyboard=make_menu_keyboard())
-        return True
-
-    if mode == 'bank_topic':
-        subj = st.get('subject')
-        topics = bank.get(subj, {}).get('topics', [])
-        idx = None
-        if low.isdigit() and 1 <= int(low) <= len(topics):
-            idx = int(low) - 1
-        else:
-            for i, t in enumerate(topics):
-                if low in t.get('title', '').lower():
-                    idx = i
-                    break
-        if idx is None:
-            await reply(event, "Не понял тему. Напиши номер из списка.")
-            return True
-        u['state'] = {'mode': 'bank_task', 'subject': subj, 'topic': topics[idx].get('id'), 'idx': 0, 'correct': 0, 'total': 0}
-        return await show_bank_task(event, uid)
-
-    if mode == 'bank_task':
-        subj, topic, idx = st.get('subject'), st.get('topic'), st.get('idx', 0)
-        tasks = []
-        for t in bank.get(subj, {}).get('topics', []):
-            if t.get('id') == topic:
-                tasks = t.get('tasks', [])
-        if idx >= len(tasks):
-            u['state'] = None
-            await reply(event, "Задания закончились.", keyboard=make_menu_keyboard())
-            return True
-        task = tasks[idx]
-        opts = task.get('opts') or []
-        correct = task.get('a', '')
-        ok = False
-        if opts and low.isdigit() and 1 <= int(low) <= len(opts):
-            ok = norm(opts[int(low) - 1]) == norm(correct)
-        else:
-            ok = norm(low) == norm(correct) or (norm(correct) and norm(correct) in norm(low))
-        st['correct'] = st.get('correct', 0) + (1 if ok else 0)
-        st['total'] = st.get('total', 0) + 1
-        try:
-            navigator_db.save_progress(uid, topic, idx, ok)
-        except Exception:
-            pass
-        st['idx'] = idx + 1
-        u['state'] = st
-        head = "✅ Верно!" if ok else f"❌ Неверно. Правильно: {correct}"
-        if st['idx'] >= len(tasks):
-            u['state'] = None
-            await reply(event, f"{head}\n\n🏁 Итог: {st['correct']}/{st['total']}. Отличная работа!", keyboard=make_menu_keyboard())
-        else:
-            await reply(event, head)
-            await show_bank_task(event, uid)
-        return True
-
-    return False
 
 async def handle_state(event, uid, text):
     u = ensure(uid)
@@ -682,10 +496,11 @@ async def handle_state(event, uid, text):
         u['state'] = None
         r = ask_gigachat(
             f'Тема запроса ученика: «{text}».\n'
-            f'1) query — ТОЧНЫЙ поисковый запрос для обучающего видео: тема словами ученика + слово "урок" или "объяснение"; 2-6 слов.\n'
-            f'2) summary — ПОДРОБНОЕ объяснение темы для школьника: 5-8 предложений, с примером, определением и мини-выводом.\n'
+            f'1) summary — 2 предложения сути темы простыми словами + один пример.\n'
+            f'2) query — ТОЧНЫЙ поисковый запрос для обучающего видео: назови тему словами ученика '
+            f'и добавь слово "урок" или "объяснение"; 2-6 слов, без кавычек и знаков препинания.\n'
             f'Верни СТРОГО JSON: {{"summary":"...","query":"..."}}',
-            'Ты — методист и учитель. Верни только валидный JSON.' + NO_LATEX, 900)
+            'Ты — методист. Верни только валидный JSON.' + NO_LATEX, 500)
         mm = re.search(r'\{[\s\S]*\}', r)
         summary, query = f"Тема: {text}", text
         if mm:
@@ -703,9 +518,9 @@ async def handle_state(event, uid, text):
         if not vk:
             vk = search_vk(text, 2)
 
-        lines = []
+        lines = [f"🎓 {summary}", ""]
         if rt:
-            lines.append("📺 Смотри уроки (RuTube):")
+            lines.append("📺 RuTube:")
             for i, v in enumerate(rt, 1):
                 lines.append(f"{i}. {v['title']}\n   {v['url']}")
         if vk:
@@ -713,9 +528,8 @@ async def handle_state(event, uid, text):
             for i, v in enumerate(vk, 1):
                 lines.append(f"{i}. {v['url']}")
         if not rt and not vk:
-            lines.append("😕 Не нашёл готовое видео по этой теме в VK/RuTube — ниже объяснение текстом.")
-        lines.append("")
-        lines.append(f"🎓 Подробное объяснение:\n{summary}")
+            lines.append("😕 Не нашёл готовое видео по этой теме в VK/RuTube.")
+            lines.append("Объяснение выше — по сути. Уточни тему (добавь класс) и попробуй ещё раз.")
         await reply(event, "\n".join(lines), keyboard=make_menu_keyboard())
         return True
 
@@ -749,12 +563,9 @@ async def handle_state(event, uid, text):
         except Exception:
             await reply(event, "Не смог составить план. Напиши ещё раз: класс, экзамен, цель.", keyboard=make_menu_keyboard())
             return True
-        plan.setdefault('goal', text)
-        plan['week'] = cur_week()
-        plan['done'] = []
         u['plan'] = plan
-        save_user_data(uid)
-        lines = [f"{s2.get('day','')}: {s2.get('subject','')} — {s2.get('topic','')}" for s2 in plan.get('schedule', [])]
+        save_user_data()
+        lines = [f"{s.get('day','')}: {s.get('subject','')} — {s.get('topic','')}" for s in plan.get('schedule', [])]
         await reply(event, f"🎯 Цель: {plan.get('goal','')}\n\n📅 План готов:\n" + "\n".join(lines),
                     keyboard=make_menu_keyboard())
         return True
@@ -771,48 +582,6 @@ async def handle_state(event, uid, text):
         return True
 
     return False
-
-# ===== УВЕДОМЛЕНИЯ =====
-async def scheduler():
-    sent_day = None
-    sent_week = None
-    while True:
-        try:
-            now = time.localtime()
-            today = time.strftime('%Y-%m-%d')
-            week = time.strftime('%G-W%V')
-            if now.tm_hour == 8 and now.tm_min < 5 and sent_day != today:
-                sent_day = today
-                day_name = WEEKDAYS[now.tm_wday]
-                for u in navigator_db.all_users():
-                    uid = u['user_id']
-                    try:
-                        st = navigator_db.get_state(uid)
-                        plan = st.get('plan') or {}
-                        item = next((x for x in plan.get('schedule', []) if x.get('day') == day_name), None)
-                        if item:
-                            await bot.send_message(chat_id=int(uid),
-                                text=f"☀️ Доброе утро! Сегодня по плану: {item.get('subject','')} — {item.get('topic','')}.\nНапиши «начать», и я помогу!")
-                    except Exception:
-                        pass
-            if now.tm_wday == 6 and now.tm_hour == 18 and sent_week != week:
-                sent_week = week
-                for u in navigator_db.all_users():
-                    uid = u['user_id']
-                    try:
-                        st = navigator_db.get_state(uid)
-                        prog = navigator_db.get_progress(uid)
-                        done = sum(1 for p in prog if p.get('correct'))
-                        grades = st.get('grades') or {}
-                        allg = [g for arr in grades.values() for g in arr]
-                        avg = sum(allg) / len(allg) if allg else 0
-                        await bot.send_message(chat_id=int(uid),
-                            text=f"📊 Недельный отчёт:\n• заданий решено верно: {done}\n• средний балл: {avg:.2f}\n\nТак держать! На следующей неделе продолжим 💪")
-                    except Exception:
-                        pass
-        except Exception as e:
-            logger.error(f"sched: {e}")
-        await asyncio.sleep(30)
 
 _cb_reg = None
 for _name in ('bot_callback', 'callback_created', 'message_callback'):
@@ -845,15 +614,13 @@ else:
 async def handle_message(event):
     user_id = get_uid(event)
     text = get_text(event)
-    low_txt = text.lower().strip()
     ensure(user_id)
 
     if text == '/start':
         await reply(event,
             "👋 Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
             "🔄 Наш чат ОБЩИЙ с мини-приложением.\n"
-            "📚 Пиши про оценки — сам запишу в дневник (понимаю сокращения: матан, физра, ин яз)\n"
-            "📚 /банк — банк заданий ФИПИ\n"
+            "📚 Пиши про оценки — сам запишу в дневник\n"
             "📜 /история — общий чат\n"
             "🗑 /очистить — очистить общий чат\n"
             "❓ /help — справка\n\n"
@@ -867,22 +634,16 @@ async def handle_message(event):
             "Команды:\n"
             "/start — приветствие и меню\n"
             "/help — эта справка\n"
-            "/банк — банк заданий ФИПИ\n"
             "/история — последние сообщения общего чата\n"
             "/очистить — очистить общий чат\n\n"
             "Разделы (словами или кнопками):\n"
             "✅ Тренажёр — одно задание строго по теме + объяснение\n"
-            "🎥 Видео — ссылки на уроки VK/RuTube + подробное объяснение\n"
+            "🎥 Видео — суть темы + прямые ссылки на уроки VK и RuTube\n"
             "💪 Мотивация — поддержка по твоему состоянию\n"
-            "📅 План — неделя подготовки; непройденные темы переносятся\n"
+            "📅 План — неделя подготовки под твою цель\n"
             "📚 Дневник — оценки, средний балл, анализ\n"
             "🏠 Меню — показать меню\n\n"
-            "Отметить тему: «пройдено <тема>».\n"
             "Совет: пиши тему ТОЧНО (с классом) — так ссылки и задания попадут в цель.")
-        return
-
-    if text in ('/банк', '/bank'):
-        await act_bank(event, user_id)
         return
 
     if text == '/история':
@@ -903,23 +664,7 @@ async def handle_message(event):
         await reply(event, "🗑 Общий чат очищен.")
         return
 
-    if low_txt.startswith('пройдено') or low_txt.startswith('я прошёл') or low_txt.startswith('я прошел'):
-        u2 = ensure(user_id)
-        p = u2.get('plan')
-        if p:
-            topic_name = text.split(' ', 1)[1].strip() if ' ' in text else ''
-            p.setdefault('done', [])
-            if topic_name and topic_name not in p['done']:
-                p['done'].append(topic_name)
-                save_user_data(user_id)
-                await reply(event, f"✅ Отметил как пройденное: {topic_name}")
-            else:
-                await reply(event, "Напиши: пройдено <название темы>")
-        else:
-            await reply(event, "Сначала составь план: напиши «план».")
-        return
-
-    if low_txt in ('разбери', 'анализ', 'разбери оценки'):
+    if text.lower().strip() in ('разбери', 'анализ', 'разбери оценки'):
         g = user_data[user_id].get('grades', {})
         if not g:
             await reply(event, "Сначала добавь оценки.")
@@ -933,14 +678,11 @@ async def handle_message(event):
         await ACTIONS[tcmd](event, user_id)
         return
 
-    if await handle_bank_state(event, user_id, text):
-        return
-
     if await handle_state(event, user_id, text):
         return
 
     grade_triggers = ['оценк', 'получил', 'получила', 'поставили', 'поставил', 'заработал', 'балл', 'отметк']
-    if any(t in low_txt for t in grade_triggers) and re.search(r'\b[1-5]\b', text):
+    if any(t in text.lower() for t in grade_triggers) and re.search(r'\b[1-5]\b', text):
         try:
             resp = ask_gigachat(
                 f'Ученик написал про оценки: «{text}». Определи ВСЕ предметы и оценки ТОЛЬКО из текста. '
@@ -949,12 +691,12 @@ async def handle_message(event):
             m = re.search(r'\[[\s\S]*\]', resp)
             if m:
                 for item in json.loads(m.group()):
-                    subj = expand_subject(item.get('subject'))
+                    subj = item.get('subject')
                     grades = [g for g in item.get('grades', []) if isinstance(g, int) and 1 <= g <= 5]
                     if subj and grades:
                         user_data[user_id]['grades'].setdefault(subj, []).extend(grades)
                         await reply(event, f"📚 Записал в дневник: {subj} → {', '.join(map(str, grades))}")
-                save_user_data(user_id)
+                save_user_data()
         except Exception as e:
             logger.error(f"grades parse: {e}")
 
@@ -969,14 +711,10 @@ async def handle_message(event):
     await delete_msg(thinking)
     await reply(event, response, keyboard=make_menu_keyboard())
 
-async def run_all():
-    asyncio.create_task(scheduler())
-    await dp.start_polling(bot)
-
 if __name__ == '__main__':
     logger.info("Bot starting...")
     try:
-        asyncio.run(run_all())
+        asyncio.run(dp.start_polling(bot))
     except AttributeError:
         try:
             dp.run(bot)
