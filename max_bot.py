@@ -642,25 +642,33 @@ async def handle_message(event):
     text = get_text(event)
     ensure(user_id)
 
-    # ===== ФОТО: ОБРАБОТКА ЧЕРЕЗ /vision =====
+    # ===== ФОТО: ОТПРАВКА В BASE64 (как ждет прокси /vision) =====
     photo_url = get_photo_url(event)
     
     if photo_url:
         logger.info(f"Найдено фото: {photo_url}")
         try:
+            # 1. Скачиваем фото
             img_data = requests.get(photo_url, timeout=15, verify=False).content
+            
+            # 2. Кодируем в base64 (именно этого ждет прокси!)
+            image_b64 = base64.b64encode(img_data).decode('utf-8')
+            
+            # 3. Отправляем JSON-запрос на /vision
             r = requests.post(
                 f"{PROXY_BASE}/vision",
-                files={'file': ('photo.png', img_data, 'image/png')},
+                json={"image": image_b64},
                 timeout=30,
                 verify=False
             )
+            
             if r.ok:
                 ocr_text = ''
                 try:
                     j = r.json()
                     if isinstance(j, dict):
-                        for k in ('text', 'result', 'ocr', 'data', 'reply'):
+                        # Прокси может вернуть результат в разных полях, ищем первое непустое
+                        for k in ('text', 'result', 'ocr', 'data', 'reply', 'solution'):
                             v = j.get(k)
                             if isinstance(v, str) and v.strip():
                                 ocr_text = v.strip()
