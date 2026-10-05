@@ -610,11 +610,96 @@ if _cb_reg:
 else:
     logger.warning("callback registration not found in this maxapi version")
 
+
+# ===== ФОТО: OCR + решение (как в мини-аппе) =====
+def extract_photo_url(event):
+    msg = getattr(event, 'message', None)
+    if msg is None:
+        return None
+    atts = getattr(msg, 'attachments', None) or []
+    urls = []
+    def push(u):
+        if isinstance(u, str) and u.startswith('http'):
+            urls.append(u)
+    for att in atts:
+        if isinstance(att, dict):
+            for k in ('url', 'photo_url', 'link', 'file_url'):
+                push(att.get(k))
+            continue
+        for attr in ('url', 'link'):
+            push(getattr(att, attr, None))
+        payload = getattr(att, 'payload', None)
+        if isinstance(payload, dict):
+            for k in ('url', 'photo_url', 'link'):
+                push(payload.get(k))
+        for sub in ('photo', 'image', 'media', 'file'):
+            obj = getattr(att, sub, None)
+            if obj is not None:
+                push(getattr(obj, 'url', None))
+                if isinstance(obj, dict):
+                    for k in ('url', 'photo_url'):
+                        push(obj.get(k))
+    return urls[0] if urls else None
+
+def ocr_photo(url):
+    try:
+        img = requests.get(url, timeout=30, verify=False)
+        if not img.ok:
+            return ''
+        data = img.content
+    except Exception as e:
+        logger.error(f"photo dl: {e}")
+        return ''
+    for path in ('/ocr', '/vision'):
+        for base in ('http://localhost:8000', PROXY_BASE):
+            target = base + path
+            for kind in ('file', 'json'):
+                try:
+                    if kind == 'file':
+                        r = requests.post(target, files={'file': ('photo.png', data, 'image/png')}, timeout=45, verify=False)
+                    else:
+                        r = requests.post(target, json={'url': url}, timeout=45, verify=False)
+                    if r.ok:
+                        txt = ''
+                        try:
+                            j = r.json()
+                            if isinstance(j, dict):
+                                for k in ('text', 'result', 'ocr', 'data', 'reply'):
+                                    v = j.get(k)
+                                    if isinstance(v, str) and v.strip():
+                                        txt = v.strip()
+                                        break
+                            elif isinstance(j, str):
+                                txt = j.strip()
+                        except Exception:
+                            txt = r.text.strip()
+                        if txt:
+                            return txt
+                except Exception as e:
+                    logger.error(f"ocr {target} {kind}: {e}")
+    return ''
+
 @dp.message_created()
 async def handle_message(event):
     user_id = get_uid(event)
     text = get_text(event)
     ensure(user_id)
+
+    photo_url = extract_photo_url(event)
+    if photo_url:
+        ocr_text = ocr_photo(photo_url)
+        if not ocr_text:
+            await reply(event, "❌ Не смог распознать текст на фото. Напиши задачу текстом — решу.")
+            return
+        prompt = (f'Текст, распознанный с фото ученика:\n{ocr_text}\n\n'
+                  f'Реши задачу или ответь на вопрос: покажи короткий ход решения и итоговый ответ простым текстом.')
+        history = load_chat_from_server()
+        history.append({'role': 'user', 'content': f'[фото] {ocr_text[:200]}', 'timestamp': now_ms(), 'source': 'max'})
+        response = ask_gigachat(prompt, SYS_CHAT, 900, history)
+        history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
+        save_chat_to_server(history)
+        await reply(event, f"📝 Распознал с фото:\n{ocr_text}\n\n✅ Решение:\n{response}", keyboard=make_menu_keyboard())
+        return
 
     if text == '/start':
         await reply(event,
