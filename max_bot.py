@@ -159,7 +159,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
             return latex_to_plain(r.json()['choices'][0]['message']['content'])
     except Exception as e:
         logger.error(f"giga direct: {e}")
-    return " Ошибка при обращении к GigaChat"
+    return "❌ Ошибка при обращении к GigaChat"
 
 # ===== ПОИСК ВИДЕО: ТОЛЬКО VK + RuTube =====
 def _words(query):
@@ -394,7 +394,7 @@ async def act_plan(event, uid):
     else:
         u['state'] = {'mode': 'plan_wizard'}
         await reply(event,
-            " План\n\nНапиши одной строкой: класс, экзамен, цель\n"
+            "📅 План\n\nНапиши одной строкой: класс, экзамен, цель\n"
             "Примеры:\n• 9, ОГЭ математика, сдать на 5\n• 11, ЕГЭ русский, 90+\n• 7, подтянуть физику",
             keyboard=make_menu_keyboard())
 
@@ -402,7 +402,7 @@ async def act_grades(event, uid):
     ensure(uid)['state'] = None
     g = user_data[uid].get('grades', {})
     if not g:
-        await reply(event, " Дневник пуст.\n\nНапиши про оценки словами — сам запишу:\n• «математика 5 4»\n• «получил 3 по физике»",
+        await reply(event, "📚 Дневник пуст.\n\nНапиши про оценки словами — сам запишу:\n• «математика 5 4»\n• «получил 3 по физике»",
                     keyboard=make_menu_keyboard())
         return
     out, allg = [], []
@@ -428,7 +428,7 @@ ACTIONS = {
     'motivation': act_motivation, 'plan': act_plan, 'grades': act_grades,
 }
 TEXT_ALIASES = {
-    'menu': ['меню', ' меню'],
+    'menu': ['меню', '🏠 меню'],
     'quiz': ['тренажёр', 'тренажер', 'тест', '✅ тренажёр'],
     'video': ['видео', '🎥 видео'],
     'motivation': ['мотивация', 'поддержи', '💪 мотивация'],
@@ -489,7 +489,7 @@ async def handle_state(event, uid, text):
         if ok:
             await reply(event, f"✅ Верно! Отлично!{expl_txt}", keyboard=make_menu_keyboard())
         else:
-            await reply(event, f" Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
+            await reply(event, f"❌ Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
         return True
 
     if mode == 'video_topic':
@@ -524,7 +524,7 @@ async def handle_state(event, uid, text):
             for i, v in enumerate(rt, 1):
                 lines.append(f"{i}. {v['title']}\n   {v['url']}")
         if vk:
-            lines.append(" VK:")
+            lines.append("🎬 VK:")
             for i, v in enumerate(vk, 1):
                 lines.append(f"{i}. {v['url']}")
         if not rt and not vk:
@@ -566,7 +566,7 @@ async def handle_state(event, uid, text):
         u['plan'] = plan
         save_user_data()
         lines = [f"{s.get('day','')}: {s.get('subject','')} — {s.get('topic','')}" for s in plan.get('schedule', [])]
-        await reply(event, f" Цель: {plan.get('goal','')}\n\n📅 План готов:\n" + "\n".join(lines),
+        await reply(event, f"🎯 Цель: {plan.get('goal','')}\n\n📅 План готов:\n" + "\n".join(lines),
                     keyboard=make_menu_keyboard())
         return True
 
@@ -658,9 +658,9 @@ async def handle_message(event):
         try:
             # Скачиваем фото
             img_data = requests.get(photo_url, timeout=15, verify=False).content
-            # Отправляем на OCR в прокси
+            # Отправляем на распознавание в прокси (используем /vision)
             r = requests.post(
-                f"{PROXY_BASE}/ocr",
+                f"{PROXY_BASE}/vision",
                 files={'file': ('photo.png', img_data, 'image/png')},
                 timeout=30,
                 verify=False
@@ -694,12 +694,12 @@ async def handle_message(event):
                     )
                     history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
                     save_chat_to_server(history)
-                    await reply(event, f" Распознал:\n{ocr_text}\n\n✅ Решение:\n{response}", keyboard=make_menu_keyboard())
+                    await reply(event, f"📝 Распознал:\n{ocr_text}\n\n✅ Решение:\n{response}", keyboard=make_menu_keyboard())
                     return
         except Exception as e:
-            logger.error(f"photo OCR error: {e}")
+            logger.error(f"photo vision error: {e}")
         
-        # Если OCR не удался — продолжаем с обычным текстом
+        # Если распознавание не удалось — продолжаем с обычным текстом
         if not text:
             await reply(event, "❌ Не смог распознать текст на фото. Напиши задачу текстом — решу.")
             return
@@ -730,7 +730,7 @@ async def handle_message(event):
             "🎥 Видео — суть темы + прямые ссылки на уроки VK и RuTube\n"
             "💪 Мотивация — поддержка по твоему состоянию\n"
             "📅 План — неделя подготовки под твою цель\n"
-            " Дневник — оценки, средний балл, анализ\n"
+            "📚 Дневник — оценки, средний балл, анализ\n"
             "🏠 Меню — показать меню\n\n"
             "Совет: пиши тему ТОЧНО (с классом) — так ссылки и задания попадут в цель.")
         return
@@ -750,7 +750,7 @@ async def handle_message(event):
 
     if text == '/очистить':
         save_chat_to_server([])
-        await reply(event, " Общий чат очищен.")
+        await reply(event, "🗑 Общий чат очищен.")
         return
 
     if text.lower().strip() in ('разбери', 'анализ', 'разбери оценки'):
