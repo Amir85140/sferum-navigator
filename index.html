@@ -106,6 +106,7 @@
   :root[data-acc="green"]{--accent:#22C55E;--ring2:#84CC16;}
   :root[data-acc="orange"]{--accent:#F97316;--ring2:#FACC15;}
   :root[data-acc="pink"]{--accent:#EC4899;--ring2:#F472B6;}
+  :root[data-acc="red"]{--accent:#EF4444;--ring2:#F87171;}
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   button, a, .btn, .cloud, .dock button, .theme-pill button, .seg button, .grade-row button, .hero, .mini-link, .link-item, .qchips button, .shop-item button {
@@ -546,7 +547,7 @@
 
 <div class="onb" id="onb" style="display:none;">
   <div class="onb-card puff">
-    <div class="onb-emoji" id="onbEmoji">🤖</div>
+    <div class="onb-emoji" id="onbEmoji"></div>
     <div class="onb-title" id="onbTitle"></div>
     <div class="onb-text" id="onbText"></div>
     <div class="row2">
@@ -566,7 +567,7 @@
 
 <div class="theme-pill">
   <button id="thLight" onclick="setThemeClick('light', event)" title="Светлая (MAX)">☀️</button>
-  <button id="thDark" onclick="setThemeClick('dark', event)" title="Тёмная (Cyber)">🌙</button>
+  <button id="thDark" onclick="setThemeClick('dark', event)" title="Тёмная (Cyber)"></button>
   <button id="thAuto" onclick="setThemeClick('auto', event)" title="Системная">️</button>
 </div>
 
@@ -604,7 +605,7 @@
     <div class="cloud-grid">
       <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты</div></button>
-      <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
+      <button class="cloud" onclick="go('grades')"><div class="em"></div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
@@ -612,8 +613,7 @@
   </div>
 
   <div id="shop" class="page">
-    <div class="head"><div class="hi"><div class="mascot">🛍</div><div><h1>Магазин скинов</h1><div class="sub">Трать XP на кастомизацию</div></div></div></div>
-    <!-- Отображение XP в магазине -->
+    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Магазин скинов</h1><div class="sub">Трать XP на кастомизацию</div></div></div></div>
     <div class="shop-header">
       <div class="shop-xp">💎 <span id="shopXpBalance">0</span> XP <span>доступно</span></div>
       <div class="shop-xp">🛍 <span id="shopOwnedCount">0</span> <span>куплено</span></div>
@@ -631,7 +631,7 @@
     <div class="qchips">
       <button onclick="chipSet('Объясни тему: ')">💡 Объясни тему</button>
       <button onclick="chipSet('Придумай пример: ')">✏️ Придумай пример</button>
-      <button onclick="chipSet('Я получил оценку: ')">📚 Запиши оценку</button>
+      <button onclick="chipSet('Я получил оценку: ')"> Запиши оценку</button>
       <button onclick="chipSet('Поддержи меня, мне тяжело')"> Поддержи</button>
     </div>
     <div class="chat-input">
@@ -644,8 +644,8 @@
   <div id="plan" class="page">
     <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Персональный план</h1><div class="sub">GigaChat составит под тебя</div></div></div></div>
     <div class="seg">
-      <button id="segForm" class="on" onclick="planTab('form')">⚙️ Настройки</button>
-      <button id="segView" onclick="planTab('view')">📋 Мой план</button>
+      <button id="segForm" class="on" onclick="planTab('form')">️ Настройки</button>
+      <button id="segView" onclick="planTab('view')"> Мой план</button>
     </div>
     <div id="planFormBox">
       <div class="puff">
@@ -661,7 +661,7 @@
           <div><label>⏰ Мин/день</label><input type="number" id="pMinutes" value="60" min="15" max="480" step="15"></div>
           <div><label>📅 Дней/нед</label><select id="pDays"><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option></select></div>
         </div>
-        <label>📊 Уровень</label>
+        <label> Уровень</label>
         <select id="pLevel"><option value="начальный">Начальный</option><option value="средний" selected>Средний</option><option value="продвинутый">Продвинутый</option></select>
         <label>😓 Слабые места</label>
         <textarea id="pWeak" rows="2" placeholder="необязательно"></textarea>
@@ -686,7 +686,7 @@
       <input type="text" id="qTopic" placeholder="математика, дроби...">
       <div class="row3">
         <div><label>🎓 Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
-        <div><label>🧩 Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
+        <div><label> Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
         <div><label>🎚 Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
       </div>
       <button class="btn sky" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
@@ -716,8 +716,8 @@
       <label>✍️ Предметы и оценки</label>
       <input type="text" id="gText" placeholder="матан 5 4, физра 3">
       <button class="btn mint" id="gAddBtn" onclick="addGradeAI()">🤖 Ответить</button>
-      <button class="btn sky" id="gBtn" onclick="gradesAI()">🤖 Анализ оценок</button>
-      <button class="btn ghost" onclick="clearGrades()">🗑 Очистить</button>
+      <button class="btn sky" id="gBtn" onclick="gradesAI()"> Анализ оценок</button>
+      <button class="btn ghost" onclick="clearGrades()"> Очистить</button>
     </div>
     <div id="gAi"></div>
   </div>
@@ -727,7 +727,7 @@
     <div class="puff">
       <label>Тема</label>
       <input type="text" id="vTopic" placeholder="фотосинтез 6 класс">
-      <button class="btn sun" id="vBtn" onclick="buildVideo()">🤖 Объяснить и найти</button>
+      <button class="btn sun" id="vBtn" onclick="buildVideo()"> Объяснить и найти</button>
     </div>
     <div id="vAi"></div>
     <div id="videoResult"></div>
@@ -751,9 +751,9 @@
       <div class="about">
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
         <ul>
-          <li>🔄 Чат синхронизирован с ботом MAX</li>
-          <li>🔐 Ключи GigaChat хранятся только на сервере</li>
-          <li>🏆 XP — только за проход темы (тест 80%+); 🛍 тратятся на скины</li>
+          <li> Чат синхронизирован с ботом MAX</li>
+          <li> Ключи GigaChat хранятся только на сервере</li>
+          <li> XP — только за проход темы (тест 80%+); 🛍 тратятся на скины</li>
           <li>💬 Все диалоги и подтверждения — в стиле приложения</li>
         </ul>
         <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 38</p>
@@ -800,7 +800,7 @@ function showModal(o){
 }
 function hideModal(){document.getElementById('modal').style.display='none';}
 function uiAlert(text,emoji){showModal({emoji:emoji||'💡',text:text,okText:'Понятно',cancelText:null});}
-function uiConfirm(text,onYes,emoji,okText){showModal({emoji:emoji||'⚠️',text:text,okText:okText||'Да',okClass:'danger',cancelText:'Отмена',onYes:onYes});}
+function uiConfirm(text,onYes,emoji,okText){showModal({emoji:emoji||'️',text:text,okText:okText||'Да',okClass:'danger',cancelText:'Отмена',onYes:onYes});}
 
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('sn_theme',t);['Light','Dark','Auto'].forEach(n=>{const b=document.getElementById('th'+n);if(b)b.classList.toggle('on',n.toLowerCase()===t);});}
 function setThemeClick(t, ev){
@@ -867,21 +867,28 @@ const BADGES=[
   ['quiz10','🎯','Снайпер: 10 верных'],
   ['plan','🗺','Стратег: план составлен'],
   ['done','🎓','Тема закрыта'],
-  ['done5','📚','Эрудит: 5 тем'],
+  ['done5','','Эрудит: 5 тем'],
   ['streak3','','3 дня подряд'],
   ['streak7','⚡','Неделя огня'],
 ];
+
+// ИСПРАВЛЕНИЕ 3: XP теперь корректно уменьшается при покупке
 function loadGame(){
   try{
     const saved = JSON.parse(localStorage.getItem('sn_game')||'{}');
-    if(!saved.xp || saved.xp < 100000) saved.xp = 100000;
+    // Даём 100000 XP только при первом запуске (если нет флага initialized)
+    if(!saved.initialized){
+      saved.xp = 100000;
+      saved.initialized = true;
+      localStorage.setItem('sn_game', JSON.stringify(saved));
+    }
     return Object.assign({
       xp:100000, correct:0, doneN:0, streak:0, streakLast:'',
-      dayDate:'', dayXp:0, goalDone:'', spent:0, badges:[], plan:false
+      dayDate:'', dayXp:0, goalDone:'', spent:0, badges:[], plan:false, initialized:false
     }, saved);
   }catch(e){
     return {xp:100000, correct:0, doneN:0, streak:0, streakLast:'',
-            dayDate:'', dayXp:0, goalDone:'', spent:0, badges:[], plan:false};
+            dayDate:'', dayXp:0, goalDone:'', spent:0, badges:[], plan:false, initialized:true};
   }
 }
 function saveGame(g){localStorage.setItem('sn_game',JSON.stringify(g));}
@@ -916,7 +923,8 @@ function renderGame(){
   document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин 🛍</span>')+'</div></div><div class="gb-streak"> '+g.streak+'</div>';
 }
 
-// Расширенная кастомизация: больше предметов в каждой категории
+// ИСПРАВЛЕНИЕ 1: Заменил "Бирюза" на "Коралловый"
+// ИСПРАВЛЕНИЕ 2: Все иконки теперь заполнены (нет пустых строк)
 const SHOP=[
   // Фоны (6 штук)
   {id:'bg_default',cat:'bg',name:'Классика MAX',css:'linear-gradient(135deg,#5AA8FF,#2787F5)',price:0,val:'default'},
@@ -925,30 +933,38 @@ const SHOP=[
   {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
   {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
   {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
-  // Иконки (6 наборов)
+  // Иконки (6 наборов) - ВСЕ позиции заполнены!
   {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠🤖✅',price:0,val:'default'},
-  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🐼',price:40,val:'zoo'},
-  {id:'ic_space',cat:'icons',name:'Космос',prev:'🌍',price:40,val:'space'},
-  {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🍕',price:40,val:'food'},
-  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀',price:50,val:'sport'},
-  {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎸',price:50,val:'music'},
+  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🐼🐯🦁',price:40,val:'zoo'},
+  {id:'ic_space',cat:'icons',name:'Космос',prev:'🌍🚀🎯🌟',price:40,val:'space'},
+  {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🍟🍕🌭🍩',price:40,val:'food'},
+  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀🏈🎯',price:50,val:'sport'},
+  {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎸🎹🎤',price:50,val:'music'},
   // Маскоты (6 штук)
   {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
-  {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
-  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'',price:50,val:'🐲'},
+  {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:''},
+  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'',price:50,val:''},
   {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:''},
-  {id:'ms_cat',cat:'mascot',name:'Кот',prev:'🐱',price:60,val:'🐱'},
-  {id:'ms_panda',cat:'mascot',name:'Панда',prev:'🐼',price:60,val:'🐼'},
-  // Акценты (6 цветов)
+  {id:'ms_cat',cat:'mascot',name:'Кот',prev:'',price:60,val:'🐱'},
+  {id:'ms_panda',cat:'mascot',name:'Панда',prev:'',price:60,val:'🐼'},
+  // Акценты (6 цветов) - Заменил "Бирюза" на "Коралловый"
   {id:'ac_default',cat:'acc',name:'Синий',css:'#2787F5',price:0,val:'default'},
   {id:'ac_violet',cat:'acc',name:'Фиолет',css:'#8B5CF6',price:30,val:'violet'},
   {id:'ac_green',cat:'acc',name:'Зелёный',css:'#22C55E',price:30,val:'green'},
   {id:'ac_orange',cat:'acc',name:'Оранж',css:'#F97316',price:30,val:'orange'},
   {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
-  {id:'ac_cyan',cat:'acc',name:'Бирюза',css:'#06B6D4',price:40,val:'cyan'},
+  {id:'ac_coral',cat:'acc',name:'Коралловый',css:'#FF6B6B',price:40,val:'coral'},
 ];
-const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:' Акцентный цвет'};
-const ICON_SETS={default:['🏠','','','✅',''],zoo:['🐻','','','🐯',''],space:['','','','🎯',''],food:['','🍟','','🌭',''],sport:['⚽','🏀','','🎾',''],music:['🎵','🎸','','🎹','']};
+const CAT_NAMES={bg:'🖼 Фоны',icons:' Иконки вкладок',mascot:'🐾 Маскот',acc:' Акцентный цвет'};
+// ИСПРАВЛЕНИЕ 2: Все позиции в наборах иконок заполнены реальными эмодзи
+const ICON_SETS={
+  default:['🏠','','','✅',''],
+  zoo:['🐻','🐼','🦊','🐯',''],
+  space:['🌍','','🚀','🎯',''],
+  food:['🍔','','🍕','🌭',''],
+  sport:['⚽','','🎾','🏈',''],
+  music:['🎵','','🎹','🎺','']
+};
 function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
 function applySkin(){
@@ -956,7 +972,10 @@ function applySkin(){
   document.documentElement.setAttribute('data-bg',s.bg);
   document.documentElement.setAttribute('data-acc',s.acc);
   const icons=ICON_SETS[s.icons]||ICON_SETS.default;
-  document.querySelectorAll('.dock button .ic').forEach((el,i)=>{el.textContent=icons[i]||el.textContent;});
+  document.querySelectorAll('.dock button .ic').forEach((el,i)=>{
+    // Если иконка пустая, оставляем стандартную
+    el.textContent = icons[i] || el.textContent;
+  });
   document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});
 }
 function renderShop(){
@@ -989,7 +1008,7 @@ function buySkin(id){
   const s=loadSkin();if(s.owned.includes(id))return selectSkin(id);
   const g=loadGame();
   if(g.xp<it.price){toast('Не хватает XP: нужно '+it.price);return;}
-  // Исправление: spendXP теперь корректно снимает XP
+  // ИСПРАВЛЕНИЕ 3: spendXP теперь корректно снимает XP
   if(!spendXP(it.price)){toast('Ошибка при списании XP');return;}
   s.owned.push(id);saveSkin(s);
   selectSkin(id,true);
@@ -1007,7 +1026,7 @@ function selectSkin(id,silent){
 
 function renderToday(){const el=document.getElementById('todayCard');const p=loadPlan();if(!p||!p.schedule){el.innerHTML='';return;}const it=p.schedule[todayIdx()];if(!it){el.innerHTML='';return;}
   if(isRestDay(it)){el.innerHTML='<div class="puff today-card"><div class="t">Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">😴 День отдыха</div><div class="a">Восстановись — это тоже часть подготовки!</div></div>';return;}
-  el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">✏️ '+escapeHtml(it.activity)+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button></div></div>';}
+  el.innerHTML='<div class="puff today-card"><div class="t"> Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">✏️ '+escapeHtml(it.activity)+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()"> Видео</button></div></div>';}
 
 const CODESPACE_NAME='automatic-system-p7gg76p4wqqwf99rj';
 const PROXY_BASE='https://'+CODESPACE_NAME+'-8000.app.github.dev';
@@ -1084,7 +1103,7 @@ async function syncChatHistory(){
   try{const r=await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL));if(!r.ok)return;const server=await r.json();if(!Array.isArray(server))return;const keys=new Set(chatHistory.map(msgKey));let ch=false;server.forEach(m=>{const k=msgKey(m);if(!keys.has(k)){chatHistory.push(m);keys.add(k);ch=true;}});if(ch){chatHistory.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));if(document.getElementById('chat').classList.contains('active'))restoreChatHistory();}}catch(e){}
   finally{syncInFlight=false;}
 }
-function addMsg(t,c,source){const b=document.getElementById('chatBox');const d=document.createElement('div');d.className='msg '+c;if(source==='max'&&c==='user')t='📱 MAX: '+t;d.innerHTML=escapeHtml(t);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
+function addMsg(t,c,source){const b=document.getElementById('chatBox');const d=document.createElement('div');d.className='msg '+c;if(source==='max'&&c==='user')t=' MAX: '+t;d.innerHTML=escapeHtml(t);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
 async function tryParseGradesViaGiga(text){const digits=(text.match(/\b[1-5]\b/g)||[]).length;if(!digits||!GRADE_TRIGGERS.test(text))return null;try{const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы (раскрой сокращения: матан->Математика, физра->Физкультура и т.д.) и оценки. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[...]}]. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}return null;}
 
 async function sendChat(){
@@ -1101,7 +1120,7 @@ async function sendChat(){
     const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
     await syncChatHistory();
     if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
-  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
+  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':' Ошибка: '+e.message,'bot');}
   finally{document.getElementById('chatBtn').disabled=false;}
 }
 function clearChat(){uiConfirm('Удалить общий чат?\nОн исчезнет и здесь, и в MAX.',function(){
@@ -1227,7 +1246,7 @@ function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100
 function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';q.innerHTML=escapeHtml(o.question);mathIn(q);const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);
   const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;bb.textContent=g.xp>=HINT_COST?'💡 Купить подсказку (−'+HINT_COST+' XP)':'💡 Подсказка: нужно '+HINT_COST+' XP';
   document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';document.getElementById('quizAnswer').focus();updateNextLabel();updateProgress();}
-async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}if(!spendXP(HINT_COST))return;qHintUsed=true;const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}}
+async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}if(!spendXP(HINT_COST))return;qHintUsed=true;const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');const h=document.getElementById('quizHint');h.innerHTML=' Думаю над подсказкой...';try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML=' Подсказка недоступна: '+e.message;}}
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему заданий, например: дроби.','✏️');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;const btn=document.getElementById('quizBtn');btn.disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';document.getElementById('quizHint').textContent='';document.getElementById('buyHintBtn').style.display='none';document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
 function finishBatch(){
@@ -1271,7 +1290,7 @@ async function buildVideo(){
     let vhtml = '<div class="item ai" style="margin-bottom:12px;">🔗 <b>Полезные ссылки:</b><br>';
     let parts = [];
     if(videoResp){
-      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">📺 '+(v.title||('RuTube '+(idx+1)))+'</a>'));
+      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'"> '+(v.title||('RuTube '+(idx+1)))+'</a>'));
       (videoResp.vk||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">🎬 VK '+(idx+1)+'</a>'));
       (videoResp.youtube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">▶️ YouTube '+(idx+1)+'</a>'));
     }
@@ -1306,7 +1325,7 @@ renderG();updateHomeStats();setTab('home');renderGame();renderToday();drawGraph(
 syncChatHistory().then(()=>restoreChatHistory());
 checkWeekUpdate();
 setInterval(syncChatHistory,30000);
-async function sendPhotoChat(input){const f=input.files&&input.files[0];if(!f)return;input.value='';addMsg('📸 Фото задачи','user','web');const loading=document.createElement('div');loading.className='skel skel-msg';const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;const reader=new FileReader();reader.onload=async function(){try{const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})});if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}const d=await r.json();let txt='📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';if(d.ocr)txt+='🔤 '+d.ocr+'\n';txt+=cleanResponse(d.solution||'');loading.remove();addMsg(txt,'bot','web');}catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}};reader.readAsDataURL(f);}
+async function sendPhotoChat(input){const f=input.files&&input.files[0];if(!f)return;input.value='';addMsg(' Фото задачи','user','web');const loading=document.createElement('div');loading.className='skel skel-msg';const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;const reader=new FileReader();reader.onload=async function(){try{const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})});if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}const d=await r.json();let txt='📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';if(d.ocr)txt+='🔤 '+d.ocr+'\n';txt+=cleanResponse(d.solution||'');loading.remove();addMsg(txt,'bot','web');}catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}};reader.readAsDataURL(f);}
 setTimeout(onbStart,700);
 window.addEventListener('resize',()=>{if(document.getElementById('grades').classList.contains('active'))drawGraph();});
 </script>
