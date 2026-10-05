@@ -159,7 +159,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
             return latex_to_plain(r.json()['choices'][0]['message']['content'])
     except Exception as e:
         logger.error(f"giga direct: {e}")
-    return "❌ Ошибка при обращении к GigaChat"
+    return " Ошибка при обращении к GigaChat"
 
 # ===== ПОИСК ВИДЕО: ТОЛЬКО VK + RuTube =====
 def _words(query):
@@ -394,7 +394,7 @@ async def act_plan(event, uid):
     else:
         u['state'] = {'mode': 'plan_wizard'}
         await reply(event,
-            "📅 План\n\nНапиши одной строкой: класс, экзамен, цель\n"
+            " План\n\nНапиши одной строкой: класс, экзамен, цель\n"
             "Примеры:\n• 9, ОГЭ математика, сдать на 5\n• 11, ЕГЭ русский, 90+\n• 7, подтянуть физику",
             keyboard=make_menu_keyboard())
 
@@ -402,7 +402,7 @@ async def act_grades(event, uid):
     ensure(uid)['state'] = None
     g = user_data[uid].get('grades', {})
     if not g:
-        await reply(event, "📚 Дневник пуст.\n\nНапиши про оценки словами — сам запишу:\n• «математика 5 4»\n• «получил 3 по физике»",
+        await reply(event, " Дневник пуст.\n\nНапиши про оценки словами — сам запишу:\n• «математика 5 4»\n• «получил 3 по физике»",
                     keyboard=make_menu_keyboard())
         return
     out, allg = [], []
@@ -428,7 +428,7 @@ ACTIONS = {
     'motivation': act_motivation, 'plan': act_plan, 'grades': act_grades,
 }
 TEXT_ALIASES = {
-    'menu': ['меню', '🏠 меню'],
+    'menu': ['меню', ' меню'],
     'quiz': ['тренажёр', 'тренажер', 'тест', '✅ тренажёр'],
     'video': ['видео', '🎥 видео'],
     'motivation': ['мотивация', 'поддержи', '💪 мотивация'],
@@ -489,7 +489,7 @@ async def handle_state(event, uid, text):
         if ok:
             await reply(event, f"✅ Верно! Отлично!{expl_txt}", keyboard=make_menu_keyboard())
         else:
-            await reply(event, f"❌ Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
+            await reply(event, f" Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
         return True
 
     if mode == 'video_topic':
@@ -524,7 +524,7 @@ async def handle_state(event, uid, text):
             for i, v in enumerate(rt, 1):
                 lines.append(f"{i}. {v['title']}\n   {v['url']}")
         if vk:
-            lines.append("🎬 VK:")
+            lines.append(" VK:")
             for i, v in enumerate(vk, 1):
                 lines.append(f"{i}. {v['url']}")
         if not rt and not vk:
@@ -566,7 +566,7 @@ async def handle_state(event, uid, text):
         u['plan'] = plan
         save_user_data()
         lines = [f"{s.get('day','')}: {s.get('subject','')} — {s.get('topic','')}" for s in plan.get('schedule', [])]
-        await reply(event, f"🎯 Цель: {plan.get('goal','')}\n\n📅 План готов:\n" + "\n".join(lines),
+        await reply(event, f" Цель: {plan.get('goal','')}\n\n📅 План готов:\n" + "\n".join(lines),
                     keyboard=make_menu_keyboard())
         return True
 
@@ -610,97 +610,101 @@ if _cb_reg:
 else:
     logger.warning("callback registration not found in this maxapi version")
 
-
-# ===== ФОТО: OCR + решение (как в мини-аппе) =====
-def extract_photo_url(event):
-    msg = getattr(event, 'message', None)
-    if msg is None:
-        return None
-    atts = getattr(msg, 'attachments', None) or []
-    urls = []
-    def push(u):
-        if isinstance(u, str) and u.startswith('http'):
-            urls.append(u)
-    for att in atts:
-        if isinstance(att, dict):
-            for k in ('url', 'photo_url', 'link', 'file_url'):
-                push(att.get(k))
-            continue
-        for attr in ('url', 'link'):
-            push(getattr(att, attr, None))
-        payload = getattr(att, 'payload', None)
-        if isinstance(payload, dict):
-            for k in ('url', 'photo_url', 'link'):
-                push(payload.get(k))
-        for sub in ('photo', 'image', 'media', 'file'):
-            obj = getattr(att, sub, None)
-            if obj is not None:
-                push(getattr(obj, 'url', None))
-                if isinstance(obj, dict):
-                    for k in ('url', 'photo_url'):
-                        push(obj.get(k))
-    return urls[0] if urls else None
-
-def ocr_photo(url):
-    try:
-        img = requests.get(url, timeout=30, verify=False)
-        if not img.ok:
-            return ''
-        data = img.content
-    except Exception as e:
-        logger.error(f"photo dl: {e}")
-        return ''
-    for path in ('/ocr', '/vision'):
-        for base in ('http://localhost:8000', PROXY_BASE):
-            target = base + path
-            for kind in ('file', 'json'):
-                try:
-                    if kind == 'file':
-                        r = requests.post(target, files={'file': ('photo.png', data, 'image/png')}, timeout=45, verify=False)
-                    else:
-                        r = requests.post(target, json={'url': url}, timeout=45, verify=False)
-                    if r.ok:
-                        txt = ''
-                        try:
-                            j = r.json()
-                            if isinstance(j, dict):
-                                for k in ('text', 'result', 'ocr', 'data', 'reply'):
-                                    v = j.get(k)
-                                    if isinstance(v, str) and v.strip():
-                                        txt = v.strip()
-                                        break
-                            elif isinstance(j, str):
-                                txt = j.strip()
-                        except Exception:
-                            txt = r.text.strip()
-                        if txt:
-                            return txt
-                except Exception as e:
-                    logger.error(f"ocr {target} {kind}: {e}")
-    return ''
-
 @dp.message_created()
 async def handle_message(event):
     user_id = get_uid(event)
     text = get_text(event)
     ensure(user_id)
 
-    photo_url = extract_photo_url(event)
+    # ===== ФОТО: обрабатываем всегда (даже если есть текст-подпись) =====
+    photo_url = None
+    msg = getattr(event, 'message', None)
+    if msg:
+        atts = getattr(msg, 'attachments', None) or []
+        for att in atts:
+            try:
+                # Пробуем разные структуры вложений
+                if isinstance(att, dict):
+                    if att.get('type') == 'photo':
+                        sizes = att.get('photo', {}).get('sizes', [])
+                        if sizes:
+                            photo_url = sizes[-1].get('url')
+                    # Прямая ссылка на файл
+                    for k in ('url', 'photo_url', 'link', 'file_url'):
+                        if att.get(k) and str(att.get(k)).startswith('http'):
+                            photo_url = att.get(k)
+                            break
+                else:
+                    # Объект вложения
+                    att_type = getattr(att, 'type', '')
+                    if att_type == 'photo':
+                        photo_obj = getattr(att, 'photo', None)
+                        if photo_obj:
+                            sizes = getattr(photo_obj, 'sizes', None) or []
+                            if sizes:
+                                photo_url = getattr(sizes[-1], 'url', None)
+                    # Прямая ссылка
+                    for attr in ('url', 'link'):
+                        v = getattr(att, attr, None)
+                        if v and str(v).startswith('http'):
+                            photo_url = v
+                            break
+            except Exception as e:
+                logger.debug(f"photo parse: {e}")
+            if photo_url:
+                break
+
     if photo_url:
-        ocr_text = ocr_photo(photo_url)
-        if not ocr_text:
+        try:
+            # Скачиваем фото
+            img_data = requests.get(photo_url, timeout=15, verify=False).content
+            # Отправляем на OCR в прокси
+            r = requests.post(
+                f"{PROXY_BASE}/ocr",
+                files={'file': ('photo.png', img_data, 'image/png')},
+                timeout=30,
+                verify=False
+            )
+            if r.ok:
+                ocr_text = ''
+                try:
+                    j = r.json()
+                    if isinstance(j, dict):
+                        for k in ('text', 'result', 'ocr', 'data', 'reply'):
+                            v = j.get(k)
+                            if isinstance(v, str) and v.strip():
+                                ocr_text = v.strip()
+                                break
+                    elif isinstance(j, str):
+                        ocr_text = j.strip()
+                except Exception:
+                    ocr_text = r.text.strip()
+                
+                if ocr_text:
+                    # Если есть текст-подпись — добавляем его
+                    full_prompt = ocr_text
+                    if text:
+                        full_prompt = f"{text}\n\n[Текст с фото: {ocr_text}]"
+                    
+                    history = load_chat_from_server()
+                    history.append({'role': 'user', 'content': f'[Фото] {ocr_text[:200]}', 'timestamp': now_ms(), 'source': 'max'})
+                    response = ask_gigachat(
+                        f"Реши задачу или ответь на вопрос с фото:\n{full_prompt}",
+                        SYS_CHAT, 900, history
+                    )
+                    history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
+                    save_chat_to_server(history)
+                    await reply(event, f" Распознал:\n{ocr_text}\n\n✅ Решение:\n{response}", keyboard=make_menu_keyboard())
+                    return
+        except Exception as e:
+            logger.error(f"photo OCR error: {e}")
+        
+        # Если OCR не удался — продолжаем с обычным текстом
+        if not text:
             await reply(event, "❌ Не смог распознать текст на фото. Напиши задачу текстом — решу.")
             return
-        prompt = (f'Текст, распознанный с фото ученика:\n{ocr_text}\n\n'
-                  f'Реши задачу или ответь на вопрос: покажи короткий ход решения и итоговый ответ простым текстом.')
-        history = load_chat_from_server()
-        history.append({'role': 'user', 'content': f'[фото] {ocr_text[:200]}', 'timestamp': now_ms(), 'source': 'max'})
-        response = ask_gigachat(prompt, SYS_CHAT, 900, history)
-        history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
-        save_chat_to_server(history)
-        await reply(event, f"📝 Распознал с фото:\n{ocr_text}\n\n✅ Решение:\n{response}", keyboard=make_menu_keyboard())
-        return
 
+    # ===== ОБЫЧНАЯ ОБРАБОТКА ТЕКСТА =====
     if text == '/start':
         await reply(event,
             "👋 Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
@@ -726,7 +730,7 @@ async def handle_message(event):
             "🎥 Видео — суть темы + прямые ссылки на уроки VK и RuTube\n"
             "💪 Мотивация — поддержка по твоему состоянию\n"
             "📅 План — неделя подготовки под твою цель\n"
-            "📚 Дневник — оценки, средний балл, анализ\n"
+            " Дневник — оценки, средний балл, анализ\n"
             "🏠 Меню — показать меню\n\n"
             "Совет: пиши тему ТОЧНО (с классом) — так ссылки и задания попадут в цель.")
         return
@@ -746,7 +750,7 @@ async def handle_message(event):
 
     if text == '/очистить':
         save_chat_to_server([])
-        await reply(event, "🗑 Общий чат очищен.")
+        await reply(event, " Общий чат очищен.")
         return
 
     if text.lower().strip() in ('разбери', 'анализ', 'разбери оценки'):
