@@ -100,9 +100,12 @@
   :root[data-bg="forest"]{--skin-light:linear-gradient(160deg,#D3F5DE 0%,#E6F7EA 45%,#D9F2E3 100%);--skin-dark:linear-gradient(rgba(60,220,130,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(60,220,130,.07) 1px,transparent 1px);--blobA:rgba(40,190,110,.30);--blobB:rgba(120,220,80,.28);}
   :root[data-bg="space"]{--skin-light:linear-gradient(160deg,#E4DCFF 0%,#EFE9FF 45%,#DCD3FF 100%);--skin-dark:linear-gradient(rgba(150,120,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(150,120,255,.08) 1px,transparent 1px);--blobA:rgba(120,90,255,.30);--blobB:rgba(200,80,255,.26);}
   :root[data-bg="candy"]{--skin-light:linear-gradient(160deg,#FFDDE8 0%,#FFEAF1 45%,#FFD6E8 100%);--skin-dark:linear-gradient(rgba(255,90,150,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,90,150,.07) 1px,transparent 1px);--blobA:rgba(255,90,150,.30);--blobB:rgba(255,150,90,.28);}
+  :root[data-bg="ocean"]{--skin-light:linear-gradient(160deg,#A8E6CF 0%,#88D8B0 45%,#6BC9A0 100%);--skin-dark:linear-gradient(rgba(100,200,180,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(100,200,180,.07) 1px,transparent 1px);--blobA:rgba(100,200,180,.30);--blobB:rgba(80,180,220,.28);}
+  :root[data-bg="neon"]{--skin-light:linear-gradient(160deg,#FF6B9D 0%,#C06C84 45%,#6C5B7B 100%);--skin-dark:linear-gradient(rgba(255,107,157,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,157,.08) 1px,transparent 1px);--blobA:rgba(255,107,157,.30);--blobB:rgba(192,108,132,.28);}
   :root[data-acc="violet"]{--accent:#8B5CF6;--ring2:#D946EF;}
   :root[data-acc="green"]{--accent:#22C55E;--ring2:#84CC16;}
   :root[data-acc="orange"]{--accent:#F97316;--ring2:#FACC15;}
+  :root[data-acc="pink"]{--accent:#EC4899;--ring2:#F472B6;}
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   button, a, .btn, .cloud, .dock button, .theme-pill button, .seg button, .grade-row button, .hero, .mini-link, .link-item, .qchips button, .shop-item button {
@@ -122,7 +125,6 @@
   :root[data-theme="dark"] { color-scheme: dark; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] { color-scheme: dark; } }
   
-  /* ПУНКТ 9: Фикс белого фона у option в выпадающих списках */
   select { color-scheme: light dark; }
   select option { 
     background: var(--field); 
@@ -201,7 +203,6 @@
   .btn.ghost::before { display: none; }
   .btn.danger { background: linear-gradient(180deg,#FF8A8A,#E5484D); color: #fff; border: transparent; box-shadow: 0 8px 18px rgba(229,72,77,.45); }
 
-  /* ПУНКТ 2: Фикс налезания кнопок в строках */
   .row2 > .btn, .row3 > .btn { margin-top: 0; }
 
   label { display: block; font-size: 13px; font-weight: 800; color: var(--muted); margin: 14px 0 6px; }
@@ -282,6 +283,10 @@
   .cloud:hover .t { letter-spacing: .3px; }
   .cloud .d { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
 
+  .shop-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); margin-bottom: 14px; }
+  .shop-xp { font-size: 18px; font-weight: 900; color: var(--accent); }
+  .shop-xp span { font-size: 12px; color: var(--muted); font-weight: 700; }
+  
   .shop-cat { margin-top: 18px; font-size: 15px; font-weight: 900; color: var(--ink); }
   .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
   .shop-item { background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); padding: 14px; text-align: center; animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
@@ -562,7 +567,7 @@
 <div class="theme-pill">
   <button id="thLight" onclick="setThemeClick('light', event)" title="Светлая (MAX)">☀️</button>
   <button id="thDark" onclick="setThemeClick('dark', event)" title="Тёмная (Cyber)">🌙</button>
-  <button id="thAuto" onclick="setThemeClick('auto', event)" title="Системная">🖥️</button>
+  <button id="thAuto" onclick="setThemeClick('auto', event)" title="Системная">️</button>
 </div>
 
 <div class="wrap">
@@ -600,7 +605,7 @@
       <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты</div></button>
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
-      <button class="cloud" onclick="go('video')"><div class="em"></div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
+      <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
     </div>
@@ -608,6 +613,11 @@
 
   <div id="shop" class="page">
     <div class="head"><div class="hi"><div class="mascot">🛍</div><div><h1>Магазин скинов</h1><div class="sub">Трать XP на кастомизацию</div></div></div></div>
+    <!-- Отображение XP в магазине -->
+    <div class="shop-header">
+      <div class="shop-xp">💎 <span id="shopXpBalance">0</span> XP <span>доступно</span></div>
+      <div class="shop-xp">🛍 <span id="shopOwnedCount">0</span> <span>куплено</span></div>
+    </div>
     <div class="puff" style="margin-bottom:14px;">
       <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика 🔥). Подсказка в тесте стоит 100 XP.</div>
     </div>
@@ -632,7 +642,7 @@
   </div>
 
   <div id="plan" class="page">
-    <div class="head"><div class="hi"><div class="mascot">📅</div><div><h1>Персональный план</h1><div class="sub">GigaChat составит под тебя</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Персональный план</h1><div class="sub">GigaChat составит под тебя</div></div></div></div>
     <div class="seg">
       <button id="segForm" class="on" onclick="planTab('form')">⚙️ Настройки</button>
       <button id="segView" onclick="planTab('view')">📋 Мой план</button>
@@ -643,7 +653,7 @@
         <select id="pGrade"><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select>
         <label>🎯 Что сдаёшь</label>
         <input type="text" id="pExam" placeholder="ЕГЭ по математике, ОГЭ...">
-        <label>📚 Предметы</label>
+        <label> Предметы</label>
         <textarea id="pSubjects" rows="2" placeholder="математика, русский, физика"></textarea>
         <label>🏆 Цель</label>
         <input type="text" id="pGoal" placeholder="сдать на 90+">
@@ -671,14 +681,13 @@
 
   <div id="quiz" class="page">
     <div class="head"><div class="hi"><div class="mascot">✅</div><div><h1>Тренажёр</h1><div class="sub">Тест 80%+ = тема пройдена = +30 XP</div></div></div></div>
-    <!-- ПУНКТ 3: Удалены карточки, остался только тест -->
     <div class="puff">
       <label>📚 Предмет / тема</label>
       <input type="text" id="qTopic" placeholder="математика, дроби...">
       <div class="row3">
-        <div><label> Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
+        <div><label>🎓 Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
         <div><label>🧩 Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
-        <div><label> Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
+        <div><label>🎚 Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
       </div>
       <button class="btn sky" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
     </div>
@@ -706,7 +715,6 @@
     <div class="puff" style="margin-top:14px;">
       <label>✍️ Предметы и оценки</label>
       <input type="text" id="gText" placeholder="матан 5 4, физра 3">
-      <!-- ПУНКТ 6: Переименованы кнопки -->
       <button class="btn mint" id="gAddBtn" onclick="addGradeAI()">🤖 Ответить</button>
       <button class="btn sky" id="gBtn" onclick="gradesAI()">🤖 Анализ оценок</button>
       <button class="btn ghost" onclick="clearGrades()">🗑 Очистить</button>
@@ -732,13 +740,13 @@
       <select id="mMood"><option value="tired">Устал</option><option value="worried">Переживаю</option><option value="lazy">Лень</option><option value="ok">Нормально</option></select>
       <label>✍️ Что случилось?</label>
       <textarea id="mText" rows="3" placeholder="необязательно"></textarea>
-      <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
+      <button class="btn" id="mBtn" onclick="motivationAI()"> Поддержи меня</button>
     </div>
     <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
   </div>
 
   <div id="about" class="page">
-    <div class="head"><div class="hi"><div class="mascot">️</div><div><h1>О проекте</h1></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">ℹ️</div><div><h1>О проекте</h1></div></div></div>
     <div class="puff">
       <div class="about">
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
@@ -759,7 +767,7 @@
     <div class="cloud-grid">
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
-      <button class="cloud" onclick="go('motivation')"><div class="em"></div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
+      <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
       <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 38</div></button>
     </div>
@@ -769,10 +777,10 @@
 
 <nav class="dock">
   <button data-tab="home" onclick="go('home')"><span class="ic">🏠</span>Дом</button>
-  <button data-tab="chat" onclick="go('chat')"><span class="ic">🤖</span>Чат</button>
+  <button data-tab="chat" onclick="go('chat')"><span class="ic"></span>Чат</button>
   <button data-tab="plan" onclick="go('plan')"><span class="ic">📅</span>План</button>
   <button data-tab="quiz" onclick="go('quiz')"><span class="ic">✅</span>Тест</button>
-  <button data-tab="more" onclick="go('more')"><span class="ic">⋯</span>Ещё</button>
+  <button data-tab="more" onclick="go('more')"><span class="ic"></span>Ещё</button>
 </nav>
 
 <script>
@@ -792,7 +800,7 @@ function showModal(o){
 }
 function hideModal(){document.getElementById('modal').style.display='none';}
 function uiAlert(text,emoji){showModal({emoji:emoji||'💡',text:text,okText:'Понятно',cancelText:null});}
-function uiConfirm(text,onYes,emoji,okText){showModal({emoji:emoji||'️',text:text,okText:okText||'Да',okClass:'danger',cancelText:'Отмена',onYes:onYes});}
+function uiConfirm(text,onYes,emoji,okText){showModal({emoji:emoji||'⚠️',text:text,okText:okText||'Да',okClass:'danger',cancelText:'Отмена',onYes:onYes});}
 
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('sn_theme',t);['Light','Dark','Auto'].forEach(n=>{const b=document.getElementById('th'+n);if(b)b.classList.toggle('on',n.toLowerCase()===t);});}
 function setThemeClick(t, ev){
@@ -820,7 +828,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 const ONB=[
-  ['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],
+  ['','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],
   ['📅','План и «Сегодня»','План соберёт твою неделю, а карточка «Сегодня» подскажет, что учить прямо сейчас.'],
   ['🏆','XP со смыслом','XP даётся ТОЛЬКО за проход темы: тест на 80–100% = +30 XP = дневная норма для стрика 🔥. XP трать в магазине 🛍 на скины.']
 ];
@@ -859,15 +867,13 @@ const BADGES=[
   ['quiz10','🎯','Снайпер: 10 верных'],
   ['plan','🗺','Стратег: план составлен'],
   ['done','🎓','Тема закрыта'],
-  ['done5','','Эрудит: 5 тем'],
-  ['streak3','🔥','3 дня подряд'],
+  ['done5','📚','Эрудит: 5 тем'],
+  ['streak3','','3 дня подряд'],
   ['streak7','⚡','Неделя огня'],
 ];
-// ПУНКТ 4: Выдача 100 000 XP всем
 function loadGame(){
   try{
     const saved = JSON.parse(localStorage.getItem('sn_game')||'{}');
-    // ВСЕМ даём 100000 XP, если меньше
     if(!saved.xp || saved.xp < 100000) saved.xp = 100000;
     return Object.assign({
       xp:100000, correct:0, doneN:0, streak:0, streakLast:'',
@@ -889,41 +895,61 @@ function addXP(n,reason){
     const y=new Date(Date.now()-864e5).toDateString();
     g.streak=(g.streakLast===y)?g.streak+1:1;
     g.streakLast=t;saveGame(g);
-    setTimeout(()=>toast(' Норма дня выполнена! 🔥 '+g.streak),500);
+    setTimeout(()=>toast('🎯 Норма дня выполнена! 🔥 '+g.streak),500);
   }
   renderGame();checkBadges();
 }
-function spendXP(n){const g=loadGame();if(g.xp<n)return false;g.xp-=n;g.spent=(g.spent||0)+n;saveGame(g);renderGame();return true;}
+function spendXP(n){
+  const g=loadGame();
+  if(g.xp<n) return false;
+  g.xp-=n;
+  g.spent=(g.spent||0)+n;
+  saveGame(g);
+  renderGame();
+  return true;
+}
 function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
 function renderGame(){
   const g=loadGame();const lvl=Math.floor(g.xp/100)+1;const prog=g.xp%100;const t=new Date().toDateString();
   const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');
   const goalTxt='📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
-  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин </span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
+  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин 🛍</span>')+'</div></div><div class="gb-streak"> '+g.streak+'</div>';
 }
 
-// ПУНКТ 10: Строго по 4 предмета в каждой категории (чётное и одинаковое количество)
+// Расширенная кастомизация: больше предметов в каждой категории
 const SHOP=[
+  // Фоны (6 штук)
   {id:'bg_default',cat:'bg',name:'Классика MAX',css:'linear-gradient(135deg,#5AA8FF,#2787F5)',price:0,val:'default'},
   {id:'bg_sunset',cat:'bg',name:'Закат',css:'linear-gradient(135deg,#FFB060,#FF6090)',price:60,val:'sunset'},
   {id:'bg_forest',cat:'bg',name:'Лес',css:'linear-gradient(135deg,#4CD97B,#1F8F4E)',price:60,val:'forest'},
   {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
+  {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
+  {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
+  // Иконки (6 наборов)
   {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠🤖✅',price:0,val:'default'},
   {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🐼',price:40,val:'zoo'},
   {id:'ic_space',cat:'icons',name:'Космос',prev:'🌍',price:40,val:'space'},
   {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🍕',price:40,val:'food'},
+  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀',price:50,val:'sport'},
+  {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎸',price:50,val:'music'},
+  // Маскоты (6 штук)
   {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
   {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
-  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐲',price:50,val:'🐲'},
-  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
+  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'',price:50,val:'🐲'},
+  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:''},
+  {id:'ms_cat',cat:'mascot',name:'Кот',prev:'🐱',price:60,val:'🐱'},
+  {id:'ms_panda',cat:'mascot',name:'Панда',prev:'🐼',price:60,val:'🐼'},
+  // Акценты (6 цветов)
   {id:'ac_default',cat:'acc',name:'Синий',css:'#2787F5',price:0,val:'default'},
   {id:'ac_violet',cat:'acc',name:'Фиолет',css:'#8B5CF6',price:30,val:'violet'},
   {id:'ac_green',cat:'acc',name:'Зелёный',css:'#22C55E',price:30,val:'green'},
   {id:'ac_orange',cat:'acc',name:'Оранж',css:'#F97316',price:30,val:'orange'},
+  {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
+  {id:'ac_cyan',cat:'acc',name:'Бирюза',css:'#06B6D4',price:40,val:'cyan'},
 ];
 const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:' Акцентный цвет'};
-const ICON_SETS={default:['🏠','','','✅',''],zoo:['🐻','🐼','','🐯',''],space:['🌍','','','🎯',''],food:['','🍟','','🌭','']};
-function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
+const ICON_SETS={default:['🏠','','','✅',''],zoo:['🐻','','','🐯',''],space:['','','','🎯',''],food:['','🍟','','🌭',''],sport:['⚽','🏀','','🎾',''],music:['🎵','🎸','','🎹','']};
+function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
 function applySkin(){
   const s=loadSkin();
@@ -934,7 +960,14 @@ function applySkin(){
   document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});
 }
 function renderShop(){
-  const s=loadSkin();const g=loadGame();let h='';
+  const s=loadSkin();const g=loadGame();
+  // Обновляем отображение XP в магазине
+  const xpEl=document.getElementById('shopXpBalance');
+  if(xpEl) xpEl.textContent=g.xp;
+  const ownedEl=document.getElementById('shopOwnedCount');
+  if(ownedEl) ownedEl.textContent=s.owned.length;
+  
+  let h='';
   ['bg','icons','mascot','acc'].forEach(cat=>{
     h+='<div class="shop-cat">'+CAT_NAMES[cat]+'</div><div class="shop-grid">';
     SHOP.filter(x=>x.cat===cat).forEach((it,idx)=>{
@@ -956,9 +989,12 @@ function buySkin(id){
   const s=loadSkin();if(s.owned.includes(id))return selectSkin(id);
   const g=loadGame();
   if(g.xp<it.price){toast('Не хватает XP: нужно '+it.price);return;}
-  spendXP(it.price);
+  // Исправление: spendXP теперь корректно снимает XP
+  if(!spendXP(it.price)){toast('Ошибка при списании XP');return;}
   s.owned.push(id);saveSkin(s);
   selectSkin(id,true);
+  // Обновляем магазин после покупки
+  renderShop();
   toast('🛍 Куплено: '+it.name+' (−'+it.price+' XP)');
 }
 function selectSkin(id,silent){
@@ -1003,7 +1039,6 @@ function mondayOf(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.
 function currentWeekKey(){return mondayOf(new Date()).toISOString().slice(0,10);}
 function attr(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
 
-// ПУНКТ 7: Расширенные сокращения для дневника
 const SUBJ_ALIASES=[['Физкультура',['физр','физкульт','физ-ра','физра']],['Физика',['физик']],['Математика',['матан','матем','алгебр','геометр','мат-ка']],['Информатика',['информ','инфа','комп','программ','инф']],['Английский язык',['англ','инглиш','english','ин яз','ин.яз']],['Немецкий язык',['немец','герман']],['Испанский язык',['испан']],['Русский язык',['русск','рус язы','рус','русский']],['Литература',['литер','лит-ра','литре','литру','литрой','лит']],['Химия',['хим']],['Биология',['био','биолог']],['История',['истор','ист']],['Обществознание',['обществ','общ']],['География',['географ','геогр','гео']]];
 function localSubject(t){const s=t.toLowerCase();for(const[n,k]of SUBJ_ALIASES){for(const x of k)if(s.includes(x))return n;}return null;}
 function extractGradesLocal(t){const s=localSubject(t);const g=(t.match(/\b[1-5]\b/g)||[]).map(Number);if(s&&g.length)return[{subject:s,grades:g}];return null;}
@@ -1031,8 +1066,7 @@ function drawGraph(){const cv=document.getElementById('gGraph');if(!cv)return;co
 function renderG(){
   const g=loadG();let h='',all=[];
   for(const s in g){const a=g[s];all=all.concat(a);const avg=a.reduce((x,y)=>x+y,0)/a.length;h+='<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';}
-  document.getElementById('gList').innerHTML=h||'<div class="item">Напиши предметы и оценки — GigaChat разберёт 👆</div>';
-  // ПУНКТ 5: LaTeX в дневнике
+  document.getElementById('gList').innerHTML=h||'<div class="item">Напиши предметы и оценки — GigaChat разберёт </div>';
   mathIn(document.getElementById('gList'));
   
   const el=document.getElementById('gAvg');const nv=all.length?(all.reduce((a,b)=>a+b,0)/all.length):null;const ov=parseFloat(el.textContent)||0;
@@ -1057,7 +1091,7 @@ async function sendChat(){
   const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
   i.value='';addMsg(t,'user','web');
   const local=extractGradesLocal(t);
-  if(local){local.forEach(p=>addGradeToStorage(p));addMsg(' Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
+  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
   const loading=document.createElement('div');loading.className='skel skel-msg';
   const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
   document.getElementById('chatBtn').disabled=true;
@@ -1067,7 +1101,7 @@ async function sendChat(){
     const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
     await syncChatHistory();
     if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
-  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':' Ошибка: '+e.message,'bot');}
+  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
   finally{document.getElementById('chatBtn').disabled=false;}
 }
 function clearChat(){uiConfirm('Удалить общий чат?\nОн исчезнет и здесь, и в MAX.',function(){
@@ -1102,25 +1136,25 @@ function renderPlan(data){
   if(data.examName)sch+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
   if(data.schedule&&data.schedule.length){
     const sc=data.schedule.filter(s=>!isRestDay(s)).length;
-    sch+='<div class="item ai">📆 Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
+    sch+='<div class="item ai"> Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
     const ti=todayIdx();
     data.schedule.forEach((s,i)=>{sch+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
     const td=data.schedule[ti];
-    if(td&&!isRestDay(td)){sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
+    if(td&&!isRestDay(td)){sch+='<div class="item ai"> Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()"> Видео по теме дня</button>';}
     else if(td){sch+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
 
     const wt=data.schedule.filter(s=>!isRestDay(s));
     if(wt.length){
-      top+='<div class="item ai"> Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
+      top+='<div class="item ai">🎯 Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
       wt.forEach(s=>{const key=topicKey(s);if(!key)return;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
         top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
         if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
-          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()"> Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
+          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
       if(data.done&&data.done.length)top+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
       else top+='<div class="item">Пока ничего не пройдено — выбери тему и сдай тест на 80%+ 👆</div>';
     }
   }
-  if(data.summary)top+='<div class="item ai">💡 '+escapeHtml(cleanResponse(data.summary))+'</div>';
+  if(data.summary)top+='<div class="item ai"> '+escapeHtml(cleanResponse(data.summary))+'</div>';
   if(data.text){sch+='<div class="item ai">'+escapeHtml(cleanResponse(data.text))+'</div>';}
   const bs=document.getElementById('planSched');bs.innerHTML=sch||'<div class="item">План пуст.</div>';mathIn(bs);
   const bt=document.getElementById('planTopics');bt.innerHTML=top||'<div class="item">Темы появятся после составления плана.</div>';mathIn(bt);
@@ -1144,7 +1178,6 @@ async function buildPlan(){
   finally{btn.disabled=false;}
 }
 
-// ПУНКТ 1: Перенос непройденных тем на новую неделю
 async function checkWeekUpdate(){
   const plan=loadPlan();
   if(!plan||!plan.params||!plan.schedule)return;
@@ -1194,9 +1227,9 @@ function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100
 function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';q.innerHTML=escapeHtml(o.question);mathIn(q);const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);
   const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;bb.textContent=g.xp>=HINT_COST?'💡 Купить подсказку (−'+HINT_COST+' XP)':'💡 Подсказка: нужно '+HINT_COST+' XP';
   document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';document.getElementById('quizAnswer').focus();updateNextLabel();updateProgress();}
-async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}if(!spendXP(HINT_COST))return;qHintUsed=true;const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');const h=document.getElementById('quizHint');h.innerHTML=' Думаю над подсказкой...';try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML=' Подсказка недоступна: '+e.message;}}
+async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}if(!spendXP(HINT_COST))return;qHintUsed=true;const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}}
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему заданий, например: дроби.','✏️');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;const btn=document.getElementById('quizBtn');btn.disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';document.getElementById('quizHint').textContent='';document.getElementById('buyHintBtn').style.display='none';document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
-async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent=' Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
+async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
 function finishBatch(){
   const pct=qBatchTotal?qBatchScore/qBatchTotal:0;
   let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';
@@ -1210,7 +1243,7 @@ function finishBatch(){
       addXP(30,'тема пройдена');
       const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
     }else{
-      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')"> Пересдать тест</button>';
+      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
     }
     qPendingTopic=null;
   }
@@ -1218,31 +1251,27 @@ function finishBatch(){
 }
 async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u));let bySense=false;if(!ok){document.getElementById('quizResult').innerHTML='<div class="skel skel-card" style="height:56px"></div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;const g=loadGame();g.correct++;saveGame(g);box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);checkBadges();}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();}
 
-// ПУНКТ 7: Улучшенный промпт для дневника с требованием раскрывать сокращения
 async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши так: матан 5 4, физра 3','✍️');const btn=document.getElementById('gAddBtn');btn.disabled=true;document.getElementById('gAi').innerHTML='<div class="skel skel-card"></div>';let parsed=null;try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (ОБЯЗАТЕЛЬНО раскрой сленг и сокращения: матан->Математика, физра->Физкультура, ин яз->Английский язык и т.д.) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}if(!parsed||!parsed.length)parsed=extractGradesLocal(text);if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: матан 5 4, физра 3</div>';btn.disabled=false;return;}parsed.forEach(p=>addGradeToStorage(p));document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';mathIn(document.getElementById('gAi'));btn.disabled=false;}
 function delG(s){const g=loadG();delete g[s];saveG(g);renderG();pushHist();}
 function clearGrades(){uiConfirm('Удалить все оценки и историю графика?',function(){
   localStorage.removeItem('g');gHist=[];localStorage.removeItem('sn_g_hist');renderG();document.getElementById('gAi').innerHTML='';
 },'🗑','Удалить');}
-async function gradesAI(){const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','');let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.');const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}catch(e){showError('gAi','Ошибка: '+e.message);}finally{btn.disabled=false;}}
+async function gradesAI(){const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','📚');let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.');const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}catch(e){showError('gAi','Ошибка: '+e.message);}finally{btn.disabled=false;}}
 
-/* ===== ПУНКТ 8: ВИДЕО: ссылки СВЕРХУ, объяснение СНИЗУ ===== */
 async function buildVideo(){
   const topic=document.getElementById('vTopic').value.trim()||'математика';
   const btn=document.getElementById('vBtn');btn.disabled=true;
   showLoading('vAi','Ищу видео и готовлю объяснение...');
   try{
-    // Запускаем параллельно для скорости
     const [gigaResp, videoResp] = await Promise.all([
       askGiga('Кратко (5-8 предложений) подробно объясни школьнику тему «'+topic+'»: дай определение, пример и мини-вывод. Формулы пиши простым текстом или в LaTeX ($...$).'),
       fetch(PROXY_BASE+'/search_video?q='+encodeURIComponent(topic)).then(r=>r.ok?r.json():null).catch(()=>null)
     ]);
 
-    // 1. Сначала ссылки
     let vhtml = '<div class="item ai" style="margin-bottom:12px;">🔗 <b>Полезные ссылки:</b><br>';
     let parts = [];
     if(videoResp){
-      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'"> '+(v.title||('RuTube '+(idx+1)))+'</a>'));
+      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">📺 '+(v.title||('RuTube '+(idx+1)))+'</a>'));
       (videoResp.vk||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">🎬 VK '+(idx+1)+'</a>'));
       (videoResp.youtube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">▶️ YouTube '+(idx+1)+'</a>'));
     }
@@ -1254,7 +1283,6 @@ async function buildVideo(){
     }
     vhtml += parts.join(' ') + '</div>';
 
-    // 2. Потом объяснение
     const box=document.getElementById('vAi');
     box.innerHTML = vhtml + '<div class="item ai">🎓 <b>Подробное объяснение:</b><br>'+escapeHtml(cleanResponse(gigaResp))+'</div>';
     mathIn(box);
@@ -1321,7 +1349,7 @@ window.addEventListener('resize',()=>{if(document.getElementById('grades').class
           load.textContent=txt;if(window.renderMathInElement){renderMathInElement(load,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}
           chatBox.scrollTop=chatBox.scrollHeight;
         })
-        .catch(function(e){load.textContent=' Ошибка распознавания: '+e.message;});
+        .catch(function(e){load.textContent='❌ Ошибка распознавания: '+e.message;});
       };
       reader.readAsDataURL(f);
     });
