@@ -395,7 +395,7 @@ async def act_video(event, uid):
     u = ensure(uid)
     u['state'] = {'mode': 'video_topic'}
     await reply(event,
-        "🎥 Видеоуроки\n\nНапиши тему ТОЧНО (например: «фотосинтез 6 класс», «теорема Пифагора») — "
+        " Видеоуроки\n\nНапиши тему ТОЧНО (например: «фотосинтез 6 класс», «теорема Пифагора») — "
         "объясню её и дам прямые ссылки на уроки в VK и RuTube именно по этой теме.",
         keyboard=make_menu_keyboard())
 
@@ -456,10 +456,10 @@ ACTIONS = {
 TEXT_ALIASES = {
     'menu': ['меню', '🏠 меню'],
     'quiz': ['тренажёр', 'тренажер', 'тест', '✅ тренажёр'],
-    'video': ['видео', '🎥 видео'],
+    'video': ['видео', ' видео'],
     'motivation': ['мотивация', 'поддержи', '💪 мотивация'],
     'plan': ['план', '📅 план', 'новый план'],
-    'grades': ['дневник', 'оценки мои', '📚 дневник'],
+    'grades': ['дневник', 'оценки мои', ' дневник'],
 }
 
 def detect_text_action(text):
@@ -642,7 +642,7 @@ async def handle_message(event):
     text = get_text(event)
     ensure(user_id)
 
-    # ===== ФОТО: ОТПРАВКА В BASE64 (как ждет прокси /vision) =====
+    # ===== ФОТО: КАК В МИНИ-АППЕ (base64 с префиксом data:image/png;base64,) =====
     photo_url = get_photo_url(event)
     
     if photo_url:
@@ -651,51 +651,42 @@ async def handle_message(event):
             # 1. Скачиваем фото
             img_data = requests.get(photo_url, timeout=15, verify=False).content
             
-            # 2. Кодируем в base64 (именно этого ждет прокси!)
-            image_b64 = base64.b64encode(img_data).decode('utf-8')
+            # 2. Определяем тип (PNG или JPEG)
+            content_type = 'image/png'
+            if img_data[:2] == b'\xff\xd8':
+                content_type = 'image/jpeg'
             
-            # 3. Отправляем JSON-запрос на /vision
+            # 3. Кодируем в base64 с префиксом (КАК В МИНИ-АППЕ!)
+            image_b64 = f"data:{content_type};base64," + base64.b64encode(img_data).decode('utf-8')
+            
+            # 4. Отправляем JSON-запрос на /vision (точно как мини-апп)
             r = requests.post(
                 f"{PROXY_BASE}/vision",
-                json={"image": image_b64},
+                json={
+                    "image": image_b64,
+                    "prompt": "Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.",
+                    "latex": True
+                },
                 timeout=30,
                 verify=False
             )
             
             if r.ok:
-                ocr_text = ''
-                try:
-                    j = r.json()
-                    if isinstance(j, dict):
-                        # Прокси может вернуть результат в разных полях, ищем первое непустое
-                        for k in ('text', 'result', 'ocr', 'data', 'reply', 'solution'):
-                            v = j.get(k)
-                            if isinstance(v, str) and v.strip():
-                                ocr_text = v.strip()
-                                break
-                    elif isinstance(j, str):
-                        ocr_text = j.strip()
-                except Exception:
-                    ocr_text = r.text.strip()
+                result = r.json()
+                ocr_text = result.get('ocr', '')
+                solution = result.get('solution', '')
+                mode = result.get('mode', '')
                 
-                if ocr_text:
-                    logger.info(f"OCR распознал: {ocr_text}")
-                    full_prompt = ocr_text
-                    if text:
-                        full_prompt = f"{text}\n\n[Текст с фото: {ocr_text}]"
-                    
-                    history = load_chat_from_server()
-                    history.append({'role': 'user', 'content': f'[Фото] {ocr_text[:200]}', 'timestamp': now_ms(), 'source': 'max'})
-                    response = ask_gigachat(
-                        f"Реши задачу или ответь на вопрос с фото:\n{full_prompt}",
-                        SYS_CHAT, 900, history
-                    )
-                    history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
-                    save_chat_to_server(history)
-                    await reply(event, f"📝 Распознал:\n{ocr_text}\n\n✅ Решение:\n{response}", keyboard=make_menu_keyboard())
+                if ocr_text or solution:
+                    logger.info(f"OCR: {ocr_text[:100]}")
+                    response_text = f"📸 Решение{' (через OCR)' if mode == 'ocr' else ''}\n"
+                    if ocr_text:
+                        response_text += f"🔤 {ocr_text}\n\n"
+                    response_text += solution
+                    await reply(event, response_text, keyboard=make_menu_keyboard())
                     return
                 else:
-                    logger.warning("OCR вернул пустой текст")
+                    logger.warning("OCR вернул пустой результат")
             else:
                 logger.error(f"OCR вернул статус {r.status_code}: {r.text[:200]}")
         except Exception as e:
@@ -708,7 +699,7 @@ async def handle_message(event):
     # ===== ОБЫЧНАЯ ОБРАБОТКА ТЕКСТА =====
     if text == '/start':
         await reply(event,
-            "👋 Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
+            " Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
             "🔄 Наш чат ОБЩИЙ с мини-приложением.\n"
             "📚 Пиши про оценки — сам запишу в дневник\n"
             "📜 /история — общий чат\n"
@@ -730,7 +721,7 @@ async def handle_message(event):
             "✅ Тренажёр — одно задание строго по теме + объяснение\n"
             "🎥 Видео — суть темы + прямые ссылки на уроки VK и RuTube\n"
             "💪 Мотивация — поддержка по твоему состоянию\n"
-            "📅 План — неделя подготовки под твою цель\n"
+            " План — неделя подготовки под твою цель\n"
             "📚 Дневник — оценки, средний балл, анализ\n"
             "🏠 Меню — показать меню\n\n"
             "Совет: пиши тему ТОЧНО (с классом) — так ссылки и задания попадут в цель.")
