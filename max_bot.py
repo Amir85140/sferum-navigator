@@ -432,7 +432,7 @@ TEXT_ALIASES = {
     'quiz': ['тренажёр', 'тренажер', 'тест', '✅ тренажёр'],
     'video': ['видео', '🎥 видео'],
     'motivation': ['мотивация', 'поддержи', '💪 мотивация'],
-    'plan': ['план', '📅 план', 'новый план'],
+    'plan': ['план', ' план', 'новый план'],
     'grades': ['дневник', 'оценки мои', '📚 дневник'],
 }
 
@@ -489,7 +489,7 @@ async def handle_state(event, uid, text):
         if ok:
             await reply(event, f"✅ Верно! Отлично!{expl_txt}", keyboard=make_menu_keyboard())
         else:
-            await reply(event, f"❌ Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
+            await reply(event, f" Неверно.\nПравильный ответ: {correct}{expl_txt}", keyboard=make_menu_keyboard())
         return True
 
     if mode == 'video_topic':
@@ -524,7 +524,7 @@ async def handle_state(event, uid, text):
             for i, v in enumerate(rt, 1):
                 lines.append(f"{i}. {v['title']}\n   {v['url']}")
         if vk:
-            lines.append("🎬 VK:")
+            lines.append(" VK:")
             for i, v in enumerate(vk, 1):
                 lines.append(f"{i}. {v['url']}")
         if not rt and not vk:
@@ -616,55 +616,28 @@ async def handle_message(event):
     text = get_text(event)
     ensure(user_id)
 
-    # ===== ФОТО: обрабатываем всегда (даже если есть текст-подпись) =====
+    # ===== ФОТО: ОБРАБОТКА ЧЕРЕЗ /vision =====
     photo_url = None
     msg = getattr(event, 'message', None)
     if msg:
         atts = getattr(msg, 'attachments', None) or []
         for att in atts:
             try:
-                # Пробуем разные структуры вложений
                 if isinstance(att, dict):
                     if att.get('type') == 'photo':
-                        sizes = att.get('photo', {}).get('sizes', [])
-                        if sizes:
-                            photo_url = sizes[-1].get('url')
-                    # Прямая ссылка на файл
-                    for k in ('url', 'photo_url', 'link', 'file_url'):
-                        if att.get(k) and str(att.get(k)).startswith('http'):
-                            photo_url = att.get(k)
-                            break
+                        photo_url = att.get('url') or (att.get('photo', {}).get('sizes', [-1])[-1].get('url'))
+                    else:
+                        photo_url = att.get('url')
                 else:
-                    # Объект вложения
-                    att_type = getattr(att, 'type', '')
-                    if att_type == 'photo':
-                        photo_obj = getattr(att, 'photo', None)
-                        if photo_obj:
-                            sizes = getattr(photo_obj, 'sizes', None) or []
-                            if sizes:
-                                photo_url = getattr(sizes[-1], 'url', None)
-                    # Прямая ссылка
-                    for attr in ('url', 'link'):
-                        v = getattr(att, attr, None)
-                        if v and str(v).startswith('http'):
-                            photo_url = v
-                            break
-            except Exception as e:
-                logger.debug(f"photo parse: {e}")
-            if photo_url:
-                break
+                    if getattr(att, 'type', '') == 'photo':
+                        photo_url = getattr(att, 'url', None)
+            except: pass
+            if photo_url: break
 
     if photo_url:
         try:
-            # Скачиваем фото
             img_data = requests.get(photo_url, timeout=15, verify=False).content
-            # Отправляем на распознавание в прокси (используем /vision)
-            r = requests.post(
-                f"{PROXY_BASE}/vision",
-                files={'file': ('photo.png', img_data, 'image/png')},
-                timeout=30,
-                verify=False
-            )
+            r = requests.post(f"{PROXY_BASE}/vision", files={'file': ('photo.png', img_data, 'image/png')}, timeout=30, verify=False)
             if r.ok:
                 ocr_text = ''
                 try:
@@ -673,43 +646,29 @@ async def handle_message(event):
                         for k in ('text', 'result', 'ocr', 'data', 'reply'):
                             v = j.get(k)
                             if isinstance(v, str) and v.strip():
-                                ocr_text = v.strip()
-                                break
+                                ocr_text = v.strip(); break
                     elif isinstance(j, str):
                         ocr_text = j.strip()
-                except Exception:
-                    ocr_text = r.text.strip()
-                
+                except: ocr_text = r.text.strip()
+
                 if ocr_text:
-                    # Если есть текст-подпись — добавляем его
-                    full_prompt = ocr_text
-                    if text:
-                        full_prompt = f"{text}\n\n[Текст с фото: {ocr_text}]"
-                    
+                    full_prompt = f"{text}\n\n[Текст с фото: {ocr_text}]" if text else ocr_text
                     history = load_chat_from_server()
                     history.append({'role': 'user', 'content': f'[Фото] {ocr_text[:200]}', 'timestamp': now_ms(), 'source': 'max'})
-                    response = ask_gigachat(
-                        f"Реши задачу или ответь на вопрос с фото:\n{full_prompt}",
-                        SYS_CHAT, 900, history
-                    )
+                    response = ask_gigachat(f"Реши задачу или ответь на вопрос с фото:\n{full_prompt}", SYS_CHAT, 900, history)
                     history.append({'role': 'assistant', 'content': response, 'timestamp': now_ms(), 'source': 'max'})
                     save_chat_to_server(history)
                     await reply(event, f"📝 Распознал:\n{ocr_text}\n\n✅ Решение:\n{response}", keyboard=make_menu_keyboard())
                     return
         except Exception as e:
-            logger.error(f"photo vision error: {e}")
-        
-        # Если распознавание не удалось — продолжаем с обычным текстом
-        if not text:
-            await reply(event, "❌ Не смог распознать текст на фото. Напиши задачу текстом — решу.")
-            return
+            logger.error(f"photo error: {e}")
 
     # ===== ОБЫЧНАЯ ОБРАБОТКА ТЕКСТА =====
     if text == '/start':
         await reply(event,
             "👋 Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
             "🔄 Наш чат ОБЩИЙ с мини-приложением.\n"
-            "📚 Пиши про оценки — сам запишу в дневник\n"
+            " Пиши про оценки — сам запишу в дневник\n"
             "📜 /история — общий чат\n"
             "🗑 /очистить — очистить общий чат\n"
             "❓ /help — справка\n\n"
@@ -730,7 +689,7 @@ async def handle_message(event):
             "🎥 Видео — суть темы + прямые ссылки на уроки VK и RuTube\n"
             "💪 Мотивация — поддержка по твоему состоянию\n"
             "📅 План — неделя подготовки под твою цель\n"
-            "📚 Дневник — оценки, средний балл, анализ\n"
+            " Дневник — оценки, средний балл, анализ\n"
             "🏠 Меню — показать меню\n\n"
             "Совет: пиши тему ТОЧНО (с классом) — так ссылки и задания попадут в цель.")
         return
