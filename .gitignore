@@ -31,3 +31,4 @@ debug_photo.bin
 task*.png
 test.png
 *.log
+navigator.db*
