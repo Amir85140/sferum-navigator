@@ -122,11 +122,27 @@
   :root[data-theme="dark"] { color-scheme: dark; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] { color-scheme: dark; } }
   
-  /* ПУНКТ 9: Фикс светлого фона у option в выпадающих списках */
+  /* ПУНКТ 9: Фикс белого фона у option в выпадающих списках */
   select { color-scheme: light dark; }
-  select option { background: #FFFFFF; color: #0E2540; }
-  :root[data-theme="dark"] select option { background: #0A1626; color: #F0FAFF; }
-  @media (prefers-color-scheme: dark) { :root[data-theme="auto"] select option { background: #0A1626; color: #F0FAFF; } }
+  select option { 
+    background: var(--field); 
+    color: var(--ink);
+    padding: 8px;
+  }
+  select option:hover, select option:checked {
+    background: var(--accent);
+    color: #fff;
+  }
+  :root[data-theme="dark"] select option { 
+    background: rgba(0,194,255,.08); 
+    color: #F0FAFF; 
+  }
+  @media (prefers-color-scheme: dark) { 
+    :root[data-theme="auto"] select option { 
+      background: rgba(0,194,255,.08); 
+      color: #F0FAFF; 
+    } 
+  }
 
   html { scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -537,7 +553,7 @@
 
 <div class="modal" id="modal" style="display:none;">
   <div class="modal-card puff">
-    <div class="modal-emoji" id="modalEmoji">🤖</div>
+    <div class="modal-emoji" id="modalEmoji"></div>
     <div class="modal-text" id="modalText"></div>
     <div class="row2" id="modalBtns"></div>
   </div>
@@ -584,7 +600,7 @@
       <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты</div></button>
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
-      <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
+      <button class="cloud" onclick="go('video')"><div class="em"></div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
     </div>
@@ -606,11 +622,11 @@
       <button onclick="chipSet('Объясни тему: ')">💡 Объясни тему</button>
       <button onclick="chipSet('Придумай пример: ')">✏️ Придумай пример</button>
       <button onclick="chipSet('Я получил оценку: ')">📚 Запиши оценку</button>
-      <button onclick="chipSet('Поддержи меня, мне тяжело')">💪 Поддержи</button>
+      <button onclick="chipSet('Поддержи меня, мне тяжело')"> Поддержи</button>
     </div>
     <div class="chat-input">
       <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()" title="Очистить общий чат">⋯</button><input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
-      <input type="file" id="chatPhoto" accept="image/*" style="display:none" onchange="sendPhotoChat(this)"><button class="btn sky" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()">📸</button><button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
+      <input type="file" id="chatPhoto" accept="image/*" style="display:none" onchange="sendPhotoChat(this)"><button class="btn sky" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()"></button><button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
     <button class="btn ghost" onclick="clearChat()">🗑 Очистить общий чат</button>
   </div>
@@ -660,9 +676,9 @@
       <label>📚 Предмет / тема</label>
       <input type="text" id="qTopic" placeholder="математика, дроби...">
       <div class="row3">
-        <div><label>🎓 Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
+        <div><label> Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
         <div><label>🧩 Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
-        <div><label>🎚 Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
+        <div><label> Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
       </div>
       <button class="btn sky" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
     </div>
@@ -722,7 +738,7 @@
   </div>
 
   <div id="about" class="page">
-    <div class="head"><div class="hi"><div class="mascot">ℹ️</div><div><h1>О проекте</h1></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">️</div><div><h1>О проекте</h1></div></div></div>
     <div class="puff">
       <div class="about">
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
@@ -743,7 +759,7 @@
     <div class="cloud-grid">
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
-      <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
+      <button class="cloud" onclick="go('motivation')"><div class="em"></div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛍</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
       <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 38</div></button>
     </div>
@@ -776,7 +792,7 @@ function showModal(o){
 }
 function hideModal(){document.getElementById('modal').style.display='none';}
 function uiAlert(text,emoji){showModal({emoji:emoji||'💡',text:text,okText:'Понятно',cancelText:null});}
-function uiConfirm(text,onYes,emoji,okText){showModal({emoji:emoji||'⚠️',text:text,okText:okText||'Да',okClass:'danger',cancelText:'Отмена',onYes:onYes});}
+function uiConfirm(text,onYes,emoji,okText){showModal({emoji:emoji||'️',text:text,okText:okText||'Да',okClass:'danger',cancelText:'Отмена',onYes:onYes});}
 
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('sn_theme',t);['Light','Dark','Auto'].forEach(n=>{const b=document.getElementById('th'+n);if(b)b.classList.toggle('on',n.toLowerCase()===t);});}
 function setThemeClick(t, ev){
@@ -843,12 +859,25 @@ const BADGES=[
   ['quiz10','🎯','Снайпер: 10 верных'],
   ['plan','🗺','Стратег: план составлен'],
   ['done','🎓','Тема закрыта'],
-  ['done5','📚','Эрудит: 5 тем'],
+  ['done5','','Эрудит: 5 тем'],
   ['streak3','🔥','3 дня подряд'],
   ['streak7','⚡','Неделя огня'],
 ];
-// ПУНКТ 4: Выдача 100 000 XP при первом запуске
-function loadGame(){try{return Object.assign({xp:100000,correct:0,doneN:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false},JSON.parse(localStorage.getItem('sn_game')||'{}'));}catch(e){return{xp:100000,correct:0,doneN:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false};}}
+// ПУНКТ 4: Выдача 100 000 XP всем
+function loadGame(){
+  try{
+    const saved = JSON.parse(localStorage.getItem('sn_game')||'{}');
+    // ВСЕМ даём 100000 XP, если меньше
+    if(!saved.xp || saved.xp < 100000) saved.xp = 100000;
+    return Object.assign({
+      xp:100000, correct:0, doneN:0, streak:0, streakLast:'',
+      dayDate:'', dayXp:0, goalDone:'', spent:0, badges:[], plan:false
+    }, saved);
+  }catch(e){
+    return {xp:100000, correct:0, doneN:0, streak:0, streakLast:'',
+            dayDate:'', dayXp:0, goalDone:'', spent:0, badges:[], plan:false};
+  }
+}
 function saveGame(g){localStorage.setItem('sn_game',JSON.stringify(g));}
 function addXP(n,reason){
   const g=loadGame();const t=new Date().toDateString();
@@ -860,7 +889,7 @@ function addXP(n,reason){
     const y=new Date(Date.now()-864e5).toDateString();
     g.streak=(g.streakLast===y)?g.streak+1:1;
     g.streakLast=t;saveGame(g);
-    setTimeout(()=>toast('🎯 Норма дня выполнена! 🔥 '+g.streak),500);
+    setTimeout(()=>toast(' Норма дня выполнена! 🔥 '+g.streak),500);
   }
   renderGame();checkBadges();
 }
@@ -870,7 +899,7 @@ function renderGame(){
   const g=loadGame();const lvl=Math.floor(g.xp/100)+1;const prog=g.xp%100;const t=new Date().toDateString();
   const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');
   const goalTxt='📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
-  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин 🛍</span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
+  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин </span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
 }
 
 // ПУНКТ 10: Строго по 4 предмета в каждой категории (чётное и одинаковое количество)
@@ -892,8 +921,8 @@ const SHOP=[
   {id:'ac_green',cat:'acc',name:'Зелёный',css:'#22C55E',price:30,val:'green'},
   {id:'ac_orange',cat:'acc',name:'Оранж',css:'#F97316',price:30,val:'orange'},
 ];
-const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:'🎨 Акцентный цвет'};
-const ICON_SETS={default:['🏠','','','✅',''],zoo:['🐻','🐼','','🐯',''],space:['🌍','🛸','','🎯',''],food:['','🍟','','🌭','']};
+const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:' Акцентный цвет'};
+const ICON_SETS={default:['🏠','','','✅',''],zoo:['🐻','🐼','','🐯',''],space:['🌍','','','🎯',''],food:['','🍟','','🌭','']};
 function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
 function applySkin(){
@@ -1028,7 +1057,7 @@ async function sendChat(){
   const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
   i.value='';addMsg(t,'user','web');
   const local=extractGradesLocal(t);
-  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
+  if(local){local.forEach(p=>addGradeToStorage(p));addMsg(' Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
   const loading=document.createElement('div');loading.className='skel skel-msg';
   const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
   document.getElementById('chatBtn').disabled=true;
@@ -1038,7 +1067,7 @@ async function sendChat(){
     const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
     await syncChatHistory();
     if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
-  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
+  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':' Ошибка: '+e.message,'bot');}
   finally{document.getElementById('chatBtn').disabled=false;}
 }
 function clearChat(){uiConfirm('Удалить общий чат?\nОн исчезнет и здесь, и в MAX.',function(){
@@ -1077,16 +1106,16 @@ function renderPlan(data){
     const ti=todayIdx();
     data.schedule.forEach((s,i)=>{sch+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
     const td=data.schedule[ti];
-    if(td&&!isRestDay(td)){sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
+    if(td&&!isRestDay(td)){sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
     else if(td){sch+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
 
     const wt=data.schedule.filter(s=>!isRestDay(s));
     if(wt.length){
-      top+='<div class="item ai">🎯 Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
+      top+='<div class="item ai"> Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
       wt.forEach(s=>{const key=topicKey(s);if(!key)return;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
         top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
         if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
-          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
+          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()"> Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
       if(data.done&&data.done.length)top+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
       else top+='<div class="item">Пока ничего не пройдено — выбери тему и сдай тест на 80%+ 👆</div>';
     }
@@ -1165,9 +1194,9 @@ function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100
 function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';q.innerHTML=escapeHtml(o.question);mathIn(q);const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);
   const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;bb.textContent=g.xp>=HINT_COST?'💡 Купить подсказку (−'+HINT_COST+' XP)':'💡 Подсказка: нужно '+HINT_COST+' XP';
   document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';document.getElementById('quizAnswer').focus();updateNextLabel();updateProgress();}
-async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}if(!spendXP(HINT_COST))return;qHintUsed=true;const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}}
+async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}if(!spendXP(HINT_COST))return;qHintUsed=true;const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');const h=document.getElementById('quizHint');h.innerHTML=' Думаю над подсказкой...';try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML=' Подсказка недоступна: '+e.message;}}
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему заданий, например: дроби.','✏️');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;const btn=document.getElementById('quizBtn');btn.disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';document.getElementById('quizHint').textContent='';document.getElementById('buyHintBtn').style.display='none';document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
-async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
+async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent=' Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
 function finishBatch(){
   const pct=qBatchTotal?qBatchScore/qBatchTotal:0;
   let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';
@@ -1181,7 +1210,7 @@ function finishBatch(){
       addXP(30,'тема пройдена');
       const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
     }else{
-      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
+      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')"> Пересдать тест</button>';
     }
     qPendingTopic=null;
   }
@@ -1195,7 +1224,7 @@ function delG(s){const g=loadG();delete g[s];saveG(g);renderG();pushHist();}
 function clearGrades(){uiConfirm('Удалить все оценки и историю графика?',function(){
   localStorage.removeItem('g');gHist=[];localStorage.removeItem('sn_g_hist');renderG();document.getElementById('gAi').innerHTML='';
 },'🗑','Удалить');}
-async function gradesAI(){const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','📚');let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.');const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}catch(e){showError('gAi','Ошибка: '+e.message);}finally{btn.disabled=false;}}
+async function gradesAI(){const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','');let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.');const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}catch(e){showError('gAi','Ошибка: '+e.message);}finally{btn.disabled=false;}}
 
 /* ===== ПУНКТ 8: ВИДЕО: ссылки СВЕРХУ, объяснение СНИЗУ ===== */
 async function buildVideo(){
@@ -1213,7 +1242,7 @@ async function buildVideo(){
     let vhtml = '<div class="item ai" style="margin-bottom:12px;">🔗 <b>Полезные ссылки:</b><br>';
     let parts = [];
     if(videoResp){
-      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">📺 '+(v.title||('RuTube '+(idx+1)))+'</a>'));
+      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'"> '+(v.title||('RuTube '+(idx+1)))+'</a>'));
       (videoResp.vk||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">🎬 VK '+(idx+1)+'</a>'));
       (videoResp.youtube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">▶️ YouTube '+(idx+1)+'</a>'));
     }
@@ -1292,7 +1321,7 @@ window.addEventListener('resize',()=>{if(document.getElementById('grades').class
           load.textContent=txt;if(window.renderMathInElement){renderMathInElement(load,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}
           chatBox.scrollTop=chatBox.scrollHeight;
         })
-        .catch(function(e){load.textContent='❌ Ошибка распознавания: '+e.message;});
+        .catch(function(e){load.textContent=' Ошибка распознавания: '+e.message;});
       };
       reader.readAsDataURL(f);
     });
