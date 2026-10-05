@@ -180,7 +180,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
         messages = [{'role': 'system', 'content': sysp}]
         if hist:
             messages.extend(hist[-16:])
-        messages.append({'role': 'user', 'content': prompt}])
+        messages.append([{'role': 'user', 'content': prompt}])
         r = requests.post(
             'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
             headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'},
