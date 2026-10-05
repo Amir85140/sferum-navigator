@@ -10,6 +10,8 @@ from io import BytesIO
 
 import requests
 import urllib3
+
+import db as navigator_db
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
@@ -31,6 +33,7 @@ GIGA_SECRET = "93e085d7-803b-4fe2-b1da-468aff78a450"
 OAUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
 GIGA_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
 CHAT_FILE = Path("chat_sync.json")
+BANK_FILE = Path("bank.json")
 
 MATH_SYSTEM_DEFAULT = (
     "Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. "
@@ -145,6 +148,16 @@ def _ocr_from_base64(image_b64: str) -> str:
                     return best
     return best
 
+
+
+
+def _load_bank():
+    if BANK_FILE.exists():
+        try:
+            return json.loads(BANK_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
 
 @app.api_route("/proxy", methods=["GET", "POST", "OPTIONS"])
 async def proxy(request: Request, url: str = ""):
@@ -387,6 +400,74 @@ async def vision(request: Request):
 @app.get("/health")
 async def health():
     return {"status": "ok", "chat_sync": CHAT_FILE.exists(), "ocr": OCR_OK}
+
+
+
+# ===== PER-USER ДАННЫЕ (SQLite) =====
+@app.get("/api/state")
+async def api_state_get(user_id: str = "main"):
+    navigator_db.ensure_user(user_id)
+    return JSONResponse(content=navigator_db.get_state(user_id), headers={"Access-Control-Allow-Origin": "*"})
+
+
+@app.post("/api/state")
+async def api_state_post(request: Request, user_id: str = "main"):
+    patch = await request.json()
+    navigator_db.ensure_user(user_id)
+    navigator_db.set_state(user_id, patch or {})
+    return JSONResponse(content={"status": "ok"}, headers={"Access-Control-Allow-Origin": "*"})
+
+
+@app.get("/api/chat")
+async def api_chat_get(user_id: str = "main", limit: int = 50):
+    return JSONResponse(content=navigator_db.get_chat(user_id, limit), headers={"Access-Control-Allow-Origin": "*"})
+
+
+@app.post("/api/chat")
+async def api_chat_post(request: Request, user_id: str = "main"):
+    m = await request.json()
+    navigator_db.append_chat(user_id, m.get("role", "user"), m.get("content", ""), m.get("source", "web"))
+    return JSONResponse(content={"status": "ok"}, headers={"Access-Control-Allow-Origin": "*"})
+
+
+# ===== ПРОГРЕСС ПО БАНКУ =====
+@app.post("/api/progress")
+async def api_progress_post(request: Request, user_id: str = "main"):
+    m = await request.json()
+    navigator_db.save_progress(user_id, m.get("topic_id",""), m.get("task_idx",0), bool(m.get("correct")))
+    return JSONResponse(content={"status": "ok"}, headers={"Access-Control-Allow-Origin": "*"})
+
+
+@app.get("/api/progress")
+async def api_progress_get(user_id: str = "main"):
+    return JSONResponse(content=navigator_db.get_progress(user_id), headers={"Access-Control-Allow-Origin": "*"})
+
+
+# ===== БАНК ЗАДАНИЙ (ФИПИ) =====
+@app.get("/api/bank/subjects")
+async def bank_subjects():
+    bank = _load_bank()
+    out = [{"id": k, "title": v.get("title", k)} for k, v in bank.items()]
+    return JSONResponse(content=out, headers={"Access-Control-Allow-Origin": "*"})
+
+
+@app.get("/api/bank/topics")
+async def bank_topics(subject: str = ""):
+    bank = _load_bank()
+    subj = bank.get(subject) or {}
+    topics = [{"id": t.get("id"), "title": t.get("title"), "count": len(t.get("tasks", []))}
+              for t in subj.get("topics", [])]
+    return JSONResponse(content=topics, headers={"Access-Control-Allow-Origin": "*"})
+
+
+@app.get("/api/bank/tasks")
+async def bank_tasks(subject: str = "", topic: str = ""):
+    bank = _load_bank()
+    subj = bank.get(subject) or {}
+    for t in subj.get("topics", []):
+        if t.get("id") == topic:
+            return JSONResponse(content=t.get("tasks", []), headers={"Access-Control-Allow-Origin": "*"})
+    return JSONResponse(content=[], headers={"Access-Control-Allow-Origin": "*"})
 
 
 if __name__ == "__main__":
