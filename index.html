@@ -137,14 +137,19 @@
     color: #fff;
   }
   :root[data-theme="dark"] select option { 
-    background: rgba(0,194,255,.08); 
-    color: #F0FAFF; 
+    background: #0A1626 !important; 
+    color: #F0FAFF !important; 
   }
   @media (prefers-color-scheme: dark) { 
     :root[data-theme="auto"] select option { 
-      background: rgba(0,194,255,.08); 
-      color: #F0FAFF; 
+      background: #0A1626 !important; 
+      color: #F0FAFF !important; 
     } 
+  }
+  :root[data-theme="dark"] select,
+  :root[data-theme="auto"] select {
+    background: var(--field) !important;
+    color: var(--ink) !important;
   }
 
   html { scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
@@ -561,7 +566,7 @@
     <span class="sp s1">✦</span><span class="sp s2">✧</span><span class="sp s3">★</span><span class="sp s4">✦</span><span class="sp s5">✧</span>
     <div class="head">
       <div class="hi">
-        <div class="mascot" id="mascotHome">🤖</div>
+        <div class="mascot" id="mascotHome"></div>
         <div>
           <h1 id="heroGreet">Привет!</h1>
           <div class="sub">Sferum Navigator · GigaChat</div>
@@ -589,8 +594,8 @@
     <div class="cloud-grid">
       <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты</div></button>
-      <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
-      <button class="cloud" onclick="go('video')"><div class="em"></div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
+      <button class="cloud" onclick="go('grades')"><div class="em"></div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
+      <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
     </div>
@@ -599,27 +604,27 @@
   <div id="shop" class="page">
     <div class="head"><div class="hi"><div class="mascot">🛒</div><div><h1>Магазин скинов</h1><div class="sub">Трать XP на кастомизацию</div></div></div></div>
     <div class="shop-header">
-      <div class="shop-xp"> <span id="shopXpBalance">0</span> XP <span>доступно</span></div>
-      <div class="shop-xp"> <span id="shopOwnedCount">0</span> <span>куплено</span></div>
+      <div class="shop-xp">💎 <span id="shopXpBalance">0</span> XP <span>доступно</span></div>
+      <div class="shop-xp">🛒 <span id="shopOwnedCount">0</span> <span>куплено</span></div>
     </div>
     <div class="puff" style="margin-bottom:14px;">
-      <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика 🔥). Подсказка в тесте стоит 100 XP.</div>
+      <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика ). Подсказка в тесте стоит 100 XP.</div>
     </div>
     <div id="shopBox"></div>
   </div>
 
   <div id="chat" class="page">
-    <div class="head"><div class="hi"><div class="mascot">🤖</div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
     <div class="chat-search"><input id="chatSearch" placeholder="🔍 Поиск по чату..." oninput="searchChat(this.value)"></div>
     <div class="chat-box" id="chatBox"></div>
     <div class="qchips">
-      <button onclick="chipSet('Объясни тему: ')"> Объясни тему</button>
+      <button onclick="chipSet('Объясни тему: ')">💡 Объясни тему</button>
       <button onclick="chipSet('Придумай пример: ')">✏️ Придумай пример</button>
       <button onclick="chipSet('Я получил оценку: ')">📚 Запиши оценку</button>
       <button onclick="chipSet('Поддержи меня, мне тяжело')">💪 Поддержи</button>
     </div>
     <div class="chat-input">
-      <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()" title="Очистить общий чат">⋯</button><input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()" title="Очистить общий чат"></button><input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
       <input type="file" id="chatPhoto" accept="image/*" style="display:none" onchange="sendPhotoChat(this)"><button class="btn sky" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()">📸</button><button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
     <button class="btn ghost" onclick="clearChat()">🗑 Очистить общий чат</button>
@@ -628,7 +633,7 @@
   <div id="plan" class="page">
     <div class="head"><div class="hi"><div class="mascot">📅</div><div><h1>Персональный план</h1><div class="sub">GigaChat составит под тебя</div></div></div></div>
     <div class="seg">
-      <button id="segForm" class="on" onclick="planTab('form')">️ Настройки</button>
+      <button id="segForm" class="on" onclick="planTab('form')">⚙️ Настройки</button>
       <button id="segView" onclick="planTab('view')">📋 Мой план</button>
     </div>
     <div id="planFormBox">
@@ -642,7 +647,7 @@
         <label>🏆 Цель</label>
         <input type="text" id="pGoal" placeholder="сдать на 90+">
         <div class="row2">
-          <div><label>⏰ Мин/день</label><input type="number" id="pMinutes" value="60" min="15" max="480" step="15"></div>
+          <div><label> Мин/день</label><input type="number" id="pMinutes" value="60" min="15" max="480" step="15"></div>
           <div><label>📅 Дней/нед</label><select id="pDays"><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option></select></div>
         </div>
         <label>📊 Уровень</label>
@@ -654,8 +659,8 @@
     </div>
     <div id="planViewBox" style="display:none;">
       <div class="seg">
-        <button id="segSched" class="on" onclick="planView('sched')"> Расписание</button>
-        <button id="segTopics" onclick="planView('topics')"> Темы и тесты</button>
+        <button id="segSched" class="on" onclick="planView('sched')">📆 Расписание</button>
+        <button id="segTopics" onclick="planView('topics')">🎯 Темы и тесты</button>
       </div>
       <div id="planSched"></div>
       <div id="planTopics" style="display:none;"></div>
@@ -689,7 +694,7 @@
   </div>
 
   <div id="grades" class="page">
-    <div class="head"><div class="hi"><div class="mascot">📚</div><div><h1>Дневник</h1><div class="sub">Пиши словами — ИИ разберёт</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Дневник</h1><div class="sub">Пиши словами — ИИ разберёт</div></div></div></div>
     <div class="puff" style="margin-bottom:12px;">
       <canvas id="gGraph" style="width:100%;height:96px;display:block;"></canvas>
       <div class="hint" id="gGraphHint" style="margin-top:6px;">Добавь оценки в два разных дня — появится график прогресса</div>
@@ -737,10 +742,10 @@
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
           <li>🔐 Ключи GigaChat хранятся только на сервере</li>
-          <li>🏆 XP — только за проход темы (тест 80%+);  тратятся на скины</li>
+          <li>🏆 XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
           <li>💬 Все диалоги и подтверждения — в стиле приложения</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 38</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 39</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -750,21 +755,21 @@
     <div class="head"><div class="hi"><div class="mascot">⋯</div><div><h1>Ещё разделы</h1></div></div></div>
     <div class="cloud-grid">
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
-      <button class="cloud" onclick="go('video')"><div class="em"></div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
+      <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 38</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 39</div></button>
     </div>
   </div>
 
 </div>
 
 <nav class="dock">
-  <button data-tab="home" onclick="go('home')"><span class="ic"></span>Дом</button>
+  <button data-tab="home" onclick="go('home')"><span class="ic">🏠</span>Дом</button>
   <button data-tab="chat" onclick="go('chat')"><span class="ic">💬</span>Чат</button>
   <button data-tab="plan" onclick="go('plan')"><span class="ic">📅</span>План</button>
   <button data-tab="quiz" onclick="go('quiz')"><span class="ic">✅</span>Тест</button>
-  <button data-tab="more" onclick="go('more')"><span class="ic">⋯</span>Ещё</button>
+  <button data-tab="more" onclick="go('more')"><span class="ic"></span>Ещё</button>
 </nav>
 
 <script>
@@ -812,8 +817,8 @@ document.addEventListener('visibilitychange', () => {
 });
 
 const ONB=[
-  ['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],
-  ['📅','План и «Сегодня»','План соберёт твою неделю, а карточка «Сегодня» подскажет, что учить прямо сейчас.'],
+  ['','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],
+  ['','План и «Сегодня»','План соберёт твою неделю, а карточка «Сегодня» подскажет, что учить прямо сейчас.'],
   ['🏆','XP со смыслом','XP даётся ТОЛЬКО за проход темы: тест на 80–100% = +30 XP = дневная норма для стрика 🔥. XP трать в магазине 🛒 на скины.']
 ];
 let onbI=0;
@@ -884,7 +889,7 @@ function addXP(n,reason){
     const y=new Date(Date.now()-864e5).toDateString();
     g.streak=(g.streakLast===y)?g.streak+1:1;
     g.streakLast=t;saveGame(g);
-    setTimeout(()=>toast('🎯 Норма дня выполнена! 🔥 '+g.streak),500);
+    setTimeout(()=>toast(' Норма дня выполнена! 🔥 '+g.streak),500);
   }
   renderGame();checkBadges();
 }
@@ -897,12 +902,12 @@ function spendXP(n){
   renderGame();
   return true;
 }
-function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
+function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast(' Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
 function renderGame(){
   const g=loadGame();const lvl=Math.floor(g.xp/100)+1;const prog=g.xp%100;const t=new Date().toDateString();
   const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');
-  const goalTxt='📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
-  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин 🛒</span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
+  const goalTxt=' Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
+  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин 🛒</span>')+'</div></div><div class="gb-streak"> '+g.streak+'</div>';
 }
 
 const SHOP=[
@@ -912,18 +917,18 @@ const SHOP=[
   {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
   {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
   {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
-  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠💬📅✅',price:0,val:'default'},
-  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🐼🐯🦁',price:40,val:'zoo'},
-  {id:'ic_space',cat:'icons',name:'Космос',prev:'🌍🚀🎯🌟',price:40,val:'space'},
-  {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🍟🌭🍩',price:40,val:'food'},
+  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'💬📅✅',price:0,val:'default'},
+  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🐼🐯',price:40,val:'zoo'},
+  {id:'ic_space',cat:'icons',name:'Космос',prev:'🌍🎯🌟',price:40,val:'space'},
+  {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🍟🌭',price:40,val:'food'},
   {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀🏈🎾🎯',price:50,val:'sport'},
   {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎹🎺🎤',price:50,val:'music'},
-  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
-  {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
-  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:'🐉'},
-  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'',price:50,val:'👾'},
-  {id:'ms_cat',cat:'mascot',name:'Кот',prev:'',price:60,val:'🐱'},
-  {id:'ms_panda',cat:'mascot',name:'Панда',prev:'',price:60,val:'🐼'},
+  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'',price:0,val:'🤖'},
+  {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:''},
+  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:''},
+  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
+  {id:'ms_cat',cat:'mascot',name:'Кот',prev:'🐱',price:60,val:'🐱'},
+  {id:'ms_panda',cat:'mascot',name:'Панда',prev:'🐼',price:60,val:'🐼'},
   {id:'ac_default',cat:'acc',name:'Синий',css:'#2787F5',price:0,val:'default'},
   {id:'ac_violet',cat:'acc',name:'Фиолет',css:'#8B5CF6',price:30,val:'violet'},
   {id:'ac_green',cat:'acc',name:'Зелёный',css:'#22C55E',price:30,val:'green'},
@@ -931,14 +936,14 @@ const SHOP=[
   {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
   {id:'ac_coral',cat:'acc',name:'Коралловый',css:'#FF6B6B',price:40,val:'coral'},
 ];
-const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:'🎨 Акцентный цвет'};
+const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:' Маскот',acc:'🎨 Акцентный цвет'};
 const ICON_SETS={
-  default:['🏠','💬','📅','✅',''],
-  zoo:['🐻','','🐼','🐯',''],
-  space:['🌍','','🛸','🎯',''],
-  food:['🍔','','🍕','🌭',''],
-  sport:['⚽','','🏈','🎾',''],
-  music:['🎵','','🎹','🎺','']
+  default:['🏠','💬','📅','✅','⋯'],
+  zoo:['','🦊','🐼','','🦁'],
+  space:['','🚀','🛸','','🌟'],
+  food:['','🍟','🍕','','🍩'],
+  sport:['','🏀','🏈','','🎯'],
+  music:['','🎸','🎹','','🎤']
 };
 function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
@@ -1005,6 +1010,67 @@ const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const TEST_SIZE=20;
 const CHANNEL='main';
 const MATH_SYSTEM='Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
+
+// ===== ФУНКЦИЯ РАСКРЫТИЯ СОКРАЩЕНИЙ В ПОЛНЫЕ НАЗВАНИЯ =====
+const SUBJECT_FULL_NAMES = {
+  'матан': 'Математика', 'матем': 'Математика', 'мат-ка': 'Математика', 'математика': 'Математика', 'математ': 'Математика',
+  'алгебр': 'Алгебра', 'алгебра': 'Алгебра',
+  'геометр': 'Геометрия', 'геом': 'Геометрия', 'геометрия': 'Геометрия',
+  'русск': 'Русский язык', 'рус язы': 'Русский язык', 'рус': 'Русский язык', 'русский': 'Русский язык', 'русский язык': 'Русский язык',
+  'литер': 'Литература', 'лит-ра': 'Литература', 'литре': 'Литература', 'литру': 'Литература', 'литрой': 'Литература', 'лит': 'Литература', 'литература': 'Литература',
+  'англ': 'Английский язык', 'инглиш': 'Английский язык', 'english': 'Английский язык', 'ин яз': 'Английский язык', 'ин.яз': 'Английский язык', 'английский': 'Английский язык', 'английский язык': 'Английский язык',
+  'немец': 'Немецкий язык', 'герман': 'Немецкий язык', 'немецкий': 'Немецкий язык',
+  'испан': 'Испанский язык', 'испанский': 'Испанский язык',
+  'физр': 'Физкультура', 'физкульт': 'Физкультура', 'физ-ра': 'Физкультура', 'физра': 'Физкультура', 'физкультура': 'Физкультура',
+  'физик': 'Физика', 'физика': 'Физика',
+  'хим': 'Химия', 'химия': 'Химия',
+  'био': 'Биология', 'биолог': 'Биология', 'биология': 'Биология',
+  'истор': 'История', 'ист': 'История', 'история': 'История',
+  'обществ': 'Обществознание', 'общ': 'Обществознание', 'обществознание': 'Обществознание',
+  'географ': 'География', 'геогр': 'География', 'гео': 'География', 'география': 'География',
+  'информ': 'Информатика', 'инфа': 'Информатика', 'комп': 'Информатика', 'программ': 'Информатика', 'инф': 'Информатика', 'информатика': 'Информатика',
+  'отдых': 'Отдых', 'выходной': 'Отдых'
+};
+
+function expandSubjectName(name) {
+  if (!name) return name;
+  const lower = name.toLowerCase().trim();
+  // Точное совпадение
+  if (SUBJECT_FULL_NAMES[lower]) return SUBJECT_FULL_NAMES[lower];
+  // Частичное совпадение (если сокращение является частью слова)
+  for (const [short, full] of Object.entries(SUBJECT_FULL_NAMES)) {
+    if (lower === short || lower.startsWith(short + ' ') || lower.endsWith(' ' + short)) {
+      return full;
+    }
+  }
+  // Если первое слово — сокращение, заменяем только его
+  const words = name.split(' ');
+  if (words.length > 0 && SUBJECT_FULL_NAMES[words[0].toLowerCase()]) {
+    words[0] = SUBJECT_FULL_NAMES[words[0].toLowerCase()];
+    return words.join(' ');
+  }
+  return name;
+}
+
+function normalizePlanSubjects(plan) {
+  if (!plan || !plan.schedule) return plan;
+  plan.schedule = plan.schedule.map(item => {
+    if (item && item.subject) {
+      item.subject = expandSubjectName(item.subject);
+    }
+    return item;
+  });
+  // Также нормализуем в done
+  if (plan.done) {
+    plan.done = plan.done.map(item => {
+      if (item && item.subject) {
+        item.subject = expandSubjectName(item.subject);
+      }
+      return item;
+    });
+  }
+  return plan;
+}
 
 function mathIn(el){if(!el||!window.renderMathInElement)return;try{renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false});}catch(e){}}
 window.addEventListener('load',()=>mathIn(document.body));
@@ -1081,7 +1147,7 @@ async function sendChat(){
   const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
   i.value='';addMsg(t,'user','web');
   const local=extractGradesLocal(t);
-  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
+  if(local){local.forEach(p=>addGradeToStorage(p));addMsg(' Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
   const loading=document.createElement('div');loading.className='skel skel-msg';
   const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
   document.getElementById('chatBtn').disabled=true;
@@ -1090,8 +1156,8 @@ async function sendChat(){
     const resp=await askGiga(t,MATH_SYSTEM+' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про оценки — порадуйся или поддержи.',800);
     const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
     await syncChatHistory();
-    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
-  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':' Ошибка: '+e.message,'bot');}
+    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg(' Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
+  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
   finally{document.getElementById('chatBtn').disabled=false;}
 }
 function clearChat(){uiConfirm('Удалить общий чат?\nОн исчезнет и здесь, и в MAX.',function(){
@@ -1123,14 +1189,14 @@ function planView(t){
 
 function renderPlan(data){
   let sch='', top='';
-  if(data.examName)sch+='<div class="item ai"> Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
+  if(data.examName)sch+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
   if(data.schedule&&data.schedule.length){
     const sc=data.schedule.filter(s=>!isRestDay(s)).length;
     sch+='<div class="item ai">📆 Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
     const ti=todayIdx();
     data.schedule.forEach((s,i)=>{sch+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
     const td=data.schedule[ti];
-    if(td&&!isRestDay(td)){sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
+    if(td&&!isRestDay(td)){sch+='<div class="item ai"> Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()"> Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
     else if(td){sch+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
 
     const wt=data.schedule.filter(s=>!isRestDay(s));
@@ -1139,7 +1205,7 @@ function renderPlan(data){
       wt.forEach(s=>{const key=topicKey(s);if(!key)return;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
         top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
         if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
-          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()"> Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
+          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
       if(data.done&&data.done.length)top+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
       else top+='<div class="item">Пока ничего не пройдено — выбери тему и сдай тест на 80%+ 👆</div>';
     }
@@ -1157,10 +1223,13 @@ async function buildPlan(){
   planTab('view');planView('sched');
   showLoading('planSched','GigaChat продумывает план...');
   try{
-    const prompt='Ученик '+params.grade+' класса сдаёт: '+params.exam+'. До экзамена '+ei.weeks+' недель.\nПредметы: '+params.subjects+'\nЦель: '+params.goal+'\nЗанятия: '+params.minutes+' мин/день, РОВНО '+params.days+' УЧЕБНЫХ дней в неделю.\nУровень: '+params.level+'\nСлабые места: '+params.weak+'\n\nСАМ продумай логичное расписание на эту неделю: РОВНО '+params.days+' учебных и '+(7-params.days)+' дней отдыха (subject="отдых"), чередуй сложное/лёгкое, укажи конкретную тему каждого учебного дня. Обоснуй в activity.\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"...","topic":"...","activity":"..."},...ровно 7 элементов],"summary":"2-3 предложения общих советов"}';
-    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.',2500);
+    // ДОБАВЛЕНА ИНСТРУКЦИЯ ИСПОЛЬЗОВАТЬ ПОЛНЫЕ НАЗВАНИЯ
+    const prompt='Ученик '+params.grade+' класса сдаёт: '+params.exam+'. До экзамена '+ei.weeks+' недель.\nПредметы: '+params.subjects+'\nЦель: '+params.goal+'\nЗанятия: '+params.minutes+' мин/день, РОВНО '+params.days+' УЧЕБНЫХ дней в неделю.\nУровень: '+params.level+'\nСлабые места: '+params.weak+'\n\nСАМ продумай логичное расписание на эту неделю: РОВНО '+params.days+' учебных и '+(7-params.days)+' дней отдыха (subject="отдых"), чередуй сложное/лёгкое, укажи конкретную тему каждого учебного дня. Обоснуй в activity.\n\nВАЖНО: Используй ТОЛЬКО ПОЛНЫЕ названия предметов (Математика, Русский язык, Информатика, Физика, Химия, Биология, История, Обществознание, География, Литература, Английский язык, Физкультура). НЕ используй сокращения типа "матан", "инфо", "рус", "физра" и т.д.\n\nВерни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"Математика","topic":"...","activity":"..."},...ровно 7 элементов],"summary":"2-3 предложения общих советов"}';
+    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown. Используй полные названия предметов.',2500);
     let data=parseJSONObjectSafe(resp);if(!data||!data.schedule)data={text:resp};
     if(data.schedule)data.schedule=normalizeSchedule(data.schedule,params.days);
+    // Нормализуем сокращения в полные названия
+    data=normalizePlanSubjects(data);
     data.examName=ei.name;data.examDate=ei.examDate.toLocaleDateString('ru-RU');data.weeks=ei.weeks;data.savedAt=new Date().toLocaleDateString('ru-RU');data.scheduleWeek=currentWeekKey();data.params=params;data.done=[];data.testPassed={};data.selectedTopic=null;
     savePlan(data);renderPlan(data);renderToday();
     const g=loadGame();g.plan=true;saveGame(g);checkBadges();
@@ -1182,13 +1251,17 @@ async function checkWeekUpdate(){
     const uncompleted=allTopics.filter(t=>t && !doneTopics.includes(t));
     const uncompletedStr=uncompleted.length ? uncompleted.join('; ') : 'все темы пройдены';
 
+    // ДОБАВЛЕНА ИНСТРУКЦИЯ ИСПОЛЬЗОВАТЬ ПОЛНЫЕ НАЗВАНИЯ
     const prompt='Новая неделя. Ученик '+p.grade+' кл., сдаёт '+p.exam+' ('+ei.weeks+' нед.). Предметы: '+p.subjects+'. '+p.minutes+' мин/день, РОВНО '+p.days+' учебных дней. Уровень: '+p.level+'. Слабые: '+p.weak+'.\n'+
     'НЕПРОЙДЕННЫЕ темы с прошлой недели (ОБЯЗАТЕЛЬНО включи их в расписание новой недели в первую очередь): '+uncompletedStr+'.\n'+
+    'ВАЖНО: Используй ТОЛЬКО ПОЛНЫЕ названия предметов (Математика, Русский язык, Информатика, Физика, Химия, Биология, История, Обществознание, География, Литература, Английский язык, Физкультура). НЕ используй сокращения типа "матан", "инфо", "рус", "физра" и т.д.\n'+
     'Составь расписание на НОВУЮ неделю (Пн-Вс): РОВНО '+p.days+' учебных и '+(7-p.days)+' отдыха, включи непройденные темы и добавь новые. Верни СТРОГО JSON: {"schedule":[...7 {"day","subject","topic","activity"}]}';
-    const resp=await askGiga(prompt,'Верни только валидный JSON.',2000);
+    const resp=await askGiga(prompt,'Верни только валидный JSON. Используй полные названия предметов.',2000);
     const data=parseJSONObjectSafe(resp);
     if(data&&data.schedule&&data.schedule.length===7){
       plan.schedule=normalizeSchedule(data.schedule,p.days);
+      // Нормализуем сокращения в полные названия
+      plan=normalizePlanSubjects(plan);
       plan.scheduleWeek=currentWeekKey();
       plan.selectedTopic=null;
       plan.testPassed={};
@@ -1212,7 +1285,7 @@ let qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0,qHintUsed=fa
 function normalize(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();}
 async function semanticCheck(q,c,u){const nu=parseFloat(String(u).replace(',','.')),nc=parseFloat(String(c).replace(',','.'));if(!isNaN(nu)&&!isNaN(nc)&&Math.abs(nu-nc)<1e-6)return true;const a=normalize(u),b=normalize(c);if(a&&b&&Math.min(a.length,b.length)>=3&&(a.includes(b)||b.includes(a)))return true;try{const r=await askGiga('Вопрос: «'+q+'». Правильный ответ: «'+c+'». Ответ ученика: «'+u+'». Верен ли ответ ПО СМЫСЛУ? Верни СТРОГО JSON: {"correct": true|false}.','Верни только JSON.',100);const o=parseJSONObjectSafe(r);if(o&&typeof o.correct==='boolean')return o.correct;}catch(e){}return false;}
 async function fetchBatch(topic,diff,n,grade,type){const prompt='Придумай '+n+' заданий для '+grade+' класса по «'+topic+'». Тип: '+type+'. Сложность: '+diff+'. От простых к сложным. Формулы в задании можно в LaTeX ($...$), но "answer" — ПРОСТЫМ текстом (54, x^2, 1/2, Москва). Без вариантов ответа. Вопрос до 120 символов, с пробелами. Верни СТРОГО JSON-массив: [{"question","answer","alternatives":[],"hint"}]';let lastErr;for(let a=0;a<2;a++){try{const r=await askGiga(prompt,'Ты — учитель. Верни только валидный JSON-массив.',4000);const arr=parseJSONArraySafe(r);const out=[];for(const o of arr){if(o&&o.question&&o.answer){o.question=await ensureSpaces(o.question);o.hint=o.hint?await ensureSpaces(o.hint):'';out.push(o);}}if(!out.length)throw new Error('Пусто');return out;}catch(e){lastErr=e;}}throw lastErr;}
-function updateNextLabel(){document.getElementById('nextBtn').textContent='➡️ Дальше (в запасе: '+qQueue.length+')';}
+function updateNextLabel(){document.getElementById('nextBtn').textContent='️ Дальше (в запасе: '+qQueue.length+')';}
 function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100:0;const b=document.getElementById('quizProgress');if(b)b.style.width=pct+'%';const w=document.getElementById('quizProgressWrap');if(w)w.style.display=qBatchTotal?'block':'none';}
 function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';q.innerHTML=escapeHtml(o.question);mathIn(q);const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);
   const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;bb.textContent=g.xp>=HINT_COST?'💡 Купить подсказку (−'+HINT_COST+' XP)':'💡 Подсказка: нужно '+HINT_COST+' XP';
@@ -1233,7 +1306,7 @@ function finishBatch(){
       addXP(30,'тема пройдена');
       const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
     }else{
-      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')"> Пересдать тест</button>';
+      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
     }
     qPendingTopic=null;
   }
@@ -1241,7 +1314,7 @@ function finishBatch(){
 }
 async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u));let bySense=false;if(!ok){document.getElementById('quizResult').innerHTML='<div class="skel skel-card" style="height:56px"></div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;const g=loadGame();g.correct++;saveGame(g);box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);checkBadges();}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();}
 
-async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши так: матан 5 4, физра 3','✍️');const btn=document.getElementById('gAddBtn');btn.disabled=true;document.getElementById('gAi').innerHTML='<div class="skel skel-card"></div>';let parsed=null;try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (ОБЯЗАТЕЛЬНО раскрой сленг и сокращения: матан->Математика, физра->Физкультура, ин яз->Английский язык и т.д.) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}if(!parsed||!parsed.length)parsed=extractGradesLocal(text);if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: матан 5 4, физра 3</div>';btn.disabled=false;return;}parsed.forEach(p=>addGradeToStorage(p));document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';mathIn(document.getElementById('gAi'));btn.disabled=false;}
+async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши так: матан 5 4, физра 3','️');const btn=document.getElementById('gAddBtn');btn.disabled=true;document.getElementById('gAi').innerHTML='<div class="skel skel-card"></div>';let parsed=null;try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (ОБЯЗАТЕЛЬНО раскрой сленг и сокращения: матан->Математика, физра->Физкультура, ин яз->Английский язык и т.д.) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}if(!parsed||!parsed.length)parsed=extractGradesLocal(text);if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: матан 5 4, физра 3</div>';btn.disabled=false;return;}parsed.forEach(p=>addGradeToStorage(p));document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';mathIn(document.getElementById('gAi'));btn.disabled=false;}
 function delG(s){const g=loadG();delete g[s];saveG(g);renderG();pushHist();}
 function clearGrades(){uiConfirm('Удалить все оценки и историю графика?',function(){
   localStorage.removeItem('g');gHist=[];localStorage.removeItem('sn_g_hist');renderG();document.getElementById('gAi').innerHTML='';
@@ -1281,7 +1354,7 @@ async function buildVideo(){
   finally{btn.disabled=false;}
 }
 
-async function motivationAI(){const mood=document.getElementById('mMood').value;const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[mood];const sit=document.getElementById('mText').value.trim();const btn=document.getElementById('mBtn');btn.disabled=true;const box=document.getElementById('quoteBox');box.textContent='⏳ Читаю и подбираю слова...';try{let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';const r=await askGiga(prompt);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);}catch(e){box.textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
+async function motivationAI(){const mood=document.getElementById('mMood').value;const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[mood];const sit=document.getElementById('mText').value.trim();const btn=document.getElementById('mBtn');btn.disabled=true;const box=document.getElementById('quoteBox');box.textContent=' Читаю и подбираю слова...';try{let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';const r=await askGiga(prompt);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);}catch(e){box.textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
 
 function updateGreeting(){const h=new Date().getHours();let g='Доброй ночи!';if(h>=5&&h<12)g='Доброе утро!';else if(h>=12&&h<18)g='Добрый день!';else if(h>=18&&h<23)g='Добрый вечер!';const el=document.getElementById('heroGreet');if(el)el.textContent=g;}
 updateGreeting();setInterval(updateGreeting,60000);
@@ -1291,12 +1364,20 @@ function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove
 function updateHomeStats(){try{const plan=loadPlan();const w=document.getElementById('statWeeks'),d=document.getElementById('statDone');if(plan){if(w)w.textContent=plan.weeks||'—';if(d)d.textContent=(plan.done||[]).length;}else{if(w)w.textContent='—';if(d)d.textContent='0';}}catch(e){}renderToday();renderGame();}
 
 applySkin();
-const savedPlan=loadPlan();if(savedPlan)renderPlan(savedPlan);
+const savedPlan=loadPlan();
+// Нормализуем существующий план при загрузке
+if(savedPlan){
+  const normalizedPlan=normalizePlanSubjects(savedPlan);
+  if(JSON.stringify(normalizedPlan)!==JSON.stringify(savedPlan)){
+    savePlan(normalizedPlan);
+  }
+  renderPlan(normalizedPlan);
+}
 renderG();updateHomeStats();setTab('home');renderGame();renderToday();drawGraph();
 syncChatHistory().then(()=>restoreChatHistory());
 checkWeekUpdate();
 setInterval(syncChatHistory,30000);
-async function sendPhotoChat(input){const f=input.files&&input.files[0];if(!f)return;input.value='';addMsg('📸 Фото задачи','user','web');const loading=document.createElement('div');loading.className='skel skel-msg';const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;const reader=new FileReader();reader.onload=async function(){try{const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})});if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}const d=await r.json();let txt='📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';if(d.ocr)txt+='🔤 '+d.ocr+'\n';txt+=cleanResponse(d.solution||'');loading.remove();addMsg(txt,'bot','web');}catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}};reader.readAsDataURL(f);}
+async function sendPhotoChat(input){const f=input.files&&input.files[0];if(!f)return;input.value='';addMsg('📸 Фото задачи','user','web');const loading=document.createElement('div');loading.className='skel skel-msg';const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;const reader=new FileReader();reader.onload=async function(){try{const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})});if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}const d=await r.json();let txt=' Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';if(d.ocr)txt+='🔤 '+d.ocr+'\n';txt+=cleanResponse(d.solution||'');loading.remove();addMsg(txt,'bot','web');}catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}};reader.readAsDataURL(f);}
 setTimeout(onbStart,700);
 window.addEventListener('resize',()=>{if(document.getElementById('grades').classList.contains('active'))drawGraph();});
 </script>
