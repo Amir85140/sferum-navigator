@@ -391,7 +391,7 @@
   #confetti { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
   .katex-display { overflow-x: auto; padding: 4px 0; }
 
-  /* Стили для чекбоксов предметов */
+  /* Стили для чекбоксов */
   .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
   .subject-check { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--field); border: var(--field-bd); border-radius: 12px; cursor: pointer; transition: all .2s; }
   .subject-check:hover { background: var(--c0-bg); }
@@ -399,7 +399,6 @@
   .subject-check label { font-size: 13px; font-weight: 700; color: var(--ink); cursor: pointer; margin: 0; }
   .subject-check input:checked + label { color: var(--accent); font-weight: 900; }
 
-  /* Стили для выбора дней отдыха */
   .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 10px 0; }
   .day-check { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; background: var(--field); border: var(--field-bd); border-radius: 12px; cursor: pointer; transition: all .2s; }
   .day-check:hover { background: var(--c0-bg); }
@@ -582,7 +581,7 @@
     <span class="sp s1">✦</span><span class="sp s2">✧</span><span class="sp s3">★</span><span class="sp s4">✦</span><span class="sp s5">✧</span>
     <div class="head">
       <div class="hi">
-        <div class="mascot" id="mascotHome"></div>
+        <div class="mascot" id="mascotHome">🤖</div>
         <div>
           <h1 id="heroGreet">Привет!</h1>
           <div class="sub">Sferum Navigator · GigaChat</div>
@@ -601,14 +600,14 @@
     <div id="todayCard"></div>
 
     <button class="hero" onclick="go('chat')">
-      <div class="orb"></div>
+      <div class="orb">🤖</div>
       <h2>Спроси GigaChat</h2>
       <p>Любой вопрос по учёбе, формулы, объяснения простым языком. Чат общий с ботом MAX!</p>
       <span class="pill">Начать диалог →</span>
     </button>
 
     <div class="cloud-grid">
-      <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
+      <button class="cloud" onclick="go('plan')"><div class="em"></div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты</div></button>
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
@@ -637,11 +636,14 @@
       <button onclick="chipSet('Объясни тему: ')">💡 Объясни тему</button>
       <button onclick="chipSet('Придумай пример: ')">✏️ Придумай пример</button>
       <button onclick="chipSet('Я получил оценку: ')">📚 Запиши оценку</button>
-      <button onclick="chipSet('Поддержи меня, мне тяжело')">💪 Поддержи</button>
+      <button onclick="chipSet('Поддержи меня, мне тяжело')"> Поддержи</button>
     </div>
     <div class="chat-input">
-      <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()" title="Очистить общий чат">⋯</button><input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
-      <input type="file" id="chatPhoto" accept="image/*" style="display:none" onchange="sendPhotoChat(this)"><button class="btn sky" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()">📷</button><button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
+      <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()" title="Очистить общий чат">⋯</button>
+      <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
+      <input type="file" id="chatPhoto" accept="image/*" style="display:none" onchange="sendPhotoChat(this)">
+      <button class="btn sky" id="photoBtn" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()">📷</button>
+      <button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
     <button class="btn ghost" onclick="clearChat()">🗑 Очистить общий чат</button>
   </div>
@@ -649,7 +651,7 @@
   <div id="plan" class="page">
     <div class="head"><div class="hi"><div class="mascot">📅</div><div><h1>Персональный план</h1><div class="sub">GigaChat составит под тебя</div></div></div></div>
     <div class="seg">
-      <button id="segForm" class="on" onclick="planTab('form')">⚙️ Настройки</button>
+      <button id="segForm" class="on" onclick="planTab('form')">️ Настройки</button>
       <button id="segView" onclick="planTab('view')">📋 Мой план</button>
     </div>
     <div id="planFormBox">
@@ -657,7 +659,7 @@
         <label>🎓 Твой класс</label>
         <select id="pGrade"><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select>
         
-        <label>🎯 Что сдаёшь</label>
+        <label> Что сдаёшь</label>
         <select id="pExam">
           <option value="">Не сдаю экзамен</option>
           <option value="ОГЭ">ОГЭ (9 класс)</option>
@@ -680,15 +682,13 @@
           <div class="subject-check"><input type="checkbox" id="subj_pe" value="Физкультура"><label for="subj_pe">Физкультура</label></div>
         </div>
         
-        <label> Цель</label>
+        <label>🏆 Цель</label>
         <input type="text" id="pGoal" placeholder="сдать на 90+, подтянуть оценки...">
         
-        <div class="row2">
-          <div><label>⏰ Мин/день</label><input type="number" id="pMinutes" value="60" min="15" max="480" step="15"></div>
-          <div><label>📅 Дней занятий/нед</label><select id="pDays"><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option></select></div>
-        </div>
+        <label>⏰ Минут в день на учёбу</label>
+        <input type="number" id="pMinutes" value="60" min="15" max="480" step="15">
         
-        <label>📊 Уровень</label>
+        <label> Уровень</label>
         <select id="pLevel"><option value="начальный">Начальный</option><option value="средний" selected>Средний</option><option value="продвинутый">Продвинутый</option></select>
         
         <label>😓 Слабые места</label>
@@ -715,7 +715,7 @@
       </div>
       <div id="planSched"></div>
       <div id="planTopics" style="display:none;"></div>
-      <button class="btn ghost" onclick="deletePlan()"> Удалить план</button>
+      <button class="btn ghost" onclick="deletePlan()">🗑 Удалить план</button>
     </div>
   </div>
 
@@ -727,7 +727,7 @@
       <div class="row3">
         <div><label>🎓 Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
         <div><label>🧩 Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
-        <div><label>🎚 Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
+        <div><label> Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
       </div>
       <button class="btn sky" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
     </div>
@@ -774,15 +774,15 @@
   </div>
 
   <div id="motivation" class="page">
-    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Мотивация</h1><div class="sub">Расскажи, что случилось</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">💪</div><div><h1>Мотивация</h1><div class="sub">Расскажи, что случилось</div></div></div></div>
     <div class="puff">
       <label>Настроение</label>
       <select id="mMood"><option value="tired">Устал</option><option value="worried">Переживаю</option><option value="lazy">Лень</option><option value="ok">Нормально</option></select>
-      <label>️ Что случилось?</label>
+      <label>✍️ Что случилось?</label>
       <textarea id="mText" rows="3" placeholder="необязательно"></textarea>
       <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
     </div>
-    <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку </div>
+    <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
   </div>
 
   <div id="about" class="page">
@@ -793,10 +793,10 @@
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
           <li>🔐 Ключи GigaChat хранятся только на сервере</li>
-          <li>🏆 XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
+          <li> XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
           <li>💬 Все диалоги и подтверждения — в стиле приложения</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 40</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 41</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -805,11 +805,11 @@
   <div id="more" class="page">
     <div class="head"><div class="hi"><div class="mascot">⋯</div><div><h1>Ещё разделы</h1></div></div></div>
     <div class="cloud-grid">
-      <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
+      <button class="cloud" onclick="go('grades')"><div class="em"></div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 40</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 41</div></button>
     </div>
   </div>
 
@@ -820,7 +820,7 @@
   <button data-tab="chat" onclick="go('chat')"><span class="ic">💬</span>Чат</button>
   <button data-tab="plan" onclick="go('plan')"><span class="ic">📅</span>План</button>
   <button data-tab="quiz" onclick="go('quiz')"><span class="ic">✅</span>Тест</button>
-  <button data-tab="more" onclick="go('more')"><span class="ic">⋯</span>Ещё</button>
+  <button data-tab="more" onclick="go('more')"><span class="ic"></span>Ещё</button>
 </nav>
 
 <script>
@@ -870,7 +870,7 @@ document.addEventListener('visibilitychange', () => {
 const ONB=[
   ['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],
   ['📅','План и «Сегодня»','План соберёт твою неделю, а карточка «Сегодня» подскажет, что учить прямо сейчас.'],
-  ['','XP со смыслом','XP даётся ТОЛЬКО за проход темы: тест на 80–100% = +30 XP = дневная норма для стрика 🔥. XP трать в магазине 🛒 на скины.']
+  ['🏆','XP со смыслом','XP даётся ТОЛЬКО за проход темы: тест на 80–100% = +30 XP = дневная норма для стрика 🔥. XP трать в магазине 🛒 на скины.']
 ];
 let onbI=0;
 function onbStart(){if(localStorage.getItem('sn_onb'))return;onbI=0;document.getElementById('onb').style.display='flex';onbShow();}
@@ -902,12 +902,12 @@ const DAILY_GOAL=30;
 const HINT_COST=100;
 const PASS_PCT=0.8;
 const BADGES=[
-  ['step','🎬','Первый XP'],
+  ['step','','Первый XP'],
   ['goal1','📅','Первая норма дня'],
   ['quiz10','🎯','Снайпер: 10 верных'],
-  ['plan','🗺️','Стратег: план составлен'],
+  ['plan','️','Стратег: план составлен'],
   ['done','🎓','Тема закрыта'],
-  ['done5','','Эрудит: 5 тем'],
+  ['done5','📚','Эрудит: 5 тем'],
   ['streak3','🔥','3 дня подряд'],
   ['streak7','⚡','Неделя огня'],
 ];
@@ -940,7 +940,7 @@ function addXP(n,reason){
     const y=new Date(Date.now()-864e5).toDateString();
     g.streak=(g.streakLast===y)?g.streak+1:1;
     g.streakLast=t;saveGame(g);
-    setTimeout(()=>toast('🎯 Норма дня выполнена! 🔥 '+g.streak),500);
+    setTimeout(()=>toast(' Норма дня выполнена! 🔥 '+g.streak),500);
   }
   renderGame();checkBadges();
 }
@@ -953,12 +953,19 @@ function spendXP(n){
   renderGame();
   return true;
 }
-function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
+function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast(' Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
+
+// ИСПРАВЛЕНИЕ 1: Правильный рендер gameBar с проверкой существования элемента
 function renderGame(){
-  const g=loadGame();const lvl=Math.floor(g.xp/100)+1;const prog=g.xp%100;const t=new Date().toDateString();
+  const g=loadGame();
+  const lvl=Math.floor(g.xp/100)+1;
+  const prog=g.xp%100;
+  const t=new Date().toDateString();
   const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');
   const goalTxt='📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
-  document.getElementById('gameBar').innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' · потрачено '+g.spent+'</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни панель, чтобы открыть магазин 🛒</span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
+  const bar=document.getElementById('gameBar');
+  if(!bar) return;
+  bar.innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' XP</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни, чтобы открыть магазин 🛒</span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
 }
 
 const SHOP=[
@@ -968,15 +975,15 @@ const SHOP=[
   {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
   {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
   {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
-  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠💬📅✅',price:0,val:'default'},
-  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🐯🦁',price:40,val:'zoo'},
+  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠💬✅',price:0,val:'default'},
+  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐯🦁',price:40,val:'zoo'},
   {id:'ic_space',cat:'icons',name:'Космос',prev:'🌍🚀🎯',price:40,val:'space'},
-  {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🌭🍩',price:40,val:'food'},
-  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀🏈🎾🎯',price:50,val:'sport'},
+  {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🍩',price:40,val:'food'},
+  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'🏀🏈🎾',price:50,val:'sport'},
   {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎺🎤',price:50,val:'music'},
-  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
-  {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
-  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:'🐉'},
+  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'',price:0,val:'🤖'},
+  {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:''},
+  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:''},
   {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
   {id:'ms_cat',cat:'mascot',name:'Кот',prev:'🐱',price:60,val:'🐱'},
   {id:'ms_panda',cat:'mascot',name:'Панда',prev:'🐼',price:60,val:'🐼'},
@@ -987,16 +994,16 @@ const SHOP=[
   {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
   {id:'ac_coral',cat:'acc',name:'Коралловый',css:'#FF6B6B',price:40,val:'coral'},
 ];
-const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:'🎨 Акцентный цвет'};
+const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:' Маскот',acc:'🎨 Акцентный цвет'};
 const ICON_SETS={
-  default:['🏠','','📅','✅','⋯'],
-  zoo:['🐻','','🐼','🐯',''],
+  default:['🏠','💬','📅','✅','⋯'],
+  zoo:['','','🐼','🐯',''],
   space:['🌍','','🛸','🎯',''],
-  food:['🍔','','🍕','🌭',''],
-  sport:['⚽','','🏈','🎾',''],
+  food:['','','🍕','🌭',''],
+  sport:['⚽','','🏈','',''],
   music:['🎵','','🎹','🎺','']
 };
-function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
+function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
 function applySkin(){
   const s=loadSkin();
@@ -1041,7 +1048,7 @@ function buySkin(id){
   s.owned.push(id);saveSkin(s);
   selectSkin(id,true);
   renderShop();
-  toast('🛒 Куплено: '+it.name+' (−'+it.price+' XP)');
+  toast(' Куплено: '+it.name+' (−'+it.price+' XP)');
 }
 function selectSkin(id,silent){
   const it=SHOP.find(x=>x.id===id);if(!it)return;
@@ -1052,8 +1059,8 @@ function selectSkin(id,silent){
 }
 
 function renderToday(){const el=document.getElementById('todayCard');const p=loadPlan();if(!p||!p.schedule){el.innerHTML='';return;}const it=p.schedule[todayIdx()];if(!it){el.innerHTML='';return;}
-  if(isRestDay(it)){el.innerHTML='<div class="puff today-card"><div class="t">Сегодня · '+DAYS[todayIdx()]+'</div><div class="s"> День отдыха</div><div class="a">Восстановись — это тоже часть подготовки!</div></div>';return;}
-  el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">✏️ '+escapeHtml(it.activity)+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()"> Видео</button></div></div>';}
+  if(isRestDay(it)){el.innerHTML='<div class="puff today-card"><div class="t">Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">😴 День отдыха</div><div class="a">Восстановись — это тоже часть подготовки!</div></div>';return;}
+  el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">✏️ '+escapeHtml(it.activity)+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button></div></div>';}
 
 const CODESPACE_NAME='automatic-system-p7gg76p4wqqwf99rj';
 const PROXY_BASE='https://'+CODESPACE_NAME+'-8000.app.github.dev';
@@ -1133,31 +1140,28 @@ function renderPlan(data){
   const bt=document.getElementById('planTopics');bt.innerHTML=top||'<div class="item">Темы появятся после составления плана.</div>';mathIn(bt);
 }
 
-// НОВАЯ ФУНКЦИЯ: Сбор данных из формы плана
 function collectPlanData(){
   const grade=+document.getElementById('pGrade').value;
   const exam=document.getElementById('pExam').value;
   const goal=document.getElementById('pGoal').value.trim();
-  const minutes=document.getElementById('pMinutes').value;
-  const days=+document.getElementById('pDays').value;
+  const minutes=+document.getElementById('pMinutes').value;
   const level=document.getElementById('pLevel').value;
   const weak=document.getElementById('pWeak').value.trim();
   
-  // Собираем выбранные предметы
   const subjects=[];
   document.querySelectorAll('.subject-check input:checked').forEach(cb=>{
     subjects.push(cb.value);
   });
   
-  // Собираем дни отдыха
   const restDays=[];
   document.querySelectorAll('.day-check input:checked').forEach(cb=>{
     restDays.push(cb.value);
   });
   
-  return {grade,exam,subjects,goal,minutes,days,level,weak,restDays};
+  return {grade,exam,subjects,goal,minutes,level,weak,restDays};
 }
 
+// ИСПРАВЛЕНИЕ 3 и 4: Убран вопрос дней/нед, добавлена поддержка нескольких предметов в день с учётом времени
 async function buildPlan(){
   const data=collectPlanData();
   
@@ -1175,27 +1179,40 @@ async function buildPlan(){
     const ei=examInfo(data.grade,data.exam);
     const restDaysStr=data.restDays.length?data.restDays.join(', '):'нет';
     const subjectsStr=data.subjects.join(', ');
+    const studyDays=7-data.restDays.length;
     
+    // ИСПРАВЛЕНИЕ 4: Новый промпт с поддержкой нескольких предметов в день
     const prompt=`Ученик ${data.grade} класса. Сдаёт: ${data.exam||'не сдаёт экзамен'}. До экзамена ${ei.weeks} недель.
 Предметы для занятий: ${subjectsStr}.
 Цель: ${data.goal||'улучшить успеваемость'}.
-Занятия: ${data.minutes} мин/день, РОВНО ${data.days} учебных дней в неделю.
-Дни отдыха: ${restDaysStr} (в эти дни НЕ ставить учёбу).
+Время на учёбу в день: ${data.minutes} минут.
+Дни отдыха: ${restDaysStr} (в эти дни НЕ ставить учёбу, subject="отдых").
 Уровень: ${data.level}.
 Слабые места: ${data.weak||'нет'}.
 
-Составь расписание на неделю (Пн-Вс) РОВНО 7 дней:
-- В дни отдыха (${restDaysStr}) ставь subject="отдых"
-- В остальные ${data.days} дней распредели предметы ${subjectsStr}
-- Чередуй сложные и лёгкие предметы
-- Укажи конкретную тему для каждого учебного дня
-- Обоснуй выбор в поле activity
+ВАЖНЫЕ ПРАВИЛА:
+1. Составь расписание РОВНО на 7 дней (Пн-Вс).
+2. В дни отдыха (${restDaysStr}) ставь subject="отдых", topic="отдых", activity="отдых".
+3. В учебные дни (${studyDays} дней) МОЖНО ставить НЕСКОЛЬКО предметов в один день — это нормально, если хватает времени.
+4. На каждый предмет выделяй время: ${Math.round(data.minutes/data.subjects.length)} мин на предмет (итого ${data.minutes} мин в день).
+5. Если предметов много — распределяй их по дням так, чтобы в каждый день было 1-3 предмета, и общее время не превышало ${data.minutes} минут.
+6. Чередуй сложные и лёгкие предметы.
+7. Для каждого предмета укажи КОНКРЕТНУЮ тему.
+8. В поле activity укажи сколько минут на каждый предмет (например: "Математика 30 мин, Физика 30 мин").
 
-Верни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"Математика","topic":"...","activity":"..."},...7 элементов],"summary":"2-3 предложения общих советов"}`;
+Верни СТРОГО JSON: {"schedule":[{"day":"Пн","subject":"Математика","topic":"Квадратные уравнения","activity":"30 мин · решение задач"},{"day":"Пн","subject":"Физика","topic":"Законы Ньютона","activity":"30 мин · теория + задачи"},...],"summary":"2-3 предложения общих советов"}`;
 
-    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON, без markdown.',2500);
+    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни только валидный JSON-массив schedule, без markdown.',3000);
     let plan=parseJSONObjectSafe(resp);
-    if(!plan||!plan.schedule)plan={text:resp,schedule:[]};
+    if(!plan||!plan.schedule){
+      // Пробуем распарсить как массив
+      const arrMatch=resp.match(/\[[\s\S]*\]/);
+      if(arrMatch){
+        try{plan={schedule:JSON.parse(arrMatch[0])};}catch(e){plan={text:resp,schedule:[]};}
+      }else{
+        plan={text:resp,schedule:[]};
+      }
+    }
     
     plan.examName=data.exam||'без экзамена';
     plan.examDate=ei.examDate.toLocaleDateString('ru-RU');
@@ -1237,20 +1254,27 @@ async function checkWeekUpdate(){
     const uncompletedStr=uncompleted.length ? uncompleted.join('; ') : 'все темы пройдены';
     const restDaysStr=p.restDays&&p.restDays.length?p.restDays.join(', '):'Сб, Вс';
     const subjectsStr=p.subjects?p.subjects.join(', '):'Математика';
+    const studyDays=7-(p.restDays?p.restDays.length:2);
 
     const prompt=`Новая неделя. Ученик ${p.grade} кл., сдаёт ${p.exam||'не сдаёт'} (${ei.weeks} нед.).
 Предметы: ${subjectsStr}.
-${p.minutes} мин/день, РОВНО ${p.days} учебных дней.
+Время на учёбу в день: ${p.minutes} минут.
 Дни отдыха: ${restDaysStr} (в эти дни НЕ ставить учёбу).
 Уровень: ${p.level}.
 Слабые: ${p.weak||'нет'}.
 НЕПРОЙДЕННЫЕ темы с прошлой недели (ОБЯЗАТЕЛЬНО включи их): ${uncompletedStr}.
 
-Составь расписание на НОВУЮ неделю (Пн-Вс): РОВНО 7 дней, включи непройденные темы и добавь новые.
-Верни СТРОГО JSON: {"schedule":[...7 {"day","subject","topic","activity"}]}`;
-    const resp=await askGiga(prompt,'Верни только валидный JSON.',2000);
+ВАЖНО:
+1. Составь расписание РОВНО на 7 дней (Пн-Вс).
+2. В дни отдыха ставь subject="отдых".
+3. В учебные дни МОЖНО ставить НЕСКОЛЬКО предметов — по ${Math.round(p.minutes/p.subjects.length)} мин на предмет.
+4. Общее время в день не должно превышать ${p.minutes} минут.
+5. Включи непройденные темы и добавь новые.
+
+Верни СТРОГО JSON: {"schedule":[...7+ элементов {"day","subject","topic","activity"}]}`;
+    const resp=await askGiga(prompt,'Верни только валидный JSON.',2500);
     const data=parseJSONObjectSafe(resp);
-    if(data&&data.schedule&&data.schedule.length===7){
+    if(data&&data.schedule&&data.schedule.length>=7){
       plan.schedule=data.schedule;
       plan.scheduleWeek=currentWeekKey();
       plan.selectedTopic=null;
@@ -1275,14 +1299,14 @@ let qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0,qHintUsed=fa
 function normalize(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();}
 async function semanticCheck(q,c,u){const nu=parseFloat(String(u).replace(',','.')),nc=parseFloat(String(c).replace(',','.'));if(!isNaN(nu)&&!isNaN(nc)&&Math.abs(nu-nc)<1e-6)return true;const a=normalize(u),b=normalize(c);if(a&&b&&Math.min(a.length,b.length)>=3&&(a.includes(b)||b.includes(a)))return true;try{const r=await askGiga('Вопрос: «'+q+'». Правильный ответ: «'+c+'». Ответ ученика: «'+u+'». Верен ли ответ ПО СМЫСЛУ? Верни СТРОГО JSON: {"correct": true|false}.','Верни только JSON.',100);const o=parseJSONObjectSafe(r);if(o&&typeof o.correct==='boolean')return o.correct;}catch(e){}return false;}
 async function fetchBatch(topic,diff,n,grade,type){const prompt='Придумай '+n+' заданий для '+grade+' класса по «'+topic+'». Тип: '+type+'. Сложность: '+diff+'. От простых к сложным. Формулы в задании можно в LaTeX ($...$), но "answer" — ПРОСТЫМ текстом (54, x^2, 1/2, Москва). Без вариантов ответа. Вопрос до 120 символов, с пробелами. Верни СТРОГО JSON-массив: [{"question","answer","alternatives":[],"hint"}]';let lastErr;for(let a=0;a<2;a++){try{const r=await askGiga(prompt,'Ты — учитель. Верни только валидный JSON-массив.',4000);const arr=parseJSONArraySafe(r);const out=[];for(const o of arr){if(o&&o.question&&o.answer){o.question=await ensureSpaces(o.question);o.hint=o.hint?await ensureSpaces(o.hint):'';out.push(o);}}if(!out.length)throw new Error('Пусто');return out;}catch(e){lastErr=e;}}throw lastErr;}
-function updateNextLabel(){document.getElementById('nextBtn').textContent='️ Дальше (в запасе: '+qQueue.length+')';}
+function updateNextLabel(){document.getElementById('nextBtn').textContent='➡️ Дальше (в запасе: '+qQueue.length+')';}
 function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100:0;const b=document.getElementById('quizProgress');if(b)b.style.width=pct+'%';const w=document.getElementById('quizProgressWrap');if(w)w.style.display=qBatchTotal?'block':'none';}
 function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';q.innerHTML=escapeHtml(o.question);mathIn(q);const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);
-  const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;bb.textContent=g.xp>=HINT_COST?'💡 Купить подсказку (−'+HINT_COST+' XP)':'💡 Подсказка: нужно '+HINT_COST+' XP';
+  const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;bb.textContent=g.xp>=HINT_COST?' Купить подсказку (−'+HINT_COST+' XP)':'💡 Подсказка: нужно '+HINT_COST+' XP';
   document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';document.getElementById('quizAnswer').focus();updateNextLabel();updateProgress();}
 async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}if(!spendXP(HINT_COST))return;qHintUsed=true;const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}}
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему заданий, например: дроби.','✏️');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10;const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;const btn=document.getElementById('quizBtn');btn.disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий...';document.getElementById('quizHint').textContent='';document.getElementById('buyHintBtn').style.display='none';document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';try{const arr=await fetchBatch(topic,diff,n,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;}}
-async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
+async function nextQuestion(){const btn=document.getElementById('nextBtn');btn.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;document.getElementById('quizQ').textContent=' Ещё 10 заданий...';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(e){document.getElementById('quizQ').textContent=' Ошибка: '+e.message;}finally{btn.disabled=false;updateNextLabel();}}
 function finishBatch(){
   const pct=qBatchTotal?qBatchScore/qBatchTotal:0;
   let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';
@@ -1296,7 +1320,7 @@ function finishBatch(){
       addXP(30,'тема пройдена');
       const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
     }else{
-      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')"> Пересдать тест</button>';
+      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
     }
     qPendingTopic=null;
   }
@@ -1359,55 +1383,114 @@ renderG();updateHomeStats();setTab('home');renderGame();renderToday();drawGraph(
 syncChatHistory().then(()=>restoreChatHistory());
 checkWeekUpdate();
 setInterval(syncChatHistory,30000);
-async function sendPhotoChat(input){const f=input.files&&input.files[0];if(!f)return;input.value='';addMsg('📸 Фото задачи','user','web');const loading=document.createElement('div');loading.className='skel skel-msg';const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;const reader=new FileReader();reader.onload=async function(){try{const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})});if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}const d=await r.json();let txt='📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';if(d.ocr)txt+='🔤 '+d.ocr+'\n';txt+=cleanResponse(d.solution||'');loading.remove();addMsg(txt,'bot','web');}catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}};reader.readAsDataURL(f);}
+
+// ИСПРАВЛЕНИЕ 2: Убрана дублирующая кнопка фото - теперь только одна через chatPhoto
+async function sendPhotoChat(input){
+  const f=input.files&&input.files[0];
+  if(!f)return;
+  input.value='';
+  addMsg('📸 Фото задачи','user','web');
+  const loading=document.createElement('div');
+  loading.className='skel skel-msg';
+  const box=document.getElementById('chatBox');
+  box.appendChild(loading);
+  box.scrollTop=box.scrollHeight;
+  const reader=new FileReader();
+  reader.onload=async function(){
+    try{
+      const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})});
+      if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}
+      const d=await r.json();
+      let txt='📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';
+      if(d.ocr)txt+='🔤 '+d.ocr+'\n';
+      txt+=cleanResponse(d.solution||'');
+      loading.remove();
+      addMsg(txt,'bot','web');
+    }catch(e){
+      loading.remove();
+      addMsg('❌ Ошибка распознавания: '+e.message,'bot');
+    }
+  };
+  reader.readAsDataURL(f);
+}
+
+// Вспомогательные функции для оценок
+function loadG(){try{return JSON.parse(localStorage.getItem('g')||'{}');}catch(e){return{};}}
+function saveG(g){localStorage.setItem('g',JSON.stringify(g));}
+function addGradeToStorage(p){const g=loadG();if(!g[p.subject])g[p.subject]=[];g[p.subject]=g[p.subject].concat(p.grades);saveG(g);renderG();pushHist();}
+
+let gHist=[];try{gHist=JSON.parse(localStorage.getItem('sn_g_hist')||'[]');}catch(e){gHist=[];}
+function pushHist(){const g=loadG();let all=[];for(const s in g)all=all.concat(g[s]);if(!all.length)return;const avg=all.reduce((a,b)=>a+b,0)/all.length;const d=new Date().toLocaleDateString('ru-RU');const last=gHist[gHist.length-1];if(last&&last.d===d){last.v=+avg.toFixed(2);}else{gHist.push({d:d,v:+avg.toFixed(2)});if(gHist.length>30)gHist.shift();}localStorage.setItem('sn_g_hist',JSON.stringify(gHist));drawGraph();}
+function drawGraph(){const cv=document.getElementById('gGraph');if(!cv)return;const hint=document.getElementById('gGraphHint');const dpr=window.devicePixelRatio||1;const W=cv.clientWidth,H=96;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,W,H);
+  if(gHist.length<2){if(hint)hint.style.display='block';return;}
+  if(hint)hint.style.display='none';
+  const vs=gHist.map(p=>p.v);const mn=Math.min.apply(null,vs)-0.3,mx=Math.max.apply(null,vs)+0.3;
+  const px=i=>10+i*(W-20)/(gHist.length-1);const py=v=>H-12-(v-mn)*(H-24)/(mx-mn);
+  const acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2787F5';
+  c.beginPath();c.moveTo(px(0),py(vs[0]));for(let i=1;i<vs.length;i++)c.lineTo(px(i),py(vs[i]));
+  c.strokeStyle=acc;c.lineWidth=2.5;c.lineJoin='round';c.stroke();
+  c.lineTo(px(vs.length-1),H-4);c.lineTo(px(0),H-4);c.closePath();
+  const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,acc+'55');gr.addColorStop(1,acc+'00');c.fillStyle=gr;c.fill();
+  for(let i=0;i<vs.length;i++){c.beginPath();c.arc(px(i),py(vs[i]),3.2,0,7);c.fillStyle=acc;c.fill();c.strokeStyle='#fff';c.lineWidth=1.4;c.stroke();}
+  c.fillStyle=acc;c.font='700 10px Nunito,sans-serif';c.fillText(vs[vs.length-1].toFixed(2),px(vs.length-1)-14,py(vs[vs.length-1])-8);}
+
+function renderG(){
+  const g=loadG();let h='',all=[];
+  for(const s in g){const a=g[s];all=all.concat(a);const avg=a.reduce((x,y)=>x+y,0)/a.length;h+='<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';}
+  document.getElementById('gList').innerHTML=h||'<div class="item">Напиши предметы и оценки — GigaChat разберёт 👆</div>';
+  mathIn(document.getElementById('gList'));
+  
+  const el=document.getElementById('gAvg');const nv=all.length?(all.reduce((a,b)=>a+b,0)/all.length):null;const ov=parseFloat(el.textContent)||0;
+  if(nv!==null)animateCount(el,ov,nv,700);else el.textContent='—';
+  const sa=document.getElementById('statAvg');if(sa)sa.textContent=nv!==null?nv.toFixed(2):'—';
+  drawGraph();
+}
+
+let chatHistory=[];try{chatHistory=JSON.parse(localStorage.getItem('sn_chat')||'[]');}catch(e){chatHistory=[];}
+let syncInFlight=false;
+function msgKey(m){return (m.role||'')+'|'+(m.timestamp||'')+'|'+(m.content||'');}
+async function syncChatHistory(){
+  if(document.hidden||syncInFlight)return;
+  syncInFlight=true;
+  try{const r=await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL));if(!r.ok)return;const server=await r.json();if(!Array.isArray(server))return;const keys=new Set(chatHistory.map(msgKey));let ch=false;server.forEach(m=>{const k=msgKey(m);if(!keys.has(k)){chatHistory.push(m);keys.add(k);ch=true;}});if(ch){chatHistory.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));if(document.getElementById('chat').classList.contains('active'))restoreChatHistory();}}catch(e){}
+  finally{syncInFlight=false;}
+}
+function addMsg(t,c,source){const b=document.getElementById('chatBox');const d=document.createElement('div');d.className='msg '+c;if(source==='max'&&c==='user')t='📱 MAX: '+t;d.innerHTML=escapeHtml(t);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
+
+const SUBJ_ALIASES=[['Физкультура',['физр','физкульт','физ-ра','физра']],['Физика',['физик']],['Математика',['матан','матем','алгебр','геометр','мат-ка']],['Информатика',['информ','инфа','комп','программ','инф']],['Английский язык',['англ','инглиш','english','ин яз','ин.яз']],['Немецкий язык',['немец','герман']],['Испанский язык',['испан']],['Русский язык',['русск','рус язы','рус','русский']],['Литература',['литер','лит-ра','литре','литру','литрой','лит']],['Химия',['хим']],['Биология',['био','биолог']],['История',['истор','ист']],['Обществознание',['обществ','общ']],['География',['географ','геогр','гео']]];
+function localSubject(t){const s=t.toLowerCase();for(const[n,k]of SUBJ_ALIASES){for(const x of k)if(s.includes(x))return n;}return null;}
+function extractGradesLocal(t){const s=localSubject(t);const g=(t.match(/\b[1-5]\b/g)||[]).map(Number);if(s&&g.length)return[{subject:s,grades:g}];return null;}
+const GRADE_TRIGGERS=/оценк|получил|получила|поставили|поставил|заработал|балл|отметк|результат контрольной/i;
+
+async function tryParseGradesViaGiga(text){const digits=(text.match(/\b[1-5]\b/g)||[]).length;if(!digits||!GRADE_TRIGGERS.test(text))return null;try{const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы (раскрой сокращения: матан->Математика, физра->Физкультура и т.д.) и оценки. Верни СТРОГО JSON-массив: [{"subject":"...","grades":[...]}]. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}return null;}
+
+async function sendChat(){
+  const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
+  i.value='';addMsg(t,'user','web');
+  const local=extractGradesLocal(t);
+  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
+  const loading=document.createElement('div');loading.className='skel skel-msg';
+  const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
+  document.getElementById('chatBtn').disabled=true;
+  try{
+    await syncChatHistory();
+    const resp=await askGiga(t,MATH_SYSTEM+' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про оценки — порадуйся или поддержи.',800);
+    const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
+    await syncChatHistory();
+    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
+  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
+  finally{document.getElementById('chatBtn').disabled=false;}
+}
+function clearChat(){uiConfirm('Удалить общий чат?\nОн исчезнет и здесь, и в MAX.',function(){
+  chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';document.getElementById('chatSearch').value='';addMsg('Общий чат очищен. Начнём заново! ','bot');
+  fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL),{method:'POST',headers:{'Content-Type':'application/json'},body:'[]'}).catch(()=>{});
+},'🗑','Удалить');}
+function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';const list=chatHistory.slice(-30);if(!list.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX ','bot');}else{list.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
+
+function examInfo(grade,examText){const now=new Date();const t=(examText||'').toLowerCase();let tg=grade,mo=4,da=25;if(t.includes('огэ')){tg=9;da=20;}else if(t.includes('егэ')){tg=11;da=25;}const yl=Math.max(0,tg-grade);let ed=new Date(now.getFullYear()+yl,mo,da);if(ed<now)ed=new Date(now.getFullYear()+yl+1,mo,da);const w=Math.max(1,Math.round((ed-now)/(7*24*3600*1000)));return{name:examText||'экзамен',examDate:ed,weeks:w};}
+
 setTimeout(onbStart,700);
 window.addEventListener('resize',()=>{if(document.getElementById('grades').classList.contains('active'))drawGraph();});
-</script>
-
-<script>
-(function(){
-  function ready(fn){if(document.readyState!=='loading'){fn();}else{document.addEventListener('DOMContentLoaded',fn);}}
-  ready(function(){
-    var oldIn=document.getElementById('chatPhoto');if(oldIn&&oldIn.parentNode)oldIn.parentNode.removeChild(oldIn);
-    var oldIn2=document.getElementById('chatPhoto2');if(oldIn2&&oldIn2.parentNode)oldIn2.parentNode.removeChild(oldIn2);
-    var btns=document.querySelectorAll('.chat-input button');
-    for(var k=0;k<btns.length;k++){if((btns[k].textContent||'').trim()==='\u{1F4F8}')btns[k].parentNode.removeChild(btns[k]);}
-    var box=document.querySelector('.chat-input');
-    if(!box)return;
-    var sendBtn=box.querySelector('button');
-    if(!sendBtn)return;
-    var inp=document.createElement('input');
-    inp.type='file';inp.accept='image/*';inp.style.display='none';inp.id='chatPhoto2';
-    var btn=document.createElement('button');
-    btn.type='button';btn.className='btn sky';
-    btn.style.cssText='width:54px;margin:0;padding:0;height:50px;flex-shrink:0;';
-    btn.textContent='📷';
-    box.insertBefore(inp,sendBtn);
-    box.insertBefore(btn,sendBtn);
-    btn.addEventListener('click',function(){inp.click();});
-    inp.addEventListener('change',function(){
-      var f=inp.files&&inp.files[0];if(!f)return;inp.value='';
-      var chatBox=document.getElementById('chatBox');
-      function pushMsg(text,cls){var d=document.createElement('div');d.className='msg '+cls;d.textContent=text;chatBox.appendChild(d);chatBox.scrollTop=chatBox.scrollHeight;return d;}
-      pushMsg('📸 Фото задачи','user');
-      var load=pushMsg('⏳ Распознаю задачу...','bot');
-      var reader=new FileReader();
-      reader.onload=function(){
-        fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})})
-        .then(function(r){if(!r.ok){return r.json().then(function(j){throw new Error(j.detail||('HTTP '+r.status));});}return r.json();})
-        .then(function(d){
-          var txt='📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';
-          if(d.ocr)txt+='🔤 '+d.ocr+'\n';
-          txt+=(d.solution||'Нет решения');
-          load.textContent=txt;if(window.renderMathInElement){renderMathInElement(load,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}
-          chatBox.scrollTop=chatBox.scrollHeight;
-        })
-        .catch(function(e){load.textContent='❌ Ошибка распознавания: '+e.message;});
-      };
-      reader.readAsDataURL(f);
-    });
-  });
-})();
 </script>
 </body>
 </html>
