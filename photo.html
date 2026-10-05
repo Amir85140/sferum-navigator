@@ -6,6 +6,9 @@
 <title>Реши по фото — Sferum Navigator</title>
 <script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('sn_theme')||'auto');}catch(e){}})();</script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
   :root, :root[data-theme="light"]{--bg:#D6E8FF;--bg2:linear-gradient(160deg,#BDD8FF,#D6E8FF 45%,#C9E2FF);--card:#fff;--ink:#0E2540;--muted:#4A6585;--accent:#2787F5;--field:#C8DDFF;--bd:transparent;--sh:0 10px 30px rgba(0,60,140,.14);}
   :root[data-theme="dark"]{--bg:#050D1A;--bg2:linear-gradient(rgba(0,194,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,194,255,.06) 1px,transparent 1px);--card:rgba(6,14,28,.9);--ink:#F0FAFF;--muted:#9FBDD0;--accent:#00C2FF;--field:rgba(0,194,255,.08);--bd:1px solid rgba(0,194,255,.35);--sh:0 0 26px rgba(0,194,255,.14);}
@@ -74,13 +77,13 @@ async function solvePhoto(input){
   reader.onload=async function(){
     const prev=document.getElementById('prev');prev.src=reader.result;prev.style.display='block';
     try{
-      const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы пиши простым текстом (a = F / m), без LaTeX.'})});
+      const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})});
       if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}
       const d=await r.json();
       let h='<div class="item">📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'</div>';
       if(d.ocr)h+='<div class="item">🔤 Распознано:\n'+esc(d.ocr)+'</div>';
       h+='<div class="item">'+esc(d.solution||'Нет решения')+'</div>';
-      box.innerHTML=h;
+      box.innerHTML=h;if(window.renderMathInElement){renderMathInElement(box,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}
     }catch(e){
       box.innerHTML='<div class="item err">❌ Ошибка: '+esc(e.message)+'</div>';
     }finally{input.value='';}

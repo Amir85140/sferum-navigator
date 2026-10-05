@@ -42,9 +42,10 @@ app = FastAPI(title="Sferum Navigator Proxy")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 _token = None
@@ -193,6 +194,9 @@ async def chat_history_post(request: Request, user_id: str = "main"):
 
 @app.post("/chat")
 async def chat(request: Request, user_id: str = ""):
+    origin = request.headers.get('origin', '-')
+    ua = request.headers.get('user-agent', '-')[:60]
+    log.info(f"CHAT-IN origin={origin} ua={ua}")
     try:
         payload = await request.json()
         prompt = payload.get("prompt", "")
@@ -325,6 +329,9 @@ async def check_video(q: str = ""):
 @app.post("/vision")
 async def vision(request: Request):
     """Принимает фото задачи (base64). OCR (Tesseract с предобработкой) -> GigaChat решает."""
+    origin = request.headers.get('origin', '-')
+    ua = request.headers.get('user-agent', '-')[:60]
+    log.info(f"VISION-IN origin={origin} ua={ua}")
     try:
         payload = await request.json()
         image_b64 = payload.get("image")
