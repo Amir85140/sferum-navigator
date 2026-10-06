@@ -664,7 +664,7 @@
           <li>📝 Целые варианты ОГЭ/ЕГЭ из банка ФИПИ (2023–2026)</li>
           <li>🏆 XP — только за первый проход варианта и темы</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 54</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 55</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -677,7 +677,7 @@
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 54</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 55</div></button>
     </div>
   </div>
 
@@ -781,7 +781,7 @@ const SHOP=[
  {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
  {id:'ac_coral',cat:'acc',name:'Коралл',css:'#FF6B6B',price:40,val:'coral'}];
 const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки',mascot:'🐾 Маскот',acc:'🎨 Акцент'};
-const ICON_SETS={default:['🏠','💬','📅','✅','⋯'],zoo:['🐻','','🦊','',''],space:['🌍','🚀','🛸','','⭐'],food:['🍔','','🍕','',''],sport:['','','🏈','','🏐'],music:['🎵','','🎤','🎹','🎺']};
+const ICON_SETS={default:['🏠','💬','📅','✅','⋯'],zoo:['🐻','','🦊','',''],space:['🌍','🚀','🛸','','⭐'],food:['🍔','','','',''],sport:['','','🏈','','🏐'],music:['🎵','','🎤','🎹','🎺']};
 function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
 function applySkin(){const s=loadSkin();document.documentElement.setAttribute('data-bg',s.bg);document.documentElement.setAttribute('data-acc',s.acc);const ic=ICON_SETS[s.icons]||ICON_SETS.default;document.querySelectorAll('.dock button .ic').forEach((el,i)=>{el.textContent=ic[i]||ICON_SETS.default[i];});document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});}
@@ -817,7 +817,7 @@ function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it))return;d
 function selectTopic(k){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===k)?null:k;savePlan(p);renderPlan(p);}
 function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return;document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
 
-/* ===== БАНК ФИПИ (теперь живёт только внутри варианта) ===== */
+/* ===== БАНК ФИПИ (внутри варианта) ===== */
 const FIPI_BANK={
 'ОГЭ':{'Математика':[
  {num:1,topic:'Вычисления',text:'Найдите значение выражения (1/3 + 1/6) · 12.',answer:'6',type:'short'},
@@ -1017,7 +1017,7 @@ function retryMistakes(){
 }
 function newVariant(){variant=null;variantTimerInt&&clearInterval(variantTimerInt);document.getElementById('variantActive').style.display='none';document.getElementById('variantSetup').style.display='block';document.getElementById('variantFooter').style.display='none';renderVarHistory();}
 
-/* ===== ТЕСТ (без изменений) ===== */
+/* ===== ТЕСТ ===== */
 let qC=0,qT=0,qCurrent=null,qAnswered=false,qQueue=[],qLastTopic='',qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0,qHintUsed=false;
 function updateExamHint(){const e=document.getElementById('qExam').value,d=document.getElementById('qDiff').value,h=document.getElementById('examHint');if(!e){h.textContent='Обычные задания по теме.';return;}const r=EXAM_DIFF_RANGES[e][d];h.textContent='🎯 Режим '+e+': задания в стиле №'+r[0]+'–'+r[1]+' (сложность «'+d+'»).';}
 function normalize(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();}
@@ -1037,7 +1037,7 @@ async function nextQuestion(){const b=document.getElementById('nextBtn');b.disab
 function finishBatch(){const pct=qBatchTotal?qBatchScore/qBatchTotal:0;let ex='<div class="item ai">🏁 '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';if(qPendingTopic){const k=qPendingTopic,p=loadPlan();if(p&&pct>=PASS_PCT){if(!p.done)p.done=[];if(!p.done.some(d=>d.topic===k))p.done.push({date:new Date().toLocaleDateString('ru-RU'),topic:k,score:qBatchScore+'/'+qBatchTotal});p.selectedTopic=null;savePlan(p);renderPlan(p);ex+='<div class="item ai">🎓 Тема пройдена! +30 XP</div>';addXP(30,'тема');fireConfetti(innerWidth/2,innerHeight/2);}else ex+='<div class="item" style="border-left:4px solid #FF6B6B;">Нужно 80%+ для прохода темы.</div>';qPendingTopic=null;}document.getElementById('quizResult').innerHTML+=ex;}
 async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u)),bs=false;if(!ok){for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bs=true;break;}}}const box=document.getElementById('quizResult'),q=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;const g=loadGame();g.correct++;saveGame(g);box.innerHTML='<div class="item ai">✅ Верно!'+(bs?' (по смыслу)':'')+'</div>';q.style.animation='correctPop .5s';fireConfetti(innerWidth/2,innerHeight/2);checkBadges();}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Правильно: '+escapeHtml(qCurrent.answer)+'</div>';q.style.animation='shake .6s';}setTimeout(()=>q.style.animation='',700);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&!qQueue.length)finishBatch();}
 
-/* ===== ДНЕВНИК / ВИДЕО / МОТИВАЦИЯ / ЧАТ ===== */
+/* ===== ДНЕВНИК ===== */
 function loadG(){try{return JSON.parse(localStorage.getItem('g')||'{}');}catch(e){return{};}}
 function saveG(g){localStorage.setItem('g',JSON.stringify(g));}
 function addGradeToStorage(p){const g=loadG();if(!g[p.subject])g[p.subject]=[];g[p.subject]=g[p.subject].concat(p.grades);saveG(g);renderG();pushHist();}
@@ -1052,9 +1052,49 @@ function localSubject(t){const s=t.toLowerCase();for(const[n,k]of SUBJ_ALIASES)f
 function extractGradesLocal(t){const s=localSubject(t);const g=(t.match(/\b[1-5]\b/g)||[]).map(Number);if(s&&g.length)return[{subject:s,grades:g}];return null;}
 async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши: матан 5 4','✍️');const b=document.getElementById('gAddBtn');b.disabled=true;let p=null;try{const r=await askGiga('Определи предметы (раскрой сокращения) и оценки (1-5) из: «'+text+'». JSON-массив БЕЗ markdown: [{"subject","grades"}]','Только JSON.',500,null,true);p=parseJSONArraySafe(r).filter(x=>x.subject&&x.grades&&x.grades.length);}catch(e){}if(!p||!p.length)p=extractGradesLocal(text);if(!p||!p.length){b.disabled=false;return uiAlert('Не нашёл оценок.','❌');}p.forEach(addGradeToStorage);document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ '+p.map(x=>escapeHtml(x.subject)+': '+x.grades.join(', ')).join('\n')+'</div>';b.disabled=false;}
 async function gradesAI(){const g=loadG();if(!Object.keys(g).length)return uiAlert('Сначала добавь оценки.','📚');let d='';for(const s in g)d+=s+': '+g[s].join(', ')+'\n';const b=document.getElementById('gBtn');b.disabled=true;showLoading('gAi');try{const r=await askGiga(d+'\nПроанализируй: сильное, слабое, 3 совета. Без markdown.','Ты — педагог.',800,null,true);document.getElementById('gAi').innerHTML='<div class="item ai">'+escapeHtml(cleanResponse(r))+'</div>';}catch(e){showError('gAi',e.message);}finally{b.disabled=false;}}
-async function buildVideo(){const topic=document.getElementById('vTopic').value.trim()||'математика';const b=document.getElementById('vBtn');b.disabled=true;showLoading('vAi');try{const[g,v]=await Promise.all([askGiga('Объясни школьнику тему «'+topic+'» в 5-8 предложениях с примером.',null,800,null,true),fetch(PROXY_BASE+'/search_video?q='+encodeURIComponent(topic)).then(r=>r.ok?r.json():null).catch(()=>null)]);let parts=[];if(v){(v.rutube||[]).slice(0,3).forEach(x=>parts.push('<a class="mini-link" target="_blank" href="'+x.url+'">📺 '+(x.title||'RuTube')+'</a>'));(v.vk||[]).slice(0,2).forEach((x,i)=>parts.push('<a class="mini-link" target="_blank" href="'+x.url+'">🎬 VK '+(i+1)+'</a>'));}if(!parts.length)parts.push('<a class="mini-link" target="_blank" href="https://rutube.ru/search/?q='+encodeURIComponent(topic)+'">📺 Поиск RuTube</a>');document.getElementById('vAi').innerHTML='<div class="item ai">🔗 Ссылки:<br>'+parts.join(' ')+'</div><div class="item ai">🎓 '+escapeHtml(cleanResponse(g))+'</div>';mathIn(document.getElementById('vAi'));}catch(e){showError('vAi',e.message);}finally{b.disabled=false;}}
+
+/* ===== ВИДЕО (с редиректом в поиск) ===== */
+async function buildVideo(){
+  const topic=document.getElementById('vTopic').value.trim()||'математика';
+  const btn=document.getElementById('vBtn');btn.disabled=true;
+  showLoading('vAi','Ищу видео и готовлю объяснение...');
+  const rq=encodeURIComponent(topic);
+  const rutubeSearch='https://rutube.ru/search/?q='+rq;
+  const vkSearch='https://vk.com/video?q='+rq;
+  try{
+    const[g,v]=await Promise.all([
+      askGiga('Объясни школьнику тему «'+topic+'» в 5-8 предложениях с примером.',null,800,null,true),
+      fetch(PROXY_BASE+'/search_video?q='+rq).then(r=>r.ok?r.json():null).catch(()=>null)
+    ]);
+    let parts=[];
+    if(v){
+      (v.rutube||[]).slice(0,3).forEach(x=>parts.push('<a class="mini-link" target="_blank" href="'+x.url+'">📺 '+(x.title||'RuTube')+'</a>'));
+      (v.vk||[]).slice(0,2).forEach((x,i)=>parts.push('<a class="mini-link" target="_blank" href="'+x.url+'">🎬 VK '+(i+1)+'</a>'));
+    }
+    let html='';
+    if(!parts.length){
+      html+='<div class="item ai">📭 Прямых ссылок на видео не нашлось.\nОткрой поиск по запросу «'+escapeHtml(topic)+'»:</div>';
+      html+='<a class="btn sky" style="text-decoration:none;text-align:center;" target="_blank" href="'+rutubeSearch+'">📺 Открыть поиск RuTube</a>';
+      html+='<a class="btn mint" style="text-decoration:none;text-align:center;" target="_blank" href="'+vkSearch+'">🎬 Открыть поиск VK Видео</a>';
+    }else{
+      html+='<div class="item ai">🔗 Найденные видео:<br>'+parts.join(' ')+'</div>';
+      html+='<div class="hint" style="margin-top:6px;">Не то? <a href="'+rutubeSearch+'" target="_blank" style="color:var(--accent);font-weight:900;">Поиск RuTube</a> · <a href="'+vkSearch+'" target="_blank" style="color:var(--accent);font-weight:900;">Поиск VK</a></div>';
+    }
+    html+='<div class="item ai">🎓 '+escapeHtml(cleanResponse(g))+'</div>';
+    document.getElementById('vAi').innerHTML=html;
+    mathIn(document.getElementById('vAi'));
+  }catch(e){
+    document.getElementById('vAi').innerHTML=
+      '<div class="item" style="border-left:4px solid #FF6B6B;">❌ Не удалось найти видео: '+escapeHtml(e.message)+'</div>'+
+      '<a class="btn sky" style="text-decoration:none;text-align:center;" target="_blank" href="'+rutubeSearch+'">📺 Открыть поиск RuTube</a>'+
+      '<a class="btn mint" style="text-decoration:none;text-align:center;" target="_blank" href="'+vkSearch+'">🎬 Открыть поиск VK Видео</a>';
+  }finally{btn.disabled=false;}
+}
+
+/* ===== МОТИВАЦИЯ ===== */
 async function motivationAI(){const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[document.getElementById('mMood').value];const sit=document.getElementById('mText').value.trim();const b=document.getElementById('mBtn');b.disabled=true;const q=document.getElementById('quoteBox');q.textContent='⏳';try{const r=await askGiga('Школьник чувствует: '+mt+'. '+(sit?'Ситуация: «'+sit+'». ':'')+'Поддержи 2-4 предложениями как старший друг. Без markdown.',null,600,null,true);q.textContent='';await typeWriter(q,cleanResponse(r),18);}catch(e){q.textContent='❌ '+e.message;}finally{b.disabled=false;}}
 
+/* ===== ЧАТ ===== */
 let chatHistory=[];try{chatHistory=JSON.parse(localStorage.getItem('sn_chat')||'[]');}catch(e){chatHistory=[];}
 let syncInFlight=false;
 function msgKey(m){return(m.role||'')+'|'+(m.timestamp||'')+'|'+(m.content||'');}
