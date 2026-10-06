@@ -88,7 +88,6 @@
   :root[data-bg="sunset"]{--skin-light:linear-gradient(160deg,#FFD9B8 0%,#FFE9D6 45%,#FFD3E0 100%);--skin-dark:linear-gradient(rgba(255,140,80,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,140,80,.07) 1px,transparent 1px);--blobA:rgba(255,110,60,.30);--blobB:rgba(255,70,140,.30);}
   :root[data-bg="forest"]{--skin-light:linear-gradient(160deg,#D3F5DE 0%,#E6F7EA 45%,#D9F2E3 100%);--skin-dark:linear-gradient(rgba(60,220,130,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(60,220,130,.07) 1px,transparent 1px);--blobA:rgba(40,190,110,.30);--blobB:rgba(120,220,80,.28);}
   :root[data-bg="space"]{--skin-light:linear-gradient(160deg,#E4DCFF 0%,#EFE9FF 45%,#DCD3FF 100%);--skin-dark:linear-gradient(rgba(150,120,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(150,120,255,.08) 1px,transparent 1px);--blobA:rgba(120,90,255,.30);--blobB:rgba(200,80,255,.26);}
-  :root[data-bg="candy"]{--skin-light:linear-gradient(160deg,#FFDDE8 0%,#FFEAF1 45%,#FFD6E8 100%);--skin-dark:linear-gradient(rgba(255,90,150,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,90,150,.07) 1px,transparent 1px);--blobA:rgba(255,90,150,.30);--blobB:rgba(255,150,90,.28);}
   :root[data-bg="ocean"]{--skin-light:linear-gradient(160deg,#A8E6CF 0%,#88D8B0 45%,#6BC9A0 100%);--skin-dark:linear-gradient(rgba(100,200,180,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(100,200,180,.07) 1px,transparent 1px);--blobA:rgba(100,200,180,.30);--blobB:rgba(80,180,220,.28);}
   :root[data-bg="neon"]{--skin-light:linear-gradient(160deg,#FF6B9D 0%,#C06C84 45%,#6C5B7B 100%);--skin-dark:linear-gradient(rgba(255,107,157,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,157,.08) 1px,transparent 1px);--blobA:rgba(255,107,157,.30);--blobB:rgba(192,108,132,.28);}
   :root[data-acc="violet"]{--accent:#8B5CF6;--ring2:#D946EF;}
@@ -97,7 +96,7 @@
   :root[data-acc="pink"]{--accent:#EC4899;--ring2:#F472B6;}
   :root[data-acc="coral"]{--accent:#FF6B6B;--ring2:#FF8E8E;}
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  button, a, .btn, .cloud, .dock button, .theme-pill button, .seg button, .grade-row button, .hero, .mini-link, .link-item, .qchips button, .shop-item button {
+  button, a, .btn, .cloud, .dock button, .theme-pill button, .seg button, .grade-row button, .hero, .mini-link, .qchips button, .shop-item button, .exam-tabs button, .var-chip {
     -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; outline: none;
   }
   button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -106,7 +105,6 @@
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] { color-scheme: dark; } }
   select { color-scheme: light dark; }
   select option { background: var(--field); color: var(--ink); padding: 8px; }
-  select option:hover, select option:checked { background: var(--accent); color: #fff; }
   :root[data-theme="dark"] select option { background: #0A1626 !important; color: #F0FAFF !important; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] select option { background: #0A1626 !important; color: #F0FAFF !important; } }
   :root[data-theme="dark"] select, :root[data-theme="auto"] select { background: var(--field) !important; color: var(--ink) !important; }
@@ -152,7 +150,6 @@
   label { display: block; font-size: 13px; font-weight: 800; color: var(--muted); margin: 14px 0 6px; }
   select, input, textarea { width: 100%; padding: 13px 16px; border: var(--field-bd); border-radius: 14px; background: var(--field); color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700; min-height: 50px; transition: box-shadow .2s, transform .2s; -webkit-tap-highlight-color: transparent; }
   select:focus, input:focus, textarea:focus { outline: none; box-shadow: var(--field-focus); transform: translateY(-1px); }
-  select:hover, input:hover, textarea:hover { box-shadow: 0 4px 14px rgba(0,60,140,.12); }
   .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
   .seg { display: flex; gap: 6px; background: var(--field); border: var(--field-bd); border-radius: 999px; padding: 5px; margin-bottom: 14px; animation: dropIn .4s ease both; }
@@ -185,14 +182,11 @@
   .chips { display: flex; gap: 8px; margin: 16px 0; }
   .chip-stat { flex: 1; text-align: center; padding: 12px 6px; border-radius: 18px; background: var(--card); border: var(--card-bd); box-shadow: var(--card-sh); backdrop-filter: var(--card-blur); animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both, chipBob 4s ease-in-out infinite; transition: transform .2s; }
   .chip-stat:hover { transform: translateY(-4px) scale(1.04); }
-  .chip-stat:nth-child(1){animation-delay:.05s,0s}.chip-stat:nth-child(2){animation-delay:.12s,.5s}.chip-stat:nth-child(3){animation-delay:.19s,1s}
   .chip-stat .v { font-size: 21px; font-weight: 900; color: var(--accent); line-height: 1; }
   .chip-stat .l { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-top: 4px; }
   .hero { display: block; width: 100%; text-align: left; cursor: pointer; border: var(--card-bd); background: var(--hero-bg); backdrop-filter: var(--card-blur); border-radius: 26px; padding: 22px; margin-bottom: 16px; box-shadow: var(--hero-sh); font-family: inherit; color: var(--ink); animation: heroIn .55s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; position: relative; overflow: hidden; }
   .hero::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.22), transparent); transform: skewX(-20deg); animation: sweep 4.5s ease-in-out infinite; pointer-events: none; }
   .hero:hover { transform: translateY(-4px); }
-  .hero:hover .orb { animation: bob 3s ease-in-out infinite, orbSpin .9s ease; }
-  .hero:hover .pill { animation: btnPulse .5s cubic-bezier(.34,1.56,.64,1); }
   .hero:active { transform: var(--press); }
   .hero .orb { width: 64px; height: 64px; border-radius: 50%; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: var(--orb-sh); margin-bottom: 12px; animation: bob 3s ease-in-out infinite, orbPulse 2.6s ease-in-out infinite; }
   .hero h2 { font-size: 22px; font-weight: 900; margin-bottom: 5px; color: var(--ink); }
@@ -201,22 +195,15 @@
   .cloud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .cloud { border: var(--card-bd); cursor: pointer; text-align: left; padding: 16px; border-radius: 22px; background: var(--card); backdrop-filter: var(--card-blur); box-shadow: var(--card-sh); font-family: inherit; color: var(--ink); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
   .cloud:hover { transform: translateY(-5px); }
-  .cloud:hover .em { animation: emFloat 3.6s ease-in-out infinite, emPop .45s cubic-bezier(.34,1.56,.64,1); }
   .cloud:active { transform: var(--press); }
-  .cloud-grid .cloud:nth-child(1){animation-delay:.06s}.cloud-grid .cloud:nth-child(2){animation-delay:.12s}
-  .cloud-grid .cloud:nth-child(3){animation-delay:.18s}.cloud-grid .cloud:nth-child(4){animation-delay:.24s}
-  .cloud-grid .cloud:nth-child(5){animation-delay:.3s}.cloud-grid .cloud:nth-child(6){animation-delay:.36s}
   .cloud .em { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; box-shadow: var(--em-sh); animation: emFloat 3.6s ease-in-out infinite; }
-  .cloud:nth-child(2) .em{animation-delay:.4s}.cloud:nth-child(3) .em{animation-delay:.8s}
-  .cloud:nth-child(4) .em{animation-delay:1.2s}.cloud:nth-child(5) .em{animation-delay:1.6s}.cloud:nth-child(6) .em{animation-delay:2s}
   .cloud:nth-child(1) .em { background: linear-gradient(135deg,#5AA8FF,#2787F5); }
   .cloud:nth-child(2) .em { background: linear-gradient(135deg,#4CD97B,#28A745); }
   .cloud:nth-child(3) .em { background: linear-gradient(135deg,#5AC8FA,#0A84FF); }
   .cloud:nth-child(4) .em { background: linear-gradient(135deg,#7FB9FF,#0057D6); }
   .cloud:nth-child(5) .em { background: linear-gradient(135deg,#FFD60A,#FF9F0A); }
   .cloud:nth-child(6) .em { background: linear-gradient(135deg,#FF7AA2,#8B5CF6); }
-  .cloud .t { font-size: 15.5px; font-weight: 900; color: var(--ink); transition: letter-spacing .25s; }
-  .cloud:hover .t { letter-spacing: .3px; }
+  .cloud .t { font-size: 15.5px; font-weight: 900; color: var(--ink); }
   .cloud .d { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
   .shop-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); margin-bottom: 14px; }
   .shop-xp { font-size: 18px; font-weight: 900; color: var(--accent); }
@@ -237,16 +224,14 @@
   .chat-search { margin-bottom: 8px; }
   .chat-search input { min-height: 42px; padding: 9px 14px; font-size: 14px; }
   .chat-box { height: 46vh; overflow-y: auto; padding: 14px; background: var(--field); border: var(--field-bd); border-radius: 22px; display: flex; flex-direction: column; gap: 8px; }
-  .msg { max-width: 85%; padding: 12px 16px; font-size: 15px; font-weight: 700; line-height: 1.5; white-space: pre-wrap; border-radius: 20px; transition: transform .2s, opacity .2s; display: block; }
-  .msg:hover { transform: scale(1.02); }
+  .msg { max-width: 85%; padding: 12px 16px; font-size: 15px; font-weight: 700; line-height: 1.5; white-space: pre-wrap; border-radius: 20px; display: block; }
   .msg.dim { opacity: .3; }
   .msg.hit { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .msg.user { background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); margin-left: auto; margin-right: 0; border-bottom-right-radius: 6px; box-shadow: var(--c1-sh); animation: msgR .35s cubic-bezier(.34,1.56,.64,1) both; }
-  .msg.bot { background: var(--card); color: var(--ink); border: var(--card-bd); margin-right: auto; margin-left: 0; border-bottom-left-radius: 6px; box-shadow: var(--card-sh); animation: msgL .35s cubic-bezier(.34,1.56,.64,1) both; }
+  .msg.user { background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); margin-left: auto; border-bottom-right-radius: 6px; box-shadow: var(--c1-sh); animation: msgR .35s cubic-bezier(.34,1.56,.64,1) both; }
+  .msg.bot { background: var(--card); color: var(--ink); border: var(--card-bd); margin-right: auto; border-bottom-left-radius: 6px; box-shadow: var(--card-sh); animation: msgL .35s cubic-bezier(.34,1.56,.64,1) both; }
   .msg.sys { background: var(--ok-bg); color: var(--ink); font-size: 13.5px; margin: 0 auto; animation: msgL .35s ease both; }
   .qchips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .qchips button { border: var(--field-bd); background: var(--field); color: var(--ink); border-radius: 999px; padding: 7px 12px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
-  .qchips button:hover { transform: translateY(-2px); box-shadow: var(--c1-sh); }
+  .qchips button { border: var(--field-bd); background: var(--field); color: var(--ink); border-radius: 999px; padding: 7px 12px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
   .chat-input { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
   .chat-input input[type="text"] { flex: 1; margin: 0; }
   .chat-input .btn { width: 54px; margin: 0; padding: 0; height: 50px; flex-shrink: 0; }
@@ -258,12 +243,10 @@
   .item { background: var(--card); border: var(--card-bd); backdrop-filter: var(--card-blur); border-radius: 18px; box-shadow: var(--card-sh); padding: 14px 16px; margin-top: 12px; font-size: 15px; font-weight: 700; line-height: 1.6; white-space: pre-wrap; color: var(--ink); animation: cardIn .4s ease both; letter-spacing: normal !important; word-spacing: normal !important; }
   .item.ai { border-left: 4px solid var(--accent); }
   .sched-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 12px 14px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; transition: transform .2s; letter-spacing: normal !important; word-spacing: normal !important; white-space: normal !important; }
-  .sched-row:hover { transform: translateX(4px); }
-  .sched-row .day { background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 900; letter-spacing: normal !important; white-space: nowrap; flex-shrink: 0; }
+  .sched-row .day { background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 900; white-space: nowrap; flex-shrink: 0; }
   .sched-row.today { border-color: var(--accent); animation: neonPulse 2s ease infinite; }
-  .sched-row .act { font-size: 11px; color: var(--muted); font-weight: 700; text-align: right; letter-spacing: normal !important; word-spacing: normal !important; white-space: normal !important; max-width: 55%; overflow-wrap: break-word; word-break: break-word; line-height: 1.4; }
-  .mini-link { display: inline-block; margin: 6px 6px 0 0; font-size: 12px; font-weight: 900; color: var(--c3-c); background: var(--c3-bg); border: var(--c3-bd); border-radius: 999px; padding: 5px 12px; text-decoration: none; box-shadow: var(--c3-sh); transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
-  .mini-link:hover { transform: translateY(-3px) scale(1.06); }
+  .sched-row .act { font-size: 11px; color: var(--muted); font-weight: 700; text-align: right; letter-spacing: normal !important; word-spacing: normal !important; white-space: normal !important; max-width: 55%; overflow-wrap: break-word; line-height: 1.4; }
+  .mini-link { display: inline-block; margin: 6px 6px 0 0; font-size: 12px; font-weight: 900; color: var(--c3-c); background: var(--c3-bg); border: var(--c3-bd); border-radius: 999px; padding: 5px 12px; text-decoration: none; box-shadow: var(--c3-sh); }
   .quiz-q { font-size: 20px; font-weight: 900; text-align: center; margin: 18px 0 8px; min-height: 48px; color: var(--ink); animation: qIn .45s cubic-bezier(.34,1.56,.64,1) both; }
   .hint { font-size: 13px; color: var(--muted); font-weight: 700; text-align: center; }
   .quiz-input { display: flex; gap: 8px; margin-top: 14px; }
@@ -273,27 +256,21 @@
   .progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--ring2), var(--accent)); background-size: 200% 100%; animation: shine 2.5s linear infinite; transition: width .5s cubic-bezier(.22,.61,.36,1); }
   .score { text-align: center; font-weight: 900; font-size: 15px; margin-top: 12px; color: var(--muted); }
   .avg { text-align: center; font-size: 48px; font-weight: 900; margin: 6px 0; color: var(--accent); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
-  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 13px 15px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; transition: transform .2s; }
-  .grade-row:hover { transform: translateX(4px); }
-  .grade-row button { background: var(--err-bg); color: var(--ink); border: none; border-radius: 999px; padding: 7px 12px; cursor: pointer; font-weight: 900; font-family: inherit; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
-  .grade-row button:hover { transform: scale(1.15) rotate(8deg); }
+  .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 13px 15px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; }
+  .grade-row button { background: var(--err-bg); color: var(--ink); border: none; border-radius: 999px; padding: 7px 12px; cursor: pointer; font-weight: 900; font-family: inherit; }
   .quote { background: var(--card); border: var(--card-bd); border-radius: 24px; box-shadow: var(--card-sh); padding: 26px 22px; font-size: 17px; font-weight: 700; line-height: 1.6; text-align: center; margin-top: 14px; min-height: 130px; display: flex; align-items: center; justify-content: center; color: var(--ink); animation: cardIn .45s ease both; }
   .quote.typing::after { content: '|'; margin-left: 2px; animation: blink .7s step-end infinite; color: var(--accent); }
   .about { font-size: 15px; line-height: 1.7; font-weight: 700; color: var(--ink); }
-  .about li { margin: 8px 0 8px 20px; animation: rowIn .4s ease both; transition: transform .2s; }
-  .about li:hover { transform: translateX(6px); }
+  .about li { margin: 8px 0 8px 20px; }
   .legal { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--field); font-size: 13px; text-align: center; font-weight: 800; color: var(--muted); }
   .legal a { color: var(--accent); text-decoration: none; margin: 0 6px; }
   .dock { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; display: flex; gap: 4px; padding: 8px; background: var(--dock-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 16px 40px rgba(0,40,90,.18); z-index: 90; animation: dockIn .55s cubic-bezier(.34,1.56,.64,1) both; }
-  .dock button { flex: 1; border: none; background: transparent; border-radius: 999px; padding: 9px 4px; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 10px; font-weight: 800; color: var(--muted); transition: background .25s, color .25s, transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .25s; }
+  .dock button { flex: 1; border: none; background: transparent; border-radius: 999px; padding: 9px 4px; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 10px; font-weight: 800; color: var(--muted); transition: background .25s, color .25s, transform .2s; }
   .dock button .ic { font-size: 22px; }
   .dock button:hover { transform: translateY(-3px); color: var(--ink); }
-  .dock button:hover .ic { animation: bob .6s ease; }
   .dock button.active { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
-  .dock button.active .ic { animation: bob 2s ease-in-out infinite; }
   .theme-pill { position: fixed; top: 14px; right: 14px; z-index: 95; display: flex; gap: 2px; padding: 5px; background: var(--dock-bg); backdrop-filter: blur(14px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 10px 26px rgba(0,40,90,.15); }
-  .theme-pill button { border: none; background: transparent; font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 999px; cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s; font-family: 'Nunito', sans-serif; color: var(--muted); }
-  .theme-pill button:hover { transform: scale(1.05); background: var(--c0-bg); color: var(--ink); }
+  .theme-pill button { border: none; background: transparent; font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 999px; cursor: pointer; font-family: 'Nunito', sans-serif; color: var(--muted); }
   .theme-pill button.on { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
   .onb { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; animation: popIn .3s both; }
   .onb-card { max-width: 340px; width: 100%; text-align: center; }
@@ -305,27 +282,52 @@
   #confetti { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
   .katex-display { overflow-x: auto; padding: 4px 0; }
   .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
-  .subject-check { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--field); border: 2px solid transparent; border-radius: 14px; cursor: pointer; transition: all .2s; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .subject-check { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--field); border: 2px solid transparent; border-radius: 14px; cursor: pointer; transition: all .2s; user-select: none; }
   .subject-check:hover { background: var(--c0-bg); border-color: var(--accent); }
-  .subject-check:active { transform: scale(0.97); }
   .subject-check input[type="checkbox"] { display: none; }
   .subject-check .checkmark { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; font-size: 14px; color: transparent; }
   .subject-check input:checked + .checkmark { background: var(--accent); border-color: var(--accent); color: #fff; }
   .subject-check label { font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; margin: 0; flex: 1; }
   .subject-check input:checked ~ label { color: var(--accent); font-weight: 900; }
-  input[type="checkbox"] { -webkit-appearance: none; -moz-appearance: none; appearance: none; background: transparent; border: none; outline: none; }
-  input[type="checkbox"]:focus, input[type="checkbox"]:checked:focus { outline: none; box-shadow: none; }
+  input[type="checkbox"] { -webkit-appearance: none; appearance: none; background: transparent; border: none; outline: none; }
   .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 10px 0; }
   .day-check { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; background: var(--field); border: 2px solid transparent; border-radius: 12px; cursor: pointer; transition: all .2s; user-select: none; }
-  .day-check:hover { background: var(--c0-bg); border-color: var(--accent); }
-  .day-check:active { transform: scale(0.95); }
   .day-check input[type="checkbox"] { display: none; }
   .day-check .checkmark { width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--muted); display: flex; align-items: center; justify-content: center; transition: all .2s; font-size: 12px; color: transparent; }
   .day-check input:checked + .checkmark { background: var(--accent); border-color: var(--accent); color: #fff; }
   .day-check label { font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer; margin: 0; text-align: center; }
   .day-check input:checked ~ label { color: var(--accent); font-weight: 900; }
-  .fipi-badge { display: inline-block; background: var(--c4-bg); color: var(--c4-c); border: var(--c4-bd); border-radius: 999px; padding: 2px 10px; font-size: 10px; font-weight: 900; margin-left: 6px; box-shadow: var(--c4-sh); }
-  .fipi-ans { margin-top: 8px; color: var(--c2-c); font-weight: 900; background: var(--ok-bg); border-radius: 12px; padding: 8px 12px; }
+  .exam-tabs { display: flex; gap: 6px; background: var(--field); border: var(--field-bd); border-radius: 999px; padding: 5px; margin-bottom: 14px; }
+  .exam-tabs button { flex: 1; border: none; border-radius: 999px; padding: 11px; font-family: inherit; font-weight: 900; font-size: 14px; background: transparent; color: var(--muted); cursor: pointer; transition: .25s; }
+  .exam-tabs button.on { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
+  .var-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .var-chip { border: var(--field-bd); background: var(--field); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+  .var-chip.done { border-color: #4CD97B; color: var(--c2-c); }
+  .variant-header { background: var(--card); border: var(--card-bd); border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: var(--card-sh); position: sticky; top: 8px; z-index: 50; backdrop-filter: blur(14px); }
+  .vh-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .vh-title { font-size: 14px; font-weight: 900; color: var(--ink); }
+  .vh-timer { background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 900; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+  .variant-progress { height: 8px; background: var(--field); border-radius: 999px; overflow: hidden; margin-bottom: 4px; }
+  .variant-progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring2)); transition: width .4s; }
+  .variant-progress-txt { font-size: 11px; color: var(--muted); font-weight: 800; text-align: right; }
+  .task-card { background: var(--card); border: var(--card-bd); border-radius: 22px; padding: 18px; box-shadow: var(--card-sh); margin-bottom: 12px; animation: cardIn .35s ease both; letter-spacing: normal; word-spacing: normal; }
+  .task-card .tc-num { display: inline-block; background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); border-radius: 999px; padding: 3px 12px; font-size: 12px; font-weight: 900; margin-bottom: 10px; }
+  .task-card .tc-text { font-size: 15px; font-weight: 700; line-height: 1.6; color: var(--ink); margin-bottom: 12px; letter-spacing: normal !important; word-spacing: normal !important; white-space: pre-wrap; }
+  .task-card textarea { min-height: 100px; resize: vertical; }
+  .tc-status { margin-top: 10px; padding: 10px 14px; border-radius: 12px; font-size: 14px; font-weight: 800; letter-spacing: normal; word-spacing: normal; }
+  .tc-status.ok { background: var(--ok-bg); color: #22C55E; }
+  .tc-status.ok::before { content: '✅ Верно! '; }
+  .tc-status.bad { background: var(--err-bg); color: #FF6B6B; }
+  .tc-status.bad::before { content: '❌ Неверно. Правильно: '; }
+  .tc-sol { margin-top: 8px; padding: 10px 14px; background: var(--field); border-radius: 12px; font-size: 13px; font-weight: 700; color: var(--ink); white-space: pre-wrap; }
+  .variant-result { background: var(--card); border: var(--card-bd); border-radius: 22px; padding: 22px; box-shadow: var(--card-sh); text-align: center; animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both; margin-bottom: 12px; }
+  .vr-score { font-size: 42px; font-weight: 900; color: var(--accent); margin: 8px 0; }
+  .vr-grade { display: inline-block; background: var(--c4-bg); color: var(--c4-c); border: var(--c4-bd); border-radius: 999px; padding: 6px 18px; font-size: 18px; font-weight: 900; margin: 8px 0; }
+  .vr-xp { font-size: 14px; font-weight: 900; margin: 6px 0; }
+  .vr-xp.no { color: var(--muted); }
+  .vr-xp.yes { color: var(--c2-c); }
+  #variantFooter { position: fixed; bottom: calc(84px + env(safe-area-inset-bottom,0px)); left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; z-index: 89; }
+  #variantFooter .btn { margin-top: 0; box-shadow: 0 16px 40px rgba(0,40,90,.35); }
   @keyframes toastIn { from{opacity:0;transform:translate(-50%,20px) scale(.8)} to{opacity:1;transform:translate(-50%,0) scale(1)} }
   @keyframes toastOut { to{opacity:0;transform:translate(-50%,-10px) scale(.9)} }
   @keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
@@ -334,14 +336,12 @@
   @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
   @keyframes chipBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
   @keyframes emFloat { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-5px) rotate(-4deg)} }
-  @keyframes emPop { 0%{transform:scale(1) rotate(0)} 50%{transform:scale(1.2) rotate(-12deg)} 100%{transform:scale(1) rotate(0)} }
   @keyframes btnPulse { 0%{transform:translateY(-3px) scale(1)} 40%{transform:translateY(-3px) scale(1.04)} 100%{transform:translateY(-3px) scale(1)} }
-  @keyframes orbSpin { 0%{transform:rotate(0) scale(1)} 50%{transform:rotate(180deg) scale(1.18)} 100%{transform:rotate(360deg) scale(1)} }
+  @keyframes orbPulse { 0%,100%{box-shadow: var(--orb-sh)} 50%{box-shadow: var(--orb-sh), 0 0 40px rgba(0,194,255,.4)} }
   @keyframes haloPulse { 0%,100%{box-shadow: var(--orb-sh), 0 0 0 0 var(--halo)} 50%{box-shadow: var(--orb-sh), 0 0 0 12px transparent} }
   @keyframes twinkle { 0%,100%{opacity:.15; transform:scale(.7) rotate(0)} 50%{opacity:.9; transform:scale(1.25) rotate(25deg)} }
   @keyframes sweep { 0%{left:-70%} 55%{left:130%} 100%{left:130%} }
-  @keyframes orbPulse { 0%,100%{box-shadow: var(--orb-sh)} 50%{box-shadow: var(--orb-sh), 0 0 40px rgba(0,194,255,.4)} }
-  @keyframes neonPulse { 0%,100%{box-shadow: var(--card-sh), 0 0 0 0 rgba(0,194,255,.0)} 50%{box-shadow: var(--card-sh), 0 0 22px rgba(0,194,255,.35)} }
+  @keyframes neonPulse { 0%,100%{box-shadow: var(--card-sh)} 50%{box-shadow: var(--card-sh), 0 0 22px rgba(0,194,255,.35)} }
   @keyframes scanMove { from{transform:translateY(0)} to{transform:translateY(120px)} }
   @keyframes flick { 0%,97%,100%{opacity:1} 98%{opacity:.6} 99%{opacity:.9} }
   @keyframes dropIn { from{opacity:0; transform:translateY(-16px)} to{opacity:1; transform:none} }
@@ -355,114 +355,36 @@
   @keyframes msgL { from{opacity:0; transform:translateX(-22px)} to{opacity:1; transform:none} }
   @keyframes msgR { from{opacity:0; transform:translateX(22px)} to{opacity:1; transform:none} }
   @keyframes qIn { from{opacity:0; transform:scale(.85)} to{opacity:1; transform:none} }
-  @keyframes spin { to{transform:rotate(360deg)} }
   @keyframes blink { 50%{opacity:0} }
   @keyframes shine { to{background-position:-200% 0} }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
   @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 100%{transform:scale(1)} }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-@media (max-width:430px){
+  @media (max-width:430px){
     body{padding:12px 10px calc(104px + env(safe-area-inset-bottom,0px));}
     .wrap{max-width:100%;}
     .head h1{font-size:21px;}
-    .head .mascot{width:46px;height:46px;font-size:23px;}
     .btn{padding:13px;font-size:15px;}
     .cloud{padding:13px;}
     .cloud .em{width:40px;height:40px;font-size:21px;}
-    .cloud .t{font-size:14px;}
     .chat-box{height:52vh;}
     .dock{bottom:calc(10px + env(safe-area-inset-bottom,0px));width:calc(100% - 20px);padding:6px;}
-    .dock button{padding:8px 2px;font-size:9px;}
-    .dock button .ic{font-size:19px;}
     .theme-pill{top:10px;right:10px;}
     .toast{bottom:88px;}
     input,select,textarea{min-height:48px;}
-    .quiz-q{font-size:18px;}
     .gamebar{padding:12px;}
-    .gb-lvl{width:40px;height:40px;font-size:16px;}
     .hero{padding:18px;}
-    .hero h2{font-size:20px;}
+    #variantFooter{bottom:calc(76px + env(safe-area-inset-bottom,0px));}
   }
-@media (min-width:768px){
-    .wrap{max-width:720px;}
-    .cloud-grid{grid-template-columns:repeat(3,1fr);}
-    .chat-box{height:58vh;}
-    .msg{max-width:75%;}
-    .dock{max-width:560px;}
-  }
-  @media (min-width:1200px){
-    .wrap{max-width:980px;}
-    .chat-box{height:64vh;}
-    .msg{max-width:70%;}
-    .dock{max-width:640px;}
-    .head h1{font-size:28px;}
-    .hero{padding:26px;}
-  }
-  @media (max-width:430px){
-    body{padding:10px 8px calc(92px + env(safe-area-inset-bottom,0px));}
-    .wrap{max-width:100%;}
-    .head{margin-bottom:12px;}
-    .head h1{font-size:20px;}
-    .head .mascot{width:44px;height:44px;font-size:22px;}
-    .head .sub{font-size:11px;}
-    .theme-pill{top:8px;right:8px;padding:3px;}
-    .theme-pill button{font-size:11px;padding:4px 7px;}
-    .btn{padding:12px;font-size:15px;margin-top:10px;}
-    .cloud{padding:12px;border-radius:18px;}
-    .cloud .em{width:38px;height:38px;font-size:20px;margin-bottom:8px;}
-    .cloud .t{font-size:13.5px;}
-    .cloud .d{font-size:10.5px;}
-    .chat-box{height:48vh;padding:10px;border-radius:18px;}
-    .msg{font-size:14px;padding:10px 14px;}
-    .chat-search input{min-height:40px;font-size:13px;}
-    .qchips button{font-size:11px;padding:6px 10px;}
-    .chat-input{gap:6px;}
-    .chat-input input{min-height:48px;font-size:15px;}
-    .chat-input .btn{width:48px;height:48px;}
-    .dock{bottom:calc(8px + env(safe-area-inset-bottom,0px));width:calc(100% - 16px);padding:5px;gap:2px;}
-    .dock button{padding:6px 2px;font-size:9px;}
-    .dock button .ic{font-size:18px;}
-    .toast{bottom:84px;font-size:13px;}
-    .gamebar{padding:10px 12px;gap:10px;}
-    .gb-lvl{width:38px;height:38px;font-size:15px;}
-    .gb-streak{font-size:13px;padding:6px 10px;}
-    .chip-stat{padding:10px 4px;}
-    .chip-stat .v{font-size:18px;}
-    .hero{padding:16px;border-radius:22px;}
-    .hero .orb{width:52px;height:52px;font-size:26px;}
-    .hero h2{font-size:19px;}
-    .hero p{font-size:12.5px;}
-    input,select,textarea{min-height:46px;font-size:15px;}
-    .quiz-q{font-size:17px;}
-    .avg{font-size:40px;}
-  }
-.page:not(#home) .head{display:none;}
+  @media (min-width:768px){ .wrap{max-width:720px;} .cloud-grid{grid-template-columns:repeat(3,1fr);} .dock{max-width:560px;} }
+  @media (min-width:1200px){ .wrap{max-width:980px;} .dock{max-width:640px;} .head h1{font-size:28px;} }
+  .page:not(#home) .head{display:none;}
   .chat-search{display:none;}
-  .page:not(#home) > .puff:first-of-type, .page:not(#home) > .seg:first-of-type{margin-top:4px;}
-@media (min-width:768px){
-    #chat .chat-box{max-width:700px;margin:0 auto;}
-    #chat .chat-input{max-width:700px;margin:10px auto 0;}
-    #chat .qchips{max-width:700px;margin:10px auto 0;}
-    #chat button.btn.ghost{max-width:700px;margin-left:auto;margin-right:auto;}
-    .msg{max-width:80%;}
-  }
-  @media (min-width:1200px){
-    #chat .chat-box{max-width:780px;height:60vh;}
-    #chat .chat-input{max-width:780px;}
-    #chat .qchips{max-width:780px;}
-  }
-.chat-box{height:48vh !important;}
-@media (min-width:768px){#chat .chat-box{height:52vh !important;}}
-#chat .chat-box{height:clamp(320px, 40vh + 8vw, 74vh) !important;width:min(100%, calc(420px + 22vw)) !important;max-width:none !important;margin:0 auto !important;}
-  #chat .chat-input,#chat .qchips{width:min(100%, calc(420px + 22vw)) !important;max-width:none !important;margin-left:auto !important;margin-right:auto !important;}
-#chat .chat-box{margin-top:48px !important;}
-  @media (max-width:430px){#chat .chat-box{margin-top:44px !important;}}
-#chat > .btn.ghost{display:none;}
-.photo-fab{display:none !important;}
+  #chat > .btn.ghost{display:none;}
+  .photo-fab{display:none !important;}
 </style>
 </head>
 <body>
-
 <canvas id="confetti"></canvas>
 <div class="fx-scan"></div>
 <div class="fx-shine"></div>
@@ -488,25 +410,20 @@
 </div>
 
 <div class="theme-pill">
-  <button id="thLight" onclick="setThemeClick('light', event)" title="Светлая">Светлая</button>
-  <button id="thDark" onclick="setThemeClick('dark', event)" title="Тёмная">Тёмная</button>
-  <button id="thAuto" onclick="setThemeClick('auto', event)" title="Системная">Авто</button>
+  <button id="thLight" onclick="setThemeClick('light', event)">Светлая</button>
+  <button id="thDark" onclick="setThemeClick('dark', event)">Тёмная</button>
+  <button id="thAuto" onclick="setThemeClick('auto', event)">Авто</button>
 </div>
 
 <div class="wrap">
 
   <div id="home" class="page active">
     <span class="sp s1">✦</span><span class="sp s2">✧</span><span class="sp s3">★</span><span class="sp s4">✦</span><span class="sp s5">✧</span>
-    <div class="head">
-      <div class="hi">
-        <div class="mascot" id="mascotHome">🤖</div>
-        <div>
-          <h1 id="heroGreet">Привет!</h1>
-          <div class="sub">Sferum Navigator · GigaChat</div>
-        </div>
-      </div>
-    </div>
-    <div class="gamebar puff" id="gameBar" onclick="go('shop')" title="Открыть магазин"></div>
+    <div class="head"><div class="hi">
+      <div class="mascot" id="mascotHome">🤖</div>
+      <div><h1 id="heroGreet">Привет!</h1><div class="sub">Sferum Navigator · GigaChat</div></div>
+    </div></div>
+    <div class="gamebar puff" id="gameBar" onclick="go('shop')"></div>
     <div class="chips">
       <div class="chip-stat"><div class="v" id="statAvg">—</div><div class="l">Ср. балл</div></div>
       <div class="chip-stat"><div class="v" id="statWeeks">—</div><div class="l">Недель</div></div>
@@ -521,8 +438,8 @@
     </button>
     <div class="cloud-grid">
       <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
-      <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты по экзамену</div></button>
-      <button class="cloud" onclick="go('fipi')"><div class="em">📝</div><div class="t">Банк ФИПИ</div><div class="d">ОГЭ и ЕГЭ 2025/26</div></button>
+      <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты и варианты</div></button>
+      <button class="cloud" onclick="go('fipi')"><div class="em">📝</div><div class="t">Банк ФИПИ</div><div class="d">Задания 2025/26</div></button>
       <button class="cloud" onclick="go('grades')"><div class="em">📒</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
@@ -534,9 +451,6 @@
     <div class="shop-header">
       <div class="shop-xp">💎 <span id="shopXpBalance">0</span> XP <span>доступно</span></div>
       <div class="shop-xp">🛒 <span id="shopOwnedCount">0</span> <span>куплено</span></div>
-    </div>
-    <div class="puff" style="margin-bottom:14px;">
-      <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика 🔥). Подсказка в тесте стоит 100 XP.</div>
     </div>
     <div id="shopBox"></div>
   </div>
@@ -552,13 +466,12 @@
       <button onclick="chipSet('Поддержи меня, мне тяжело')">💪 Поддержи</button>
     </div>
     <div class="chat-input">
-      <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()" title="Очистить общий чат">⋯</button>
+      <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()">⋯</button>
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
       <input type="file" id="chatPhoto" accept="image/*" style="display:none" onchange="sendPhotoChat(this)">
-      <button class="btn sky" id="photoBtn" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()">📷</button>
+      <button class="btn sky" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()">📷</button>
       <button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
-    <button class="btn ghost" onclick="clearChat()">🗑 Очистить общий чат</button>
   </div>
 
   <div id="plan" class="page">
@@ -580,14 +493,14 @@
         <label>📚 Выбери предметы</label>
         <div class="subject-grid" id="subjectGrid"></div>
         <label>🏆 Цель</label>
-        <input type="text" id="pGoal" placeholder="сдать на 90+, подтянуть оценки...">
+        <input type="text" id="pGoal" placeholder="сдать на 90+...">
         <label>⏰ Минут в день на учёбу</label>
         <input type="number" id="pMinutes" value="60" min="15" max="480" step="15">
         <label>📊 Уровень</label>
         <select id="pLevel"><option value="начальный">Начальный</option><option value="средний" selected>Средний</option><option value="продвинутый">Продвинутый</option></select>
         <label>😓 Слабые места</label>
         <textarea id="pWeak" rows="2" placeholder="необязательно"></textarea>
-        <label>😴 Дни отдыха (выбери 1-2 дня)</label>
+        <label>😴 Дни отдыха</label>
         <div class="day-grid">
           <div class="day-check" onclick="toggleDayCheck('day_mon')"><input type="checkbox" id="day_mon" value="Пн"><span class="checkmark">✓</span><label for="day_mon">Пн</label></div>
           <div class="day-check" onclick="toggleDayCheck('day_tue')"><input type="checkbox" id="day_tue" value="Вт"><span class="checkmark">✓</span><label for="day_tue">Вт</label></div>
@@ -613,45 +526,101 @@
 
   <div id="quiz" class="page">
     <div class="head"><div class="hi"><div class="mascot">✅</div><div><h1>Тренажёр</h1><div class="sub">Тест 80%+ = тема пройдена = +30 XP</div></div></div></div>
-    <div class="puff">
-      <label>📚 Предмет / тема</label>
-      <input type="text" id="qTopic" placeholder="математика, дроби...">
-      <label>🎯 Экзамен (сложность как на нём)</label>
-      <select id="qExam" onchange="updateExamHint()">
-        <option value="">Без экзамена (обычные задания)</option>
-        <option value="ОГЭ">ОГЭ — задания как на ОГЭ</option>
-        <option value="ЕГЭ">ЕГЭ — задания как на ЕГЭ</option>
-      </select>
-      <div class="hint" id="examHint" style="margin-top:6px;text-align:left;"></div>
-      <div class="row3">
-        <div><label>🎓 Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
-        <div><label>🧩 Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
-        <div><label>🎚 Слож.</label><select id="qDiff" onchange="updateExamHint()"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
+    <div class="exam-tabs">
+      <button id="tabTest" class="on" onclick="quizTab('test')">🎲 Тест</button>
+      <button id="tabVariant" onclick="quizTab('variant')">📝 Вариант</button>
+    </div>
+
+    <div id="quizTestBox">
+      <div class="puff">
+        <label>📚 Предмет / тема</label>
+        <input type="text" id="qTopic" placeholder="математика, дроби...">
+        <label>🎯 Экзамен (сложность как на нём)</label>
+        <select id="qExam" onchange="updateExamHint()">
+          <option value="">Без экзамена</option>
+          <option value="ОГЭ">ОГЭ</option>
+          <option value="ЕГЭ">ЕГЭ</option>
+        </select>
+        <div class="hint" id="examHint" style="margin-top:6px;text-align:left;"></div>
+        <div class="row3">
+          <div><label>🎓 Класс</label><select id="qGrade"><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
+          <div><label>🧩 Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
+          <div><label>🎚 Слож.</label><select id="qDiff" onchange="updateExamHint()"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
+        </div>
+        <button class="btn sky" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
       </div>
-      <button class="btn sky" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
-      <button class="btn ghost" onclick="go('fipi')">📝 Открыть банк новых заданий ФИПИ</button>
+      <div class="progress-wrap" id="quizProgressWrap" style="display:none;"><div class="progress-bar" id="quizProgress"></div></div>
+      <div class="quiz-q" id="quizQ">Введи тему и жми кнопку 👆</div>
+      <div class="hint" id="quizHint"></div>
+      <button class="btn ghost" id="buyHintBtn" style="display:none;" onclick="buyHint()">💡 Подсказка (−100 XP)</button>
+      <div class="quiz-input" id="quizAnswerBox" style="display:none;">
+        <input id="quizAnswer" placeholder="Твой ответ..." onkeydown="if(event.key==='Enter')checkAnswer()">
+        <button class="btn mint" onclick="checkAnswer()">✔</button>
+      </div>
+      <div id="quizResult"></div>
+      <button class="btn ghost" id="nextBtn" style="display:none;" onclick="nextQuestion()">➡️ Дальше</button>
+      <div class="score" id="score">Счёт: 0 / 0</div>
     </div>
-    <div class="progress-wrap" id="quizProgressWrap" style="display:none;"><div class="progress-bar" id="quizProgress"></div></div>
-    <div class="quiz-q" id="quizQ">Введи тему и жми кнопку 👆</div>
-    <div class="hint" id="quizHint"></div>
-    <button class="btn ghost" id="buyHintBtn" style="display:none;" onclick="buyHint()">💡 Купить подсказку (−100 XP)</button>
-    <div class="quiz-input" id="quizAnswerBox" style="display:none;">
-      <input id="quizAnswer" placeholder="Твой ответ..." onkeydown="if(event.key==='Enter')checkAnswer()">
-      <button class="btn mint" onclick="checkAnswer()">✔</button>
+
+    <div id="quizVariantBox" style="display:none;">
+      <div id="variantSetup">
+        <div class="puff">
+          <label>🎯 Экзамен</label>
+          <select id="vExam"><option value="ОГЭ">ОГЭ</option><option value="ЕГЭ">ЕГЭ</option></select>
+          <label>📚 Предмет</label>
+          <select id="vSubject">
+            <option value="Математика">Математика</option>
+            <option value="Русский язык">Русский язык</option>
+            <option value="Математика (профиль)">Математика (профиль, ЕГЭ)</option>
+            <option value="Физика">Физика</option>
+            <option value="Информатика">Информатика</option>
+          </select>
+          <div class="row2">
+            <div><label>📅 Год варианта</label><select id="vYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select></div>
+            <div><label>🔢 Номер</label><select id="vNum"></select></div>
+          </div>
+          <button class="btn ghost" style="margin-top:8px;" onclick="randomVariantNum()">🎲 Случайный номер</button>
+          <label>⏱ Таймер</label>
+          <select id="vTimer">
+            <option value="0">Без таймера</option>
+            <option value="235" selected>235 мин (регламент)</option>
+            <option value="120">120 мин</option>
+            <option value="60">60 мин</option>
+          </select>
+          <button class="btn mint" onclick="startVariant()">📝 Получить вариант</button>
+          <label>📜 Пройденные варианты (тап = перерешать, без XP)</label>
+          <div class="var-chips" id="varHistory"><span class="hint">Пока пусто</span></div>
+        </div>
+      </div>
+
+      <div id="variantActive" style="display:none;">
+        <div class="variant-header">
+          <div class="vh-top">
+            <div class="vh-title" id="variantTitle">📝 Вариант</div>
+            <div class="vh-timer" id="variantTimer">—</div>
+          </div>
+          <div class="variant-progress"><i id="variantProgBar" style="width:0%"></i></div>
+          <div class="variant-progress-txt" id="variantProgTxt">0 / 0</div>
+          <button class="btn ghost" style="margin-top:8px;padding:8px;font-size:12px;" onclick="discardVariant()">✖ Сбросить вариант</button>
+        </div>
+        <div id="variantResult" style="display:none;"></div>
+        <div id="variantTasks"></div>
+      </div>
     </div>
-    <div id="quizResult"></div>
-    <button class="btn ghost" id="nextBtn" style="display:none;" onclick="nextQuestion()">➡️ Дальше</button>
-    <div class="score" id="score">Счёт: 0 / 0</div>
+  </div>
+
+  <div id="variantFooter" style="display:none;">
+    <button class="btn mint" onclick="finishVariant()">🏁 Завершить вариант и проверить</button>
   </div>
 
   <div id="fipi" class="page">
-    <div class="head"><div class="hi"><div class="mascot">📝</div><div><h1>Банк ФИПИ</h1><div class="sub">Новые задания ОГЭ и ЕГЭ 2025/2026</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">📝</div><div><h1>Банк ФИПИ</h1><div class="sub">Новые задания 2025/2026</div></div></div></div>
     <div class="seg">
-      <button id="segFipiOge" class="on" onclick="fipiTab('oge')">📘 ОГЭ 2025/26</button>
-      <button id="segFipiEge" onclick="fipiTab('ege')">📕 ЕГЭ 2025/26</button>
+      <button id="segFipiOge" class="on" onclick="fipiTab('oge')">📘 ОГЭ</button>
+      <button id="segFipiEge" onclick="fipiTab('ege')">📕 ЕГЭ</button>
     </div>
     <div class="puff" style="margin-bottom:14px;">
-      <div style="font-size:13px;font-weight:800;color:var(--muted);line-height:1.55;">📝 Банк пополняется <b style="color:var(--ink);">автоматически раз в сутки</b> новыми заданиями в формате открытого банка ФИПИ 2025/2026. Можно обновить вручную кнопкой ниже.</div>
+      <div style="font-size:13px;font-weight:800;color:var(--muted);line-height:1.55;">📝 Банк пополняется автоматически раз в сутки. «✍ Решить» открывает задание в формате варианта.</div>
       <button class="btn sky" id="fipiUpdateBtn" onclick="updateFipiBank()">🔄 Обновить из ФИПИ</button>
     </div>
     <div id="fipiList"></div>
@@ -661,7 +630,7 @@
     <div class="head"><div class="hi"><div class="mascot">📒</div><div><h1>Дневник</h1><div class="sub">Пиши словами — ИИ разберёт</div></div></div></div>
     <div class="puff" style="margin-bottom:12px;">
       <canvas id="gGraph" style="width:100%;height:96px;display:block;"></canvas>
-      <div class="hint" id="gGraphHint" style="margin-top:6px;">Добавь оценки в два разных дня — появится график прогресса</div>
+      <div class="hint" id="gGraphHint" style="margin-top:6px;">Добавь оценки в два разных дня — появится график</div>
     </div>
     <div class="avg" id="gAvg">—</div>
     <div id="gList"></div>
@@ -676,14 +645,13 @@
   </div>
 
   <div id="video" class="page">
-    <div class="head"><div class="hi"><div class="mascot">🎥</div><div><h1>Видеоуроки</h1><div class="sub">Объяснение + прямые ссылки</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">🎥</div><div><h1>Видеоуроки</h1><div class="sub">Объяснение + ссылки</div></div></div></div>
     <div class="puff">
       <label>Тема</label>
       <input type="text" id="vTopic" placeholder="фотосинтез 6 класс">
       <button class="btn sun" id="vBtn" onclick="buildVideo()">🤖 Объяснить и найти</button>
     </div>
     <div id="vAi"></div>
-    <div id="videoResult"></div>
   </div>
 
   <div id="motivation" class="page">
@@ -705,12 +673,10 @@
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
-          <li>🔐 Ключи GigaChat хранятся только на сервере</li>
-          <li>🏆 XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
-          <li>📝 Банк ФИПИ 2025/26 обновляется автоматически</li>
-          <li>💬 Все диалоги и подтверждения — в стиле приложения</li>
+          <li>📝 Варианты ОГЭ/ЕГЭ из банка ФИПИ (2023–2026)</li>
+          <li>🏆 XP — только за первый проход варианта и темы</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 52</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 53</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -719,12 +685,12 @@
   <div id="more" class="page">
     <div class="head"><div class="hi"><div class="mascot">⋯</div><div><h1>Ещё разделы</h1></div></div></div>
     <div class="cloud-grid">
-      <button class="cloud" onclick="go('fipi')"><div class="em">📝</div><div class="t">Банк ФИПИ</div><div class="d">ОГЭ и ЕГЭ 2025/26</div></button>
+      <button class="cloud" onclick="go('fipi')"><div class="em">📝</div><div class="t">Банк ФИПИ</div><div class="d">Задания 2025/26</div></button>
       <button class="cloud" onclick="go('grades')"><div class="em">📒</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 52</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 53</div></button>
     </div>
   </div>
 
@@ -742,18 +708,9 @@
 const CODESPACE_NAME='automatic-system-p7gg76p4wqqwf99rj';
 const PROXY_BASE='https://'+CODESPACE_NAME+'-8000.app.github.dev';
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-const TEST_SIZE=20;
-const CHANNEL='main';
-const DAILY_GOAL=30;
-const HINT_COST=100;
-const PASS_PCT=0.8;
-const MATH_SYSTEM='Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
-
-// ===== ДИАПАЗОНЫ НОМЕРОВ ЗАДАНИЙ ПО СЛОЖНОСТИ =====
-const EXAM_DIFF_RANGES={
-  'ОГЭ':{'лёгкая':[1,5],'средняя':[6,15],'сложная':[16,25]},
-  'ЕГЭ':{'лёгкая':[1,5],'средняя':[6,12],'сложная':[13,19]}
-};
+const TEST_SIZE=20, CHANNEL='main', DAILY_GOAL=30, HINT_COST=100, PASS_PCT=0.8;
+const MATH_SYSTEM='Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown. Формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
+const EXAM_DIFF_RANGES={'ОГЭ':{'лёгкая':[1,5],'средняя':[6,15],'сложная':[16,25]},'ЕГЭ':{'лёгкая':[1,5],'средняя':[6,12],'сложная':[13,19]}};
 
 function todayIdx(){return (new Date().getDay()+6)%7;}
 function mondayOf(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;}
@@ -763,83 +720,28 @@ function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;
 function cleanResponse(t){return t.replace(/\*\*/g,'').replace(/(^|\n)#{1,3}\s*/g,'$1').replace(/`/g,'').replace(/\n{3,}/g,'\n\n').trim();}
 function topicKey(s){return s.topic||s.subject||'';}
 function isRestDay(i){return !i||/отдых|выходной/i.test(i.subject||'');}
-function mathIn(el){if(!el||!window.renderMathInElement)return;try{renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false});}catch(e){}}
+function mathIn(el){if(!el||!window.renderMathInElement)return;try{renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}catch(e){}}
 window.addEventListener('load',()=>mathIn(document.body));
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.classList.add('out'),1900);setTimeout(()=>t.remove(),2400);}
-function examInfo(grade,examText){
-  const now=new Date();const t=(examText||'').toLowerCase();
-  let tg=grade,mo=4,da=25;
-  if(t.includes('огэ')){tg=9;da=20;} else if(t.includes('егэ')){tg=11;da=25;}
-  const yl=Math.max(0,tg-grade);
-  let ed=new Date(now.getFullYear()+yl,mo,da);
-  if(ed<now)ed=new Date(now.getFullYear()+yl+1,mo,da);
-  const w=Math.max(1,Math.round((ed-now)/(7*24*3600*1000)));
-  return{name:examText||'экзамен',examDate:ed,weeks:w};
-}
+function examInfo(grade,examText){const now=new Date();const t=(examText||'').toLowerCase();let tg=grade,mo=4,da=25;if(t.includes('огэ')){tg=9;da=20;}else if(t.includes('егэ')){tg=11;da=25;}const yl=Math.max(0,tg-grade);let ed=new Date(now.getFullYear()+yl,mo,da);if(ed<now)ed=new Date(now.getFullYear()+yl+1,mo,da);const w=Math.max(1,Math.round((ed-now)/(7*24*3600*1000)));return{name:examText||'экзамен',examDate:ed,weeks:w};}
 function getExamFromPlan(){const p=loadPlan();if(p&&p.params&&p.params.exam)return p.params.exam;return '';}
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function extractJSON(text){if(!text)return null;let c=text;const jb=c.match(/```(?:json)?\s*([\s\S]*?)```/);if(jb)c=jb[1].trim();const fb=c.indexOf('{'),fk=c.indexOf('[');let st=-1;if(fb===-1&&fk===-1)return null;if(fb===-1)st=fk;else if(fk===-1)st=fb;else st=Math.min(fb,fk);const lb=c.lastIndexOf('}'),lk=c.lastIndexOf(']');let en=-1;if(lb===-1&&lk===-1)return null;if(lb===-1)en=lk+1;else if(lk===-1)en=lb+1;else en=Math.max(lb,lk)+1;if(st>=0&&en>st){try{return JSON.parse(c.substring(st,en));}catch(e){return null;}}return null;}
+function parseJSONObjectSafe(t){const e=extractJSON(t);if(e&&typeof e==='object'&&!Array.isArray(e))return e;const m=t.match(/\{[\s\S]*\}/);if(!m)return null;try{return JSON.parse(m[0]);}catch(e){return null;}}
+function parseJSONArraySafe(t){const e=extractJSON(t);if(Array.isArray(e))return e;const m=t.match(/\[[\s\S]*\]/);if(!m)throw new Error('Не JSON');const r=m[0];try{return JSON.parse(r);}catch(e){}const lc=r.lastIndexOf('}');if(lc>0){try{return JSON.parse(r.slice(0,lc+1).replace(/,\s*$/,'')+']');}catch(e){}}throw new Error('JSON обрезан');}
 
-function extractJSON(text){
-  if(!text)return null;
-  let cleaned=text;
-  const jb=cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if(jb){cleaned=jb[1].trim();}
-  const fb=cleaned.indexOf('{'),fk=cleaned.indexOf('[');
-  let start=-1;
-  if(fb===-1&&fk===-1)return null;
-  if(fb===-1)start=fk; else if(fk===-1)start=fb; else start=Math.min(fb,fk);
-  const lb=cleaned.lastIndexOf('}'),lk=cleaned.lastIndexOf(']');
-  let end=-1;
-  if(lb===-1&&lk===-1)return null;
-  if(lb===-1)end=lk+1; else if(lk===-1)end=lb+1; else end=Math.max(lb,lk)+1;
-  if(start>=0&&end>start){try{return JSON.parse(cleaned.substring(start,end));}catch(e){return null;}}
-  return null;
-}
-function parseJSONObjectSafe(text){
-  const ex=extractJSON(text);
-  if(ex&&typeof ex==='object'&&!Array.isArray(ex))return ex;
-  const m=text.match(/\{[\s\S]*\}/);if(!m)return null;
-  try{return JSON.parse(m[0]);}catch(e){return null;}
-}
-function parseJSONArraySafe(text){
-  const ex=extractJSON(text);
-  if(Array.isArray(ex))return ex;
-  const m=text.match(/\[[\s\S]*\]/);if(!m)throw new Error('Не JSON');
-  const raw=m[0];try{return JSON.parse(raw);}catch(e){}
-  const lc=raw.lastIndexOf('}');
-  if(lc>0){try{return JSON.parse(raw.slice(0,lc+1).replace(/,\s*$/,'')+']');}catch(e){}}
-  throw new Error('JSON обрезан');
-}
-
-function showModal(o){
-  const m=document.getElementById('modal');
-  document.getElementById('modalEmoji').textContent=o.emoji||'🤖';
-  document.getElementById('modalText').textContent=o.text||'';
-  const btns=document.getElementById('modalBtns');btns.innerHTML='';
-  if(o.cancelText!==null){const c=document.createElement('button');c.className='btn ghost';c.textContent=o.cancelText||'Отмена';c.onclick=hideModal;btns.appendChild(c);}
-  const ok=document.createElement('button');ok.className='btn '+(o.okClass||'');ok.textContent=o.okText||'ОК';
-  ok.onclick=function(){hideModal();if(o.onYes)o.onYes();};
-  btns.appendChild(ok);m.style.display='flex';
-}
+function showModal(o){const m=document.getElementById('modal');document.getElementById('modalEmoji').textContent=o.emoji||'🤖';document.getElementById('modalText').textContent=o.text||'';const b=document.getElementById('modalBtns');b.innerHTML='';if(o.cancelText!==null){const c=document.createElement('button');c.className='btn ghost';c.textContent=o.cancelText||'Отмена';c.onclick=hideModal;b.appendChild(c);}const ok=document.createElement('button');ok.className='btn '+(o.okClass||'');ok.textContent=o.okText||'ОК';ok.onclick=function(){hideModal();if(o.onYes)o.onYes();};b.appendChild(ok);m.style.display='flex';}
 function hideModal(){document.getElementById('modal').style.display='none';}
-function uiAlert(text,emoji){showModal({emoji:emoji||'💡',text:text,okText:'Понятно',cancelText:null});}
-function uiConfirm(text,onYes,emoji,okText){showModal({emoji:emoji||'⚠️',text:text,okText:okText||'Да',okClass:'danger',cancelText:'Отмена',onYes:onYes});}
+function uiAlert(t,e){showModal({emoji:e||'💡',text:t,okText:'Понятно',cancelText:null});}
+function uiConfirm(t,f,e,o){showModal({emoji:e||'⚠️',text:t,okText:o||'Да',okClass:'danger',cancelText:'Отмена',onYes:f});}
 
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('sn_theme',t);['Light','Dark','Auto'].forEach(n=>{const b=document.getElementById('th'+n);if(b)b.classList.toggle('on',n.toLowerCase()===t);});}
-function setThemeClick(t,ev){
-  const x=ev?ev.clientX:innerWidth/2,y=ev?ev.clientY:innerHeight/2;
-  if(document.startViewTransition){
-    const vt=document.startViewTransition(()=>applyTheme(t));
-    vt.ready.then(()=>{const r=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));document.documentElement.animate({clipPath:['circle(0px at '+x+'px '+y+'px)','circle('+r+'px at '+x+'px '+y+'px)']},{duration:650,easing:'cubic-bezier(.4,0,.2,1)',pseudoElement:'::view-transition-new(root)'});}).catch(()=>{});
-  }else{document.body.classList.add('theme-anim');applyTheme(t);setTimeout(()=>document.body.classList.remove('theme-anim'),650);}
-}
+function setThemeClick(t,ev){const x=ev?ev.clientX:innerWidth/2,y=ev?ev.clientY:innerHeight/2;if(document.startViewTransition){const vt=document.startViewTransition(()=>applyTheme(t));vt.ready.then(()=>{const r=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));document.documentElement.animate({clipPath:['circle(0px at '+x+'px '+y+'px)','circle('+r+'px at '+x+'px '+y+'px)']},{duration:650,easing:'cubic-bezier(.4,0,.2,1)',pseudoElement:'::view-transition-new(root)'});}).catch(()=>{});}else{document.body.classList.add('theme-anim');applyTheme(t);setTimeout(()=>document.body.classList.remove('theme-anim'),650);}}
 applyTheme(localStorage.getItem('sn_theme')||'auto');
 document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('paused',document.hidden);});
 
-const ONB=[
-  ['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],
-  ['📅','План и «Сегодня»','План соберёт твою неделю, а карточка «Сегодня» подскажет, что учить прямо сейчас.'],
-  ['📝','Банк ФИПИ','Новые задания ОГЭ и ЕГЭ 2025/2026 обновляются автоматически каждый день!']
-];
+const ONB=[['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],['📝','Варианты ФИПИ','Решай целые варианты ОГЭ/ЕГЭ 2023–2026 как на Решу ОГЭ: все задания подряд, проверка внизу.'],['🏆','XP со смыслом','XP — за первый проход варианта и темы. Повторы — тренировка без XP.']];
 let onbI=0;
 function onbStart(){if(localStorage.getItem('sn_onb'))return;onbI=0;document.getElementById('onb').style.display='flex';onbShow();}
 function onbShow(){const s=ONB[onbI];document.getElementById('onbEmoji').textContent=s[0];document.getElementById('onbTitle').textContent=s[1];document.getElementById('onbText').textContent=s[2];document.getElementById('onbNext').textContent=(onbI===ONB.length-1)?'Поехали!':'Дальше';}
@@ -847,764 +749,364 @@ function onbNext(){onbI++;if(onbI>=ONB.length)onbEnd();else onbShow();}
 function onbSkip(){onbEnd();}
 function onbEnd(){localStorage.setItem('sn_onb','1');document.getElementById('onb').style.display='none';}
 
-function searchChat(q){const msgs=Array.prototype.slice.call(document.querySelectorAll('#chatBox .msg'));const s=q.trim().toLowerCase();if(!s){msgs.forEach(m=>m.classList.remove('dim','hit'));return;}let first=null;msgs.forEach(m=>{const hit=m.textContent.toLowerCase().includes(s);m.classList.toggle('hit',hit);m.classList.toggle('dim',!hit);if(hit&&!first)first=m;});if(first)first.scrollIntoView({block:'center',behavior:'smooth'});}
+function searchChat(q){const m=[...document.querySelectorAll('#chatBox .msg')];const s=q.trim().toLowerCase();if(!s){m.forEach(x=>x.classList.remove('dim','hit'));return;}let f=null;m.forEach(x=>{const h=x.textContent.toLowerCase().includes(s);x.classList.toggle('hit',h);x.classList.toggle('dim',!h);if(h&&!f)f=x;});if(f)f.scrollIntoView({block:'center',behavior:'smooth'});}
 function chipSet(t){const i=document.getElementById('chatInput');i.value=t;i.focus();}
 
-const confettiCv=document.getElementById('confetti');const cCtx=confettiCv.getContext('2d');let confetti=[];let confettiRunning=false;
-function sizeConfetti(){confettiCv.width=window.innerWidth;confettiCv.height=window.innerHeight;}
-sizeConfetti();window.addEventListener('resize',sizeConfetti);
+const confettiCv=document.getElementById('confetti');const cCtx=confettiCv.getContext('2d');let confetti=[],confettiRunning=false;
+function sizeConfetti(){confettiCv.width=innerWidth;confettiCv.height=innerHeight;}
+sizeConfetti();addEventListener('resize',sizeConfetti);
 function fireConfetti(x,y){const cols=['#2787F5','#00C2FF','#39FF88','#FFD60A','#7FB9FF','#FF8FA6'];for(let i=0;i<40;i++){confetti.push({x,y,vx:(Math.random()-.5)*11,vy:-Math.random()*9-4,g:.25,size:Math.random()*6+4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.4,color:cols[i%cols.length],life:0,maxLife:80+Math.random()*30});}if(!confettiRunning){confettiRunning=true;requestAnimationFrame(confettiLoop);}}
-function confettiLoop(){
-  cCtx.clearRect(0,0,confettiCv.width,confettiCv.height);
-  confetti=confetti.filter(c=>c.life<c.maxLife&&c.y<confettiCv.height+30);
-  if(!confetti.length){confettiRunning=false;return;}
-  confetti.forEach(c=>{c.x+=c.vx;c.y+=c.vy;c.vy+=c.g;c.vx*=.99;c.rot+=c.vr;c.life++;cCtx.save();cCtx.globalAlpha=Math.max(0,1-c.life/c.maxLife);cCtx.translate(c.x,c.y);cCtx.rotate(c.rot);cCtx.fillStyle=c.color;cCtx.fillRect(-c.size/2,-c.size/2,c.size,c.size*.6);cCtx.restore();});
-  requestAnimationFrame(confettiLoop);
-}
-function typeWriter(el,text,speed=20){el.classList.add('typing');el.textContent='';let i=0;return new Promise(res=>{const step=()=>{if(i<=text.length){el.textContent=text.slice(0,i);i++;setTimeout(step,speed);}else{el.classList.remove('typing');res();}};step();});}
-function animateCount(el,from,to,dur=700){const st=performance.now();const up=now=>{const p=Math.min((now-st)/dur,1);el.textContent=(from+(to-from)*(1-Math.pow(1-p,3))).toFixed(2);if(p<1)requestAnimationFrame(up);};requestAnimationFrame(up);}
+function confettiLoop(){cCtx.clearRect(0,0,confettiCv.width,confettiCv.height);confetti=confetti.filter(c=>c.life<c.maxLife&&c.y<confettiCv.height+30);if(!confetti.length){confettiRunning=false;return;}confetti.forEach(c=>{c.x+=c.vx;c.y+=c.vy;c.vy+=c.g;c.vx*=.99;c.rot+=c.vr;c.life++;cCtx.save();cCtx.globalAlpha=Math.max(0,1-c.life/c.maxLife);cCtx.translate(c.x,c.y);cCtx.rotate(c.rot);cCtx.fillStyle=c.color;cCtx.fillRect(-c.size/2,-c.size/2,c.size,c.size*.6);cCtx.restore();});requestAnimationFrame(confettiLoop);}
+function typeWriter(el,text,speed=20){el.classList.add('typing');el.textContent='';let i=0;return new Promise(res=>{const s=()=>{if(i<=text.length){el.textContent=text.slice(0,i);i++;setTimeout(s,speed);}else{el.classList.remove('typing');res();}};s();});}
+function animateCount(el,f,t,d=700){const st=performance.now();const u=n=>{const p=Math.min((n-st)/d,1);el.textContent=(f+(t-f)*(1-Math.pow(1-p,3))).toFixed(2);if(p<1)requestAnimationFrame(u);};requestAnimationFrame(u);}
 
-const BADGES=[
-  ['step','🎬','Первый XP'],['goal1','📅','Первая норма дня'],['quiz10','🎯','Снайпер: 10 верных'],
-  ['plan','🗺️','Стратег: план составлен'],['done','🎓','Тема закрыта'],['done5','📒','Эрудит: 5 тем'],
-  ['streak3','🔥','3 дня подряд'],['streak7','⚡','Неделя огня'],
-];
-function loadGame(){
-  try{
-    const saved=JSON.parse(localStorage.getItem('sn_game')||'{}');
-    if(!saved.initialized){saved.xp=100000;saved.initialized=true;localStorage.setItem('sn_game',JSON.stringify(saved));}
-    return Object.assign({xp:100000,correct:0,doneN:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false,initialized:false},saved);
-  }catch(e){return{xp:100000,correct:0,doneN:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false,initialized:true};}
-}
+const BADGES=[['step','🎬','Первый XP'],['goal1','📅','Первая норма дня'],['quiz10','🎯','Снайпер: 10 верных'],['plan','🗺️','Стратег: план'],['done','🎓','Тема закрыта'],['done5','📒','Эрудит: 5 тем'],['streak3','🔥','3 дня подряд'],['streak7','⚡','Неделя огня']];
+function loadGame(){try{const s=JSON.parse(localStorage.getItem('sn_game')||'{}');if(!s.initialized){s.xp=100000;s.initialized=true;localStorage.setItem('sn_game',JSON.stringify(s));}return Object.assign({xp:100000,correct:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false,initialized:false},s);}catch(e){return{xp:100000,correct:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false,initialized:true};}}
 function saveGame(g){localStorage.setItem('sn_game',JSON.stringify(g));}
-function addXP(n,reason){
-  const g=loadGame();const t=new Date().toDateString();
-  if(g.dayDate!==t){g.dayDate=t;g.dayXp=0;}
-  g.xp+=n;g.dayXp+=n;saveGame(g);toast('+'+n+' XP · '+reason);
-  if(g.dayXp>=DAILY_GOAL&&g.goalDone!==t){g.goalDone=t;const y=new Date(Date.now()-864e5).toDateString();g.streak=(g.streakLast===y)?g.streak+1:1;g.streakLast=t;saveGame(g);setTimeout(()=>toast('🎯 Норма дня выполнена! 🔥 '+g.streak),500);}
-  renderGame();checkBadges();
-}
+function addXP(n,r){const g=loadGame();const t=new Date().toDateString();if(g.dayDate!==t){g.dayDate=t;g.dayXp=0;}g.xp+=n;g.dayXp+=n;saveGame(g);toast('+'+n+' XP · '+r);if(g.dayXp>=DAILY_GOAL&&g.goalDone!==t){g.goalDone=t;const y=new Date(Date.now()-864e5).toDateString();g.streak=(g.streakLast===y)?g.streak+1:1;g.streakLast=t;saveGame(g);setTimeout(()=>toast('🎯 Норма дня! 🔥 '+g.streak),500);}renderGame();checkBadges();}
 function spendXP(n){const g=loadGame();if(g.xp<n)return false;g.xp-=n;g.spent=(g.spent||0)+n;saveGame(g);renderGame();return true;}
-function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
-function renderGame(){
-  const g=loadGame();const lvl=Math.floor(g.xp/100)+1;const prog=g.xp%100;const t=new Date().toDateString();
-  const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');
-  const goalTxt='📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
-  const bar=document.getElementById('gameBar');if(!bar)return;
-  bar.innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' XP</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни, чтобы открыть магазин 🛒</span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
-}
+function checkBadges(){const g=loadGame();const p=loadPlan();const dn=(p&&p.done)?p.done.length:0;const c={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:dn>=1,done5:dn>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(c[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
+function renderGame(){const g=loadGame();const lvl=Math.floor(g.xp/100)+1,prog=g.xp%100,t=new Date().toDateString();const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');const bar=document.getElementById('gameBar');if(!bar)return;bar.innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':'')+'</span><span>💎 '+g.xp+'</span></div><div class="gb-badges">'+(em||'')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';}
 
 const SHOP=[
-  {id:'bg_default',cat:'bg',name:'Классика MAX',css:'linear-gradient(135deg,#5AA8FF,#2787F5)',price:0,val:'default'},
-  {id:'bg_sunset',cat:'bg',name:'Закат',css:'linear-gradient(135deg,#FFB060,#FF6090)',price:60,val:'sunset'},
-  {id:'bg_forest',cat:'bg',name:'Лес',css:'linear-gradient(135deg,#4CD97B,#1F8F4E)',price:60,val:'forest'},
-  {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
-  {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
-  {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
-  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠💬✅',price:0,val:'default'},
-  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🦁',price:40,val:'zoo'},
-  {id:'ic_space',cat:'icons',name:'Космос',prev:'🚀🎯',price:40,val:'space'},
-  {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔',price:40,val:'food'},
-  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀',price:50,val:'sport'},
-  {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎤',price:50,val:'music'},
-  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
-  {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
-  {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:'🐉'},
-  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
-  {id:'ms_cat',cat:'mascot',name:'Кот',prev:'🐱',price:60,val:'🐱'},
-  {id:'ms_panda',cat:'mascot',name:'Панда',prev:'🐼',price:60,val:'🐼'},
-  {id:'ac_default',cat:'acc',name:'Синий',css:'#2787F5',price:0,val:'default'},
-  {id:'ac_violet',cat:'acc',name:'Фиолет',css:'#8B5CF6',price:30,val:'violet'},
-  {id:'ac_green',cat:'acc',name:'Зелёный',css:'#22C55E',price:30,val:'green'},
-  {id:'ac_orange',cat:'acc',name:'Оранж',css:'#F97316',price:30,val:'orange'},
-  {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
-  {id:'ac_coral',cat:'acc',name:'Коралловый',css:'#FF6B6B',price:40,val:'coral'},
-];
-const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:'🎨 Акцентный цвет'};
-const ICON_SETS={
-  default:['🏠','💬','📅','✅','⋯'],
-  zoo:['🐻','🐯','','🐼',''],
-  space:['','🌙','','⭐',''],
-  food:['🍔','🌭','','🍩',''],
-  sport:['','🏀','🏈','🎾','🏐'],
-  music:['🎵','🎶','🎤','🎹','🎸']
-};
+ {id:'bg_default',cat:'bg',name:'Классика',css:'linear-gradient(135deg,#5AA8FF,#2787F5)',price:0,val:'default'},
+ {id:'bg_sunset',cat:'bg',name:'Закат',css:'linear-gradient(135deg,#FFB060,#FF6090)',price:60,val:'sunset'},
+ {id:'bg_forest',cat:'bg',name:'Лес',css:'linear-gradient(135deg,#4CD97B,#1F8F4E)',price:60,val:'forest'},
+ {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
+ {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
+ {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
+ {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠💬✅',price:0,val:'default'},
+ {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🦁',price:40,val:'zoo'},
+ {id:'ic_space',cat:'icons',name:'Космос',prev:'🚀',price:40,val:'space'},
+ {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔',price:40,val:'food'},
+ {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀',price:50,val:'sport'},
+ {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎤',price:50,val:'music'},
+ {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
+ {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
+ {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:'🐉'},
+ {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
+ {id:'ms_cat',cat:'mascot',name:'Кот',prev:'🐱',price:60,val:'🐱'},
+ {id:'ms_panda',cat:'mascot',name:'Панда',prev:'🐼',price:60,val:'🐼'},
+ {id:'ac_default',cat:'acc',name:'Синий',css:'#2787F5',price:0,val:'default'},
+ {id:'ac_violet',cat:'acc',name:'Фиолет',css:'#8B5CF6',price:30,val:'violet'},
+ {id:'ac_green',cat:'acc',name:'Зелёный',css:'#22C55E',price:30,val:'green'},
+ {id:'ac_orange',cat:'acc',name:'Оранж',css:'#F97316',price:30,val:'orange'},
+ {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
+ {id:'ac_coral',cat:'acc',name:'Коралл',css:'#FF6B6B',price:40,val:'coral'}];
+const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки',mascot:'🐾 Маскот',acc:'🎨 Акцент'};
+const ICON_SETS={default:['🏠','💬','📅','✅','⋯'],zoo:['🐻','','🦊','','🐨'],space:['🌍','🚀','🛸','','⭐'],food:['🍔','','🍕','',''],sport:['','','🏈','','🏐'],music:['🎵','','🎤','🎹','🎺']};
 function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
-function applySkin(){
-  const s=loadSkin();
-  document.documentElement.setAttribute('data-bg',s.bg);
-  document.documentElement.setAttribute('data-acc',s.acc);
-  const icons=ICON_SETS[s.icons]||ICON_SETS.default;
-  document.querySelectorAll('.dock button .ic').forEach((el,i)=>{el.textContent=icons[i]||ICON_SETS.default[i]||el.textContent;});
-  document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});
-}
-function renderShop(){
-  const s=loadSkin();const g=loadGame();
-  const xpEl=document.getElementById('shopXpBalance');if(xpEl)xpEl.textContent=g.xp;
-  const ownedEl=document.getElementById('shopOwnedCount');if(ownedEl)ownedEl.textContent=s.owned.length;
-  let h='';
-  ['bg','icons','mascot','acc'].forEach(cat=>{
-    h+='<div class="shop-cat">'+CAT_NAMES[cat]+'</div><div class="shop-grid">';
-    SHOP.filter(x=>x.cat===cat).forEach((it,idx)=>{
-      const owned=s.owned.includes(it.id);
-      const selected=(cat==='mascot')?(s.mascot===it.val):(s[cat]===it.val);
-      const prev=it.css?'<div class="si-prev" style="background:'+it.css+'"></div>':'<div class="si-prev'+(it.prev&&it.prev.length>2?' mini':'')+'">'+(it.prev||'')+'</div>';
-      let btn;
-      if(selected)btn='<button class="btn ghost" disabled>✓ Выбрано</button>';
-      else if(owned)btn='<button class="btn sky" onclick="selectSkin(\''+it.id+'\')">Выбрать</button>';
-      else btn='<button class="btn mint" '+(g.xp<it.price?'disabled':'')+' onclick="buySkin(\''+it.id+'\')">Купить · '+it.price+' XP</button>';
-      h+='<div class="shop-item" style="animation-delay:'+(idx*60)+'ms;">'+prev+'<div class="si-name">'+it.name+'</div><div class="si-price">'+(it.price?it.price+' XP':'бесплатно')+'</div>'+btn+'</div>';
-    });
-    h+='</div>';
-  });
-  document.getElementById('shopBox').innerHTML=h;
-}
-function buySkin(id){
-  const it=SHOP.find(x=>x.id===id);if(!it)return;
-  const s=loadSkin();if(s.owned.includes(id))return selectSkin(id);
-  const g=loadGame();
-  if(g.xp<it.price){toast('Не хватает XP: нужно '+it.price);return;}
-  if(!spendXP(it.price)){toast('Ошибка при списании XP');return;}
-  s.owned.push(id);saveSkin(s);selectSkin(id,true);renderShop();
-  toast('🛒 Куплено: '+it.name+' (−'+it.price+' XP)');
-}
-function selectSkin(id,silent){
-  const it=SHOP.find(x=>x.id===id);if(!it)return;
-  const s=loadSkin();
-  if(it.cat==='mascot')s.mascot=it.val;else s[it.cat]=it.val;
-  saveSkin(s);applySkin();renderShop();
-  if(!silent)toast('✨ Применено: '+it.name);
-}
+function applySkin(){const s=loadSkin();document.documentElement.setAttribute('data-bg',s.bg);document.documentElement.setAttribute('data-acc',s.acc);const ic=ICON_SETS[s.icons]||ICON_SETS.default;document.querySelectorAll('.dock button .ic').forEach((el,i)=>{el.textContent=ic[i]||ICON_SETS.default[i];});document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});}
+function renderShop(){const s=loadSkin(),g=loadGame();document.getElementById('shopXpBalance').textContent=g.xp;document.getElementById('shopOwnedCount').textContent=s.owned.length;let h='';['bg','icons','mascot','acc'].forEach(cat=>{h+='<div class="shop-cat">'+CAT_NAMES[cat]+'</div><div class="shop-grid">';SHOP.filter(x=>x.cat===cat).forEach(it=>{const ow=s.owned.includes(it.id),sel=(cat==='mascot')?(s.mascot===it.val):(s[cat]===it.val);const prev=it.css?'<div class="si-prev" style="background:'+it.css+'"></div>':'<div class="si-prev'+(it.prev.length>2?' mini':'')+'">'+it.prev+'</div>';let b;if(sel)b='<button class="btn ghost" disabled>✓ Выбрано</button>';else if(ow)b='<button class="btn sky" onclick="selectSkin(\''+it.id+'\')">Выбрать</button>';else b='<button class="btn mint" '+(g.xp<it.price?'disabled':'')+' onclick="buySkin(\''+it.id+'\')">Купить · '+it.price+'</button>';h+='<div class="shop-item">'+prev+'<div class="si-name">'+it.name+'</div><div class="si-price">'+(it.price?it.price+' XP':'бесплатно')+'</div>'+b+'</div>';});h+='</div>';});document.getElementById('shopBox').innerHTML=h;}
+function buySkin(id){const it=SHOP.find(x=>x.id===id);if(!it)return;const s=loadSkin();if(s.owned.includes(id))return selectSkin(id);const g=loadGame();if(g.xp<it.price){toast('Не хватает XP');return;}if(!spendXP(it.price))return;s.owned.push(id);saveSkin(s);selectSkin(id,true);renderShop();toast('🛒 Куплено: '+it.name);}
+function selectSkin(id,silent){const it=SHOP.find(x=>x.id===id);if(!it)return;const s=loadSkin();if(it.cat==='mascot')s.mascot=it.val;else s[it.cat]=it.val;saveSkin(s);applySkin();renderShop();if(!silent)toast('✨ Применено: '+it.name);}
 
 function loadPlan(){try{return JSON.parse(localStorage.getItem('sn_plan')||'null');}catch(e){return null;}}
 function savePlan(p){localStorage.setItem('sn_plan',JSON.stringify(p));updateHomeStats();}
 function todayPlanItem(){const p=loadPlan();if(!p||!p.schedule)return null;return p.schedule[todayIdx()]||null;}
-function renderToday(){
-  const el=document.getElementById('todayCard');const p=loadPlan();
-  if(!p||!p.schedule){el.innerHTML='';return;}
-  const it=p.schedule[todayIdx()];if(!it){el.innerHTML='';return;}
-  if(isRestDay(it)){el.innerHTML='<div class="puff today-card"><div class="t">Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">😴 День отдыха</div><div class="a">Восстановись — это тоже часть подготовки!</div></div>';return;}
-  const taskInfo=it.taskNum?' (задание №'+it.taskNum+')':'';
-  const timeInfo=it.estimatedTime?' · ~'+it.estimatedTime+' мин':'';
-  el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+taskInfo+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">✏️ '+escapeHtml(it.activity)+timeInfo+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button></div></div>';
-}
+function renderToday(){const el=document.getElementById('todayCard');const p=loadPlan();if(!p||!p.schedule){el.innerHTML='';return;}const it=p.schedule[todayIdx()];if(!it){el.innerHTML='';return;}if(isRestDay(it)){el.innerHTML='<div class="puff today-card"><div class="t">Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">😴 День отдыха</div></div>';return;}el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">✏️ '+escapeHtml(it.activity)+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button></div></div>';}
 
-const EXAM_TASKS={
-  'ОГЭ':{
-    'Математика':[{num:1,name:'Вычисления',time:15},{num:2,name:'Координаты',time:15},{num:3,name:'Степени',time:20},{num:4,name:'Уравнения',time:25},{num:5,name:'Графики',time:25},{num:6,name:'Прогрессии',time:20},{num:7,name:'Выражения',time:20},{num:8,name:'Неравенства',time:25},{num:9,name:'Планиметрия',time:30},{num:10,name:'Векторы',time:30},{num:11,name:'Окружность',time:35},{num:12,name:'Площади',time:35},{num:13,name:'Треугольники',time:35},{num:14,name:'Четырёхугольники',time:40},{num:15,name:'Вписанные углы',time:40},{num:16,name:'Подобие',time:45},{num:17,name:'Площади фигур',time:45},{num:18,name:'Векторы',time:40},{num:19,name:'Текстовые задачи',time:30},{num:20,name:'Задачи с параметром',time:60},{num:21,name:'Доказательство',time:45},{num:22,name:'Вычисление',time:45},{num:23,name:'Построение',time:50},{num:24,name:'Комбинированная',time:60},{num:25,name:'Повышенной сложности',time:90}],
-    'Русский язык':[{num:1,name:'Сжатое изложение',time:60},{num:2,name:'Синтаксис',time:20},{num:3,name:'Пунктуация',time:20},{num:4,name:'Словосочетание',time:20},{num:5,name:'Орфография',time:20},{num:6,name:'Лексика',time:20},{num:7,name:'Морфемика',time:25},{num:8,name:'Грамматика',time:25},{num:9,name:'Сочинение',time:90}],
-    'Физика':[{num:1,name:'Механика',time:20},{num:2,name:'Силы',time:25},{num:3,name:'Энергия',time:30},{num:4,name:'Механизмы',time:25},{num:5,name:'Давление',time:25},{num:6,name:'Теплота',time:30},{num:7,name:'Ток',time:30},{num:8,name:'Магнетизм',time:30},{num:9,name:'Оптика',time:35},{num:10,name:'Электромагнетизм',time:35}],
-    'Химия':[{num:1,name:'Периодический закон',time:20},{num:2,name:'Атом',time:25},{num:3,name:'Элементы',time:20},{num:4,name:'Валентность',time:25},{num:5,name:'Классы веществ',time:25},{num:6,name:'Реакции',time:30},{num:7,name:'Диссоциация',time:30},{num:8,name:'Кислоты',time:25},{num:9,name:'Основания',time:25},{num:10,name:'Соли',time:30}],
-    'Биология':[{num:1,name:'Признаки жизни',time:20},{num:2,name:'Клетка',time:25},{num:3,name:'Ткани',time:25},{num:4,name:'Органы',time:30},{num:5,name:'Системы',time:30},{num:6,name:'Нервная система',time:30},{num:7,name:'Эндокринная',time:25},{num:8,name:'Опорно-двигательная',time:30},{num:9,name:'Внутренняя среда',time:30},{num:10,name:'Транспорт',time:30}],
-    'История':[{num:1,name:'Даты',time:15},{num:2,name:'Личности',time:20},{num:3,name:'Термины',time:20},{num:4,name:'Соответствие',time:25},{num:5,name:'Причины',time:30},{num:6,name:'Карты',time:30},{num:7,name:'Изображения',time:25},{num:8,name:'Тексты',time:30},{num:9,name:'Анализ',time:35},{num:10,name:'Точки зрения',time:30},{num:11,name:'Аргументация',time:40},{num:12,name:'Сочинение',time:60}],
-    'Обществознание':[{num:1,name:'Понятия',time:20},{num:2,name:'Институты',time:25},{num:3,name:'Соответствие',time:25},{num:4,name:'Суждения',time:20},{num:5,name:'Выбор',time:25},{num:6,name:'Текст',time:35},{num:7,name:'План',time:30},{num:8,name:'Примеры',time:25},{num:9,name:'Аргументы',time:40},{num:10,name:'Чтение',time:30}],
-    'География':[{num:1,name:'Карты',time:25},{num:2,name:'Объекты',time:20},{num:3,name:'Климат',time:25},{num:4,name:'Зоны',time:25},{num:5,name:'Население',time:25},{num:6,name:'Хозяйство',time:30},{num:7,name:'Регионы',time:30},{num:8,name:'Страны',time:25},{num:9,name:'Экология',time:25},{num:10,name:'Процессы',time:30}],
-    'Литература':[{num:1,name:'Анализ',time:30},{num:2,name:'Тема',time:30},{num:3,name:'Герои',time:35},{num:4,name:'Композиция',time:30},{num:5,name:'Стиль',time:35},{num:6,name:'Жанр',time:25},{num:7,name:'Контекст',time:30},{num:8,name:'Позиция',time:35},{num:9,name:'Сравнение',time:45},{num:10,name:'Сочинение',time:90}],
-    'Информатика':[{num:1,name:'Системы счисления',time:20},{num:2,name:'Логика',time:25},{num:3,name:'Описания',time:25},{num:4,name:'Файлы',time:20},{num:5,name:'Кодирование',time:25},{num:6,name:'Таблицы',time:30},{num:7,name:'Графики',time:25},{num:8,name:'Алгоритмы',time:30},{num:9,name:'Программы',time:40},{num:10,name:'Поиск',time:20}],
-    'Английский язык':[{num:1,name:'Аудирование',time:30},{num:2,name:'Чтение',time:30},{num:3,name:'Грамматика',time:25},{num:4,name:'Лексика',time:25},{num:5,name:'Письмо',time:40}],
-    'Физкультура':[{num:1,name:'Безопасность',time:15},{num:2,name:'Качества',time:20},{num:3,name:'Техника',time:25},{num:4,name:'История',time:20},{num:5,name:'Олимпиада',time:25}]
-  },
-  'ЕГЭ':{
-    'Математика (база)':[{num:1,name:'Уравнение',time:15},{num:2,name:'Вероятность',time:20},{num:3,name:'Стереометрия',time:30},{num:4,name:'Планиметрия',time:30},{num:5,name:'Вычисления',time:15},{num:6,name:'Практика',time:25},{num:7,name:'Функция',time:30},{num:8,name:'Оптимизация',time:35},{num:9,name:'Текст',time:30},{num:10,name:'График',time:25},{num:11,name:'Прогрессия',time:30},{num:12,name:'Неравенство',time:35},{num:13,name:'Тригонометрия',time:40},{num:14,name:'Стерео доказ.',time:45},{num:15,name:'Неравенство сложн.',time:50},{num:16,name:'План доказ.',time:45},{num:17,name:'Экономика',time:60},{num:18,name:'Параметр',time:90},{num:19,name:'Числа',time:60}],
-    'Математика (профиль)':[{num:1,name:'Уравнение',time:15},{num:2,name:'Вероятность',time:20},{num:3,name:'Стерео',time:30},{num:4,name:'Планиметрия',time:30},{num:5,name:'Вычисления',time:15},{num:6,name:'Практика',time:25},{num:7,name:'Функция',time:30},{num:8,name:'Оптимизация',time:35},{num:9,name:'Текст',time:30},{num:10,name:'График',time:25},{num:11,name:'Прогрессия',time:30},{num:12,name:'Неравенство',time:35},{num:13,name:'Тригонометрия',time:40},{num:14,name:'Стерео доказ.',time:45},{num:15,name:'Неравенство',time:50},{num:16,name:'План доказ.',time:45},{num:17,name:'Экономика',time:60},{num:18,name:'Параметр',time:90},{num:19,name:'Числа',time:60}],
-    'Русский язык':[{num:1,name:'Целостность',time:20},{num:2,name:'Связь',time:20},{num:3,name:'Лексика',time:20},{num:4,name:'Орфоэпия',time:15},{num:5,name:'Нормы',time:20},{num:6,name:'Морфемика',time:20},{num:7,name:'Морфология',time:20},{num:8,name:'Синтаксис',time:25},{num:9,name:'Орфография',time:25},{num:10,name:'Приставки',time:25},{num:11,name:'Суффиксы',time:25},{num:12,name:'Окончания',time:25},{num:13,name:'Слитно/раздельно',time:25},{num:14,name:'НЕ',time:25},{num:15,name:'Пунктуация',time:25},{num:16,name:'Однородные',time:25},{num:17,name:'Обособленные',time:30},{num:18,name:'Вводные',time:25},{num:19,name:'Сложное',time:30},{num:20,name:'Целостность',time:30},{num:21,name:'Обработка',time:30},{num:22,name:'Выразительность',time:30},{num:23,name:'Типы речи',time:25},{num:24,name:'Средства',time:30},{num:25,name:'Связь',time:30},{num:26,name:'Сочинение',time:90}],
-    'Физика':[{num:1,name:'Кинематика',time:20},{num:2,name:'Динамика',time:25},{num:3,name:'Сохранение',time:30},{num:4,name:'Колебания',time:25},{num:5,name:'Волны',time:25},{num:6,name:'Термодинамика',time:30},{num:7,name:'Молекулярная',time:30},{num:8,name:'Электростатика',time:30},{num:9,name:'Ток',time:30},{num:10,name:'Магнетизм',time:30},{num:11,name:'Индукция',time:35},{num:12,name:'Колебания ЭМ',time:35},{num:13,name:'Оптика',time:35},{num:14,name:'Квантовая',time:30},{num:15,name:'Атомная',time:30},{num:16,name:'Ядерная',time:35},{num:17,name:'Астрофизика',time:30}],
-    'Химия':[{num:1,name:'Периодический',time:20},{num:2,name:'Атом',time:25},{num:3,name:'Элементы',time:20},{num:4,name:'Валентность',time:20},{num:5,name:'Классы',time:25},{num:6,name:'Реакции',time:30},{num:7,name:'Диссоциация',time:30},{num:8,name:'Кислоты',time:25},{num:9,name:'Основания',time:25},{num:10,name:'Соли',time:30},{num:11,name:'Генетика',time:35},{num:12,name:'Расчёты',time:45},{num:13,name:'Эксперимент',time:40},{num:14,name:'ОВР',time:40},{num:15,name:'Ионные',time:35}],
-    'Биология':[{num:1,name:'Методы',time:20},{num:2,name:'Клетка',time:25},{num:3,name:'Ткани',time:25},{num:4,name:'Органы',time:30},{num:5,name:'Системы',time:30},{num:6,name:'Нервная',time:30},{num:7,name:'Эндокринная',time:25},{num:8,name:'Опорно-двиг.',time:30},{num:9,name:'Среда',time:30},{num:10,name:'Транспорт',time:30},{num:11,name:'Дыхание',time:25},{num:12,name:'Пищеварение',time:30},{num:13,name:'Обмен',time:35},{num:14,name:'Выделение',time:25},{num:15,name:'Чувства',time:30}],
-    'История':[{num:1,name:'Даты',time:15},{num:2,name:'Личности',time:20},{num:3,name:'Термины',time:20},{num:4,name:'Соответствие',time:25},{num:5,name:'Причины',time:30},{num:6,name:'Карты',time:30},{num:7,name:'Изображения',time:25},{num:8,name:'Тексты',time:30},{num:9,name:'Анализ',time:35},{num:10,name:'Точки зрения',time:30},{num:11,name:'Аргументация',time:40},{num:12,name:'Сочинение',time:90}],
-    'Обществознание':[{num:1,name:'Понятия',time:20},{num:2,name:'Институты',time:25},{num:3,name:'Соответствие',time:25},{num:4,name:'Суждения',time:20},{num:5,name:'Выбор',time:25},{num:6,name:'Текст',time:35},{num:7,name:'План',time:30},{num:8,name:'Примеры',time:25},{num:9,name:'Аргументы',time:40},{num:10,name:'Чтение',time:30}],
-    'География':[{num:1,name:'Карты',time:25},{num:2,name:'Объекты',time:20},{num:3,name:'Климат',time:25},{num:4,name:'Зоны',time:25},{num:5,name:'Население',time:25},{num:6,name:'Хозяйство',time:30},{num:7,name:'Регионы',time:30},{num:8,name:'Страны',time:25},{num:9,name:'Экология',time:25},{num:10,name:'Процессы',time:30}],
-    'Литература':[{num:1,name:'Анализ',time:30},{num:2,name:'Тема',time:30},{num:3,name:'Герои',time:35},{num:4,name:'Композиция',time:30},{num:5,name:'Стиль',time:35},{num:6,name:'Жанр',time:25},{num:7,name:'Контекст',time:30},{num:8,name:'Позиция',time:35},{num:9,name:'Сравнение',time:45},{num:10,name:'Сочинение',time:90}],
-    'Информатика':[{num:1,name:'Системы счисления',time:20},{num:2,name:'Логика',time:25},{num:3,name:'Описания',time:25},{num:4,name:'Файлы',time:20},{num:5,name:'Кодирование',time:25},{num:6,name:'Таблицы',time:30},{num:7,name:'Графики',time:25},{num:8,name:'Алгоритмы',time:30},{num:9,name:'Программы',time:40},{num:10,name:'Поиск',time:20}],
-    'Английский язык':[{num:1,name:'Аудирование',time:30},{num:2,name:'Чтение',time:30},{num:3,name:'Грамматика',time:25},{num:4,name:'Лексика',time:25},{num:5,name:'Письмо',time:40},{num:6,name:'Устная',time:30}]
-  }
-};
+const EXAM_TASKS={'ОГЭ':{'Математика':[{num:1,name:'Вычисления',time:15},{num:2,name:'Координаты',time:15},{num:3,name:'Степени',time:20},{num:4,name:'Уравнения',time:25},{num:5,name:'Графики',time:25},{num:6,name:'Прогрессии',time:20},{num:7,name:'Выражения',time:20},{num:8,name:'Неравенства',time:25},{num:9,name:'Планиметрия',time:30},{num:10,name:'Векторы',time:30},{num:11,name:'Окружность',time:35},{num:12,name:'Площади',time:35},{num:13,name:'Треугольники',time:35},{num:14,name:'Четырёхугольники',time:40},{num:15,name:'Вероятность',time:20},{num:16,name:'Подобие',time:45},{num:17,name:'Площади фигур',time:45},{num:18,name:'Координаты точек',time:30},{num:19,name:'Текстовая задача',time:40},{num:20,name:'График функции',time:50},{num:21,name:'Доказательство',time:45},{num:22,name:'Вычисление',time:45},{num:23,name:'Построение',time:50},{num:24,name:'Комбинированная',time:60},{num:25,name:'Повышенной сложности',time:90}],'Русский язык':[{num:1,name:'Изложение',time:60},{num:2,name:'Синтаксис',time:20},{num:3,name:'Пунктуация',time:20},{num:4,name:'Словосочетание',time:20},{num:5,name:'Орфография',time:20},{num:6,name:'Лексика',time:20},{num:7,name:'Морфемика',time:25},{num:8,name:'Грамматика',time:25},{num:9,name:'Сочинение',time:90}]},'ЕГЭ':{'Математика (профиль)':[{num:1,name:'Планиметрия',time:15},{num:2,name:'Вероятность',time:20},{num:3,name:'Стереометрия',time:30},{num:4,name:'Планиметрия',time:30},{num:5,name:'Уравнение',time:15},{num:6,name:'Практика',time:25},{num:7,name:'Производная',time:30},{num:8,name:'Оптимизация',time:35},{num:9,name:'Текстовая',time:30},{num:10,name:'График',time:25},{num:11,name:'Прогрессии',time:30},{num:12,name:'Неравенство',time:35},{num:13,name:'Тригонометрия',time:40},{num:14,name:'Стерео доказ.',time:45},{num:15,name:'Неравенство сложн.',time:50},{num:16,name:'План доказ.',time:45},{num:17,name:'Экономика',time:60},{num:18,name:'Параметр',time:90},{num:19,name:'Числа',time:60}],'Русский язык':[{num:1,name:'Информация',time:10},{num:2,name:'Связь предложений',time:10},{num:3,name:'Лексика',time:10},{num:4,name:'Орфоэпия',time:10},{num:5,name:'Паронимы',time:10},{num:9,name:'Орфография',time:15},{num:16,name:'Пунктуация',time:15},{num:26,name:'Сочинение',time:90}]}};
+const SUBJECTS_OGE=[{id:'m',value:'Математика',label:'Математика'},{id:'r',value:'Русский язык',label:'Русский язык'},{id:'p',value:'Физика',label:'Физика'},{id:'c',value:'Химия',label:'Химия'},{id:'b',value:'Биология',label:'Биология'},{id:'g',value:'География',label:'География'},{id:'h',value:'История',label:'История'},{id:'s',value:'Обществознание',label:'Обществознание'},{id:'l',value:'Литература',label:'Литература'},{id:'i',value:'Информатика',label:'Информатика'},{id:'e',value:'Английский язык',label:'Английский язык'}];
+const SUBJECTS_EGE=[{id:'mb',value:'Математика (база)',label:'Математика (база)'},{id:'mp',value:'Математика (профиль)',label:'Математика (профиль)'},{id:'r',value:'Русский язык',label:'Русский язык'},{id:'p',value:'Физика',label:'Физика'},{id:'c',value:'Химия',label:'Химия'},{id:'b',value:'Биология',label:'Биология'},{id:'h',value:'История',label:'История'},{id:'s',value:'Обществознание',label:'Обществознание'},{id:'l',value:'Литература',label:'Литература'},{id:'i',value:'Информатика',label:'Информатика'},{id:'e',value:'Английский язык',label:'Английский язык'}];
+function updateSubjects(){const ex=document.getElementById('pExam').value;const g=document.getElementById('subjectGrid');let s=[];if(ex==='ОГЭ')s=SUBJECTS_OGE;else if(ex==='ЕГЭ')s=SUBJECTS_EGE;else s=[...SUBJECTS_OGE,...SUBJECTS_EGE.filter(x=>!SUBJECTS_OGE.find(o=>o.id===x.id))];g.innerHTML=s.map(x=>'<div class="subject-check" onclick="toggleSubjectCheck(\''+x.id+'\')"><input type="checkbox" id="'+x.id+'" value="'+x.value+'"><span class="checkmark">✓</span><label for="'+x.id+'">'+x.label+'</label></div>').join('');}
+function toggleSubjectCheck(id){const c=document.getElementById(id);if(c)c.checked=!c.checked;}
+function toggleDayCheck(id){const c=document.getElementById(id);if(c)c.checked=!c.checked;}
+function planTab(t){document.getElementById('planFormBox').style.display=t==='form'?'block':'none';document.getElementById('planViewBox').style.display=t==='view'?'block':'none';document.getElementById('segForm').classList.toggle('on',t==='form');document.getElementById('segView').classList.toggle('on',t==='view');}
+function planView(t){document.getElementById('planSched').style.display=t==='sched'?'block':'none';document.getElementById('planTopics').style.display=t==='topics'?'block':'none';document.getElementById('segSched').classList.toggle('on',t==='sched');document.getElementById('segTopics').classList.toggle('on',t==='topics');}
+function renderPlan(d){let sch='',top='';if(d.examName)sch+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(d.examName)+' · недель: '+d.weeks+'</div>';if(d.schedule&&d.schedule.length){const ti=todayIdx();sch+='<div class="item ai">📆 Неделя '+d.scheduleWeek+':</div>';d.schedule.forEach((s,i)=>{const tI=s.taskNum?' (№'+s.taskNum+')':'';const mI=s.estimatedTime?' · ~'+s.estimatedTime+' мин':'';sch+='<div class="sched-row'+(i===ti?' today':'')+'"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+tI+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+mI+'</span></div>';});const td=d.schedule[ti];if(td&&!isRestDay(td)){sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button><button class="btn warn" onclick="postponeTodayTask()">⏰ Перенести на завтра</button>';}}
+ const wt=(d.schedule||[]).filter(s=>!isRestDay(s));if(wt.length){top+='<div class="item ai">🎯 Темы недели: тест 80%+ = +30 XP:</div>';wt.forEach(s=>{const k=topicKey(s);if(!k)return;const done=(d.done||[]).some(x=>x.topic===k),sel=d.selectedTopic===k;top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(k)+'</span></div>';if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(k)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(k)+'</button>';if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест · 80%+ = проход</button>';}});}
+ if(d.summary)top+='<div class="item ai">💡 '+escapeHtml(cleanResponse(d.summary))+'</div>';
+ document.getElementById('planSched').innerHTML=sch||'<div class="item">План пуст.</div>';document.getElementById('planTopics').innerHTML=top||'<div class="item">Темы появятся после плана.</div>';mathIn(document.getElementById('planSched'));mathIn(document.getElementById('planTopics'));}
+function collectPlanData(){const subjects=[];document.querySelectorAll('#subjectGrid input:checked').forEach(c=>subjects.push(c.value));const restDays=[];document.querySelectorAll('.day-check input:checked').forEach(c=>restDays.push(c.value));return{grade:+document.getElementById('pGrade').value,exam:document.getElementById('pExam').value,goal:document.getElementById('pGoal').value.trim(),minutes:+document.getElementById('pMinutes').value,level:document.getElementById('pLevel').value,weak:document.getElementById('pWeak').value.trim(),subjects,restDays};}
+function generateScheduleWithTasks(data){const{subjects,minutes,restDays,exam}=data;const sch=[];const st={};subjects.forEach(s=>{const t=(EXAM_TASKS[exam]&&EXAM_TASKS[exam][s])||null;st[s]=t?[...t]:[{num:1,name:'Тема 1',time:minutes},{num:2,name:'Тема 2',time:minutes},{num:3,name:'Тема 3',time:minutes},{num:4,name:'Тема 4',time:minutes},{num:5,name:'Тема 5',time:minutes}];});const idx={};subjects.forEach(s=>idx[s]=0);let si=0;for(let d=0;d<7;d++){const dn=DAYS[d];if(restDays.includes(dn)){sch.push({day:dn,subject:'отдых',topic:'отдых',activity:'отдых',taskNum:null,estimatedTime:0,done:false});}else{const subj=subjects[si%subjects.length];si++;const arr=st[subj];const t=arr[idx[subj]%arr.length];idx[subj]++;sch.push({day:dn,subject:subj,topic:'Задание '+t.num+': '+t.name,activity:minutes+' мин · разбор задания №'+t.num,taskNum:t.num,estimatedTime:t.time,done:false});}}return sch;}
+async function buildPlan(){const data=collectPlanData();if(!data.subjects.length)return uiAlert('Выбери хотя бы один предмет!','📚');const btn=document.getElementById('planBtn');btn.disabled=true;planTab('view');planView('sched');showLoading('planSched');try{const ei=examInfo(data.grade,data.exam);const plan={schedule:generateScheduleWithTasks(data),examName:data.exam||'без экзамена',examDate:ei.examDate.toLocaleDateString('ru-RU'),weeks:ei.weeks,savedAt:new Date().toLocaleDateString('ru-RU'),scheduleWeek:currentWeekKey(),params:data,done:[],selectedTopic:null,summary:'План: '+data.subjects.join(', ')+'. '+data.minutes+' мин/день на один предмет.'};savePlan(plan);renderPlan(plan);renderToday();const g=loadGame();g.plan=true;saveGame(g);checkBadges();toast('✨ План готов!');}catch(e){showError('planSched',e.message);}finally{btn.disabled=false;}}
+function postponeTodayTask(){const p=loadPlan();if(!p||!p.schedule)return;const ti=todayIdx(),td=p.schedule[ti];if(!td||isRestDay(td))return uiAlert('Сегодня отдых.','😴');uiConfirm('Перенести "'+td.subject+'" на завтра? Расписание сдвинется.',function(){const ns=[];const post={...td,day:DAYS[(ti+1)%7],done:false};for(let i=ti+1;i<p.schedule.length;i++)ns.push({...p.schedule[i],day:DAYS[(i+1)%7]});ns.splice((ti+1)%7,0,post);p.schedule=ns.slice(0,7);savePlan(p);renderPlan(p);renderToday();toast('⏰ Перенесено!');},'⏰','Перенести');}
+async function checkWeekUpdate(){const p=loadPlan();if(!p||!p.params||!p.schedule||p.scheduleWeek===currentWeekKey())return;const done=(p.done||[]).map(d=>d.topic);const unc=p.schedule.filter(s=>!isRestDay(s)&&!s.done&&!done.includes(s.topic));const ns=generateScheduleWithTasks(p.params);p.schedule=(unc.length?[...unc,...ns.filter(s=>isRestDay(s)||!unc.some(u=>u.topic===s.topic))]:ns).slice(0,7);p.scheduleWeek=currentWeekKey();p.selectedTopic=null;savePlan(p);renderPlan(p);renderToday();}
+function deletePlan(){uiConfirm('Удалить план?',function(){localStorage.removeItem('sn_plan');document.getElementById('planSched').innerHTML='';document.getElementById('planTopics').innerHTML='';document.getElementById('todayCard').innerHTML='';updateHomeStats();planTab('form');},'🗑','Удалить');}
+function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня отдых 😴','😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', '+it.topic:'');go('quiz');startQuiz(topicKey(it),TEST_SIZE);}
+function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it))return;document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
+function selectTopic(k){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===k)?null:k;savePlan(p);renderPlan(p);}
+function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return;document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
 
-const SUBJECTS_OGE=[
-  {id:'math_oge',value:'Математика',label:'Математика'},{id:'rus',value:'Русский язык',label:'Русский язык'},
-  {id:'phys',value:'Физика',label:'Физика'},{id:'chem',value:'Химия',label:'Химия'},
-  {id:'bio',value:'Биология',label:'Биология'},{id:'geo',value:'География',label:'География'},
-  {id:'hist',value:'История',label:'История'},{id:'soc',value:'Обществознание',label:'Обществознание'},
-  {id:'lit',value:'Литература',label:'Литература'},{id:'inf',value:'Информатика',label:'Информатика'},
-  {id:'eng',value:'Английский язык',label:'Английский язык'},{id:'pe',value:'Физкультура',label:'Физкультура'}
-];
-const SUBJECTS_EGE=[
-  {id:'math_base',value:'Математика (база)',label:'Математика (база)'},
-  {id:'math_prof',value:'Математика (профиль)',label:'Математика (профиль)'},
-  {id:'rus',value:'Русский язык',label:'Русский язык'},{id:'phys',value:'Физика',label:'Физика'},
-  {id:'chem',value:'Химия',label:'Химия'},{id:'bio',value:'Биология',label:'Биология'},
-  {id:'geo',value:'География',label:'География'},{id:'hist',value:'История',label:'История'},
-  {id:'soc',value:'Обществознание',label:'Обществознание'},{id:'lit',value:'Литература',label:'Литература'},
-  {id:'inf',value:'Информатика',label:'Информатика'},{id:'eng',value:'Английский язык',label:'Английский язык'}
-];
-function updateSubjects(){
-  const exam=document.getElementById('pExam').value;
-  const grid=document.getElementById('subjectGrid');
-  let subjects=[];
-  if(exam==='ОГЭ')subjects=SUBJECTS_OGE;
-  else if(exam==='ЕГЭ')subjects=SUBJECTS_EGE;
-  else subjects=[...SUBJECTS_OGE,...SUBJECTS_EGE.filter(s=>!SUBJECTS_OGE.find(o=>o.id===s.id))];
-  grid.innerHTML=subjects.map(s=>'<div class="subject-check" onclick="toggleSubjectCheck(\''+s.id+'\')"><input type="checkbox" id="'+s.id+'" value="'+s.value+'"><span class="checkmark">✓</span><label for="'+s.id+'">'+s.label+'</label></div>').join('');
-}
-function toggleSubjectCheck(id){const cb=document.getElementById(id);if(cb)cb.checked=!cb.checked;}
-function toggleDayCheck(id){const cb=document.getElementById(id);if(cb)cb.checked=!cb.checked;}
+/* ===== БАНК ФИПИ ===== */
+const FIPI_BANK={
+'ОГЭ':{'Математика':[
+ {num:1,topic:'Вычисления',text:'Найдите значение выражения (1/3 + 1/6) · 12.',answer:'6',type:'short'},
+ {num:1,topic:'Вычисления',text:'Найдите значение выражения (1/4 + 1/12) · 6.',answer:'2',type:'short'},
+ {num:2,topic:'Числовая прямая',text:'На числовой прямой a≈−2.3, b≈1.7. Какое утверждение верно? 1) a+b>0  2) a·b>0  3) a−b>0  4) b−a>0. Запишите номер.',answer:'4',type:'short'},
+ {num:3,topic:'Степени и корни',text:'Найдите значение выражения √20 · √5.',answer:'10',type:'short'},
+ {num:3,topic:'Степени и корни',text:'Найдите значение выражения √45 · √5.',answer:'15',type:'short'},
+ {num:4,topic:'Уравнения',text:'Решите уравнение 7x − 9 = 3x + 3.',answer:'3',type:'short'},
+ {num:4,topic:'Уравнения',text:'Решите уравнение 5x + 4 = 2x − 11.',answer:'-5',type:'short'},
+ {num:5,topic:'Графики',text:'Соотнесите: y=x², y=1/x, y=−x² с графиками 1(парабола вверх),2(гипербола),3(парабола вниз). Ответ — три цифры подряд.',answer:'123',type:'short'},
+ {num:6,topic:'Прогрессии',text:'Арифметическая прогрессия: a₁=3, d=2. Найдите a₁₀.',answer:'21',type:'short'},
+ {num:6,topic:'Прогрессии',text:'Геометрическая прогрессия: b₁=2, q=3. Найдите b₄.',answer:'54',type:'short'},
+ {num:7,topic:'Выражения',text:'Найдите (a²−b²)/(a−b) при a=7, b=3.',answer:'10',type:'short'},
+ {num:8,topic:'Неравенства',text:'Решите 2x − 5 > 3. Запишите наименьшее целое решение.',answer:'5',type:'short'},
+ {num:9,topic:'Планиметрия',text:'В равнобедренном треугольнике угол при вершине 40°. Найдите угол при основании.',answer:'70',type:'short'},
+ {num:9,topic:'Планиметрия',text:'В прямоугольном треугольнике острый угол 35°. Найдите второй острый угол.',answer:'55',type:'short'},
+ {num:10,topic:'Векторы',text:'Найдите длину вектора a(3; 4).',answer:'5',type:'short'},
+ {num:11,topic:'Окружность',text:'Радиус окружности 5. Найдите длину окружности (π≈3.14, округлите до целого).',answer:'31',type:'short'},
+ {num:12,topic:'Площади',text:'Площадь квадрата 36. Найдите периметр.',answer:'24',type:'short'},
+ {num:13,topic:'Треугольники',text:'Катеты прямоугольного треугольника 6 и 8. Найдите гипотенузу.',answer:'10',type:'short'},
+ {num:14,topic:'Четырёхугольники',text:'Стороны параллелограмма 7 и 5. Найдите периметр.',answer:'24',type:'short'},
+ {num:15,topic:'Вероятность',text:'В классе 25 учеников, 10 девочек. Найдите вероятность выбрать мальчика.',answer:'0.6',type:'short'},
+ {num:16,topic:'Подобие',text:'Коэффициент подобия треугольников 3. Площадь меньшего 4. Найдите площадь большего.',answer:'36',type:'short'},
+ {num:17,topic:'Площади фигур',text:'Диагонали ромба 6 и 8. Найдите площадь.',answer:'24',type:'short'},
+ {num:18,topic:'Координаты',text:'A(2; 4), B(6; 8). Найдите сумму координат середины отрезка AB.',answer:'10',type:'short'},
+ {num:19,topic:'Текстовая задача',text:'Из A выехала машина 60 км/ч. Через 2 ч из B навстречу выехала вторая 80 км/ч. Расстояние AB=400 км. Через сколько часов после первой они встретятся?',answer:'3.5',type:'long'},
+ {num:20,topic:'График функции',text:'Постройте y = x² − 4x + 3. Запишите координаты вершины в виде (x; y).',answer:'(2; -1)',type:'long'},
+ {num:21,topic:'Доказательство',text:'В равнобедренной трапеции основания 4 и 10, боковая сторона 5. Докажите, что высота равна 4, и найдите площадь.',answer:'28',type:'long'},
+ {num:22,topic:'Вычисления',text:'Катеты 6 и 8. Найдите длину биссектрисы из прямого угла до гипотенузы (округлите до целого).',answer:'4',type:'long'},
+ {num:23,topic:'Площади на клетчатке',text:'Найдите площадь треугольника с вершинами (1;1), (7;1), (4;5) на клетчатой бумаге.',answer:'12',type:'long'},
+ {num:24,topic:'Комбинированная',text:'Гипотенуза 13, катет 5. Найдите второй катет и площадь. Запишите площадь.',answer:'30',type:'long'},
+ {num:25,topic:'Повышенной сложности',text:'Найдите наименьшее натуральное x, при котором x² − 10x + 21 < 0.',answer:'4',type:'long'}],
+'Русский язык':[
+ {num:1,topic:'Изложение',text:'Прослушайте текст и напишите сжатое изложение, сохранив все микротемы.',answer:'(изложение, проверка по критериям)',type:'long'},
+ {num:2,topic:'Синтаксис',text:'Синтаксический анализ: «Солнце, поднявшись из-за гор, осветило долину.» Запишите количество грамматических основ.',answer:'1',type:'short'},
+ {num:3,topic:'Пунктуация',text:'Укажите цифру предложения, где нужна ОДНА запятая: 1) Ветер дул и дождь моросил. 2) Прочитав книгу он вернул её. 3) Берёзы и сосны и ели темнели.',answer:'2',type:'short'},
+ {num:4,topic:'Словосочетание',text:'Из предложения «Холодный ветер сильно дул» выпишите словосочетание со связью наречие+глагол.',answer:'сильно дул',type:'short'},
+ {num:5,topic:'Орфография',text:'Укажите вариант, где в обоих словах пишется О: 1) р_стение, к_сание 2) з_ря, л_жить',answer:'1',type:'short'},
+ {num:6,topic:'Лексика',text:'Слово «громадный» означает: 1) очень большой 2) очень маленький. Запишите цифру.',answer:'1',type:'short'},
+ {num:7,topic:'Морфемика',text:'Из предложения «Путешественник вёл дневник» выпишите слово с суффиксом -ЕННИК-.',answer:'путешественник',type:'short'},
+ {num:8,topic:'Грамматика',text:'Исправьте ошибку: «более красивше». Запишите верную форму.',answer:'более красивый',type:'short'},
+ {num:9,topic:'Сочинение',text:'Напишите сочинение-рассуждение по смыслу текста (не менее 70 слов).',answer:'(сочинение, проверка по критериям)',type:'long'}]},
+'ЕГЭ':{'Математика (профиль)':[
+ {num:1,topic:'Планиметрия',text:'В треугольнике ABC угол C=90°, AC=4, cos A=0.8. Найдите AB.',answer:'5',type:'short'},
+ {num:1,topic:'Планиметрия',text:'В треугольнике ABC угол C=90°, BC=3, sin A=0.6. Найдите AB.',answer:'5',type:'short'},
+ {num:2,topic:'Вероятность',text:'В урне 5 белых и 3 чёрных шара. Достают 2. Найдите вероятность, что обе белые (до сотых).',answer:'0.36',type:'short'},
+ {num:3,topic:'Стереометрия',text:'Объём куба 8. Найдите его диагональ.',answer:'2√3',type:'short'},
+ {num:4,topic:'Планиметрия',text:'Сторона параллелограмма 8, высота к ней 5. Найдите площадь.',answer:'40',type:'short'},
+ {num:5,topic:'Уравнение',text:'Решите log₂(x+3) = 4.',answer:'13',type:'short'},
+ {num:5,topic:'Уравнение',text:'Решите log₃(x−2) = 3.',answer:'29',type:'short'},
+ {num:6,topic:'Вероятность',text:'Стрелок попадает с p=0.7. Три выстрела. Найдите вероятность хотя бы одного попадания (до сотых).',answer:'0.97',type:'short'},
+ {num:7,topic:'Производная',text:'По графику y=f(x) определите количество точек, где f′(x)=0.',answer:'4',type:'short'},
+ {num:8,topic:'Практика',text:'Телефон стоил 15000, стал 12000. На сколько процентов снизили цену?',answer:'20',type:'short'},
+ {num:9,topic:'Текстовая',text:'Первая труба пропускает на 5 л/мин меньше второй. Резервуар 200 л вторая заполняет на 2 мин быстрее. Найдите пропускную способность второй.',answer:'25',type:'long'},
+ {num:10,topic:'Графики',text:'По графику y=f(x) найдите количество целых точек, где производная положительна.',answer:'6',type:'short'},
+ {num:11,topic:'Прогрессии',text:'Найдите сумму первых 10 членов арифметической прогрессии: a₁=3, d=2.',answer:'120',type:'short'},
+ {num:12,topic:'Неравенство',text:'Решите log₃(x−2) > 1. Запишите левую границу ответа.',answer:'5',type:'long'},
+ {num:13,topic:'Тригонометрия',text:'Решите sin(2x)=1/2. Запишите наименьший положительный корень в градусах.',answer:'15',type:'long'},
+ {num:14,topic:'Стереометрия',text:'В правильной четырёхугольной пирамиде все рёбра 1. Найдите её объём (до сотых).',answer:'0.12',type:'long'},
+ {num:15,topic:'Неравенство',text:'Решите (x−4)(x+2) ≤ 0. Запишите количество целых решений.',answer:'7',type:'long'},
+ {num:16,topic:'Планиметрия',text:'Медиана BM делит треугольник ABC. Площадь ABC=18. Найдите площадь ABM.',answer:'9',type:'long'},
+ {num:17,topic:'Экономика',text:'Вклад 100000 под 10% годовых. Какая сумма через 2 года (сложные проценты)?',answer:'121000',type:'long'},
+ {num:18,topic:'Параметр',text:'При каких a уравнение x²−2ax+a=0 имеет ровно один корень? Запишите наибольшее такое a.',answer:'1',type:'long'},
+ {num:19,topic:'Числа',text:'Число «красивое», если делится на сумму своих цифр. Найдите наибольшее двузначное красивое число.',answer:'90',type:'long'}],
+'Русский язык':[
+ {num:1,topic:'Информация',text:'Укажите два верных утверждения по тексту. Запишите цифры по возрастанию.',answer:'13',type:'short'},
+ {num:2,topic:'Связь предложений',text:'Из предложения 3–4 выпишите средство связи: местоимение.',answer:'местоимение',type:'short'},
+ {num:4,topic:'Орфоэпия',text:'Укажите слово с ударением на втором слоге: 1) тОрты 2) звОнит 3) красИвее.',answer:'3',type:'short'},
+ {num:5,topic:'Паронимы',text:'Исправьте ошибку: «художественные краски». Запишите верное слово.',answer:'художественные',type:'short'},
+ {num:9,topic:'Орфография',text:'Укажите вариант, где пишется Ы: 1) пред…стория, меж…нститутский 2) сверх…нтересный.',answer:'1',type:'short'},
+ {num:16,topic:'Пунктуация',text:'Укажите цифры предложений, где нужна запятая перед «и» (однородные).',answer:'2',type:'short'},
+ {num:26,topic:'Сочинение',text:'Напишите сочинение по проблеме текста (150+ слов, критерии К1–К12).',answer:'(сочинение, проверка по критериям)',type:'long'}]}};
 
-function planTab(t){
-  document.getElementById('planFormBox').style.display=t==='form'?'block':'none';
-  document.getElementById('planViewBox').style.display=t==='view'?'block':'none';
-  document.getElementById('segForm').classList.toggle('on',t==='form');
-  document.getElementById('segView').classList.toggle('on',t==='view');
+/* ===== ВАРИАНТ ===== */
+let variant=null, variantTimerInt=null;
+function varKey(v){return v.exam+'|'+v.subject+'|'+v.year+'|'+v.num;}
+function loadVarHistory(){try{return JSON.parse(localStorage.getItem('sn_var_history')||'[]');}catch(e){return[];}}
+function saveVarHistory(h){localStorage.setItem('sn_var_history',JSON.stringify(h.slice(-30)));}
+function isVariantDone(v){return loadVarHistory().some(h=>h.key===varKey(v));}
+function saveCurrentVariant(){if(variant&&!variant.checked)localStorage.setItem('sn_var_current',JSON.stringify(variant));else localStorage.removeItem('sn_var_current');}
+function loadCurrentVariant(){try{return JSON.parse(localStorage.getItem('sn_var_current')||'null');}catch(e){return null;}}
+function buildVariantTasks(exam,subject,year,num){
+  const bank=(FIPI_BANK[exam]&&FIPI_BANK[exam][subject])||null;
+  if(!bank||!bank.length)return null;
+  const rng=mulberry32(hashStr(exam+'|'+subject+'|'+year+'|'+num));
+  const byNum={};bank.forEach(t=>{(byNum[t.num]=byNum[t.num]||[]).push(t);});
+  return Object.keys(byNum).map(Number).sort((a,b)=>a-b).map(n=>{const a=byNum[n];return{...a[Math.floor(rng()*a.length)]};});
 }
-function planView(t){
-  document.getElementById('planSched').style.display=t==='sched'?'block':'none';
-  document.getElementById('planTopics').style.display=t==='topics'?'block':'none';
-  document.getElementById('segSched').classList.toggle('on',t==='sched');
-  document.getElementById('segTopics').classList.toggle('on',t==='topics');
-}
-function renderPlan(data){
-  let sch='',top='';
-  if(data.examName)sch+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
-  if(data.schedule&&data.schedule.length){
-    const sc=data.schedule.filter(s=>!isRestDay(s)).length;
-    sch+='<div class="item ai">📆 Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
-    const ti=todayIdx();
-    data.schedule.forEach((s,i)=>{
-      const taskInfo=s.taskNum?' (№'+s.taskNum+')':'';
-      const timeInfo=s.estimatedTime?' · ~'+s.estimatedTime+' мин':'';
-      sch+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+taskInfo+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+timeInfo+'</span></div>';
-    });
-    const td=data.schedule[ti];
-    if(td&&!isRestDay(td)){
-      const taskInfo=td.taskNum?' (задание №'+td.taskNum+')':'';
-      const timeInfo=td.estimatedTime?' · ~'+td.estimatedTime+' мин':'';
-      sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+taskInfo+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity)+timeInfo:'')+'</div>';
-      sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';
-      sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';
-      if(!td.done){sch+='<button class="btn warn" onclick="postponeTodayTask()">⏰ Перенести на завтра</button>';}
-    }
-    else if(td){sch+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
-    const wt=data.schedule.filter(s=>!isRestDay(s));
-    if(wt.length){
-      top+='<div class="item ai">🎯 Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
-      wt.forEach(s=>{const key=topicKey(s);if(!key)return;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
-        const taskInfo=s.taskNum?' (№'+s.taskNum+')':'';
-        top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+taskInfo+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
-        if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
-          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
-      if(data.done&&data.done.length)top+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
-      else top+='<div class="item">Пока ничего не пройдено — выбери тему и сдай тест на 80%+ 👆</div>';
-    }
-  }
-  if(data.summary)top+='<div class="item ai">💡 '+escapeHtml(cleanResponse(data.summary))+'</div>';
-  if(data.text&&!data.text.trim().startsWith('{')&&!data.text.trim().startsWith('[')&&!data.text.trim().startsWith('```')){
-    sch+='<div class="item ai">'+escapeHtml(cleanResponse(data.text))+'</div>';
-  }
-  const bs=document.getElementById('planSched');bs.innerHTML=sch||'<div class="item">План пуст.</div>';mathIn(bs);
-  const bt=document.getElementById('planTopics');bt.innerHTML=top||'<div class="item">Темы появятся после составления плана.</div>';mathIn(bt);
-}
-function collectPlanData(){
-  const grade=+document.getElementById('pGrade').value;
-  const exam=document.getElementById('pExam').value;
-  const goal=document.getElementById('pGoal').value.trim();
-  const minutes=+document.getElementById('pMinutes').value;
-  const level=document.getElementById('pLevel').value;
-  const weak=document.getElementById('pWeak').value.trim();
-  const subjects=[];
-  document.querySelectorAll('#subjectGrid input[type="checkbox"]:checked').forEach(cb=>{subjects.push(cb.value);});
-  const restDays=[];
-  document.querySelectorAll('.day-check input:checked').forEach(cb=>{restDays.push(cb.value);});
-  return{grade,exam,subjects,goal,minutes,level,weak,restDays};
-}
-function getTasksForSubject(exam,subject){
-  if(EXAM_TASKS[exam]&&EXAM_TASKS[exam][subject])return EXAM_TASKS[exam][subject];
-  return null;
-}
-function generateScheduleWithTasks(data){
-  const{subjects,minutes,restDays,exam}=data;
-  const schedule=[];
-  const subjectTasks={};
-  subjects.forEach(subj=>{
-    const tasks=getTasksForSubject(exam,subj);
-    if(tasks){subjectTasks[subj]=[...tasks];}
-    else{subjectTasks[subj]=[{num:1,name:'Тема 1',time:Math.round(minutes/2)},{num:2,name:'Тема 2',time:Math.round(minutes/2)},{num:3,name:'Тема 3',time:minutes},{num:4,name:'Тема 4',time:minutes},{num:5,name:'Тема 5',time:minutes}];}
+function fillVariantNums(){document.getElementById('vNum').innerHTML=Array.from({length:20},(_,i)=>'<option value="'+(i+1)+'">№ '+(i+1)+'</option>').join('');}
+function randomVariantNum(){document.getElementById('vNum').value=1+Math.floor(Math.random()*20);toast('🎲 Выбран №'+document.getElementById('vNum').value);}
+function renderVarHistory(){const h=loadVarHistory().slice(-10).reverse();const el=document.getElementById('varHistory');if(!h.length){el.innerHTML='<span class="hint">Пока пусто</span>';return;}el.innerHTML=h.map((x,i)=>'<button class="var-chip done" onclick="openHistoryVariant('+i+')">'+x.year+'·№'+x.num+'·'+x.grade+' ✅</button>').join('');}
+function openHistoryVariant(i){const h=loadVarHistory().slice(-10).reverse()[i];if(!h)return;const p=h.key.split('|');launchVariant({exam:p[0],subject:p[1],year:+p[2],num:p[3]==='bank'?'bank':+p[3],timerMin:0});}
+function quizTab(t){['Test','Variant'].forEach(n=>{const b=document.getElementById('tab'+n),x=document.getElementById('quiz'+n+'Box');if(b)b.classList.toggle('on',n.toLowerCase()===t);if(x)x.style.display=n.toLowerCase()===t?'block':'none';});if(t==='variant'){renderVarHistory();const cur=loadCurrentVariant();if(cur&&!cur.checked&&!variant){variant=cur;showVariantActive();}}}
+async function startVariant(){
+  launchVariant({
+    exam:document.getElementById('vExam').value,
+    subject:document.getElementById('vSubject').value,
+    year:+document.getElementById('vYear').value,
+    num:+document.getElementById('vNum').value,
+    timerMin:+document.getElementById('vTimer').value
   });
-  const subjectList=[...subjects];
-  let subjectIdx=0;const taskIdx={};
-  subjects.forEach(s=>taskIdx[s]=0);
-  for(let day=0;day<7;day++){
-    const dayName=DAYS[day];
-    if(restDays.includes(dayName)){
-      schedule.push({day:dayName,subject:'отдых',topic:'отдых',activity:'отдых',taskNum:null,estimatedTime:0,done:false});
-    }else{
-      const subject=subjectList[subjectIdx%subjectList.length];subjectIdx++;
-      const tasks=subjectTasks[subject];
-      const task=tasks[taskIdx[subject]%tasks.length];taskIdx[subject]++;
-      schedule.push({day:dayName,subject:subject,topic:'Задание '+task.num+': '+task.name,activity:minutes+' мин · разбор задания №'+task.num,taskNum:task.num,estimatedTime:task.time,done:false});
-    }
+}
+async function launchVariant(cfg){
+  document.getElementById('variantSetup').style.display='none';
+  document.getElementById('variantActive').style.display='block';
+  document.getElementById('variantResult').style.display='none';
+  document.getElementById('variantTasks').innerHTML='<div class="skel skel-card"></div><div class="skel skel-card"></div><div class="skel skel-card"></div>';
+  document.getElementById('variantFooter').style.display='block';
+  let tasks=buildVariantTasks(cfg.exam,cfg.subject,cfg.year,cfg.num);
+  if(!tasks){
+    try{const r=await fetch(PROXY_BASE+'/fipi_bank?exam='+encodeURIComponent(cfg.exam)+'&subject='+encodeURIComponent(cfg.subject)+'&year='+cfg.year+'&num='+cfg.num);if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)tasks=d;}}catch(e){}
   }
-  return schedule;
+  if(!tasks){
+    try{const resp=await askGiga('Сгенерируй полный вариант '+cfg.exam+' '+cfg.year+' года №'+cfg.num+' по предмету «'+cfg.subject+'» СТРОГО в формате открытого банка ФИПИ: реальные номера заданий по спецификации, типовые формулировки. Верни JSON-массив БЕЗ markdown: [{"num":1,"topic":"...","text":"...","answer":"...","type":"short|long"}]','Ты — составитель КИМ ФИПИ. Верни только JSON.',3500,null,true);tasks=parseJSONArraySafe(resp);}catch(e){}
+  }
+  if(!tasks||!tasks.length){document.getElementById('variantTasks').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Не удалось собрать вариант. Попробуй Математику или Русский.</div>';document.getElementById('variantFooter').style.display='none';return;}
+  variant={...cfg,tasks,answers:new Array(tasks.length).fill(''),results:null,checked:false,noXp:isVariantDone(cfg)||cfg.noXp,startTime:Date.now(),timeLeft:cfg.timerMin>0?cfg.timerMin*60:-1};
+  saveCurrentVariant();showVariantActive();
+  if(variant.timeLeft>0)startVarTimer();
+  toast('📝 Вариант '+cfg.year+' №'+cfg.num+' ('+tasks.length+' заданий)');
 }
-async function buildPlan(){
-  const data=collectPlanData();
-  if(!data.subjects.length)return uiAlert('Выбери хотя бы один предмет!','📚');
-  const btn=document.getElementById('planBtn');btn.disabled=true;
-  planTab('view');planView('sched');
-  showLoading('planSched','Составляю план с номерами заданий...');
-  try{
-    const ei=examInfo(data.grade,data.exam);
-    const schedule=generateScheduleWithTasks(data);
-    const plan={schedule:schedule,examName:data.exam||'без экзамена',examDate:ei.examDate.toLocaleDateString('ru-RU'),weeks:ei.weeks,savedAt:new Date().toLocaleDateString('ru-RU'),scheduleWeek:currentWeekKey(),params:data,done:[],testPassed:{},selectedTopic:null,summary:'План для '+data.grade+' класса. Предметы: '+data.subjects.join(', ')+'. Время: '+data.minutes+' мин/день. Отдых: '+(data.restDays.join(', ')||'нет')+'.'};
-    savePlan(plan);renderPlan(plan);renderToday();
-    const g=loadGame();g.plan=true;saveGame(g);checkBadges();
-    toast('✨ План составлен с номерами заданий!');
-  }catch(e){showError('planSched','Ошибка: '+e.message);}
-  finally{btn.disabled=false;}
+function startVarTimer(){if(variantTimerInt)clearInterval(variantTimerInt);const el=document.getElementById('variantTimer');variantTimerInt=setInterval(()=>{if(!variant||variant.checked){clearInterval(variantTimerInt);return;}variant.timeLeft--;const m=Math.floor(variant.timeLeft/60),s=variant.timeLeft%60;el.textContent='⏱ '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');if(variant.timeLeft<=0){clearInterval(variantTimerInt);finishVariant();}},1000);}
+function showVariantActive(){
+  document.getElementById('variantSetup').style.display='none';
+  document.getElementById('variantActive').style.display='block';
+  document.getElementById('variantFooter').style.display=variant.checked?'none':'block';
+  document.getElementById('variantTitle').textContent='📝 '+variant.exam+' · '+variant.subject+' · '+variant.year+' · №'+variant.num+(variant.noXp?' · 🔁 без XP':'');
+  if(variant.timeLeft<0)document.getElementById('variantTimer').textContent='без таймера';
+  renderVariantTasks();updateVarProgress();
 }
-function postponeTodayTask(){
-  const plan=loadPlan();if(!plan||!plan.schedule)return;
-  const ti=todayIdx();const todayTask=plan.schedule[ti];
-  if(!todayTask||isRestDay(todayTask)){uiAlert('Сегодня день отдыха — нечего переносить!','😴');return;}
-  uiConfirm('Перенести "'+todayTask.subject+' — '+todayTask.topic+'" на завтра?\n\nВсё расписание сдвинется на 1 день.',function(){
-    const newSchedule=[];
-    const postponed={...todayTask,day:DAYS[(ti+1)%7],done:false};
-    for(let i=ti+1;i<plan.schedule.length;i++){newSchedule.push({...plan.schedule[i],day:DAYS[(i+1)%7]});}
-    newSchedule.splice((ti+1)%7,0,postponed);
-    plan.schedule=newSchedule.slice(0,7);
-    savePlan(plan);renderPlan(plan);renderToday();
-    toast('⏰ Задание перенесено на завтра!');
-  },'⏰','Перенести');
+function updateVarProgress(){if(!variant)return;const a=variant.answers.filter(x=>x&&x.trim()).length;document.getElementById('variantProgBar').style.width=(a/variant.tasks.length*100)+'%';document.getElementById('variantProgTxt').textContent='отвечено '+a+' / '+variant.tasks.length;}
+function renderVariantTasks(){
+  const box=document.getElementById('variantTasks');
+  box.innerHTML=variant.tasks.map((t,i)=>{
+    const ans=variant.answers[i]||'';
+    const res=variant.results?variant.results[i]:null;
+    const inp=t.type==='long'
+      ?'<textarea oninput="saveVarAnswer('+i+', this.value)" placeholder="Развёрнутое решение...">'+escapeHtml(ans)+'</textarea>'
+      :'<input type="text" oninput="saveVarAnswer('+i+', this.value)" placeholder="Короткий ответ..." value="'+escapeHtml(ans)+'">';
+    let st='';
+    if(res==='ok')st='<div class="tc-status ok">1 балл</div>';
+    else if(res==='bad')st='<div class="tc-status bad">'+escapeHtml(t.answer)+'</div>';
+    return '<div class="task-card" id="task'+i+'"><span class="tc-num">Задание '+t.num+' · '+escapeHtml(t.topic||'')+'</span><div class="tc-text">'+escapeHtml(t.text)+'</div>'+inp+st+(res?'<button class="btn ghost" style="padding:8px;font-size:12px;margin-top:8px;" onclick="showTaskSolution('+i+')">📖 Показать решение</button><div class="tc-sol" id="sol'+i+'" style="display:none;"></div>':'')+'</div>';
+  }).join('');
+  mathIn(box);
 }
-async function checkWeekUpdate(){
-  const plan=loadPlan();
-  if(!plan||!plan.params||!plan.schedule)return;
-  if(plan.scheduleWeek===currentWeekKey())return;
-  planTab('view');planView('sched');
-  showLoading('planSched','Новая неделя — обновляю темы...');
-  try{
-    const p=plan.params;
-    const doneTopics=(plan.done||[]).map(d=>d.topic);
-    const uncompleted=plan.schedule.filter(s=>!isRestDay(s)&&!s.done&&!doneTopics.includes(s.topic));
-    const newSchedule=generateScheduleWithTasks(p);
-    if(uncompleted.length>0){
-      const completedTopics=plan.schedule.filter(s=>s.done).map(s=>s.topic);
-      const filtered=newSchedule.filter(s=>isRestDay(s)||!completedTopics.includes(s.topic));
-      plan.schedule=[...uncompleted.map(s=>({...s,done:false})),...filtered].slice(0,7);
-    }else{plan.schedule=newSchedule;}
-    plan.scheduleWeek=currentWeekKey();plan.selectedTopic=null;plan.testPassed={};
-    savePlan(plan);renderPlan(plan);renderToday();
-    toast('🔄 Расписание обновлено на новую неделю!');
-  }catch(e){renderPlan(plan);renderToday();}
+function saveVarAnswer(i,v){if(!variant)return;variant.answers[i]=v;saveCurrentVariant();updateVarProgress();}
+async function showTaskSolution(i){const el=document.getElementById('sol'+i);if(!el)return;el.style.display='block';el.textContent='⏳ Думаю...';try{const r=await askGiga('Задание: '+variant.tasks[i].text+' Правильный ответ: '+variant.tasks[i].answer+'. Объясни решение кратко, по шагам, без markdown.','Ты — учитель. Только текст решения.',600,null,true);el.textContent=cleanResponse(r);mathIn(el);}catch(e){el.textContent='Решение недоступно.';}}
+function discardVariant(){uiConfirm('Сбросить текущий вариант? Ответы удалятся.',function(){variant=null;variantTimerInt&&clearInterval(variantTimerInt);localStorage.removeItem('sn_var_current');document.getElementById('variantActive').style.display='none';document.getElementById('variantSetup').style.display='block';document.getElementById('variantFooter').style.display='none';renderVarHistory();},'🗑','Сбросить');}
+async function finishVariant(){
+  if(!variant||variant.checked)return;
+  variantTimerInt&&clearInterval(variantTimerInt);
+  const btn=document.querySelector('#variantFooter .btn');if(btn){btn.disabled=true;btn.textContent='⏳ Проверяю...';}
+  const results=new Array(variant.tasks.length).fill(null);
+  const longIdx=[];
+  variant.tasks.forEach((t,i)=>{
+    if(t.type==='long'){longIdx.push(i);}
+    else{const u=normalize(variant.answers[i]||''),r=normalize(t.answer);results[i]=(u&&r&&(u===r||r.includes(u)||u.includes(r)))?'ok':'bad';}
+  });
+  if(longIdx.length){
+    try{
+      const list=longIdx.map((gi,k)=>(k+1)+') '+variant.tasks[gi].text+' | ЭТАЛОН: '+variant.tasks[gi].answer+' | ОТВЕТ: '+(variant.answers[gi]||'(пусто)')).join('\n');
+      const resp=await askGiga('Оцени развёрнутые ответы по критериям ФИПИ (зачёт/незачёт). Верни JSON-массив БЕЗ markdown из '+longIdx.length+' элементов: [true/false,...] по порядку.\n'+list,'Ты — эксперт ФИПИ. Верни только JSON-массив булевых.',1200,null,true);
+      const arr=parseJSONArraySafe(resp);
+      longIdx.forEach((gi,k)=>{results[gi]=(arr&&arr[k])?'ok':'bad';});
+    }catch(e){longIdx.forEach(gi=>{results[gi]=(variant.answers[gi]||'').trim().length>20?'ok':'bad';});}
+  }
+  variant.results=results;variant.checked=true;
+  const correct=results.filter(r=>r==='ok').length,total=variant.tasks.length,pct=Math.round(correct/total*100);
+  const grade=pct>=90?'5':pct>=70?'4':pct>=50?'3':'2';
+  const first=!variant.noXp&&!isVariantDone(variant);
+  const xp=first?(correct+(grade==='5'?20:grade==='4'?10:0)):0;
+  let html='<div class="variant-result"><div style="font-size:40px;">🏁</div><div style="font-size:18px;font-weight:900;">Вариант '+variant.year+' · №'+variant.num+' завершён</div><div class="vr-score">'+correct+' / '+total+'</div><div class="hint">'+pct+'%</div><div class="vr-grade">Оценка: '+grade+'</div>';
+  html+=first?'<div class="vr-xp yes">🆕 Первый проход: +'+xp+' XP</div>':'<div class="vr-xp no">🔁 Повторно / тренировка: +0 XP</div>';
+  html+='</div>';
+  document.getElementById('variantResult').innerHTML=html;
+  document.getElementById('variantResult').style.display='block';
+  if(first){addXP(xp,'вариант '+variant.year+' №'+variant.num);const h=loadVarHistory();h.push({key:varKey(variant),exam:variant.exam,subject:variant.subject,year:variant.year,num:variant.num,score:correct,total,pct,grade,date:new Date().toLocaleDateString('ru-RU')});saveVarHistory(h);}
+  const wrong=variant.tasks.map((t,i)=>({t,i})).filter(x=>results[x.i]==='bad');
+  if(wrong.length){html+='<button class="btn warn" onclick="retryMistakes()">🔁 Прорешать ошибки ('+wrong.length+')</button>';}
+  html+='<button class="btn mint" onclick="newVariant()">📝 Новый вариант</button>';
+  document.getElementById('variantResult').innerHTML=html;
+  renderVariantTasks();
+  localStorage.removeItem('sn_var_current');
+  document.getElementById('variantFooter').style.display='none';
+  if(btn){btn.disabled=false;btn.textContent='🏁 Завершить вариант и проверить';}
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(pct>=70)fireConfetti(innerWidth/2,innerHeight/3);
 }
-function deletePlan(){uiConfirm('Удалить план и весь прогресс недель?',function(){
-  localStorage.removeItem('sn_plan');document.getElementById('planSched').innerHTML='';document.getElementById('planTopics').innerHTML='';document.getElementById('todayCard').innerHTML='';updateHomeStats();planTab('form');
-},'🗑','Удалить');}
-function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня по плану отдых 😴 Восстановись!','😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');startQuiz(topicKey(it),TEST_SIZE);}
-function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня по плану отдых 😴','😴');return;}document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
-function selectTopic(key){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===key)?null:key;savePlan(p);renderPlan(p);}
-function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return uiAlert('Сначала выбери тему кнопкой «Выбрать».','🎯');document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
-function retryTopicTest(key){document.getElementById('qTopic').value=key;go('quiz');startQuiz(key,TEST_SIZE);}
+function retryMistakes(){
+  if(!variant)return;
+  const wrong=variant.tasks.filter((t,i)=>variant.results[i]==='bad');
+  if(!wrong.length)return;
+  variant={...variant,tasks:wrong,answers:new Array(wrong.length).fill(''),results:null,checked:false,noXp:true,startTime:Date.now(),timeLeft:-1};
+  document.getElementById('variantResult').style.display='none';
+  document.getElementById('variantFooter').style.display='block';
+  showVariantActive();toast('🔁 Решаем только ошибки (без XP)');
+}
+function newVariant(){variant=null;variantTimerInt&&clearInterval(variantTimerInt);document.getElementById('variantActive').style.display='none';document.getElementById('variantSetup').style.display='block';document.getElementById('variantFooter').style.display='none';renderVarHistory();}
 
-// ===== БАНК ФИПИ =====
+/* ===== ТЕСТ ===== */
+let qC=0,qT=0,qCurrent=null,qAnswered=false,qQueue=[],qLastTopic='',qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0,qHintUsed=false;
+function updateExamHint(){const e=document.getElementById('qExam').value,d=document.getElementById('qDiff').value,h=document.getElementById('examHint');if(!e){h.textContent='Обычные задания по теме.';return;}const r=EXAM_DIFF_RANGES[e][d];h.textContent='🎯 Режим '+e+': задания в стиле №'+r[0]+'–'+r[1]+' (сложность «'+d+'»).';}
+function normalize(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();}
+async function semanticCheck(q,c,u){const nu=parseFloat(String(u).replace(',','.')),nc=parseFloat(String(c).replace(',','.'));if(!isNaN(nu)&&!isNaN(nc)&&Math.abs(nu-nc)<1e-6)return true;const a=normalize(u),b=normalize(c);if(a&&b&&Math.min(a.length,b.length)>=3&&(a.includes(b)||b.includes(a)))return true;try{const r=await askGiga('Вопрос: «'+q+'». Ответ: «'+c+'». Ответ ученика: «'+u+'». Верен по смыслу? JSON: {"correct":true|false}','Верни только JSON.',100,null,true);const o=parseJSONObjectSafe(r);if(o&&typeof o.correct==='boolean')return o.correct;}catch(e){}return false;}
+async function fetchBatch(topic,diff,n,grade,type,exam){
+  let prompt;
+  if(exam&&EXAM_DIFF_RANGES[exam]){const r=EXAM_DIFF_RANGES[exam][diff];prompt='Придумай '+n+' заданий СТРОГО в стиле '+exam+' (банк ФИПИ 2025/2026), номера №'+r[0]+'–'+r[1]+', по теме «'+topic+'». Формулы в LaTeX, "answer" простым текстом. Верни JSON-массив БЕЗ markdown: [{"question","answer","alternatives":[],"hint"}]';}
+  else prompt='Придумай '+n+' заданий для '+grade+' класса по «'+topic+'». Тип: '+type+'. Сложность: '+diff+'. "answer" простым текстом. Верни JSON-массив БЕЗ markdown: [{"question","answer","alternatives":[],"hint"}]';
+  let err;for(let a=0;a<2;a++){try{const r=await askGiga(prompt,'Ты — учитель. Только JSON-массив.',4000,null,true);const arr=parseJSONArraySafe(r);const out=arr.filter(o=>o&&o.question&&o.answer);if(!out.length)throw new Error('Пусто');return out;}catch(e){err=e;}}throw err;
+}
+function updateNextLabel(){document.getElementById('nextBtn').textContent='➡️ Дальше ('+qQueue.length+')';}
+function updateProgress(){const p=qBatchTotal?(qBatchAnswered/qBatchTotal)*100:0;document.getElementById('quizProgress').style.width=p+'%';document.getElementById('quizProgressWrap').style.display=qBatchTotal?'block':'none';}
+function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=document.getElementById('quizQ');q.innerHTML=escapeHtml(o.question);mathIn(q);document.getElementById('quizHint').innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';updateNextLabel();updateProgress();}
+async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST||!spendXP(HINT_COST))return toast('Не хватает XP');qHintUsed=true;document.getElementById('buyHintBtn').disabled=true;const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю...';try{const r=await askGiga('Дай намёк к заданию «'+qCurrent.question+'», не называя ответ.','Только текст намёка.',100,null,true);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));}catch(e){h.innerHTML='💡 Недоступно';}}
+async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему!','✏️');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10,d=document.getElementById('qDiff').value,g=document.getElementById('qGrade').value,t=document.getElementById('qType').value,e=document.getElementById('qExam').value;document.getElementById('quizBtn').disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую...';try{const arr=await fetchBatch(topic,d,n,g,t,e);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(err){document.getElementById('quizQ').textContent='❌ '+err.message;}finally{document.getElementById('quizBtn').disabled=false;}}
+async function nextQuestion(){const b=document.getElementById('nextBtn');b.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());b.disabled=false;return;}const d=document.getElementById('qDiff').value,g=document.getElementById('qGrade').value,t=document.getElementById('qType').value,e=document.getElementById('qExam').value;document.getElementById('quizQ').textContent='⏳ Ещё 10...';try{const arr=await fetchBatch(qLastTopic||'математика',d,10,g,t,e);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(err){document.getElementById('quizQ').textContent='❌ '+err.message;}finally{b.disabled=false;updateNextLabel();}}
+function finishBatch(){const pct=qBatchTotal?qBatchScore/qBatchTotal:0;let ex='<div class="item ai">🏁 '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';if(qPendingTopic){const k=qPendingTopic,p=loadPlan();if(p&&pct>=PASS_PCT){if(!p.done)p.done=[];if(!p.done.some(d=>d.topic===k))p.done.push({date:new Date().toLocaleDateString('ru-RU'),topic:k,score:qBatchScore+'/'+qBatchTotal});p.selectedTopic=null;savePlan(p);renderPlan(p);ex+='<div class="item ai">🎓 Тема пройдена! +30 XP</div>';addXP(30,'тема');fireConfetti(innerWidth/2,innerHeight/2);}else ex+='<div class="item" style="border-left:4px solid #FF6B6B;">Нужно 80%+ для прохода темы.</div>';qPendingTopic=null;}document.getElementById('quizResult').innerHTML+=ex;}
+async function checkAnswer(){if(qAnswered||!qCurrent)return;const u=document.getElementById('quizAnswer').value.trim();if(!u)return;qAnswered=true;qT++;qBatchAnswered++;const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);let ok=vars.map(normalize).includes(normalize(u)),bs=false;if(!ok){for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bs=true;break;}}}const box=document.getElementById('quizResult'),q=document.getElementById('quizQ');if(ok){qC++;qBatchScore++;const g=loadGame();g.correct++;saveGame(g);box.innerHTML='<div class="item ai">✅ Верно!'+(bs?' (по смыслу)':'')+'</div>';q.style.animation='correctPop .5s';fireConfetti(innerWidth/2,innerHeight/2);checkBadges();}else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Правильно: '+escapeHtml(qCurrent.answer)+'</div>';q.style.animation='shake .6s';}setTimeout(()=>q.style.animation='',700);document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';updateNextLabel();updateProgress();if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&!qQueue.length)finishBatch();}
+
+/* ===== СТРАНИЦА БАНКА ФИПИ ===== */
 let fipiCurrent='oge';
 function loadFipi(){try{return JSON.parse(localStorage.getItem('sn_fipi_bank')||'{"oge":[],"ege":[],"lastUpdate":0}');}catch(e){return{oge:[],ege:[],lastUpdate:0};}}
 function saveFipi(b){localStorage.setItem('sn_fipi_bank',JSON.stringify(b));}
-function fipiTab(t){
-  fipiCurrent=t;
-  document.getElementById('segFipiOge').classList.toggle('on',t==='oge');
-  document.getElementById('segFipiEge').classList.toggle('on',t==='ege');
-  renderFipi();
-}
-function renderFipi(){
-  const b=loadFipi();const list=b[fipiCurrent]||[];
-  const el=document.getElementById('fipiList');
-  if(!list.length){el.innerHTML='<div class="item">Банк пуст — нажми «🔄 Обновить из ФИПИ» 👆</div>';return;}
-  el.innerHTML=list.map((t,i)=>
-    '<div class="item ai" style="margin-top:12px;">'+
-    '<b>'+escapeHtml(t.exam||'')+' · Задание №'+escapeHtml(String(t.num||'?'))+' · '+escapeHtml(t.subject||'')+'</b><span class="fipi-badge">2025/2026</span>\n'+
-    '📖 '+escapeHtml(t.topic||'')+'\n'+escapeHtml(t.text||'')+
-    '<div class="fipi-ans" id="fipiAns'+i+'" style="display:none;">✅ Ответ: '+escapeHtml(t.answer||'')+'</div>'+
-    '<div class="row2"><button class="btn ghost" onclick="toggleFipiAns('+i+')">👁 Ответ</button><button class="btn mint" onclick="solveFipiTask('+i+')">✍ Решить</button></div>'+
-    '</div>'
-  ).join('');
-}
-function toggleFipiAns(i){
-  const el=document.getElementById('fipiAns'+i);
-  if(el)el.style.display=(el.style.display==='none')?'block':'none';
-}
-function solveFipiTask(i){
-  const b=loadFipi();const t=b[fipiCurrent][i];if(!t)return;
-  go('quiz');
-  const qe=document.getElementById('qExam');
-  if(t.exam)qe.value=t.exam;
-  updateExamHint();
-  qPendingTopic=null;qBatchTotal=1;qBatchAnswered=0;qBatchScore=0;qQueue=[];qLastTopic=t.subject||'';
-  showQuestion({question:t.text,answer:t.answer,alternatives:[],hint:(t.exam+' №'+t.num+' · '+t.topic)});
-  toast('📝 Задание из банка ФИПИ открыто в тренажёре');
-}
-async function refreshFipi(key){
-  const exam=key==='oge'?'ОГЭ':'ЕГЭ';
-  let tasks=null;
-  try{
-    const r=await fetch(PROXY_BASE+'/fipi_bank?exam='+key+'&year=2025-2026');
-    if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)tasks=d;}
-  }catch(e){}
-  if(!tasks){
-    const resp=await askGiga(
-      'Дай 5 НОВЫХ заданий из открытого банка ФИПИ для '+exam+' на 2025/2026 учебный год. '+
-      'Задания должны быть разных предметов и разных номеров, строго в формате реального экзамена, с ответами и краткой темой. '+
-      'Верни СТРОГО JSON-массив БЕЗ markdown: [{"num":1,"subject":"Математика","topic":"...","text":"...","answer":"..."}]',
-      'Ты — эксперт по ОГЭ/ЕГЭ и открытому банку ФИПИ. Верни только валидный JSON-массив, без markdown.',2500,null,true);
-    tasks=parseJSONArraySafe(resp);
-  }
-  const b=loadFipi();const now=new Date().toLocaleDateString('ru-RU');let added=0;
-  (tasks||[]).forEach(t=>{
-    if(t&&t.text&&!b[key].some(x=>x.text===t.text)){
-      b[key].unshift({exam:exam,num:t.num||'?',subject:t.subject||'Предмет',topic:t.topic||'',text:t.text,answer:t.answer||'',addedAt:now});
-      added++;
-    }
-  });
-  b.lastUpdate=Date.now();saveFipi(b);
-  if(document.getElementById('fipi').classList.contains('active')&&fipiCurrent===key)renderFipi();
-  return added;
-}
-async function updateFipiBank(){
-  const btn=document.getElementById('fipiUpdateBtn');btn.disabled=true;
-  document.getElementById('fipiList').innerHTML='<div class="skel skel-card"></div><div class="skel skel-card"></div>';
-  try{
-    const added=await refreshFipi(fipiCurrent);
-    renderFipi();
-    toast('🔄 Банк обновлён: +'+added+' новых заданий ФИПИ');
-  }catch(e){renderFipi();toast('❌ Ошибка обновления: '+e.message);}
-  finally{btn.disabled=false;}
-}
-function autoFipi(){
-  const b=loadFipi();
-  const stale=(Date.now()-(b.lastUpdate||0))>24*3600*1000;
-  if(stale||!b.oge.length||!b.ege.length){
-    refreshFipi('oge').then(()=>refreshFipi('ege')).catch(()=>{});
-  }
-}
+function fipiTab(t){fipiCurrent=t;document.getElementById('segFipiOge').classList.toggle('on',t==='oge');document.getElementById('segFipiEge').classList.toggle('on',t==='ege');renderFipi();}
+function renderFipi(){const b=loadFipi(),l=b[fipiCurrent]||[],el=document.getElementById('fipiList');if(!l.length){el.innerHTML='<div class="item">Банк пуст — нажми «🔄 Обновить».</div>';return;}el.innerHTML=l.map((t,i)=>'<div class="item ai"><b>'+escapeHtml(t.exam)+' · №'+t.num+' · '+escapeHtml(t.subject)+'</b>\n📖 '+escapeHtml(t.topic||'')+'\n'+escapeHtml(t.text)+'<div class="tc-sol" id="fAns'+i+'" style="display:none;">✅ '+escapeHtml(t.answer)+'</div><div class="row2"><button class="btn ghost" onclick="toggleFipiAns('+i+')">👁 Ответ</button><button class="btn mint" onclick="solveFipiTask('+i+')">✍ Решить</button></div></div>').join('');}
+function toggleFipiAns(i){const e=document.getElementById('fAns'+i);if(e)e.style.display=e.style.display==='none'?'block':'none';}
+function solveFipiTask(i){const b=loadFipi(),t=b[fipiCurrent][i];if(!t)return;go('quiz');quizTab('variant');variant={exam:t.exam,subject:t.subject,year:2025,num:'bank',timerMin:0,tasks:[t],answers:[''],results:null,checked:false,noXp:true,startTime:Date.now(),timeLeft:-1};showVariantActive();}
+async function refreshFipi(key){const exam=key==='oge'?'ОГЭ':'ЕГЭ';let tasks=null;try{const r=await fetch(PROXY_BASE+'/fipi_bank?exam='+key+'&year=2025-2026');if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)tasks=d;}}catch(e){}if(!tasks){const resp=await askGiga('Дай 5 НОВЫХ заданий из открытого банка ФИПИ для '+exam+' 2025/2026. Разные предметы и номера, формат экзамена, с ответами. JSON-массив БЕЗ markdown: [{"num","subject","topic","text","answer"}]','Только JSON.',2500,null,true);tasks=parseJSONArraySafe(resp);}const b=loadFipi();const now=new Date().toLocaleDateString('ru-RU');let add=0;(tasks||[]).forEach(t=>{if(t&&t.text&&!b[key].some(x=>x.text===t.text)){b[key].unshift({exam,num:t.num||'?',subject:t.subject||'',topic:t.topic||'',text:t.text,answer:t.answer||'',addedAt:now});add++;}});b.lastUpdate=Date.now();saveFipi(b);if(document.getElementById('fipi').classList.contains('active')&&fipiCurrent===key)renderFipi();return add;}
+async function updateFipiBank(){const b=document.getElementById('fipiUpdateBtn');b.disabled=true;try{const a=await refreshFipi(fipiCurrent);renderFipi();toast('🔄 +'+a+' заданий');}catch(e){toast('❌ '+e.message);}finally{b.disabled=false;}}
+function autoFipi(){const b=loadFipi();if((Date.now()-(b.lastUpdate||0))>86400000||!b.oge.length||!b.ege.length){refreshFipi('oge').then(()=>refreshFipi('ege')).catch(()=>{});}}
 
-// ===== ТРЕНАЖЁС ЭКЗАМЕН-СЛОЖНОСТЬЮ =====
-let qC=0,qT=0,qCurrent=null,qAnswered=false,qQueue=[],qLastTopic='';
-let qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0,qHintUsed=false;
-function updateExamHint(){
-  const exam=document.getElementById('qExam').value;
-  const diff=document.getElementById('qDiff').value;
-  const h=document.getElementById('examHint');
-  if(!exam){h.textContent='Обычные задания по теме.';return;}
-  const r=EXAM_DIFF_RANGES[exam][diff];
-  h.textContent='🎯 Режим экзамена: задания в стиле '+exam+' №'+r[0]+'–'+r[1]+' (сложность «'+diff+'»), формат ФИПИ 2025/2026.';
-}
-function normalize(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:"'()\s]/g,'').trim();}
-async function semanticCheck(q,c,u){const nu=parseFloat(String(u).replace(',','.')),nc=parseFloat(String(c).replace(',','.'));if(!isNaN(nu)&&!isNaN(nc)&&Math.abs(nu-nc)<1e-6)return true;const a=normalize(u),b=normalize(c);if(a&&b&&Math.min(a.length,b.length)>=3&&(a.includes(b)||b.includes(a)))return true;try{const r=await askGiga('Вопрос: «'+q+'». Правильный ответ: «'+c+'». Ответ ученика: «'+u+'». Верен ли ответ ПО СМЫСЛУ? Верни СТРОГО JSON: {"correct": true|false}.','Верни только JSON.',100,null,true);const o=parseJSONObjectSafe(r);if(o&&typeof o.correct==='boolean')return o.correct;}catch(e){}return false;}
-async function fetchBatch(topic,diff,n,grade,type,exam){
-  let prompt;
-  if(exam&&EXAM_DIFF_RANGES[exam]){
-    const r=EXAM_DIFF_RANGES[exam][diff];
-    prompt='Придумай '+n+' заданий СТРОГО в стиле '+exam+' (открытый банк ФИПИ 2025/2026), номера заданий из диапазона №'+r[0]+'–'+r[1]+', по предмету/теме «'+topic+'» для '+grade+' класса. Сложность как на реальном '+exam+'. Формулы в задании можно в LaTeX ($...$), но "answer" — ПРОСТЫМ текстом. Без вариантов ответа. Вопрос до 200 символов, с пробелами. Верни СТРОГО JSON-массив БЕЗ markdown: [{"question","answer","alternatives":[],"hint"}]';
-  }else{
-    prompt='Придумай '+n+' заданий для '+grade+' класса по «'+topic+'». Тип: '+type+'. Сложность: '+diff+'. От простых к сложным. Формулы в задании можно в LaTeX ($...$), но "answer" — ПРОСТЫМ текстом (54, x^2, 1/2, Москва). Без вариантов ответа. Вопрос до 120 символов, с пробелами. Верни СТРОГО JSON-массив БЕЗ markdown: [{"question","answer","alternatives":[],"hint"}]';
-  }
-  let lastErr;
-  for(let a=0;a<2;a++){
-    try{
-      const r=await askGiga(prompt,'Ты — учитель и эксперт '+((exam)?exam:'школьной программы')+'. Верни ТОЛЬКО валидный JSON-массив, БЕЗ markdown.',4000,null,true);
-      const arr=parseJSONArraySafe(r);const out=[];
-      for(const o of arr){if(o&&o.question&&o.answer){o.question=await ensureSpaces(o.question);o.hint=o.hint?await ensureSpaces(o.hint):'';out.push(o);}}
-      if(!out.length)throw new Error('Пусто');
-      return out;
-    }catch(e){lastErr=e;}
-  }
-  throw lastErr;
-}
-function updateNextLabel(){document.getElementById('nextBtn').textContent='➡️ Дальше (в запасе: '+qQueue.length+')';}
-function updateProgress(){const pct=qBatchTotal?(qBatchAnswered/qBatchTotal)*100:0;const b=document.getElementById('quizProgress');if(b)b.style.width=pct+'%';const w=document.getElementById('quizProgressWrap');if(w)w.style.display=qBatchTotal?'block':'none';}
-function showQuestion(o){
-  qCurrent=o;qAnswered=false;qHintUsed=false;
-  const q=document.getElementById('quizQ');q.style.animation='none';void q.offsetWidth;q.style.animation='';
-  q.innerHTML=escapeHtml(o.question);mathIn(q);
-  const h=document.getElementById('quizHint');h.innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';mathIn(h);
-  const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;bb.textContent=g.xp>=HINT_COST?'💡 Купить подсказку (−'+HINT_COST+' XP)':'💡 Подсказка: нужно '+HINT_COST+' XP';
-  document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';document.getElementById('quizAnswer').focus();updateNextLabel();updateProgress();
-}
-async function buyHint(){
-  if(qHintUsed||!qCurrent)return;
-  const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}
-  if(!spendXP(HINT_COST))return;qHintUsed=true;
-  const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');
-  const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';
-  try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100,null,true);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}
-}
-async function startQuiz(pending,count){
-  const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему заданий, например: дроби.','✏️');
-  qLastTopic=topic;qPendingTopic=pending||null;
-  const n=count||10;
-  const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;
-  const exam=document.getElementById('qExam').value;
-  const btn=document.getElementById('quizBtn');btn.disabled=true;
-  qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;
-  document.getElementById('quizQ').textContent='⏳ Генерирую '+n+' заданий'+(exam?' в стиле '+exam:'')+'...';
-  document.getElementById('quizHint').textContent='';document.getElementById('buyHintBtn').style.display='none';
-  document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='none';
-  try{const arr=await fetchBatch(topic,diff,n,grade,type,exam);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}
-  catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}
-  finally{btn.disabled=false;}
-}
-async function nextQuestion(){
-  const btn=document.getElementById('nextBtn');btn.disabled=true;
-  if(qQueue.length){showQuestion(qQueue.shift());btn.disabled=false;return;}
-  const diff=document.getElementById('qDiff').value,grade=document.getElementById('qGrade').value,type=document.getElementById('qType').value;
-  const exam=document.getElementById('qExam').value;
-  document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';
-  document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';
-  try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type,exam);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}
-  catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}
-  finally{btn.disabled=false;updateNextLabel();}
-}
-function finishBatch(){
-  const pct=qBatchTotal?qBatchScore/qBatchTotal:0;
-  let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';
-  if(qPendingTopic){
-    const key=qPendingTopic;const p=loadPlan();
-    if(p&&pct>=PASS_PCT){
-      if(!p.done)p.done=[];
-      if(!p.done.some(d=>d.topic===key)){const si=(p.schedule||[]).find(s=>topicKey(s)===key);p.done.push({date:new Date().toLocaleDateString('ru-RU'),subject:(si&&si.subject)||key,topic:key,score:qBatchScore+'/'+qBatchTotal});}
-      p.selectedTopic=null;savePlan(p);renderPlan(p);updateHomeStats();
-      extra+='<div class="item ai">🎓 ТЕМА ПРОЙДЕНА (80%+)! +30 XP — это и есть дневная норма для стрика 🔥</div>';
-      addXP(30,'тема пройдена');
-      const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
-    }else{
-      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
-    }
-    qPendingTopic=null;
-  }
-  const box=document.getElementById('quizResult');box.innerHTML+=extra;mathIn(box);
-}
-async function checkAnswer(){
-  if(qAnswered||!qCurrent)return;
-  const u=document.getElementById('quizAnswer').value.trim();if(!u)return;
-  qAnswered=true;qT++;qBatchAnswered++;
-  const vars=[qCurrent.answer].concat(qCurrent.alternatives||[]);
-  let ok=vars.map(normalize).includes(normalize(u));let bySense=false;
-  if(!ok){document.getElementById('quizResult').innerHTML='<div class="skel skel-card" style="height:56px"></div>';for(const v of vars){if(await semanticCheck(qCurrent.question,v,u)){ok=true;bySense=true;break;}}}
-  const box=document.getElementById('quizResult');const qEl=document.getElementById('quizQ');
-  if(ok){qC++;qBatchScore++;const g=loadGame();g.correct++;saveGame(g);box.innerHTML='<div class="item ai">✅ Верно!'+(bySense?' (по смыслу)':'')+' Отлично!</div>';qEl.style.animation='correctPop .5s ease';const r=box.getBoundingClientRect();fireConfetti(r.left+r.width/2,r.top);checkBadges();}
-  else{box.innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Неверно. Правильно: '+escapeHtml(qCurrent.answer)+'</div>';qEl.style.animation='shake .6s ease';}
-  setTimeout(()=>{qEl.style.animation='';},700);mathIn(box);
-  document.getElementById('score').textContent='Счёт: '+qC+' / '+qT;
-  document.getElementById('quizAnswerBox').style.display='none';document.getElementById('nextBtn').style.display='block';
-  updateNextLabel();updateProgress();
-  if(qBatchTotal&&qBatchAnswered>=qBatchTotal&&qQueue.length===0)finishBatch();
-}
-
+/* ===== ДНЕВНИК / ВИДЕО / МОТИВАЦИЯ / ЧАТ ===== */
 function loadG(){try{return JSON.parse(localStorage.getItem('g')||'{}');}catch(e){return{};}}
 function saveG(g){localStorage.setItem('g',JSON.stringify(g));}
 function addGradeToStorage(p){const g=loadG();if(!g[p.subject])g[p.subject]=[];g[p.subject]=g[p.subject].concat(p.grades);saveG(g);renderG();pushHist();}
 function delG(s){const g=loadG();delete g[s];saveG(g);renderG();pushHist();}
 let gHist=[];try{gHist=JSON.parse(localStorage.getItem('sn_g_hist')||'[]');}catch(e){gHist=[];}
-function pushHist(){const g=loadG();let all=[];for(const s in g)all=all.concat(g[s]);if(!all.length)return;const avg=all.reduce((a,b)=>a+b,0)/all.length;const d=new Date().toLocaleDateString('ru-RU');const last=gHist[gHist.length-1];if(last&&last.d===d){last.v=+avg.toFixed(2);}else{gHist.push({d:d,v:+avg.toFixed(2)});if(gHist.length>30)gHist.shift();}localStorage.setItem('sn_g_hist',JSON.stringify(gHist));drawGraph();}
-function drawGraph(){
-  const cv=document.getElementById('gGraph');if(!cv)return;
-  const hint=document.getElementById('gGraphHint');
-  const dpr=window.devicePixelRatio||1;const W=cv.clientWidth,H=96;
-  cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,W,H);
-  if(gHist.length<2){if(hint)hint.style.display='block';return;}
-  if(hint)hint.style.display='none';
-  const vs=gHist.map(p=>p.v);const mn=Math.min.apply(null,vs)-0.3,mx=Math.max.apply(null,vs)+0.3;
-  const px=i=>10+i*(W-20)/(gHist.length-1);const py=v=>H-12-(v-mn)*(H-24)/(mx-mn);
-  const acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2787F5';
-  c.beginPath();c.moveTo(px(0),py(vs[0]));for(let i=1;i<vs.length;i++)c.lineTo(px(i),py(vs[i]));
-  c.strokeStyle=acc;c.lineWidth=2.5;c.lineJoin='round';c.stroke();
-  c.lineTo(px(vs.length-1),H-4);c.lineTo(px(0),H-4);c.closePath();
-  const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,acc+'55');gr.addColorStop(1,acc+'00');c.fillStyle=gr;c.fill();
-  for(let i=0;i<vs.length;i++){c.beginPath();c.arc(px(i),py(vs[i]),3.2,0,7);c.fillStyle=acc;c.fill();c.strokeStyle='#fff';c.lineWidth=1.4;c.stroke();}
-  c.fillStyle=acc;c.font='700 10px Nunito,sans-serif';c.fillText(vs[vs.length-1].toFixed(2),px(vs.length-1)-14,py(vs[vs.length-1])-8);
-}
-function renderG(){
-  const g=loadG();let h='',all=[];
-  for(const s in g){const a=g[s];all=all.concat(a);const avg=a.reduce((x,y)=>x+y,0)/a.length;h+='<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+avg.toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';}
-  document.getElementById('gList').innerHTML=h||'<div class="item">Напиши предметы и оценки — GigaChat разберёт 👆</div>';
-  mathIn(document.getElementById('gList'));
-  const el=document.getElementById('gAvg');const nv=all.length?(all.reduce((a,b)=>a+b,0)/all.length):null;const ov=parseFloat(el.textContent)||0;
-  if(nv!==null)animateCount(el,ov,nv,700);else el.textContent='—';
-  const sa=document.getElementById('statAvg');if(sa)sa.textContent=nv!==null?nv.toFixed(2):'—';
-  drawGraph();
-}
-function clearGrades(){uiConfirm('Удалить все оценки и историю графика?',function(){
-  localStorage.removeItem('g');gHist=[];localStorage.removeItem('sn_g_hist');renderG();document.getElementById('gAi').innerHTML='';
-},'🗑','Удалить');}
-async function addGradeAI(){
-  const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши так: матан 5 4, физра 3','✍️');
-  const btn=document.getElementById('gAddBtn');btn.disabled=true;
-  document.getElementById('gAi').innerHTML='<div class="skel skel-card"></div>';
-  let parsed=null;
-  try{
-    const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (раскрой сокращения: матан->Математика и т.д.) и оценки (1-5). Верни СТРОГО JSON-массив БЕЗ markdown: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив.',500,null,true);
-    const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);
-  }catch(e){}
-  if(!parsed||!parsed.length)parsed=extractGradesLocal(text);
-  if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: матан 5 4, физра 3</div>';btn.disabled=false;return;}
-  parsed.forEach(p=>addGradeToStorage(p));
-  document.getElementById('gText').value='';
-  document.getElementById('gAi').innerHTML='<div class="item ai">✅ Разобрал:\n'+parsed.map(p=>escapeHtml(p.subject)+' → '+p.grades.join(', ')).join('\n')+'</div>';
-  mathIn(document.getElementById('gAi'));btn.disabled=false;
-}
-async function gradesAI(){
-  const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки.','📚');
-  let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}
-  const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');
-  try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown.',800,null,true);const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}
-  catch(e){showError('gAi','Ошибка: '+e.message);}
-  finally{btn.disabled=false;}
-}
-
-async function buildVideo(){
-  const topic=document.getElementById('vTopic').value.trim()||'математика';
-  const btn=document.getElementById('vBtn');btn.disabled=true;
-  showLoading('vAi','Ищу видео и готовлю объяснение...');
-  try{
-    const[gigaResp,videoResp]=await Promise.all([
-      askGiga('Кратко (5-8 предложений) подробно объясни школьнику тему «'+topic+'»: дай определение, пример и мини-вывод.',null,800,null,true),
-      fetch(PROXY_BASE+'/search_video?q='+encodeURIComponent(topic)).then(r=>r.ok?r.json():null).catch(()=>null)
-    ]);
-    let vhtml='<div class="item ai" style="margin-bottom:12px;">🔗 <b>Полезные ссылки:</b><br>';
-    let parts=[];
-    if(videoResp){
-      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">📺 '+(v.title||('RuTube '+(idx+1)))+'</a>'));
-      (videoResp.vk||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">🎬 VK '+(idx+1)+'</a>'));
-      (videoResp.youtube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">▶️ YouTube '+(idx+1)+'</a>'));
-    }
-    if(!parts.length){
-      const rq=encodeURIComponent(topic);
-      parts.push('<span style="font-size:12px;font-weight:800;color:var(--muted);">📭 Прямых ссылок не нашёл, открой поиск:</span>');
-      parts.push('<a class="mini-link" target="_blank" href="https://rutube.ru/search/?q='+rq+'">📺 RuTube</a>');
-      parts.push('<a class="mini-link" target="_blank" href="https://vk.com/video?q='+rq+'">🎬 VK</a>');
-    }
-    vhtml+=parts.join(' ')+'</div>';
-    const box=document.getElementById('vAi');
-    box.innerHTML=vhtml+'<div class="item ai">🎓 <b>Подробное объяснение:</b><br>'+escapeHtml(cleanResponse(gigaResp))+'</div>';
-    mathIn(box);document.getElementById('videoResult').innerHTML='';
-  }catch(e){showError('vAi','Ошибка: '+e.message);}
-  finally{btn.disabled=false;}
-}
-
-async function motivationAI(){
-  const mood=document.getElementById('mMood').value;const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[mood];
-  const sit=document.getElementById('mText').value.trim();const btn=document.getElementById('mBtn');btn.disabled=true;
-  const box=document.getElementById('quoteBox');box.textContent='⏳ Читаю и подбираю слова...';
-  try{
-    let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг.';
-    else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';
-    const r=await askGiga(prompt,null,800,null,true);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);
-  }catch(e){box.textContent='❌ Ошибка: '+e.message;}
-  finally{btn.disabled=false;}
-}
+function pushHist(){const g=loadG();let all=[];for(const s in g)all=all.concat(g[s]);if(!all.length)return;const avg=all.reduce((a,b)=>a+b,0)/all.length;const d=new Date().toLocaleDateString('ru-RU');const l=gHist[gHist.length-1];if(l&&l.d===d)l.v=+avg.toFixed(2);else{gHist.push({d,v:+avg.toFixed(2)});if(gHist.length>30)gHist.shift();}localStorage.setItem('sn_g_hist',JSON.stringify(gHist));drawGraph();}
+function drawGraph(){const cv=document.getElementById('gGraph');if(!cv)return;const hint=document.getElementById('gGraphHint');const dpr=devicePixelRatio||1,W=cv.clientWidth,H=96;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,W,H);if(gHist.length<2){hint.style.display='block';return;}hint.style.display='none';const vs=gHist.map(p=>p.v),mn=Math.min(...vs)-.3,mx=Math.max(...vs)+.3;const px=i=>10+i*(W-20)/(gHist.length-1),py=v=>H-12-(v-mn)*(H-24)/(mx-mn);const acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2787F5';c.beginPath();c.moveTo(px(0),py(vs[0]));for(let i=1;i<vs.length;i++)c.lineTo(px(i),py(vs[i]));c.strokeStyle=acc;c.lineWidth=2.5;c.stroke();c.lineTo(px(vs.length-1),H-4);c.lineTo(px(0),H-4);c.closePath();const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,acc+'55');gr.addColorStop(1,acc+'00');c.fillStyle=gr;c.fill();vs.forEach((v,i)=>{c.beginPath();c.arc(px(i),py(v),3.2,0,7);c.fillStyle=acc;c.fill();});}
+function renderG(){const g=loadG();let h='',all=[];for(const s in g){const a=g[s];all=all.concat(a);h+='<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+(a.reduce((x,y)=>x+y,0)/a.length).toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';}document.getElementById('gList').innerHTML=h||'<div class="item">Напиши: матан 5 4 👆</div>';const el=document.getElementById('gAvg');const nv=all.length?all.reduce((a,b)=>a+b,0)/all.length:null;if(nv!==null)animateCount(el,parseFloat(el.textContent)||0,nv);else el.textContent='—';document.getElementById('statAvg').textContent=nv!==null?nv.toFixed(2):'—';drawGraph();}
+function clearGrades(){uiConfirm('Удалить все оценки?',function(){localStorage.removeItem('g');gHist=[];localStorage.removeItem('sn_g_hist');renderG();},'🗑','Удалить');}
+const SUBJ_ALIASES=[['Физкультура',['физр','физкульт','физра']],['Физика',['физик']],['Математика',['матан','матем','алгебр','геометр']],['Информатика',['информ','инфа','инф']],['Английский язык',['англ','ин яз']],['Русский язык',['русск','рус']],['Литература',['литер','лит']],['Химия',['хим']],['Биология',['био']],['История',['истор','ист']],['Обществознание',['обществ','общ']],['География',['географ','гео']]];
+function localSubject(t){const s=t.toLowerCase();for(const[n,k]of SUBJ_ALIASES)for(const x of k)if(s.includes(x))return n;return null;}
+function extractGradesLocal(t){const s=localSubject(t);const g=(t.match(/\b[1-5]\b/g)||[]).map(Number);if(s&&g.length)return[{subject:s,grades:g}];return null;}
+async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши: матан 5 4','✍️');const b=document.getElementById('gAddBtn');b.disabled=true;let p=null;try{const r=await askGiga('Определи предметы (раскрой сокращения) и оценки (1-5) из: «'+text+'». JSON-массив БЕЗ markdown: [{"subject","grades"}]','Только JSON.',500,null,true);p=parseJSONArraySafe(r).filter(x=>x.subject&&x.grades&&x.grades.length);}catch(e){}if(!p||!p.length)p=extractGradesLocal(text);if(!p||!p.length){b.disabled=false;return uiAlert('Не нашёл оценок.','❌');}p.forEach(addGradeToStorage);document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ '+p.map(x=>escapeHtml(x.subject)+': '+x.grades.join(', ')).join('\n')+'</div>';b.disabled=false;}
+async function gradesAI(){const g=loadG();if(!Object.keys(g).length)return uiAlert('Сначала добавь оценки.','📚');let d='';for(const s in g)d+=s+': '+g[s].join(', ')+'\n';const b=document.getElementById('gBtn');b.disabled=true;showLoading('gAi');try{const r=await askGiga(d+'\nПроанализируй: сильное, слабое, 3 совета. Без markdown.','Ты — педагог.',800,null,true);document.getElementById('gAi').innerHTML='<div class="item ai">'+escapeHtml(cleanResponse(r))+'</div>';}catch(e){showError('gAi',e.message);}finally{b.disabled=false;}}
+async function buildVideo(){const topic=document.getElementById('vTopic').value.trim()||'математика';const b=document.getElementById('vBtn');b.disabled=true;showLoading('vAi');try{const[g,v]=await Promise.all([askGiga('Объясни школьнику тему «'+topic+'» в 5-8 предложениях с примером.',null,800,null,true),fetch(PROXY_BASE+'/search_video?q='+encodeURIComponent(topic)).then(r=>r.ok?r.json():null).catch(()=>null)]);let parts=[];if(v){(v.rutube||[]).slice(0,3).forEach(x=>parts.push('<a class="mini-link" target="_blank" href="'+x.url+'">📺 '+(x.title||'RuTube')+'</a>'));(v.vk||[]).slice(0,2).forEach((x,i)=>parts.push('<a class="mini-link" target="_blank" href="'+x.url+'">🎬 VK '+(i+1)+'</a>'));}if(!parts.length)parts.push('<a class="mini-link" target="_blank" href="https://rutube.ru/search/?q='+encodeURIComponent(topic)+'">📺 Поиск RuTube</a>');document.getElementById('vAi').innerHTML='<div class="item ai">🔗 Ссылки:<br>'+parts.join(' ')+'</div><div class="item ai">🎓 '+escapeHtml(cleanResponse(g))+'</div>';mathIn(document.getElementById('vAi'));}catch(e){showError('vAi',e.message);}finally{b.disabled=false;}}
+async function motivationAI(){const mt={tired:'Устал',worried:'Переживаю',lazy:'Лень',ok:'Нормально'}[document.getElementById('mMood').value];const sit=document.getElementById('mText').value.trim();const b=document.getElementById('mBtn');b.disabled=true;const q=document.getElementById('quoteBox');q.textContent='⏳';try{const r=await askGiga('Школьник чувствует: '+mt+'. '+(sit?'Ситуация: «'+sit+'». ':'')+'Поддержи 2-4 предложениями как старший друг. Без markdown.',null,600,null,true);q.textContent='';await typeWriter(q,cleanResponse(r),18);}catch(e){q.textContent='❌ '+e.message;}finally{b.disabled=false;}}
 
 let chatHistory=[];try{chatHistory=JSON.parse(localStorage.getItem('sn_chat')||'[]');}catch(e){chatHistory=[];}
 let syncInFlight=false;
 function msgKey(m){return(m.role||'')+'|'+(m.timestamp||'')+'|'+(m.content||'');}
-async function syncChatHistory(){
-  if(document.hidden||syncInFlight)return;
-  syncInFlight=true;
-  try{const r=await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL));if(!r.ok)return;const server=await r.json();if(!Array.isArray(server))return;const keys=new Set(chatHistory.map(msgKey));let ch=false;server.forEach(m=>{const k=msgKey(m);if(!keys.has(k)){chatHistory.push(m);keys.add(k);ch=true;}});if(ch){chatHistory.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));if(document.getElementById('chat').classList.contains('active'))restoreChatHistory();}}catch(e){}
-  finally{syncInFlight=false;}
-}
-function addMsg(t,c,source){const b=document.getElementById('chatBox');const d=document.createElement('div');d.className='msg '+c;if(source==='max'&&c==='user')t='📱 MAX: '+t;d.innerHTML=escapeHtml(t);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
-const SUBJ_ALIASES=[['Физкультура',['физр','физкульт','физ-ра','физра']],['Физика',['физик']],['Математика',['матан','матем','алгебр','геометр','мат-ка']],['Информатика',['информ','инфа','комп','программ','инф']],['Английский язык',['англ','инглиш','english','ин яз','ин.яз']],['Немецкий язык',['немец','герман']],['Испанский язык',['испан']],['Русский язык',['русск','рус язы','рус','русский']],['Литература',['литер','лит-ра','литре','литру','литрой','лит']],['Химия',['хим']],['Биология',['био','биолог']],['История',['истор','ист']],['Обществознание',['обществ','общ']],['География',['географ','геогр','гео']]];
-function localSubject(t){const s=t.toLowerCase();for(const[n,k]of SUBJ_ALIASES){for(const x of k)if(s.includes(x))return n;}return null;}
-function extractGradesLocal(t){const s=localSubject(t);const g=(t.match(/\b[1-5]\b/g)||[]).map(Number);if(s&&g.length)return[{subject:s,grades:g}];return null;}
-const GRADE_TRIGGERS=/оценк|получил|получила|поставили|поставил|заработал|балл|отметк|результат контрольной/i;
-async function tryParseGradesViaGiga(text){const digits=(text.match(/\b[1-5]\b/g)||[]).length;if(!digits||!GRADE_TRIGGERS.test(text))return null;try{const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы и оценки. Верни СТРОГО JSON-массив БЕЗ markdown. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500,null,true);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}return null;}
-async function sendChat(){
-  const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
-  i.value='';addMsg(t,'user','web');
-  const local=extractGradesLocal(t);
-  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📒 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
-  const loading=document.createElement('div');loading.className='skel skel-msg';
-  const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
-  document.getElementById('chatBtn').disabled=true;
-  try{
-    await syncChatHistory();
-    const resp=await askGiga(t,MATH_SYSTEM+' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX.',800);
-    const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
-    await syncChatHistory();
-    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📒 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
-  }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
-  finally{document.getElementById('chatBtn').disabled=false;}
-}
-function clearChat(){uiConfirm('Удалить общий чат?\nОн исчезнет и здесь, и в MAX.',function(){
-  chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';document.getElementById('chatSearch').value='';addMsg('Общий чат очищен. Начнём заново! 🎓','bot');
-  fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL),{method:'POST',headers:{'Content-Type':'application/json'},body:'[]'}).catch(()=>{});
-},'🗑','Удалить');}
-function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';const list=chatHistory.slice(-30);if(!list.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX 🔄','bot');}else{list.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
-async function sendPhotoChat(input){
-  const f=input.files&&input.files[0];if(!f)return;input.value='';
-  addMsg('📸 Фото задачи','user','web');
-  const loading=document.createElement('div');loading.className='skel skel-msg';
-  const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
-  const reader=new FileReader();
-  reader.onload=async function(){
-    try{
-      const r=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:reader.result,prompt:'Реши задачу на фото пошагово, объясни каждый шаг. Формулы оформляй в LaTeX: инлайн в $...$, блочные в $$...$$.',latex:true})});
-      if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+(d?' '+d:''));}
-      const d=await r.json();
-      let txt='📸 Решение'+(d.mode==='ocr'?' (через OCR)':'')+'\n';
-      if(d.ocr)txt+='🔤 '+d.ocr+'\n';
-      txt+=cleanResponse(d.solution||'');
-      loading.remove();addMsg(txt,'bot','web');
-    }catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}
-  };
-  reader.readAsDataURL(f);
-}
-async function askGiga(prompt,systemPrompt,maxTokens,history,silent=false){
-  const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),60000);
-  try{
-    const userId=silent?'system_internal':CHANNEL;
-    const r=await fetch(PROXY_BASE+'/chat?user_id='+encodeURIComponent(userId),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,system:systemPrompt||MATH_SYSTEM,max_tokens:maxTokens||800}),signal:ctrl.signal});
-    if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error('Chat failed: '+r.status+(d?' '+d:''));}
-    const j=await r.json();return j.reply;
-  }finally{clearTimeout(timer);}
-}
-function showLoading(id,m){document.getElementById(id).innerHTML='<div class="skel skel-card"></div><div class="skel skel-card" style="height:56px"></div>';}
+async function syncChatHistory(){if(document.hidden||syncInFlight)return;syncInFlight=true;try{const r=await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL));if(!r.ok)return;const s=await r.json();if(!Array.isArray(s))return;const k=new Set(chatHistory.map(msgKey));let ch=false;s.forEach(m=>{const x=msgKey(m);if(!k.has(x)){chatHistory.push(m);ch=true;}});if(ch){chatHistory.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));if(document.getElementById('chat').classList.contains('active'))restoreChatHistory();}}catch(e){}finally{syncInFlight=false;}}
+function addMsg(t,c,s){const b=document.getElementById('chatBox');const d=document.createElement('div');d.className='msg '+c;if(s==='max'&&c==='user')t='📱 MAX: '+t;d.innerHTML=escapeHtml(t);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
+async function sendChat(){const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;i.value='';addMsg(t,'user','web');const loc=extractGradesLocal(t);if(loc){loc.forEach(addGradeToStorage);addMsg('📒 В дневник: '+loc.map(p=>p.subject+' '+p.grades.join(',')).join('; '),'sys');}const l=document.createElement('div');l.className='skel skel-msg';document.getElementById('chatBox').appendChild(l);document.getElementById('chatBtn').disabled=true;try{await syncChatHistory();const r=await askGiga(t,MATH_SYSTEM+' Помни весь предыдущий разговор.',800);l.remove();addMsg(cleanResponse(r),'bot','web');await syncChatHistory();}catch(e){l.remove();addMsg(/fetch|Network/.test(e.message)?'😴 Сервер спит, попробуй через 5 сек.':'❌ '+e.message,'bot');}finally{document.getElementById('chatBtn').disabled=false;}}
+function clearChat(){uiConfirm('Удалить общий чат?',function(){chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';addMsg('Чат очищен 🎓','bot');fetch(PROXY_BASE+'/chat_history?user_id='+CHANNEL,{method:'POST',headers:{'Content-Type':'application/json'},body:'[]'}).catch(()=>{});},'🗑','Удалить');}
+function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';const l=chatHistory.slice(-30);if(!l.length)addMsg('Привет! Я GigaChat 🔄','bot');else{l.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Чат загружен','sys');}}
+async function sendPhotoChat(inp){const f=inp.files&&inp.files[0];if(!f)return;inp.value='';addMsg('📸 Фото задачи','user','web');const l=document.createElement('div');l.className='skel skel-msg';document.getElementById('chatBox').appendChild(l);const r=new FileReader();r.onload=async function(){try{const res=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:r.result,prompt:'Реши задачу по фото пошагово. Формулы в LaTeX.',latex:true})});if(!res.ok)throw new Error(res.status);const d=await res.json();l.remove();addMsg('📸 Решение:\n'+cleanResponse(d.solution||''),'bot','web');}catch(e){l.remove();addMsg('❌ Ошибка: '+e.message,'bot');}};r.readAsDataURL(f);}
+
+async function askGiga(prompt,system,max,history,silent=false){const c=new AbortController();const t=setTimeout(()=>c.abort(),60000);try{const r=await fetch(PROXY_BASE+'/chat?user_id='+encodeURIComponent(silent?'system_internal':CHANNEL),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,system:system||MATH_SYSTEM,max_tokens:max||800}),signal:c.signal});if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+' '+d);}const j=await r.json();return j.reply;}finally{clearTimeout(t);}}
+function showLoading(id){document.getElementById(id).innerHTML='<div class="skel skel-card"></div><div class="skel skel-card" style="height:56px"></div>';}
 function showError(id,m){document.getElementById(id).innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ '+m+'</div>';}
-async function ensureSpaces(text){if(!text)return'';if(text.length<15||/\s/.test(text.trim()))return text;try{const f=await askGiga('Расставь пропущенные пробелы между словами, сохрани знаки, цифры и LaTeX. Верни ТОЛЬКО текст:\n'+text,'Верни только текст.',400,null,true);return(f||text).trim();}catch(e){return text;}}
 
-function updateGreeting(){const h=new Date().getHours();let g='Доброй ночи!';if(h>=5&&h<12)g='Доброе утро!';else if(h>=12&&h<18)g='Добрый день!';else if(h>=18&&h<23)g='Добрый вечер!';const el=document.getElementById('heroGreet');if(el)el.textContent=g;}
+function updateGreeting(){const h=new Date().getHours();let g='Доброй ночи!';if(h>=5&&h<12)g='Доброе утро!';else if(h>=12&&h<18)g='Добрый день!';else if(h>=18&&h<23)g='Добрый вечер!';document.getElementById('heroGreet').textContent=g;}
 updateGreeting();setInterval(updateGreeting,60000);
-function setTab(id){const map={home:'home',chat:'chat',plan:'plan',quiz:'quiz',fipi:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more',shop:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===map[id]));}
-function go(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');setTab(id);
-  if(id==='plan'){checkWeekUpdate();planTab(loadPlan()?'view':'form');}
-  if(id==='chat')syncChatHistory().then(()=>restoreChatHistory());
-  if(id==='grades')renderG();
-  if(id==='shop')renderShop();
-  if(id==='fipi'){renderFipi();}
-  if(id==='quiz'){
-    const pe=getExamFromPlan();
-    const qe=document.getElementById('qExam');
-    if(pe&&!qe.value)qe.value=pe;
-    updateExamHint();
-  }
-  if(id==='home')updateHomeStats();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function updateHomeStats(){try{const plan=loadPlan();const w=document.getElementById('statWeeks'),d=document.getElementById('statDone');if(plan){if(w)w.textContent=plan.weeks||'—';if(d)d.textContent=(plan.done||[]).length;}else{if(w)w.textContent='—';if(d)d.textContent='0';}}catch(e){}renderToday();renderGame();}
+function setTab(id){const m={home:'home',chat:'chat',plan:'plan',quiz:'quiz',fipi:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more',shop:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===m[id]));}
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');setTab(id);if(id==='plan'){checkWeekUpdate();planTab(loadPlan()?'view':'form');}if(id==='chat')syncChatHistory().then(restoreChatHistory);if(id==='grades')renderG();if(id==='shop')renderShop();if(id==='fipi')renderFipi();if(id==='quiz'){const pe=getExamFromPlan();if(pe){const q=document.getElementById('qExam');if(q&&!q.value)q.value=pe;const v=document.getElementById('vExam');if(v)v.value=pe;updateExamHint();}}if(id==='home')updateHomeStats();scrollTo({top:0,behavior:'smooth'});}
+function updateHomeStats(){const p=loadPlan();document.getElementById('statWeeks').textContent=p?p.weeks||'—':'—';document.getElementById('statDone').textContent=p?(p.done||[]).length:0;renderToday();renderGame();}
 
-applySkin();
-updateSubjects();
-updateExamHint();
-renderFipi();
-const savedPlan=loadPlan();if(savedPlan)renderPlan(savedPlan);
+applySkin();updateSubjects();updateExamHint();fillVariantNums();renderVarHistory();renderFipi();
+const sp2=loadPlan();if(sp2)renderPlan(sp2);
 renderG();updateHomeStats();setTab('home');renderGame();renderToday();drawGraph();
-syncChatHistory().then(()=>restoreChatHistory());
-checkWeekUpdate();
-setInterval(syncChatHistory,30000);
-setTimeout(onbStart,700);
-setTimeout(autoFipi,4000);
-window.addEventListener('resize',()=>{if(document.getElementById('grades').classList.contains('active'))drawGraph();});
+syncChatHistory().then(restoreChatHistory);checkWeekUpdate();
+setInterval(syncChatHistory,30000);setTimeout(onbStart,700);setTimeout(autoFipi,4000);
+addEventListener('resize',()=>{if(document.getElementById('grades').classList.contains('active'))drawGraph();});
 </script>
 </body>
 </html>
