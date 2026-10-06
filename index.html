@@ -17,12 +17,9 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
   :root, :root[data-theme="light"] {
-    --grid-c: rgba(0,163,255,.06);
-    --bg-color: #D6E8FF;
+    --grid-c: rgba(0,163,255,.06); --bg-color: #D6E8FF;
     --bg-img: var(--skin-light, linear-gradient(160deg, #BDD8FF 0%, #D6E8FF 45%, #C9E2FF 100%));
-    --bg-size: 200% 200%;
-    --bg-anim: gradShift 18s ease infinite;
-    --shine: block;
+    --bg-size: 200% 200%; --bg-anim: gradShift 18s ease infinite; --shine: block;
     --blobA: rgba(39,135,245,.30); --blobB: rgba(0,163,255,.32);
     --card: #FFFFFF; --card-bd: transparent; --card-blur: none;
     --card-sh: 0 10px 30px rgba(0,60,140,.14);
@@ -40,15 +37,12 @@
     --em-sh: 0 6px 14px rgba(0,60,140,.20);
     --hero-bg: #FFFFFF; --hero-sh: 0 14px 34px rgba(0,60,140,.14);
     --orb-bg: linear-gradient(135deg,#5AA8FF,#2787F5); --orb-sh: 0 10px 24px rgba(39,135,245,.45);
-    --halo: rgba(39,135,245,.22);
-    --scan: none; --ring2: #00C2FF;
+    --halo: rgba(39,135,245,.22); --scan: none; --ring2: #00C2FF;
   }
   :root[data-theme="dark"] {
     --bg-color: #050D1A;
     --bg-img: var(--skin-dark, linear-gradient(var(--grid-c) 1px, transparent 1px), linear-gradient(90deg, var(--grid-c) 1px, transparent 1px));
-    --bg-size: 42px 42px;
-    --bg-anim: none;
-    --shine: none;
+    --bg-size: 42px 42px; --bg-anim: none; --shine: none;
     --card: rgba(6,14,28,.88); --card-bd: 1px solid rgba(0,194,255,.35); --card-blur: blur(14px);
     --card-sh: 0 0 26px rgba(0,194,255,.14), inset 0 0 22px rgba(0,194,255,.05);
     --ink: #F0FAFF; --muted: #9FBDD0;
@@ -65,16 +59,13 @@
     --em-sh: 0 0 16px rgba(0,194,255,.35);
     --hero-bg: rgba(6,14,28,.88); --hero-sh: 0 0 30px rgba(0,194,255,.18), inset 0 0 26px rgba(0,194,255,.06);
     --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,194,255,.95), rgba(0,119,255,.6) 45%, rgba(0,60,160,.4) 75%); --orb-sh: 0 0 30px rgba(0,194,255,.55);
-    --halo: rgba(0,194,255,.22);
-    --scan: block; --ring2: #0077FF;
+    --halo: rgba(0,194,255,.22); --scan: block; --ring2: #0077FF;
   }
   @media (prefers-color-scheme: dark) {
     :root[data-theme="auto"] {
       --bg-color: #050D1A;
       --bg-img: var(--skin-dark, linear-gradient(var(--grid-c) 1px, transparent 1px), linear-gradient(90deg, var(--grid-c) 1px, transparent 1px));
-      --bg-size: 42px 42px;
-      --bg-anim: none;
-      --shine: none;
+      --bg-size: 42px 42px; --bg-anim: none; --shine: none;
       --card: rgba(6,14,28,.88); --card-bd: 1px solid rgba(0,194,255,.35); --card-blur: blur(14px);
       --card-sh: 0 0 26px rgba(0,194,255,.14), inset 0 0 22px rgba(0,194,255,.05);
       --ink: #F0FAFF; --muted: #9FBDD0;
@@ -91,11 +82,9 @@
       --em-sh: 0 0 16px rgba(0,194,255,.35);
       --hero-bg: rgba(6,14,28,.88); --hero-sh: 0 0 30px rgba(0,194,255,.18), inset 0 0 26px rgba(0,194,255,.06);
       --orb-bg: radial-gradient(circle at 32% 28%, rgba(0,194,255,.95), rgba(0,119,255,.6) 45%, rgba(0,60,160,.4) 75%); --orb-sh: 0 0 30px rgba(0,194,255,.55);
-      --halo: rgba(0,194,255,.22);
-      --scan: block; --ring2: #0077FF;
+      --halo: rgba(0,194,255,.22); --scan: block; --ring2: #0077FF;
     }
   }
-
   :root[data-bg="sunset"]{--skin-light:linear-gradient(160deg,#FFD9B8 0%,#FFE9D6 45%,#FFD3E0 100%);--skin-dark:linear-gradient(rgba(255,140,80,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,140,80,.07) 1px,transparent 1px);--blobA:rgba(255,110,60,.30);--blobB:rgba(255,70,140,.30);}
   :root[data-bg="forest"]{--skin-light:linear-gradient(160deg,#D3F5DE 0%,#E6F7EA 45%,#D9F2E3 100%);--skin-dark:linear-gradient(rgba(60,220,130,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(60,220,130,.07) 1px,transparent 1px);--blobA:rgba(40,190,110,.30);--blobB:rgba(120,220,80,.28);}
   :root[data-bg="space"]{--skin-light:linear-gradient(160deg,#E4DCFF 0%,#EFE9FF 45%,#DCD3FF 100%);--skin-dark:linear-gradient(rgba(150,120,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(150,120,255,.08) 1px,transparent 1px);--blobA:rgba(120,90,255,.30);--blobB:rgba(200,80,255,.26);}
@@ -110,63 +99,35 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   button, a, .btn, .cloud, .dock button, .theme-pill button, .seg button, .grade-row button, .hero, .mini-link, .link-item, .qchips button, .shop-item button {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
-    outline: none;
+    -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; outline: none;
   }
-  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   :root { color-scheme: light; }
   :root[data-theme="dark"] { color-scheme: dark; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] { color-scheme: dark; } }
-  
   select { color-scheme: light dark; }
   select option { background: var(--field); color: var(--ink); padding: 8px; }
   select option:hover, select option:checked { background: var(--accent); color: #fff; }
   :root[data-theme="dark"] select option { background: #0A1626 !important; color: #F0FAFF !important; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] select option { background: #0A1626 !important; color: #F0FAFF !important; } }
   :root[data-theme="dark"] select, :root[data-theme="auto"] select { background: var(--field) !important; color: var(--ink) !important; }
-
   html { scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
-
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
   ::view-transition-old(root) { z-index: 1; }
   ::view-transition-new(root) { z-index: 2; }
-  body.theme-anim, body.theme-anim *, body.theme-anim *::before, body.theme-anim *::after {
-    transition: background-color .55s ease, color .55s ease, border-color .55s ease, box-shadow .55s ease, background .55s ease !important;
-  }
-
-  body {
-    font-family: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
-    background-color: var(--bg-color);
-    background-image: var(--bg-img);
-    background-size: var(--bg-size);
-    animation: var(--bg-anim);
-    min-height: 100vh; padding: 18px 16px 110px; color: var(--ink);
-    position: relative; overflow-x: hidden;
-  }
+  body.theme-anim, body.theme-anim *, body.theme-anim *::before, body.theme-anim *::after { transition: background-color .55s ease, color .55s ease, border-color .55s ease, box-shadow .55s ease, background .55s ease !important; }
+  body { font-family: 'Nunito', -apple-system, 'Segoe UI', sans-serif; background-color: var(--bg-color); background-image: var(--bg-img); background-size: var(--bg-size); animation: var(--bg-anim); min-height: 100vh; padding: 18px 16px 110px; color: var(--ink); position: relative; overflow-x: hidden; }
   body.paused *, body.paused *::before, body.paused *::after { animation-play-state: paused !important; }
   body::before, body::after { content: ''; position: fixed; border-radius: 50%; z-index: -1; pointer-events: none; }
   body::before { width: 420px; height: 420px; background: radial-gradient(circle, var(--blobA) 0%, transparent 70%); top: -120px; right: -100px; animation: drift 18s ease-in-out infinite; will-change: transform; }
   body::after { width: 400px; height: 400px; background: radial-gradient(circle, var(--blobB) 0%, transparent 70%); bottom: -110px; left: -100px; animation: drift 22s ease-in-out infinite reverse; will-change: transform; }
-
   .fx-scan { display: var(--scan); position: fixed; left: 0; right: 0; top: -120px; bottom: -120px; pointer-events: none; z-index: 40; background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); mix-blend-mode: overlay; animation: scanMove 9s linear infinite; will-change: transform; }
-  .fx-shine { display: var(--shine, none); position: fixed; inset: -60%; z-index: -1; pointer-events: none; will-change: transform;
-    background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(255,255,255,.55) 35deg, transparent 80deg, transparent 170deg, rgba(39,135,245,.20) 210deg, transparent 260deg);
-    animation: rotateSlow 32s linear infinite; }
-
+  .fx-shine { display: var(--shine, none); position: fixed; inset: -60%; z-index: -1; pointer-events: none; will-change: transform; background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(255,255,255,.55) 35deg, transparent 80deg, transparent 170deg, rgba(39,135,245,.20) 210deg, transparent 260deg); animation: rotateSlow 32s linear infinite; }
   .wrap { max-width: 480px; margin: 0 auto; position: relative; }
   .puff { background: var(--card); border: var(--card-bd); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); border-radius: 22px; box-shadow: var(--card-sh); padding: 18px; color: var(--ink); }
-
   .head { margin-bottom: 16px; animation: dropIn .5s cubic-bezier(.34,1.56,.64,1) both; }
   .head .hi { display: flex; align-items: center; gap: 12px; }
   .head .mascot { width: 54px; height: 54px; border-radius: 16px; background: var(--orb-bg); display: flex; align-items: center; justify-content: center; font-size: 27px; animation: bob 3.2s ease-in-out infinite, haloPulse 2.8s ease-in-out infinite; flex-shrink: 0; }
@@ -174,7 +135,6 @@
   :root[data-theme="dark"] .head h1 { text-shadow: 0 0 10px rgba(0,194,255,.55), 2px 0 rgba(0,119,255,.4), -2px 0 rgba(0,194,255,.4); animation: flick 6s linear infinite; }
   @media (prefers-color-scheme: dark) { :root[data-theme="auto"] .head h1 { text-shadow: 0 0 10px rgba(0,194,255,.55), 2px 0 rgba(0,119,255,.4), -2px 0 rgba(0,194,255,.4); animation: flick 6s linear infinite; } }
   .head .sub { font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 2px; }
-
   .btn { position: relative; display: block; width: 100%; margin-top: 12px; padding: 15px; border-radius: 999px; overflow: hidden; cursor: pointer; font-family: inherit; font-size: 16px; font-weight: 800; background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); box-shadow: var(--c1-sh); transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s; animation: btnIn .45s cubic-bezier(.34,1.56,.64,1) both; }
   .btn::before { content: ''; position: absolute; left: 10%; right: 10%; top: 2px; height: 42%; background: linear-gradient(180deg, var(--gloss), transparent); border-radius: 999px; pointer-events: none; }
   .btn::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent); transform: skewX(-20deg); transition: left .55s ease; pointer-events: none; }
@@ -188,24 +148,19 @@
   .btn.ghost { background: var(--c0-bg); color: var(--c0-c); border: var(--c0-bd); box-shadow: var(--c0-sh); }
   .btn.ghost::before { display: none; }
   .btn.danger { background: linear-gradient(180deg,#FF8A8A,#E5484D); color: #fff; border: transparent; box-shadow: 0 8px 18px rgba(229,72,77,.45); }
-
   .row2 > .btn, .row3 > .btn { margin-top: 0; }
-
   label { display: block; font-size: 13px; font-weight: 800; color: var(--muted); margin: 14px 0 6px; }
   select, input, textarea { width: 100%; padding: 13px 16px; border: var(--field-bd); border-radius: 14px; background: var(--field); color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700; min-height: 50px; transition: box-shadow .2s, transform .2s; -webkit-tap-highlight-color: transparent; }
   select:focus, input:focus, textarea:focus { outline: none; box-shadow: var(--field-focus); transform: translateY(-1px); }
   select:hover, input:hover, textarea:hover { box-shadow: 0 4px 14px rgba(0,60,140,.12); }
   .row2 { display: flex; gap: 10px; } .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; } .row3 > * { flex: 1; }
-
   .seg { display: flex; gap: 6px; background: var(--field); border: var(--field-bd); border-radius: 999px; padding: 5px; margin-bottom: 14px; animation: dropIn .4s ease both; }
   .seg button { flex: 1; border: none; border-radius: 999px; padding: 11px; font-family: inherit; font-weight: 900; font-size: 14px; background: transparent; color: var(--muted); cursor: pointer; transition: .25s; }
   .seg button:hover:not(.on) { background: var(--c0-bg); color: var(--ink); transform: translateY(-1px); }
   .seg button.on { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
-
   .page { display: none; }
   .page.active { display: block; animation: pageIn .4s cubic-bezier(.22,.61,.36,1) both; }
-
   #home { position: relative; }
   .sp { position: absolute; pointer-events: none; z-index: 2; animation: twinkle 2.8s ease-in-out infinite; font-size: 14px; }
   .sp.s1 { top: 6%; left: 4%; color: var(--accent); }
@@ -213,7 +168,6 @@
   .sp.s3 { top: 48%; left: 3%; color: var(--c4-c); animation-delay: 1.2s; }
   .sp.s4 { top: 66%; right: 4%; color: var(--c2-c); animation-delay: 1.8s; font-size: 16px; }
   .sp.s5 { top: 86%; left: 46%; color: var(--c3-c); animation-delay: 2.4s; }
-
   .gamebar { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin-bottom: 12px; animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; cursor: pointer; transition: transform .2s; }
   .gamebar:hover { transform: translateY(-2px); }
   .gb-lvl { width: 46px; height: 46px; border-radius: 50%; background: var(--c4-bg); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; box-shadow: var(--c4-sh); flex-shrink: 0; }
@@ -223,20 +177,17 @@
   .xpbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--ring2)); transition: width .6s cubic-bezier(.22,.61,.36,1); }
   .gb-badges { margin-top: 6px; font-size: 14px; letter-spacing: 2px; }
   .gb-streak { font-size: 15px; font-weight: 900; color: var(--c4-c); background: var(--c4-bg); border: var(--c4-bd); border-radius: 999px; padding: 7px 13px; box-shadow: var(--c4-sh); flex-shrink: 0; }
-
   .today-card { margin-bottom: 14px; border-left: 4px solid var(--accent); animation: heroIn .5s cubic-bezier(.34,1.56,.64,1) both; }
   .today-card .t { font-size: 12px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: .8px; }
   .today-card .s { font-size: 16px; font-weight: 900; margin: 6px 0 2px; color: var(--ink); }
   .today-card .a { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
   .today-card .row2 .btn { margin-top: 10px; }
-
   .chips { display: flex; gap: 8px; margin: 16px 0; }
   .chip-stat { flex: 1; text-align: center; padding: 12px 6px; border-radius: 18px; background: var(--card); border: var(--card-bd); box-shadow: var(--card-sh); backdrop-filter: var(--card-blur); animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both, chipBob 4s ease-in-out infinite; transition: transform .2s; }
   .chip-stat:hover { transform: translateY(-4px) scale(1.04); }
   .chip-stat:nth-child(1){animation-delay:.05s,0s}.chip-stat:nth-child(2){animation-delay:.12s,.5s}.chip-stat:nth-child(3){animation-delay:.19s,1s}
   .chip-stat .v { font-size: 21px; font-weight: 900; color: var(--accent); line-height: 1; }
   .chip-stat .l { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-top: 4px; }
-
   .hero { display: block; width: 100%; text-align: left; cursor: pointer; border: var(--card-bd); background: var(--hero-bg); backdrop-filter: var(--card-blur); border-radius: 26px; padding: 22px; margin-bottom: 16px; box-shadow: var(--hero-sh); font-family: inherit; color: var(--ink); animation: heroIn .55s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; position: relative; overflow: hidden; }
   .hero::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.22), transparent); transform: skewX(-20deg); animation: sweep 4.5s ease-in-out infinite; pointer-events: none; }
   .hero:hover { transform: translateY(-4px); }
@@ -247,7 +198,6 @@
   .hero h2 { font-size: 22px; font-weight: 900; margin-bottom: 5px; color: var(--ink); }
   .hero p { font-size: 13.5px; font-weight: 700; color: var(--muted); line-height: 1.5; }
   .hero .pill { display: inline-block; margin-top: 12px; background: var(--c1-bg); color: var(--c1-c); border: var(--c1-bd); box-shadow: var(--c1-sh); border-radius: 999px; padding: 7px 16px; font-size: 13px; font-weight: 900; }
-
   .cloud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .cloud { border: var(--card-bd); cursor: pointer; text-align: left; padding: 16px; border-radius: 22px; background: var(--card); backdrop-filter: var(--card-blur); box-shadow: var(--card-sh); font-family: inherit; color: var(--ink); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
   .cloud:hover { transform: translateY(-5px); }
@@ -256,7 +206,7 @@
   .cloud-grid .cloud:nth-child(1){animation-delay:.06s}.cloud-grid .cloud:nth-child(2){animation-delay:.12s}
   .cloud-grid .cloud:nth-child(3){animation-delay:.18s}.cloud-grid .cloud:nth-child(4){animation-delay:.24s}
   .cloud-grid .cloud:nth-child(5){animation-delay:.3s}.cloud-grid .cloud:nth-child(6){animation-delay:.36s}
-  .cloud .em { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; box-shadow: var(--em-sh); animation: emFloat 3.6s ease-in-out infinite; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Nunito', sans-serif; }
+  .cloud .em { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px; box-shadow: var(--em-sh); animation: emFloat 3.6s ease-in-out infinite; }
   .cloud:nth-child(2) .em{animation-delay:.4s}.cloud:nth-child(3) .em{animation-delay:.8s}
   .cloud:nth-child(4) .em{animation-delay:1.2s}.cloud:nth-child(5) .em{animation-delay:1.6s}.cloud:nth-child(6) .em{animation-delay:2s}
   .cloud:nth-child(1) .em { background: linear-gradient(135deg,#5AA8FF,#2787F5); }
@@ -268,29 +218,26 @@
   .cloud .t { font-size: 15.5px; font-weight: 900; color: var(--ink); transition: letter-spacing .25s; }
   .cloud:hover .t { letter-spacing: .3px; }
   .cloud .d { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
-
   .shop-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); margin-bottom: 14px; }
   .shop-xp { font-size: 18px; font-weight: 900; color: var(--accent); }
   .shop-xp span { font-size: 12px; color: var(--muted); font-weight: 700; }
   .shop-cat { margin-top: 18px; font-size: 15px; font-weight: 900; color: var(--ink); }
   .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
   .shop-item { background: var(--card); border: var(--card-bd); border-radius: 18px; box-shadow: var(--card-sh); padding: 14px; text-align: center; animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
-  .si-prev { width: 54px; height: 54px; border-radius: 14px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: var(--em-sh); overflow: hidden; color: #fff; font-weight: 900; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+  .si-prev { width: 54px; height: 54px; border-radius: 14px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: var(--em-sh); overflow: hidden; color: #fff; font-weight: 900; }
   .si-prev.mini { font-size: 15px; letter-spacing: 1px; }
   .si-name { font-size: 13px; font-weight: 900; color: var(--ink); }
   .si-price { font-size: 11px; font-weight: 800; color: var(--muted); margin: 3px 0 8px; }
   .shop-item .btn { margin-top: 0; padding: 10px; font-size: 13px; }
-
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 350; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn .2s both; }
   .modal-card { max-width: 330px; width: 100%; text-align: center; animation: popIn .35s cubic-bezier(.34,1.56,.64,1) both; }
-  .modal-emoji { font-size: 44px; animation: bob 2s ease-in-out infinite; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+  .modal-emoji { font-size: 44px; animation: bob 2s ease-in-out infinite; }
   .modal-text { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.5; margin: 10px 0 6px; white-space: pre-wrap; }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-
   .chat-search { margin-bottom: 8px; }
   .chat-search input { min-height: 42px; padding: 9px 14px; font-size: 14px; }
   .chat-box { height: 46vh; overflow-y: auto; padding: 14px; background: var(--field); border: var(--field-bd); border-radius: 22px; display: flex; flex-direction: column; gap: 8px; }
-  .msg { max-width: 85%; padding: 12px 16px; font-size: 15px; font-weight: 700; line-height: 1.5; white-space: pre-wrap; border-radius: 20px; transition: transform .2s, opacity .2s; display: block; clear: both; }
+  .msg { max-width: 85%; padding: 12px 16px; font-size: 15px; font-weight: 700; line-height: 1.5; white-space: pre-wrap; border-radius: 20px; transition: transform .2s, opacity .2s; display: block; }
   .msg:hover { transform: scale(1.02); }
   .msg.dim { opacity: .3; }
   .msg.hit { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -303,13 +250,11 @@
   .chat-input { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
   .chat-input input[type="text"] { flex: 1; margin: 0; }
   .chat-input .btn { width: 54px; margin: 0; padding: 0; height: 50px; flex-shrink: 0; }
-
   .skel { position: relative; overflow: hidden; background: var(--field); border-radius: 14px; }
   .skel::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(128,160,200,.28), transparent); animation: shimmer 1.2s infinite; }
   .skel-msg { width: 72%; height: 54px; margin: 10px auto 0 auto; border-radius: 20px; }
   .skel-card { height: 84px; margin-top: 12px; border-radius: 18px; }
   @keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
-
   .item { background: var(--card); border: var(--card-bd); backdrop-filter: var(--card-blur); border-radius: 18px; box-shadow: var(--card-sh); padding: 14px 16px; margin-top: 12px; font-size: 15px; font-weight: 700; line-height: 1.6; white-space: pre-wrap; color: var(--ink); animation: cardIn .4s ease both; }
   .item.ai { border-left: 4px solid var(--accent); }
   .sched-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 12px 14px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; transition: transform .2s; }
@@ -319,7 +264,6 @@
   .sched-row .act { font-size: 11px; color: var(--muted); font-weight: 700; text-align: right; }
   .mini-link { display: inline-block; margin: 6px 6px 0 0; font-size: 12px; font-weight: 900; color: var(--c3-c); background: var(--c3-bg); border: var(--c3-bd); border-radius: 999px; padding: 5px 12px; text-decoration: none; box-shadow: var(--c3-sh); transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
   .mini-link:hover { transform: translateY(-3px) scale(1.06); }
-
   .quiz-q { font-size: 20px; font-weight: 900; text-align: center; margin: 18px 0 8px; min-height: 48px; color: var(--ink); animation: qIn .45s cubic-bezier(.34,1.56,.64,1) both; }
   .hint { font-size: 13px; color: var(--muted); font-weight: 700; text-align: center; }
   .quiz-input { display: flex; gap: 8px; margin-top: 14px; }
@@ -328,13 +272,11 @@
   .progress-wrap { margin: 16px 0 4px; height: 14px; background: var(--field); border: var(--field-bd); border-radius: 999px; overflow: hidden; }
   .progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--ring2), var(--accent)); background-size: 200% 100%; animation: shine 2.5s linear infinite; transition: width .5s cubic-bezier(.22,.61,.36,1); }
   .score { text-align: center; font-weight: 900; font-size: 15px; margin-top: 12px; color: var(--muted); }
-
   .avg { text-align: center; font-size: 48px; font-weight: 900; margin: 6px 0; color: var(--accent); animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
   .grade-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: var(--card-bd); border-radius: 16px; box-shadow: var(--card-sh); padding: 13px 15px; margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--ink); animation: rowIn .4s ease both; transition: transform .2s; }
   .grade-row:hover { transform: translateX(4px); }
   .grade-row button { background: var(--err-bg); color: var(--ink); border: none; border-radius: 999px; padding: 7px 12px; cursor: pointer; font-weight: 900; font-family: inherit; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
   .grade-row button:hover { transform: scale(1.15) rotate(8deg); }
-
   .quote { background: var(--card); border: var(--card-bd); border-radius: 24px; box-shadow: var(--card-sh); padding: 26px 22px; font-size: 17px; font-weight: 700; line-height: 1.6; text-align: center; margin-top: 14px; min-height: 130px; display: flex; align-items: center; justify-content: center; color: var(--ink); animation: cardIn .45s ease both; }
   .quote.typing::after { content: '|'; margin-left: 2px; animation: blink .7s step-end infinite; color: var(--accent); }
   .about { font-size: 15px; line-height: 1.7; font-weight: 700; color: var(--ink); }
@@ -342,32 +284,26 @@
   .about li:hover { transform: translateX(6px); }
   .legal { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--field); font-size: 13px; text-align: center; font-weight: 800; color: var(--muted); }
   .legal a { color: var(--accent); text-decoration: none; margin: 0 6px; }
-
   .dock { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; display: flex; gap: 4px; padding: 8px; background: var(--dock-bg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 16px 40px rgba(0,40,90,.18); z-index: 90; animation: dockIn .55s cubic-bezier(.34,1.56,.64,1) both; }
   .dock button { flex: 1; border: none; background: transparent; border-radius: 999px; padding: 9px 4px; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 10px; font-weight: 800; color: var(--muted); transition: background .25s, color .25s, transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .25s; }
-  .dock button .ic { font-size: 22px; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+  .dock button .ic { font-size: 22px; }
   .dock button:hover { transform: translateY(-3px); color: var(--ink); }
   .dock button:hover .ic { animation: bob .6s ease; }
   .dock button.active { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
   .dock button.active .ic { animation: bob 2s ease-in-out infinite; }
-
   .theme-pill { position: fixed; top: 14px; right: 14px; z-index: 95; display: flex; gap: 2px; padding: 5px; background: var(--dock-bg); backdrop-filter: blur(14px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 10px 26px rgba(0,40,90,.15); }
   .theme-pill button { border: none; background: transparent; font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 999px; cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s; font-family: 'Nunito', sans-serif; color: var(--muted); }
   .theme-pill button:hover { transform: scale(1.05); background: var(--c0-bg); color: var(--ink); }
   .theme-pill button.on { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
-
   .onb { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; animation: popIn .3s both; }
   .onb-card { max-width: 340px; width: 100%; text-align: center; }
-  .onb-emoji { font-size: 46px; animation: bob 2s ease-in-out infinite; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+  .onb-emoji { font-size: 46px; animation: bob 2s ease-in-out infinite; }
   .onb-title { font-size: 19px; font-weight: 900; margin: 10px 0 6px; color: var(--ink); }
   .onb-text { font-size: 14px; font-weight: 700; color: var(--muted); line-height: 1.55; margin-bottom: 4px; }
-
   .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--card); color: var(--ink); border: var(--card-bd); box-shadow: var(--card-sh); border-radius: 999px; padding: 10px 18px; font-weight: 900; font-size: 14px; z-index: 400; animation: toastIn .35s cubic-bezier(.34,1.56,.64,1) both; white-space: nowrap; }
   .toast.out { animation: toastOut .4s ease both; }
-
   #confetti { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
   .katex-display { overflow-x: auto; padding: 4px 0; }
-
   .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
   .subject-check { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--field); border: 2px solid transparent; border-radius: 14px; cursor: pointer; transition: all .2s; user-select: none; -webkit-tap-highlight-color: transparent; }
   .subject-check:hover { background: var(--c0-bg); border-color: var(--accent); }
@@ -377,10 +313,8 @@
   .subject-check input:checked + .checkmark { background: var(--accent); border-color: var(--accent); color: #fff; }
   .subject-check label { font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; margin: 0; flex: 1; }
   .subject-check input:checked ~ label { color: var(--accent); font-weight: 900; }
-
   input[type="checkbox"] { -webkit-appearance: none; -moz-appearance: none; appearance: none; background: transparent; border: none; outline: none; }
   input[type="checkbox"]:focus, input[type="checkbox"]:checked:focus { outline: none; box-shadow: none; }
-
   .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 10px 0; }
   .day-check { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; background: var(--field); border: 2px solid transparent; border-radius: 12px; cursor: pointer; transition: all .2s; user-select: none; }
   .day-check:hover { background: var(--c0-bg); border-color: var(--accent); }
@@ -592,7 +526,7 @@
     <div class="cloud-grid">
       <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты</div></button>
-      <button class="cloud" onclick="go('grades')"><div class="em"></div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
+      <button class="cloud" onclick="go('grades')"><div class="em">📒</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
@@ -600,25 +534,25 @@
   </div>
 
   <div id="shop" class="page">
-    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Магазин скинов</h1><div class="sub">Трать XP на кастомизацию</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">🛒</div><div><h1>Магазин скинов</h1><div class="sub">Трать XP на кастомизацию</div></div></div></div>
     <div class="shop-header">
       <div class="shop-xp">💎 <span id="shopXpBalance">0</span> XP <span>доступно</span></div>
       <div class="shop-xp">🛒 <span id="shopOwnedCount">0</span> <span>куплено</span></div>
     </div>
     <div class="puff" style="margin-bottom:14px;">
-      <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика 🔥). Подсказка в тесте стоит 100 XP.</div>
+      <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика ). Подсказка в тесте стоит 100 XP.</div>
     </div>
     <div id="shopBox"></div>
   </div>
 
   <div id="chat" class="page">
-    <div class="head"><div class="hi"><div class="mascot">🤖</div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
-    <div class="chat-search"><input id="chatSearch" placeholder=" Поиск по чату..." oninput="searchChat(this.value)"></div>
+    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
+    <div class="chat-search"><input id="chatSearch" placeholder="🔍 Поиск по чату..." oninput="searchChat(this.value)"></div>
     <div class="chat-box" id="chatBox"></div>
     <div class="qchips">
       <button onclick="chipSet('Объясни тему: ')">💡 Объясни тему</button>
       <button onclick="chipSet('Придумай пример: ')">✏️ Придумай пример</button>
-      <button onclick="chipSet('Я получил оценку: ')">📚 Запиши оценку</button>
+      <button onclick="chipSet('Я получил оценку: ')">📒 Запиши оценку</button>
       <button onclick="chipSet('Поддержи меня, мне тяжело')">💪 Поддержи</button>
     </div>
     <div class="chat-input">
@@ -634,61 +568,39 @@
   <div id="plan" class="page">
     <div class="head"><div class="hi"><div class="mascot">📅</div><div><h1>Персональный план</h1><div class="sub">GigaChat составит под тебя</div></div></div></div>
     <div class="seg">
-      <button id="segForm" class="on" onclick="planTab('form')">️ Настройки</button>
-      <button id="segView" onclick="planTab('view')"> Мой план</button>
+      <button id="segForm" class="on" onclick="planTab('form')">⚙️ Настройки</button>
+      <button id="segView" onclick="planTab('view')">📋 Мой план</button>
     </div>
     <div id="planFormBox">
       <div class="puff">
         <label>🎓 Твой класс</label>
         <select id="pGrade"><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select>
-        
         <label>🎯 Что сдаёшь</label>
         <select id="pExam" onchange="updateSubjects()">
           <option value="">Не сдаю экзамен</option>
           <option value="ОГЭ">ОГЭ (9 класс)</option>
           <option value="ЕГЭ">ЕГЭ (11 класс)</option>
         </select>
-        
         <label>📚 Выбери предметы</label>
         <div class="subject-grid" id="subjectGrid"></div>
-        
         <label>🏆 Цель</label>
         <input type="text" id="pGoal" placeholder="сдать на 90+, подтянуть оценки...">
-        
         <label>⏰ Минут в день на учёбу</label>
         <input type="number" id="pMinutes" value="60" min="15" max="480" step="15">
-        
-        <label> Уровень</label>
+        <label>📊 Уровень</label>
         <select id="pLevel"><option value="начальный">Начальный</option><option value="средний" selected>Средний</option><option value="продвинутый">Продвинутый</option></select>
-        
         <label>😓 Слабые места</label>
         <textarea id="pWeak" rows="2" placeholder="необязательно"></textarea>
-        
         <label>😴 Дни отдыха (выбери 1-2 дня)</label>
         <div class="day-grid">
-          <div class="day-check" onclick="toggleDayCheck('day_mon')">
-            <input type="checkbox" id="day_mon" value="Пн"><span class="checkmark">✓</span><label for="day_mon">Пн</label>
-          </div>
-          <div class="day-check" onclick="toggleDayCheck('day_tue')">
-            <input type="checkbox" id="day_tue" value="Вт"><span class="checkmark">✓</span><label for="day_tue">Вт</label>
-          </div>
-          <div class="day-check" onclick="toggleDayCheck('day_wed')">
-            <input type="checkbox" id="day_wed" value="Ср"><span class="checkmark">✓</span><label for="day_wed">Ср</label>
-          </div>
-          <div class="day-check" onclick="toggleDayCheck('day_thu')">
-            <input type="checkbox" id="day_thu" value="Чт"><span class="checkmark">✓</span><label for="day_thu">Чт</label>
-          </div>
-          <div class="day-check" onclick="toggleDayCheck('day_fri')">
-            <input type="checkbox" id="day_fri" value="Пт"><span class="checkmark">✓</span><label for="day_fri">Пт</label>
-          </div>
-          <div class="day-check" onclick="toggleDayCheck('day_sat')">
-            <input type="checkbox" id="day_sat" value="Сб" checked><span class="checkmark">✓</span><label for="day_sat">Сб</label>
-          </div>
-          <div class="day-check" onclick="toggleDayCheck('day_sun')">
-            <input type="checkbox" id="day_sun" value="Вс" checked><span class="checkmark">✓</span><label for="day_sun">Вс</label>
-          </div>
+          <div class="day-check" onclick="toggleDayCheck('day_mon')"><input type="checkbox" id="day_mon" value="Пн"><span class="checkmark">✓</span><label for="day_mon">Пн</label></div>
+          <div class="day-check" onclick="toggleDayCheck('day_tue')"><input type="checkbox" id="day_tue" value="Вт"><span class="checkmark">✓</span><label for="day_tue">Вт</label></div>
+          <div class="day-check" onclick="toggleDayCheck('day_wed')"><input type="checkbox" id="day_wed" value="Ср"><span class="checkmark">✓</span><label for="day_wed">Ср</label></div>
+          <div class="day-check" onclick="toggleDayCheck('day_thu')"><input type="checkbox" id="day_thu" value="Чт"><span class="checkmark">✓</span><label for="day_thu">Чт</label></div>
+          <div class="day-check" onclick="toggleDayCheck('day_fri')"><input type="checkbox" id="day_fri" value="Пт"><span class="checkmark">✓</span><label for="day_fri">Пт</label></div>
+          <div class="day-check" onclick="toggleDayCheck('day_sat')"><input type="checkbox" id="day_sat" value="Сб" checked><span class="checkmark">✓</span><label for="day_sat">Сб</label></div>
+          <div class="day-check" onclick="toggleDayCheck('day_sun')"><input type="checkbox" id="day_sun" value="Вс" checked><span class="checkmark">✓</span><label for="day_sun">Вс</label></div>
         </div>
-        
         <button class="btn mint" id="planBtn" onclick="buildPlan()">✨ Составить план</button>
       </div>
     </div>
@@ -711,9 +623,9 @@
       <div class="row3">
         <div><label>🎓 Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
         <div><label>🧩 Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
-        <div><label>🎚 Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
+        <div><label> Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
       </div>
-      <button class="btn sky" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
+      <button class="btn sky" id="quizBtn" onclick="startQuiz()"> 10 заданий</button>
     </div>
     <div class="progress-wrap" id="quizProgressWrap" style="display:none;"><div class="progress-bar" id="quizProgress"></div></div>
     <div class="quiz-q" id="quizQ">Введи тему и жми кнопку 👆</div>
@@ -729,7 +641,7 @@
   </div>
 
   <div id="grades" class="page">
-    <div class="head"><div class="hi"><div class="mascot">📚</div><div><h1>Дневник</h1><div class="sub">Пиши словами — ИИ разберёт</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">📒</div><div><h1>Дневник</h1><div class="sub">Пиши словами — ИИ разберёт</div></div></div></div>
     <div class="puff" style="margin-bottom:12px;">
       <canvas id="gGraph" style="width:100%;height:96px;display:block;"></canvas>
       <div class="hint" id="gGraphHint" style="margin-top:6px;">Добавь оценки в два разных дня — появится график прогресса</div>
@@ -739,7 +651,7 @@
     <div class="puff" style="margin-top:14px;">
       <label>✍️ Предметы и оценки</label>
       <input type="text" id="gText" placeholder="матан 5 4, физра 3">
-      <button class="btn mint" id="gAddBtn" onclick="addGradeAI()"> Разобрать</button>
+      <button class="btn mint" id="gAddBtn" onclick="addGradeAI()">🤖 Разобрать</button>
       <button class="btn sky" id="gBtn" onclick="gradesAI()">🤖 Анализ</button>
       <button class="btn ghost" onclick="clearGrades()">🗑 Очистить</button>
     </div>
@@ -764,7 +676,7 @@
       <select id="mMood"><option value="tired">Устал</option><option value="worried">Переживаю</option><option value="lazy">Лень</option><option value="ok">Нормально</option></select>
       <label>✍️ Что случилось?</label>
       <textarea id="mText" rows="3" placeholder="необязательно"></textarea>
-      <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
+      <button class="btn" id="mBtn" onclick="motivationAI()"> Поддержи меня</button>
     </div>
     <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
   </div>
@@ -776,24 +688,24 @@
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
-          <li>🔐 Ключи GigaChat хранятся только на сервере</li>
-          <li>🏆 XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
+          <li> Ключи GigaChat хранятся только на сервере</li>
+          <li> XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
           <li>💬 Все диалоги и подтверждения — в стиле приложения</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 48</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 49</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
   </div>
 
   <div id="more" class="page">
-    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Ещё разделы</h1></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">⋯</div><div><h1>Ещё разделы</h1></div></div></div>
     <div class="cloud-grid">
-      <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
+      <button class="cloud" onclick="go('grades')"><div class="em">📒</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 48</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 49</div></button>
     </div>
   </div>
 
@@ -801,7 +713,7 @@
 
 <nav class="dock">
   <button data-tab="home" onclick="go('home')"><span class="ic">🏠</span>Дом</button>
-  <button data-tab="chat" onclick="go('chat')"><span class="ic">💬</span>Чат</button>
+  <button data-tab="chat" onclick="go('chat')"><span class="ic"></span>Чат</button>
   <button data-tab="plan" onclick="go('plan')"><span class="ic">📅</span>План</button>
   <button data-tab="quiz" onclick="go('quiz')"><span class="ic">✅</span>Тест</button>
   <button data-tab="more" onclick="go('more')"><span class="ic">⋯</span>Ещё</button>
@@ -817,44 +729,6 @@ const DAILY_GOAL=30;
 const HINT_COST=100;
 const PASS_PCT=0.8;
 const MATH_SYSTEM='Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
-
-// Реальные задания ОГЭ и ЕГЭ по предметам
-const EXAM_TASKS = {
-  'ОГЭ': {
-    'Математика': ['Задание 1: Вычисления и преобразования', 'Задание 2: Числовая прямая и координаты', 'Задание 3: Степени и корни', 'Задание 4: Уравнения и неравенства', 'Задание 5: Графики функций', 'Задание 6: Прогрессии', 'Задание 7: Упрощение выражений', 'Задание 8: Неравенства и системы', 'Задание 9: Геометрия (планиметрия)', 'Задание 10: Геометрия (векторы и координаты)', 'Задание 11: Геометрия (окружность)', 'Задание 12: Геометрия (площади)', 'Задание 13: Геометрия (треугольники)', 'Задание 14: Геометрия (четырёхугольники)', 'Задание 15: Геометрия (вписанные углы)', 'Задание 16: Геометрия (подобие)', 'Задание 17: Геометрия (площади фигур)', 'Задание 18: Геометрия (векторы)', 'Задание 19: Текстовые задачи', 'Задание 20: Задачи с параметром', 'Задание 21: Геометрическая задача (доказательство)', 'Задание 22: Геометрическая задача (вычисление)', 'Задание 23: Геометрическая задача (построение)', 'Задание 24: Геометрическая задача (комбинированная)', 'Задание 25: Геометрическая задача (повышенной сложности)'],
-    'Русский язык': ['Задание 1: Сжатое изложение', 'Задание 2: Синтаксический анализ', 'Задание 3: Пунктуационный анализ', 'Задание 4: Синтаксис словосочетания', 'Задание 5: Орфографический анализ', 'Задание 6: Лексический анализ', 'Задание 7: Морфемный и словообразовательный анализ', 'Задание 8: Грамматический анализ', 'Задание 9: Сочинение'],
-    'Физика': ['Задание 1: Механическое движение', 'Задание 2: Силы в природе', 'Задание 3: Закон сохранения энергии', 'Задание 4: Простые механизмы', 'Задание 5: Плотность и давление', 'Задание 6: Тепловые явления', 'Задание 7: Электрический ток', 'Задание 8: Магнитные явления', 'Задание 9: Оптика', 'Задание 10: Электромагнитные явления', 'Задание 11: Анализ физических величин', 'Задание 12: Электрические цепи', 'Задание 13: Механические явления', 'Задание 14: Тепловые явления (расчётные)', 'Задание 15: Электрические явления (расчётные)', 'Задание 16: Оптика (расчётные)', 'Задание 17: Сборка электрической цепи', 'Задание 18: Исследование зависимости', 'Задание 19: Выбор утверждений', 'Задание 20: Текстовая задача', 'Задание 21: Расчётная задача', 'Задание 22: Экспериментальное задание', 'Задание 23: Расчётная задача (повышенной сложности)', 'Задание 24: Качественная задача', 'Задание 25: Расчётная задача (высокой сложности)'],
-    'Химия': ['Задание 1: Периодический закон', 'Задание 2: Строение атома', 'Задание 3: Ряды химических элементов', 'Задание 4: Валентность и степень окисления', 'Задание 5: Классификация веществ', 'Задание 6: Химические реакции', 'Задание 7: Электролитическая диссоциация', 'Задание 8: Свойства кислот', 'Задание 9: Свойства оснований', 'Задание 10: Свойства солей', 'Задание 11: Генетическая связь', 'Задание 12: Расчётные задачи', 'Задание 13: Эксперимент', 'Задание 14: Окислительно-восстановительные реакции', 'Задание 15: Ионные уравнения', 'Задание 16: Расчёт массы вещества', 'Задание 17: Расчёт объёма газа', 'Задание 18: Расчёт массовой доли', 'Задание 19: Практическая задача', 'Задание 20: Экспериментальная задача', 'Задание 21: Расчётная задача', 'Задание 22: Свойства веществ', 'Задание 23: Генетическая связь (развёрнутая)', 'Задание 24: Расчётная задача (повышенной сложности)'],
-    'Биология': ['Задание 1: Признаки живых организмов', 'Задание 2: Клетка', 'Задание 3: Ткани растений', 'Задание 4: Органы растений', 'Задание 5: Системы органов животных', 'Задание 6: Нервная система', 'Задание 7: Эндокринная система', 'Задание 8: Опорно-двигательная система', 'Задание 9: Внутренняя среда организма', 'Задание 10: Транспорт веществ', 'Задание 11: Дыхание', 'Задание 12: Пищеварение', 'Задание 13: Обмен веществ', 'Задание 14: Выделение', 'Задание 15: Органы чувств', 'Задание 16: Психология и поведение', 'Задание 17: Первая помощь', 'Задание 18: Здоровый образ жизни', 'Задание 19: Экология', 'Задание 20: Эволюция', 'Задание 21: Многообразие организмов', 'Задание 22: Биосфера', 'Задание 23: Эксперимент', 'Задание 24: Множественный выбор', 'Задание 25: Включение терминов', 'Задание 26: Соответствие', 'Задание 27: Последовательность', 'Задание 28: Таблица', 'Задание 29: Текст с заданиями', 'Задание 30: Статистика', 'Задание 31: Расчёт калорий', 'Задание 32: Биологическая задача'],
-    'История': ['Задание 1: Исторические даты', 'Задание 2: Исторические личности', 'Задание 3: Термины и понятия', 'Задание 4: Соответствие', 'Задание 5: Причинно-следственные связи', 'Задание 6: Работа с картой', 'Задание 7: Работа с изображением', 'Задание 8: Работа с текстом', 'Задание 9: Анализ текста', 'Задание 10: Точки зрения историков', 'Задание 11: Аргументация', 'Задание 12: Историческое сочинение'],
-    'Обществознание': ['Задание 1: Понятия и термины', 'Задание 2: Функции институтов', 'Задание 3: Соответствие', 'Задание 4: Истинные/ложные суждения', 'Задание 5: Множественный выбор', 'Задание 6: Текст с заданиями', 'Задание 7: План ответа', 'Задание 8: Примеры и факты', 'Задание 9: Аргументация', 'Задание 10: Смысловое чтение', 'Задание 11: Социальные ценности', 'Задание 12: Правовые нормы', 'Задание 13: Экономические понятия', 'Задание 14: Политические институты', 'Задание 15: Социальные отношения', 'Задание 16: Духовная культура', 'Задание 17: Конституция РФ', 'Задание 18: Права и свободы', 'Задание 19: Гражданские обязанности', 'Задание 20: Органы власти', 'Задание 21: Судебная система', 'Задание 22: Международное право', 'Задание 23: Задача', 'Задание 24: Сложное задание', 'Задание 25: Развёрнутый ответ'],
-    'География': ['Задание 1: Работа с картой', 'Задание 2: Географические объекты', 'Задание 3: Климат', 'Задание 4: Природные зоны', 'Задание 5: Население', 'Задание 6: Хозяйство', 'Задание 7: Регионы России', 'Задание 8: Страны мира', 'Задание 9: Экология', 'Задание 10: Географические процессы', 'Задание 11: Анализ данных', 'Задание 12: Практическая задача', 'Задание 13: Работа с графиком', 'Задание 14: Работа с таблицей', 'Задание 15: Соответствие', 'Задание 16: Множественный выбор', 'Задание 17: Текст с заданиями', 'Задание 18: Развёрнутый ответ', 'Задание 19: Географическая задача', 'Задание 20: Анализ ситуации', 'Задание 21: Прогноз', 'Задание 22: Исследование', 'Задание 23: Проект', 'Задание 24: Комплексное задание', 'Задание 25: Творческое задание', 'Задание 26: Практикум', 'Задание 27: Экспедиция', 'Задание 28: Наблюдение', 'Задание 29: Эксперимент', 'Задание 30: Итоговое задание'],
-    'Литература': ['Задание 1: Анализ текста', 'Задание 2: Тема и идея', 'Задание 3: Герои и характеры', 'Задание 4: Композиция', 'Задание 5: Язык и стиль', 'Задание 6: Жанр и род', 'Задание 7: Исторический контекст', 'Задание 8: Авторская позиция', 'Задание 9: Сравнительный анализ', 'Задание 10: Сочинение'],
-    'Информатика': ['Задание 1: Информация и её кодирование', 'Задание 2: Измерение информации', 'Задание 3: Файловая система', 'Задание 4: Электронные таблицы', 'Задание 5: Графики и диаграммы', 'Задание 6: Алгоритмы для исполнителей', 'Задание 7: Кодирование информации', 'Задание 8: Линейный алгоритм', 'Задание 9: Алгоритм с ветвлением', 'Задание 10: Алгоритм с циклом', 'Задание 11: Поиск в базе данных', 'Задание 12: Обработка числовой информации', 'Задание 13: Компьютерные сети', 'Задание 14: Поиск информации', 'Задание 15: Моделирование', 'Задание 16: Программирование'],
-    'Английский язык': ['Задание 1: Аудирование', 'Задание 2: Чтение', 'Задание 3: Грамматика', 'Задание 4: Лексика', 'Задание 5: Письмо'],
-    'Немецкий язык': ['Задание 1: Аудирование', 'Задание 2: Чтение', 'Задание 3: Грамматика', 'Задание 4: Лексика', 'Задание 5: Письмо'],
-    'Французский язык': ['Задание 1: Аудирование', 'Задание 2: Чтение', 'Задание 3: Грамматика', 'Задание 4: Лексика', 'Задание 5: Письмо'],
-    'Физкультура': ['Задание 1: Правила безопасности', 'Задание 2: Физические качества', 'Задание 3: Техника упражнений', 'Задание 4: История спорта', 'Задание 5: Олимпийские игры']
-  },
-  'ЕГЭ': {
-    'Математика (база)': ['Задание 1: Вычисления', 'Задание 2: Дроби и проценты', 'Задание 3: Округление', 'Задание 4: Степени', 'Задание 5: Уравнения', 'Задание 6: Задачи на движение', 'Задание 7: Задачи на работу', 'Задание 8: Задачи на смеси', 'Задание 9: Геометрия (планиметрия)', 'Задание 10: Геометрия (стереометрия)', 'Задание 11: Графики', 'Задание 12: Практическая задача', 'Задание 13: Текстовая задача', 'Задание 14: Задача повышенной сложности', 'Задание 15: Задача с параметром', 'Задание 16: Геометрическая задача', 'Задание 17: Экономическая задача', 'Задание 18: Задача на теорию чисел', 'Задание 19: Задача на логику', 'Задание 20: Комбинаторная задача', 'Задание 21: Исследовательская задача'],
-    'Математика (профиль)': ['Задание 1: Простейшее уравнение', 'Задание 2: Теория вероятностей', 'Задание 3: Стереометрия', 'Задание 4: Планиметрия', 'Задание 5: Вычисления', 'Задание 6: Задача с практическим содержанием', 'Задание 7: Исследование функции', 'Задание 8: Задача на оптимизацию', 'Задание 9: Текстовая задача', 'Задание 10: График функции', 'Задание 11: Задача на прогрессии', 'Задание 12: Неравенство', 'Задание 13: Уравнение (тригонометрическое)', 'Задание 14: Стереометрия (доказательство)', 'Задание 15: Неравенство (повышенной сложности)', 'Задание 16: Планиметрия (доказательство)', 'Задание 17: Экономическая задача', 'Задание 18: Задача с параметром', 'Задание 19: Теория чисел'],
-    'Русский язык': ['Задание 1: Смысловая целостность текста', 'Задание 2: Средства связи предложений', 'Задание 3: Лексическое значение слова', 'Задание 4: Орфоэпия', 'Задание 5: Лексические нормы', 'Задание 6: Морфемный анализ', 'Задание 7: Морфологические нормы', 'Задание 8: Синтаксические нормы', 'Задание 9: Орфография', 'Задание 10: Орфография (приставки)', 'Задание 11: Орфография (суффиксы)', 'Задание 12: Орфография (окончания)', 'Задание 13: Слитное/раздельное написание', 'Задание 14: Слитное/раздельное написание НЕ', 'Задание 15: Пунктуация', 'Задание 16: Пунктуация (однородные члены)', 'Задание 17: Пунктуация (обособленные члены)', 'Задание 18: Пунктуация (вводные слова)', 'Задание 19: Пунктуация (сложное предложение)', 'Задание 20: Смысловая и композиционная целостность', 'Задание 21: Информационная обработка текста', 'Задание 22: Языковые средства выразительности', 'Задание 23: Функционально-смысловые типы речи', 'Задание 24: Лексические средства выразительности', 'Задание 25: Связь предложений в тексте', 'Задание 26: Сочинение'],
-    'Физика': ['Задание 1: Кинематика', 'Задание 2: Динамика', 'Задание 3: Законы сохранения', 'Задание 4: Механические колебания', 'Задание 5: Механические волны', 'Задание 6: Термодинамика', 'Задание 7: Молекулярная физика', 'Задание 8: Электростатика', 'Задание 9: Постоянный ток', 'Задание 10: Магнитное поле', 'Задание 11: Электромагнитная индукция', 'Задание 12: Электромагнитные колебания', 'Задание 13: Оптика', 'Задание 14: Квантовая физика', 'Задание 15: Атомная физика', 'Задание 16: Ядерная физика', 'Задание 17: Астрофизика', 'Задание 18: Соответствие физических величин', 'Задание 19: Изменение физических величин', 'Задание 20: Выбор утверждений', 'Задание 21: Анализ графика', 'Задание 22: Обработка результатов измерений', 'Задание 23: Выбор оборудования', 'Задание 24: Анализ астрономической информации', 'Задание 25: Качественная задача', 'Задание 26: Расчётная задача', 'Задание 27: Расчётная задача', 'Задание 28: Расчётная задача', 'Задание 29: Расчётная задача', 'Задание 30: Расчётная задача', 'Задание 31: Расчётная задача', 'Задание 32: Расчётная задача'],
-    'Химия': ['Задание 1: Периодический закон', 'Задание 2: Строение атома', 'Задание 3: Ряды химических элементов', 'Задание 4: Валентность', 'Задание 5: Классификация веществ', 'Задание 6: Химические реакции', 'Задание 7: Электролитическая диссоциация', 'Задание 8: Свойства кислот', 'Задание 9: Свойства оснований', 'Задание 10: Свойства солей', 'Задание 11: Генетическая связь', 'Задание 12: Расчётные задачи', 'Задание 13: Эксперимент', 'Задание 14: ОВР', 'Задание 15: Ионные уравнения', 'Задание 16: Расчёт массы', 'Задание 17: Расчёт объёма', 'Задание 18: Массовая доля', 'Задание 19: Практическая задача', 'Задание 20: Экспериментальная задача', 'Задание 21: Расчётная задача', 'Задание 22: Свойства веществ', 'Задание 23: Генетическая связь', 'Задание 24: Расчётная задача', 'Задание 25: Качественная задача', 'Задание 26: Эксперимент', 'Задание 27: Расчётная задача', 'Задание 28: Расчётная задача', 'Задание 29: Расчётная задача', 'Задание 30: Расчётная задача', 'Задание 31: Расчётная задача', 'Задание 32: Расчётная задача', 'Задание 33: Расчётная задача', 'Задание 34: Расчётная задача'],
-    'Биология': ['Задание 1: Методы биологии', 'Задание 2: Клетка', 'Задание 3: Ткани', 'Задание 4: Органы', 'Задание 5: Системы органов', 'Задание 6: Нервная система', 'Задание 7: Эндокринная система', 'Задание 8: Опорно-двигательная', 'Задание 9: Внутренняя среда', 'Задание 10: Транспорт веществ', 'Задание 11: Дыхание', 'Задание 12: Пищеварение', 'Задание 13: Обмен веществ', 'Задание 14: Выделение', 'Задание 15: Органы чувств', 'Задание 16: Психология', 'Задание 17: Первая помощь', 'Задание 18: ЗОЖ', 'Задание 19: Экология', 'Задание 20: Эволюция', 'Задание 21: Многообразие', 'Задание 22: Биосфера', 'Задание 23: Эксперимент', 'Задание 24: Множественный выбор', 'Задание 25: Включение терминов', 'Задание 26: Соответствие', 'Задание 27: Последовательность', 'Задание 28: Таблица', 'Задание 29: Текст', 'Задание 30: Статистика', 'Задание 31: Расчёт калорий', 'Задание 32: Биологическая задача'],
-    'История': ['Задание 1: Исторические даты', 'Задание 2: Исторические личности', 'Задание 3: Термины', 'Задание 4: Соответствие', 'Задание 5: Причинно-следственные связи', 'Задание 6: Работа с картой', 'Задание 7: Работа с изображением', 'Задание 8: Работа с текстом', 'Задание 9: Анализ текста', 'Задание 10: Точки зрения', 'Задание 11: Аргументация', 'Задание 12: Историческое сочинение', 'Задание 13: Хронология', 'Задание 14: Исторические факты', 'Задание 15: Исторические процессы', 'Задание 16: Исторические явления', 'Задание 17: Исторические события', 'Задание 18: Исторические личности (развёрнуто)', 'Задание 19: Исторические документы', 'Задание 20: Исторический анализ', 'Задание 21: Историческая интерпретация', 'Задание 22: Историческое мышление', 'Задание 23: Историческое исследование', 'Задание 24: Исторический проект', 'Задание 25: Историческое эссе'],
-    'Обществознание': ['Задание 1: Понятия', 'Задание 2: Функции институтов', 'Задание 3: Соответствие', 'Задание 4: Истинные/ложные суждения', 'Задание 5: Множественный выбор', 'Задание 6: Текст', 'Задание 7: План ответа', 'Задание 8: Примеры', 'Задание 9: Аргументация', 'Задание 10: Смысловое чтение', 'Задание 11: Социальные ценности', 'Задание 12: Правовые нормы', 'Задание 13: Экономика', 'Задание 14: Политика', 'Задание 15: Социальные отношения', 'Задание 16: Духовная культура', 'Задание 17: Конституция', 'Задание 18: Права и свободы', 'Задание 19: Обязанности', 'Задание 20: Органы власти', 'Задание 21: Судебная система', 'Задание 22: Международное право', 'Задание 23: Задача', 'Задание 24: Сложное задание', 'Задание 25: Развёрнутый ответ'],
-    'География': ['Задание 1: Работа с картой', 'Задание 2: Географические объекты', 'Задание 3: Климат', 'Задание 4: Природные зоны', 'Задание 5: Население', 'Задание 6: Хозяйство', 'Задание 7: Регионы России', 'Задание 8: Страны мира', 'Задание 9: Экология', 'Задание 10: Географические процессы', 'Задание 11: Анализ данных', 'Задание 12: Практическая задача', 'Задание 13: Работа с графиком', 'Задание 14: Работа с таблицей', 'Задание 15: Соответствие', 'Задание 16: Множественный выбор', 'Задание 17: Текст', 'Задание 18: Развёрнутый ответ', 'Задание 19: Географическая задача', 'Задание 20: Анализ ситуации', 'Задание 21: Прогноз', 'Задание 22: Исследование', 'Задание 23: Проект', 'Задание 24: Комплексное задание', 'Задание 25: Творческое задание', 'Задание 26: Практикум', 'Задание 27: Экспедиция', 'Задание 28: Наблюдение', 'Задание 29: Эксперимент', 'Задание 30: Итоговое задание', 'Задание 31: Комплексная работа', 'Задание 32: Проектная работа', 'Задание 33: Исследовательская работа', 'Задание 34: Итоговый проект'],
-    'Литература': ['Задание 1: Анализ текста', 'Задание 2: Тема и идея', 'Задание 3: Герои', 'Задание 4: Композиция', 'Задание 5: Язык и стиль', 'Задание 6: Жанр и род', 'Задание 7: Исторический контекст', 'Задание 8: Авторская позиция', 'Задание 9: Сравнительный анализ', 'Задание 10: Сочинение', 'Задание 11: Анализ стихотворения', 'Задание 12: Анализ прозы', 'Задание 13: Анализ драмы', 'Задание 14: Литературные направления', 'Задание 15: Литературные течения', 'Задание 16: Литературные школы', 'Задание 17: Литературные группы', 'Задание 18: Литературные объединения', 'Задание 19: Литературные журналы', 'Задание 20: Литературная критика', 'Задание 21: Литературоведение', 'Задание 22: Теория литературы', 'Задание 23: История литературы', 'Задание 24: Сравнительное литературоведение', 'Задание 25: Сочинение (развёрнутое)'],
-    'Информатика': ['Задание 1: Системы счисления', 'Задание 2: Логика', 'Задание 3: Формальные описания', 'Задание 4: Файловая система', 'Задание 5: Кодирование информации', 'Задание 6: Электронные таблицы', 'Задание 7: Графики и диаграммы', 'Задание 8: Алгоритмы', 'Задание 9: Программирование', 'Задание 10: Поиск информации', 'Задание 11: Измерение информации', 'Задание 12: Линейный алгоритм', 'Задание 13: Ветвление', 'Задание 14: Циклы', 'Задание 15: Массивы', 'Задание 16: Строки', 'Задание 17: Рекурсия', 'Задание 18: Динамическое программирование', 'Задание 19: Обработка числовой информации', 'Задание 20: Теория игр', 'Задание 21: Программный код', 'Задание 22: Скорость передачи', 'Задание 23: Комбинаторика', 'Задание 24: Алгоритмы обработки', 'Задание 25: Поиск делителей', 'Задание 26: Сортировка', 'Задание 27: Обработка данных'],
-    'Английский язык': ['Задание 1: Аудирование', 'Задание 2: Чтение', 'Задание 3: Грамматика', 'Задание 4: Лексика', 'Задание 5: Письмо', 'Задание 6: Устная часть', 'Задание 7: Монолог', 'Задание 8: Диалог', 'Задание 9: Описание', 'Задание 10: Рассуждение', 'Задание 11: Повествование', 'Задание 12: Характеристика', 'Задание 13: Сравнение', 'Задание 14: Объяснение', 'Задание 15: Аргументация'],
-    'Немецкий язык': ['Задание 1: Аудирование', 'Задание 2: Чтение', 'Задание 3: Грамматика', 'Задание 4: Лексика', 'Задание 5: Письмо', 'Задание 6: Устная часть'],
-    'Французский язык': ['Задание 1: Аудирование', 'Задание 2: Чтение', 'Задание 3: Грамматика', 'Задание 4: Лексика', 'Задание 5: Письмо', 'Задание 6: Устная часть'],
-    'Китайский язык': ['Задание 1: Аудирование', 'Задание 2: Чтение', 'Задание 3: Грамматика', 'Задание 4: Лексика', 'Задание 5: Письмо', 'Задание 6: Устная часть'],
-    'Испанский язык': ['Задание 1: Аудирование', 'Задание 2: Чтение', 'Задание 3: Грамматика', 'Задание 4: Лексика', 'Задание 5: Письмо', 'Задание 6: Устная часть']
-  }
-};
 
 function todayIdx(){return (new Date().getDay()+6)%7;}
 function mondayOf(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;}
@@ -1001,11 +875,11 @@ function animateCount(el,from,to,dur=700){const st=performance.now();const up=no
 
 const BADGES=[
   ['step','🎬','Первый XP'],
-  ['goal1','','Первая норма дня'],
+  ['goal1','📅','Первая норма дня'],
   ['quiz10','🎯','Снайпер: 10 верных'],
-  ['plan','️','Стратег: план составлен'],
+  ['plan','🗺️','Стратег: план составлен'],
   ['done','🎓','Тема закрыта'],
-  ['done5','📚','Эрудит: 5 тем'],
+  ['done5','📒','Эрудит: 5 тем'],
   ['streak3','🔥','3 дня подряд'],
   ['streak7','⚡','Неделя огня'],
 ];
@@ -1058,16 +932,16 @@ const SHOP=[
   {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
   {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
   {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
-  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠💬📅✅',price:0,val:'default'},
+  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'💬📅✅',price:0,val:'default'},
   {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🦁',price:40,val:'zoo'},
   {id:'ic_space',cat:'icons',name:'Космос',prev:'🚀🎯',price:40,val:'space'},
   {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🌭',price:40,val:'food'},
-  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'🏀🏈',price:50,val:'sport'},
+  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀',price:50,val:'sport'},
   {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎤',price:50,val:'music'},
   {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
   {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
   {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:'🐉'},
-  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
+  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'',price:50,val:'👾'},
   {id:'ms_cat',cat:'mascot',name:'Кот',prev:'🐱',price:60,val:'🐱'},
   {id:'ms_panda',cat:'mascot',name:'Панда',prev:'🐼',price:60,val:'🐼'},
   {id:'ac_default',cat:'acc',name:'Синий',css:'#2787F5',price:0,val:'default'},
@@ -1079,10 +953,10 @@ const SHOP=[
 ];
 const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:'🎨 Акцентный цвет'};
 const ICON_SETS={
-  default:['🏠','','📅','✅','⋯'],
-  zoo:['🐻','🐯','','🐼','🐨'],
+  default:['','💬','📅','✅',''],
+  zoo:['🐻','','','🐼','🐨'],
   space:['🌍','','🛸','','⭐'],
-  food:['🍔','🌭','','🍩',''],
+  food:['🍔','','','🍩',''],
   sport:['⚽','','','',''],
   music:['','','🎤','🎹','']
 };
@@ -1219,12 +1093,11 @@ function renderPlan(data){
     const ti=todayIdx();
     data.schedule.forEach((s,i)=>{sch+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
     const td=data.schedule[ti];
-    if(td&&!isRestDay(td)){sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
+    if(td&&!isRestDay(td)){sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
     else if(td){sch+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
-
     const wt=data.schedule.filter(s=>!isRestDay(s));
     if(wt.length){
-      top+='<div class="item ai">🎯 Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
+      top+='<div class="item ai"> Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
       wt.forEach(s=>{const key=topicKey(s);if(!key)return;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
         top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
         if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
@@ -1255,17 +1128,9 @@ function collectPlanData(){
   return {grade,exam,subjects,goal,minutes,level,weak,restDays};
 }
 
-// Получает список заданий для предмета и экзамена
-function getExamTasks(exam, subject) {
-  if (EXAM_TASKS[exam] && EXAM_TASKS[exam][subject]) {
-    return EXAM_TASKS[exam][subject];
-  }
-  return null;
-}
-
 async function buildPlan(){
   const data=collectPlanData();
-  if(!data.subjects.length) return uiAlert('Выбери хотя бы один предмет!','📚');
+  if(!data.subjects.length) return uiAlert('Выбери хотя бы один предмет!','');
   const btn=document.getElementById('planBtn'); btn.disabled=true;
   planTab('view'); planView('sched');
   showLoading('planSched','GigaChat продумывает план...');
@@ -1274,17 +1139,7 @@ async function buildPlan(){
     const restDaysStr=data.restDays.length?data.restDays.join(', '):'нет';
     const subjectsStr=data.subjects.join(', ');
     const studyDays=7-data.restDays.length;
-
-    // Формируем список заданий для каждого предмета
-    let tasksInfo = '';
-    if (data.exam && EXAM_TASKS[data.exam]) {
-      data.subjects.forEach(subj => {
-        const tasks = getExamTasks(data.exam, subj);
-        if (tasks) {
-          tasksInfo += `\n${subj}: ${tasks.slice(0, 5).join(', ')}... (всего ${tasks.length} заданий)`;
-        }
-      });
-    }
+    const minPerSubject=Math.round(data.minutes/data.subjects.length);
 
     const prompt=`Ученик ${data.grade} класса. Сдаёт: ${data.exam||'не сдаёт экзамен'}. До экзамена ${ei.weeks} недель.
 Предметы: ${subjectsStr}.
@@ -1294,21 +1149,19 @@ async function buildPlan(){
 Время на учёбу в день: ${data.minutes} минут.
 Дни отдыха: ${restDaysStr}.
 
-ВАЖНЫЕ ПРАВИЛА:
+ПРАВИЛА:
 1. РОВНО 1 предмет в каждый учебный день
 2. Всё время (${data.minutes} минут) идёт на этот ОДИН предмет
 3. В activity пиши: "${data.minutes} мин · [конкретное задание]"
 4. Чередуй предметы по дням
-5. ИСПОЛЬЗУЙ РЕАЛЬНЫЕ НОМЕРА ЗАДАНИЙ ${data.exam||'ОГЭ/ЕГЭ'}
-
-${tasksInfo ? 'СПИСОК ЗАДАНИЙ ДЛЯ ПЛАНА:' + tasksInfo : ''}
+5. Укажи КОНКРЕТНУЮ тему для каждого предмета
 
 Составь расписание РОВНО на 7 дней (Пн-Вс).
-В topic указывай конкретное задание с номером, например: "Задание 1: Вычисления и преобразования" или "Разбор задания №5 ЕГЭ".
 
-Верни СТРОГО JSON БЕЗ markdown-обёртки: {"schedule":[{"day":"Пн","subject":"Математика","topic":"Задание 1: Вычисления и преобразования","activity":"${data.minutes} мин · разбор задания №1"},{"day":"Вт","subject":"Русский язык","topic":"Задание 2: Синтаксический анализ","activity":"${data.minutes} мин · разбор задания №2"},...],"summary":"2-3 предложения общих советов"}`;
+Верни СТРОГО JSON БЕЗ markdown-обёртки: {"schedule":[{"day":"Пн","subject":"Математика","topic":"Квадратные уравнения","activity":"${data.minutes} мин · решение задач"},...],"summary":"2-3 предложения общих советов"}`;
 
-    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к '+data.exam+'. Используй РЕАЛЬНЫЕ номера заданий из структуры экзамена. Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки.',3000);
+    // ИСПРАВЛЕНИЕ 1: silent=true — запрос не попадает в чат
+    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки.',3000, null, true);
     
     let plan=parseJSONObjectSafe(resp);
     if (!plan || !plan.schedule) {
@@ -1352,34 +1205,25 @@ async function checkWeekUpdate(){
     const subjectsStr=p.subjects?p.subjects.join(', '):'Математика';
     const studyDays=7-(p.restDays?p.restDays.length:2);
 
-    let tasksInfo = '';
-    if (p.exam && EXAM_TASKS[p.exam]) {
-      p.subjects.forEach(subj => {
-        const tasks = getExamTasks(p.exam, subj);
-        if (tasks) {
-          tasksInfo += `\n${subj}: ${tasks.slice(0, 5).join(', ')}...`;
-        }
-      });
-    }
-
     const prompt=`Новая неделя. Ученик ${p.grade} кл., сдаёт ${p.exam||'не сдаёт'} (${ei.weeks} нед.).
 Предметы: ${subjectsStr}.
+Время в день: ${p.minutes} минут.
+Дни отдыха: ${restDaysStr}.
 Уровень: ${p.level}.
 Слабые: ${p.weak||'нет'}.
 НЕПРОЙДЕННЫЕ темы (ОБЯЗАТЕЛЬНО включи): ${uncompletedStr}.
-Время в день: ${p.minutes} минут.
-Дни отдыха: ${restDaysStr}.
 
 ПРАВИЛА:
 1. РОВНО 1 предмет в день
 2. Всё время (${p.minutes} мин) на один предмет
-3. Используй РЕАЛЬНЫЕ номера заданий ${p.exam}
-${tasksInfo ? 'ЗАДАНИЯ:' + tasksInfo : ''}
+3. В activity: "${p.minutes} мин · [действие]"
+4. Чередуй предметы по дням
 
-Составь расписание на 7 дней. В topic указывай конкретное задание с номером.
+Составь расписание РОВНО на 7 дней (Пн-Вс).
 
-Верни JSON БЕЗ markdown: {"schedule":[...7 элементов]}';
-    const resp=await askGiga(prompt,'Верни ТОЛЬКО JSON, БЕЗ markdown. Используй реальные номера заданий.',2500);
+Верни JSON БЕЗ markdown: {"schedule":[...7 элементов]}`;
+    // ИСПРАВЛЕНИЕ 1: silent=true
+    const resp=await askGiga(prompt,'Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки.',2500, null, true);
     const data=parseJSONObjectSafe(resp);
     if(data&&data.schedule&&data.schedule.length>=7){
       plan.schedule=data.schedule;
@@ -1438,8 +1282,8 @@ async function buyHint(){
   const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}
   if(!spendXP(HINT_COST))return;qHintUsed=true;
   const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');
-  const h=document.getElementById('quizHint');h.innerHTML=' Думаю над подсказкой...';
-  try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML=' Подсказка недоступна: '+e.message;}
+  const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';
+  try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML=' '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}
 }
 async function startQuiz(pending,count){
   const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему заданий, например: дроби.','✏️');
@@ -1461,7 +1305,7 @@ async function nextQuestion(){
   document.getElementById('quizQ').textContent='⏳ Ещё 10 заданий...';
   document.getElementById('quizAnswerBox').style.display='none';document.getElementById('buyHintBtn').style.display='none';
   try{const arr=await fetchBatch(qLastTopic||'математика',diff,10,grade,type);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}
-  catch(e){document.getElementById('quizQ').textContent=' Ошибка: '+e.message;}
+  catch(e){document.getElementById('quizQ').textContent='❌ Ошибка: '+e.message;}
   finally{btn.disabled=false;updateNextLabel();}
 }
 function finishBatch(){
@@ -1473,7 +1317,7 @@ function finishBatch(){
       if(!p.done)p.done=[];
       if(!p.done.some(d=>d.topic===key)){const si=(p.schedule||[]).find(s=>topicKey(s)===key);p.done.push({date:new Date().toLocaleDateString('ru-RU'),subject:(si&&si.subject)||key,topic:key,score:qBatchScore+'/'+qBatchTotal});}
       p.selectedTopic=null;savePlan(p);renderPlan(p);updateHomeStats();
-      extra+='<div class="item ai">🎓 ТЕМА ПРОЙДЕНА (80%+)! +30 XP — это и есть дневная норма для стрика </div>';
+      extra+='<div class="item ai">🎓 ТЕМА ПРОЙДЕНА (80%+)! +30 XP — это и есть дневная норма для стрика 🔥</div>';
       addXP(30,'тема пройдена');
       const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
     }else{
@@ -1539,11 +1383,15 @@ function clearGrades(){uiConfirm('Удалить все оценки и исто
 },'🗑','Удалить');}
 
 async function addGradeAI(){
-  const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши так: матан 5 4, физра 3','✍️');
+  const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши так: матан 5 4, физра 3','️');
   const btn=document.getElementById('gAddBtn');btn.disabled=true;
   document.getElementById('gAi').innerHTML='<div class="skel skel-card"></div>';
   let parsed=null;
-  try{const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (ОБЯЗАТЕЛЬНО раскрой сленг и сокращения: матан->Математика, физра->Физкультура, ин яз->Английский язык и т.д.) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив БЕЗ markdown-обёртки: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив, БЕЗ markdown.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}
+  try{
+    // ИСПРАВЛЕНИЕ 1: silent=true
+    const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (ОБЯЗАТЕЛЬНО раскрой сленг и сокращения: матан->Математика, физра->Физкультура, ин яз->Английский язык и т.д.) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив БЕЗ markdown-обёртки: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив, БЕЗ markdown.',500, null, true);
+    const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);
+  }catch(e){}
   if(!parsed||!parsed.length)parsed=extractGradesLocal(text);
   if(!parsed||!parsed.length){document.getElementById('gAi').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">Не нашёл оценок. Напиши: матан 5 4, физра 3</div>';btn.disabled=false;return;}
   parsed.forEach(p=>addGradeToStorage(p));
@@ -1552,11 +1400,14 @@ async function addGradeAI(){
   mathIn(document.getElementById('gAi'));btn.disabled=false;
 }
 async function gradesAI(){
-  const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','📚');
+  const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','');
   let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}
   const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');
-  try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.');const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}
-  catch(e){showError('gAi','Ошибка: '+e.message);}
+  try{
+    // ИСПРАВЛЕНИЕ 1: silent=true
+    const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.',800, null, true);
+    const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);
+  }catch(e){showError('gAi','Ошибка: '+e.message);}
   finally{btn.disabled=false;}
 }
 
@@ -1565,15 +1416,16 @@ async function buildVideo(){
   const btn=document.getElementById('vBtn');btn.disabled=true;
   showLoading('vAi','Ищу видео и готовлю объяснение...');
   try{
+    // ИСПРАВЛЕНИЕ 1: silent=true
     const [gigaResp, videoResp] = await Promise.all([
-      askGiga('Кратко (5-8 предложений) подробно объясни школьнику тему «'+topic+'»: дай определение, пример и мини-вывод. Формулы пиши простым текстом или в LaTeX ($...$).'),
+      askGiga('Кратко (5-8 предложений) подробно объясни школьнику тему «'+topic+'»: дай определение, пример и мини-вывод. Формулы пиши простым текстом или в LaTeX ($...$).', null, 800, null, true),
       fetch(PROXY_BASE+'/search_video?q='+encodeURIComponent(topic)).then(r=>r.ok?r.json():null).catch(()=>null)
     ]);
     let vhtml = '<div class="item ai" style="margin-bottom:12px;">🔗 <b>Полезные ссылки:</b><br>';
     let parts = [];
     if(videoResp){
       (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">📺 '+(v.title||('RuTube '+(idx+1)))+'</a>'));
-      (videoResp.vk||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'"> VK '+(idx+1)+'</a>'));
+      (videoResp.vk||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">🎬 VK '+(idx+1)+'</a>'));
       (videoResp.youtube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">▶️ YouTube '+(idx+1)+'</a>'));
     }
     if(!parts.length){
@@ -1598,7 +1450,9 @@ async function motivationAI(){
   try{
     let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';
     else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';
-    const r=await askGiga(prompt);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);
+    // ИСПРАВЛЕНИЕ 1: silent=true
+    const r=await askGiga(prompt, null, 800, null, true);
+    box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);
   }catch(e){box.textContent='❌ Ошибка: '+e.message;}
   finally{btn.disabled=false;}
 }
@@ -1629,22 +1483,33 @@ function localSubject(t){const s=t.toLowerCase();for(const[n,k]of SUBJ_ALIASES){
 function extractGradesLocal(t){const s=localSubject(t);const g=(t.match(/\b[1-5]\b/g)||[]).map(Number);if(s&&g.length)return[{subject:s,grades:g}];return null;}
 const GRADE_TRIGGERS=/оценк|получил|получила|поставили|поставил|заработал|балл|отметк|результат контрольной/i;
 
-async function tryParseGradesViaGiga(text){const digits=(text.match(/\b[1-5]\b/g)||[]).length;if(!digits||!GRADE_TRIGGERS.test(text))return null;try{const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы (раскрой сокращения: матан->Математика, физра->Физкультура и т.д.) и оценки. Верни СТРОГО JSON-массив БЕЗ markdown: [{"subject":"...","grades":[...]}]. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500);const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);}catch(e){}return null;}
+async function tryParseGradesViaGiga(text){
+  const digits=(text.match(/\b[1-5]\b/g)||[]).length;
+  if(!digits||!GRADE_TRIGGERS.test(text))return null;
+  try{
+    // ИСПРАВЛЕНИЕ 1: silent=true
+    const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы (раскрой сокращения: матан->Математика, физра->Физкультура и т.д.) и оценки. Верни СТРОГО JSON-массив БЕЗ markdown: [{"subject":"...","grades":[...]}]. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500, null, true);
+    const arr=parseJSONArraySafe(r);
+    if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);
+  }catch(e){}
+  return null;
+}
 
 async function sendChat(){
   const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
   i.value='';addMsg(t,'user','web');
   const local=extractGradesLocal(t);
-  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
+  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📒 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
   const loading=document.createElement('div');loading.className='skel skel-msg';
   const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
   document.getElementById('chatBtn').disabled=true;
   try{
     await syncChatHistory();
+    // Обычный чат — БЕЗ silent, чтобы сохранялся в историю
     const resp=await askGiga(t,MATH_SYSTEM+' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про оценки — порадуйся или поддержи.',800);
     const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
     await syncChatHistory();
-    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
+    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📒 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
   }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
   finally{document.getElementById('chatBtn').disabled=false;}
 }
@@ -1669,22 +1534,25 @@ async function sendPhotoChat(input){
       if(d.ocr)txt+='🔤 '+d.ocr+'\n';
       txt+=cleanResponse(d.solution||'');
       loading.remove();addMsg(txt,'bot','web');
-    }catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}
+    }catch(e){loading.remove();addMsg(' Ошибка распознавания: '+e.message,'bot');}
   };
   reader.readAsDataURL(f);
 }
 
-async function askGiga(prompt,systemPrompt,maxTokens,history){
+// ИСПРАВЛЕНИЕ 1: askGiga с параметром silent
+async function askGiga(prompt, systemPrompt, maxTokens, history, silent=false){
   const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),60000);
   try{
-    const r=await fetch(PROXY_BASE+'/chat?user_id='+encodeURIComponent(CHANNEL),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,system:systemPrompt||MATH_SYSTEM,max_tokens:maxTokens||800}),signal:ctrl.signal});
+    // Если silent=true, используем отдельный user_id 'system' чтобы не попадать в чат
+    const userId = silent ? 'system_internal' : CHANNEL;
+    const r=await fetch(PROXY_BASE+'/chat?user_id='+encodeURIComponent(userId),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,system:systemPrompt||MATH_SYSTEM,max_tokens:maxTokens||800}),signal:ctrl.signal});
     if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error('Chat failed: '+r.status+(d?' '+d:''));}
     const j=await r.json();return j.reply;
   }finally{clearTimeout(timer);}
 }
 function showLoading(id,m){document.getElementById(id).innerHTML='<div class="skel skel-card"></div><div class="skel skel-card" style="height:56px"></div>';}
 function showError(id,m){document.getElementById(id).innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ '+m+'</div>';}
-async function ensureSpaces(text){if(!text)return '';if(text.length<15||/\s/.test(text.trim()))return text;try{const f=await askGiga('Расставь пропущенные пробелы между словами, сохрани знаки, цифры и LaTeX. Верни ТОЛЬКО текст:\n'+text,'Верни только текст.',400);return (f||text).trim();}catch(e){return text;}}
+async function ensureSpaces(text){if(!text)return '';if(text.length<15||/\s/.test(text.trim()))return text;try{const f=await askGiga('Расставь пропущенные пробелы между словами, сохрани знаки, цифры и LaTeX. Верни ТОЛЬКО текст:\n'+text,'Верни только текст.',400, null, true);return (f||text).trim();}catch(e){return text;}}
 
 function updateGreeting(){const h=new Date().getHours();let g='Доброй ночи!';if(h>=5&&h<12)g='Доброе утро!';else if(h>=12&&h<18)g='Добрый день!';else if(h>=18&&h<23)g='Добрый вечер!';const el=document.getElementById('heroGreet');if(el)el.textContent=g;}
 updateGreeting();setInterval(updateGreeting,60000);
