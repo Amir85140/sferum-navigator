@@ -148,6 +148,7 @@
   .btn.ghost { background: var(--c0-bg); color: var(--c0-c); border: var(--c0-bd); box-shadow: var(--c0-sh); }
   .btn.ghost::before { display: none; }
   .btn.danger { background: linear-gradient(180deg,#FF8A8A,#E5484D); color: #fff; border: transparent; box-shadow: 0 8px 18px rgba(229,72,77,.45); }
+  .btn.warn { background: linear-gradient(180deg,#FFB347,#FF8C00); color: #fff; border: transparent; box-shadow: 0 8px 18px rgba(255,140,0,.45); }
   .row2 > .btn, .row3 > .btn { margin-top: 0; }
   label { display: block; font-size: 13px; font-weight: 800; color: var(--muted); margin: 14px 0 6px; }
   select, input, textarea { width: 100%; padding: 13px 16px; border: var(--field-bd); border-radius: 14px; background: var(--field); color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700; min-height: 50px; transition: box-shadow .2s, transform .2s; -webkit-tap-highlight-color: transparent; }
@@ -324,6 +325,17 @@
   .day-check input:checked + .checkmark { background: var(--accent); border-color: var(--accent); color: #fff; }
   .day-check label { font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer; margin: 0; text-align: center; }
   .day-check input:checked ~ label { color: var(--accent); font-weight: 900; }
+  
+  /* Стили для чекбокса выполнения задания */
+  .task-check { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--field); border: 2px solid var(--field-bd); border-radius: 12px; margin-top: 8px; cursor: pointer; transition: all .2s; }
+  .task-check:hover { border-color: var(--accent); }
+  .task-check.done { background: var(--ok-bg); border-color: #4CD97B; opacity: .7; }
+  .task-check.done .task-text { text-decoration: line-through; color: var(--muted); }
+  .task-check input[type="checkbox"] { display: none; }
+  .task-check .task-checkmark { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; font-size: 14px; color: transparent; font-weight: 900; }
+  .task-check input:checked + .task-checkmark { background: #4CD97B; border-color: #4CD97B; color: #fff; }
+  .task-check .task-text { flex: 1; font-size: 13px; font-weight: 700; color: var(--ink); }
+  .task-check .task-time { font-size: 11px; color: var(--muted); font-weight: 800; }
 
   @keyframes toastIn { from{opacity:0;transform:translate(-50%,20px) scale(.8)} to{opacity:1;transform:translate(-50%,0) scale(1)} }
   @keyframes toastOut { to{opacity:0;transform:translate(-50%,-10px) scale(.9)} }
@@ -524,7 +536,7 @@
     </button>
 
     <div class="cloud-grid">
-      <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
+      <button class="cloud" onclick="go('plan')"><div class="em"></div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты</div></button>
       <button class="cloud" onclick="go('grades')"><div class="em">📒</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
@@ -540,20 +552,20 @@
       <div class="shop-xp">🛒 <span id="shopOwnedCount">0</span> <span>куплено</span></div>
     </div>
     <div class="puff" style="margin-bottom:14px;">
-      <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика ). Подсказка в тесте стоит 100 XP.</div>
+      <div style="font-size:14px;font-weight:800;color:var(--muted);line-height:1.55;">💎 XP даётся <b style="color:var(--ink);">только за проход темы</b>: тест по теме недели на <b style="color:var(--ink);">80–100%</b> = <b style="color:var(--ink);">+30 XP</b> (это и есть дневная норма для стрика 🔥). Подсказка в тесте стоит 100 XP.</div>
     </div>
     <div id="shopBox"></div>
   </div>
 
   <div id="chat" class="page">
-    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">🤖</div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
     <div class="chat-search"><input id="chatSearch" placeholder="🔍 Поиск по чату..." oninput="searchChat(this.value)"></div>
     <div class="chat-box" id="chatBox"></div>
     <div class="qchips">
       <button onclick="chipSet('Объясни тему: ')">💡 Объясни тему</button>
       <button onclick="chipSet('Придумай пример: ')">✏️ Придумай пример</button>
       <button onclick="chipSet('Я получил оценку: ')">📒 Запиши оценку</button>
-      <button onclick="chipSet('Поддержи меня, мне тяжело')">💪 Поддержи</button>
+      <button onclick="chipSet('Поддержи меня, мне тяжело')"> Поддержи</button>
     </div>
     <div class="chat-input">
       <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()" title="Очистить общий чат">⋯</button>
@@ -623,20 +635,20 @@
       <div class="row3">
         <div><label>🎓 Класс</label><select id="qGrade"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected>9</option><option>10</option><option>11</option></select></div>
         <div><label>🧩 Тип</label><select id="qType"><option value="примеры">Примеры</option><option value="задачи">Задачи</option><option value="смешанные" selected>Микс</option></select></div>
-        <div><label> Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
+        <div><label>🎚 Слож.</label><select id="qDiff"><option value="лёгкая">Лёгк.</option><option value="средняя" selected>Сред.</option><option value="сложная">Слож.</option></select></div>
       </div>
-      <button class="btn sky" id="quizBtn" onclick="startQuiz()"> 10 заданий</button>
+      <button class="btn sky" id="quizBtn" onclick="startQuiz()">🎲 10 заданий</button>
     </div>
     <div class="progress-wrap" id="quizProgressWrap" style="display:none;"><div class="progress-bar" id="quizProgress"></div></div>
     <div class="quiz-q" id="quizQ">Введи тему и жми кнопку 👆</div>
     <div class="hint" id="quizHint"></div>
-    <button class="btn ghost" id="buyHintBtn" style="display:none;" onclick="buyHint()">💡 Купить подсказку (−100 XP)</button>
+    <button class="btn ghost" id="buyHintBtn" style="display:none;" onclick="buyHint()"> Купить подсказку (−100 XP)</button>
     <div class="quiz-input" id="quizAnswerBox" style="display:none;">
       <input id="quizAnswer" placeholder="Твой ответ..." onkeydown="if(event.key==='Enter')checkAnswer()">
       <button class="btn mint" onclick="checkAnswer()">✔</button>
     </div>
     <div id="quizResult"></div>
-    <button class="btn ghost" id="nextBtn" style="display:none;" onclick="nextQuestion()">➡️ Дальше</button>
+    <button class="btn ghost" id="nextBtn" style="display:none;" onclick="nextQuestion()">️ Дальше</button>
     <div class="score" id="score">Счёт: 0 / 0</div>
   </div>
 
@@ -653,7 +665,7 @@
       <input type="text" id="gText" placeholder="матан 5 4, физра 3">
       <button class="btn mint" id="gAddBtn" onclick="addGradeAI()">🤖 Разобрать</button>
       <button class="btn sky" id="gBtn" onclick="gradesAI()">🤖 Анализ</button>
-      <button class="btn ghost" onclick="clearGrades()">🗑 Очистить</button>
+      <button class="btn ghost" onclick="clearGrades()"> Очистить</button>
     </div>
     <div id="gAi"></div>
   </div>
@@ -663,7 +675,7 @@
     <div class="puff">
       <label>Тема</label>
       <input type="text" id="vTopic" placeholder="фотосинтез 6 класс">
-      <button class="btn sun" id="vBtn" onclick="buildVideo()">🤖 Объяснить и найти</button>
+      <button class="btn sun" id="vBtn" onclick="buildVideo()"> Объяснить и найти</button>
     </div>
     <div id="vAi"></div>
     <div id="videoResult"></div>
@@ -676,7 +688,7 @@
       <select id="mMood"><option value="tired">Устал</option><option value="worried">Переживаю</option><option value="lazy">Лень</option><option value="ok">Нормально</option></select>
       <label>✍️ Что случилось?</label>
       <textarea id="mText" rows="3" placeholder="необязательно"></textarea>
-      <button class="btn" id="mBtn" onclick="motivationAI()"> Поддержи меня</button>
+      <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
     </div>
     <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
   </div>
@@ -688,11 +700,11 @@
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
-          <li> Ключи GigaChat хранятся только на сервере</li>
+          <li>🔐 Ключи GigaChat хранятся только на сервере</li>
           <li> XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
           <li>💬 Все диалоги и подтверждения — в стиле приложения</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 49</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 50</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -705,7 +717,7 @@
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 49</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 50</div></button>
     </div>
   </div>
 
@@ -729,6 +741,645 @@ const DAILY_GOAL=30;
 const HINT_COST=100;
 const PASS_PCT=0.8;
 const MATH_SYSTEM='Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown (**, #, `). Математические формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
+
+// Реальные задания ОГЭ и ЕГЭ с оценкой времени (в минутах)
+const EXAM_TASKS = {
+  'ОГЭ': {
+    'Математика': [
+      {num:1, name:'Вычисления и преобразования', time:15},
+      {num:2, name:'Числовая прямая и координаты', time:15},
+      {num:3, name:'Степени и корни', time:20},
+      {num:4, name:'Уравнения и неравенства', time:25},
+      {num:5, name:'Графики функций', time:25},
+      {num:6, name:'Прогрессии', time:20},
+      {num:7, name:'Упрощение выражений', time:20},
+      {num:8, name:'Неравенства и системы', time:25},
+      {num:9, name:'Геометрия (планиметрия)', time:30},
+      {num:10, name:'Геометрия (векторы)', time:30},
+      {num:11, name:'Геометрия (окружность)', time:35},
+      {num:12, name:'Геометрия (площади)', time:35},
+      {num:13, name:'Геометрия (треугольники)', time:35},
+      {num:14, name:'Геометрия (четырёхугольники)', time:40},
+      {num:15, name:'Геометрия (вписанные углы)', time:40},
+      {num:16, name:'Геометрия (подобие)', time:45},
+      {num:17, name:'Геометрия (площади фигур)', time:45},
+      {num:18, name:'Геометрия (векторы)', time:40},
+      {num:19, name:'Текстовые задачи', time:30},
+      {num:20, name:'Задачи с параметром', time:60},
+      {num:21, name:'Геометрическая задача (доказательство)', time:45},
+      {num:22, name:'Геометрическая задача (вычисление)', time:45},
+      {num:23, name:'Геометрическая задача (построение)', time:50},
+      {num:24, name:'Геометрическая задача (комбинированная)', time:60},
+      {num:25, name:'Геометрическая задача (повышенной сложности)', time:90}
+    ],
+    'Русский язык': [
+      {num:1, name:'Сжатое изложение', time:60},
+      {num:2, name:'Синтаксический анализ', time:20},
+      {num:3, name:'Пунктуационный анализ', time:20},
+      {num:4, name:'Синтаксис словосочетания', time:20},
+      {num:5, name:'Орфографический анализ', time:20},
+      {num:6, name:'Лексический анализ', time:20},
+      {num:7, name:'Морфемный и словообразовательный анализ', time:25},
+      {num:8, name:'Грамматический анализ', time:25},
+      {num:9, name:'Сочинение', time:90}
+    ],
+    'Физика': [
+      {num:1, name:'Механическое движение', time:20},
+      {num:2, name:'Силы в природе', time:25},
+      {num:3, name:'Закон сохранения энергии', time:30},
+      {num:4, name:'Простые механизмы', time:25},
+      {num:5, name:'Плотность и давление', time:25},
+      {num:6, name:'Тепловые явления', time:30},
+      {num:7, name:'Электрический ток', time:30},
+      {num:8, name:'Магнитные явления', time:30},
+      {num:9, name:'Оптика', time:35},
+      {num:10, name:'Электромагнитные явления', time:35},
+      {num:11, name:'Анализ физических величин', time:20},
+      {num:12, name:'Электрические цепи', time:40},
+      {num:13, name:'Механические явления', time:35},
+      {num:14, name:'Тепловые явления (расчётные)', time:45},
+      {num:15, name:'Электрические явления (расчётные)', time:45},
+      {num:16, name:'Оптика (расчётные)', time:40},
+      {num:17, name:'Сборка электрической цепи', time:30},
+      {num:18, name:'Исследование зависимости', time:40},
+      {num:19, name:'Выбор утверждений', time:20},
+      {num:20, name:'Текстовая задача', time:30},
+      {num:21, name:'Расчётная задача', time:45},
+      {num:22, name:'Экспериментальное задание', time:50},
+      {num:23, name:'Расчётная задача (повышенной сложности)', time:60},
+      {num:24, name:'Качественная задача', time:40},
+      {num:25, name:'Расчётная задача (высокой сложности)', time:90}
+    ],
+    'Химия': [
+      {num:1, name:'Периодический закон', time:20},
+      {num:2, name:'Строение атома', time:25},
+      {num:3, name:'Ряды химических элементов', time:20},
+      {num:4, name:'Валентность и степень окисления', time:25},
+      {num:5, name:'Классификация веществ', time:20},
+      {num:6, name:'Химические реакции', time:30},
+      {num:7, name:'Электролитическая диссоциация', time:30},
+      {num:8, name:'Свойства кислот', time:25},
+      {num:9, name:'Свойства оснований', time:25},
+      {num:10, name:'Свойства солей', time:30},
+      {num:11, name:'Генетическая связь', time:35},
+      {num:12, name:'Расчётные задачи', time:45},
+      {num:13, name:'Эксперимент', time:40},
+      {num:14, name:'ОВР', time:40},
+      {num:15, name:'Ионные уравнения', time:35},
+      {num:16, name:'Расчёт массы вещества', time:45},
+      {num:17, name:'Расчёт объёма газа', time:45},
+      {num:18, name:'Расчёт массовой доли', time:40},
+      {num:19, name:'Практическая задача', time:50},
+      {num:20, name:'Экспериментальная задача', time:60},
+      {num:21, name:'Расчётная задача', time:60},
+      {num:22, name:'Свойства веществ', time:35},
+      {num:23, name:'Генетическая связь (развёрнутая)', time:50},
+      {num:24, name:'Расчётная задача (повышенной сложности)', time:90}
+    ],
+    'Биология': [
+      {num:1, name:'Признаки живых организмов', time:20},
+      {num:2, name:'Клетка', time:25},
+      {num:3, name:'Ткани растений', time:25},
+      {num:4, name:'Органы растений', time:30},
+      {num:5, name:'Системы органов животных', time:30},
+      {num:6, name:'Нервная система', time:30},
+      {num:7, name:'Эндокринная система', time:25},
+      {num:8, name:'Опорно-двигательная система', time:30},
+      {num:9, name:'Внутренняя среда организма', time:30},
+      {num:10, name:'Транспорт веществ', time:30},
+      {num:11, name:'Дыхание', time:25},
+      {num:12, name:'Пищеварение', time:30},
+      {num:13, name:'Обмен веществ', time:35},
+      {num:14, name:'Выделение', time:25},
+      {num:15, name:'Органы чувств', time:30},
+      {num:16, name:'Психология и поведение', time:30},
+      {num:17, name:'Первая помощь', time:25},
+      {num:18, name:'Здоровый образ жизни', time:20},
+      {num:19, name:'Экология', time:30},
+      {num:20, name:'Эволюция', time:35},
+      {num:21, name:'Многообразие организмов', time:30},
+      {num:22, name:'Биосфера', time:30},
+      {num:23, name:'Эксперимент', time:40},
+      {num:24, name:'Множественный выбор', time:25},
+      {num:25, name:'Включение терминов', time:25},
+      {num:26, name:'Соответствие', time:30},
+      {num:27, name:'Последовательность', time:25},
+      {num:28, name:'Таблица', time:30},
+      {num:29, name:'Текст с заданиями', time:35},
+      {num:30, name:'Статистика', time:30},
+      {num:31, name:'Расчёт калорий', time:35},
+      {num:32, name:'Биологическая задача', time:60}
+    ],
+    'История': [
+      {num:1, name:'Исторические даты', time:15},
+      {num:2, name:'Исторические личности', time:20},
+      {num:3, name:'Термины и понятия', time:20},
+      {num:4, name:'Соответствие', time:25},
+      {num:5,': name:'Причинно-следственные связи', time:30},
+      {num:6, name:'Работа с картой', time:30},
+      {num:7, name:'Работа с изображением', time:25},
+      {num:8, name:'Работа с текстом', time:30},
+      {num:9, name:'Анализ текста', time:35},
+      {num:10, name:'Точки зрения историков', time:30},
+      {num:11, name:'Аргументация', time:40},
+      {num:12, name:'Историческое сочинение', time:60}
+    ],
+    'Обществознание': [
+      {num:1, name:'Понятия и термины', time:20},
+      {num:2, name:'Функции институтов', time:25},
+      {num:3, name:'Соответствие', time:25},
+      {num:4, name:'Истинные/ложные суждения', time:20},
+      {num:5, name:'Множественный выбор', time:25},
+      {num:6, name:'Текст с заданиями', time:35},
+      {num:7, name:'План ответа', time:30},
+      {num:8, name:'Примеры и факты', time:25},
+      {num:9, name:'Аргументация', time:40},
+      {num:10, name:'Смысловое чтение', time:30},
+      {num:11, name:'Социальные ценности', time:25},
+      {num:12, name:'Правовые нормы', time:30},
+      {num:13, name:'Экономические понятия', time:30},
+      {num:14, name:'Политические институты', time:30},
+      {num:15, name:'Социальные отношения', time:25},
+      {num:16, name:'Духовная культура', time:25},
+      {num:17, name:'Конституция РФ', time:30},
+      {num:18, name:'Права и свободы', time:30},
+      {num:19, name:'Гражданские обязанности', time:25},
+      {num:20, name:'Органы власти', time:30},
+      {num:21, name:'Судебная система', time:30},
+      {num:22, name:'Международное право', time:30},
+      {num:23, name:'Задача', time:40},
+      {num:24, name:'Сложное задание', time:50},
+      {num:25, name:'Развёрнутый ответ', time:60}
+    ],
+    'География': [
+      {num:1, name:'Работа с картой', time:25},
+      {num:2, name:'Географические объекты', time:20},
+      {num:3, name:'Климат', time:25},
+      {num:4, name:'Природные зоны', time:25},
+      {num:5, name:'Население', time:25},
+      {num:6, name:'Хозяйство', time:30},
+      {num:7, name:'Регионы России', time:30},
+      {num:8, name:'Страны мира', time:25},
+      {num:9, name:'Экология', time:25},
+      {num:10, name:'Географические процессы', time:30},
+      {num:11, name:'Анализ данных', time:25},
+      {num:12, name:'Практическая задача', time:35},
+      {num:13, name:'Работа с графиком', time:25},
+      {num:14, name:'Работа с таблицей', time:25},
+      {num:15, name:'Соответствие', time:25},
+      {num:16, name:'Множественный выбор', time:25},
+      {num:17, name:'Текст с заданиями', time:30},
+      {num:18, name:'Развёрнутый ответ', time:40},
+      {num:19, name:'Географическая задача', time:45},
+      {num:20, name:'Анализ ситуации', time:40},
+      {num:21, name:'Прогноз', time:35},
+      {num:22, name:'Исследование', time:45},
+      {num:23, name:'Проект', time:50},
+      {num:24, name:'Комплексное задание', time:60},
+      {num:25, name:'Творческое задание', time:50},
+      {num:26, name:'Практикум', time:45},
+      {num:27, name:'Экспедиция', time:40},
+      {num:28, name:'Наблюдение', time:35},
+      {num:29, name:'Эксперимент', time:45},
+      {num:30, name:'Итоговое задание', time:60}
+    ],
+    'Литература': [
+      {num:1, name:'Анализ текста', time:30},
+      {num:2, name:'Тема и идея', time:30},
+      {num:3, name:'Герои и характеры', time:35},
+      {num:4, name:'Композиция', time:30},
+      {num:5, name:'Язык и стиль', time:35},
+      {num:6, name:'Жанр и род', time:25},
+      {num:7, name:'Исторический контекст', time:30},
+      {num:8, name:'Авторская позиция', time:35},
+      {num:9, name:'Сравнительный анализ', time:45},
+      {num:10, name:'Сочинение', time:90}
+    ],
+    'Информатика': [
+      {num:1, name:'Системы счисления', time:20},
+      {num:2, name:'Логика', time:25},
+      {num:3, name:'Формальные описания', time:25},
+      {num:4, name:'Файловая система', time:20},
+      {num:5, name:'Кодирование информации', time:25},
+      {num:6, name:'Электронные таблицы', time:30},
+      {num:7, name:'Графики и диаграммы', time:25},
+      {num:8, name:'Алгоритмы', time:30},
+      {num:9, name:'Программирование', time:40},
+      {num:10, name:'Поиск информации', time:20},
+      {num:11, name:'Измерение информации', time:25},
+      {num:12, name:'Линейный алгоритм', time:25},
+      {num:13, name:'Ветвление', time:30},
+      {num:14, name:'Циклы', time:35},
+      {num:15, name:'Массивы', time:40},
+      {num:16, name:'Строки', time:35},
+      {num:17, name:'Рекурсия', time:45},
+      {num:18, name:'Динамическое программирование', time:60},
+      {num:19, name:'Обработка числовой информации', time:35},
+      {num:20, name:'Теория игр', time:50}
+    ],
+    'Английский язык': [
+      {num:1, name:'Аудирование', time:30},
+      {num:2, name:'Чтение', time:30},
+      {num:3, name:'Грамматика', time:25},
+      {num:4, name:'Лексика', time:25},
+      {num:5, name:'Письмо', time:40}
+    ],
+    'Немецкий язык': [
+      {num:1, name:'Аудирование', time:30},
+      {num:2, name:'Чтение', time:30},
+      {num:3, name:'Грамматика', time:25},
+      {num:4, name:'Лексика', time:25},
+      {num:5, name:'Письмо', time:40}
+    ],
+    'Французский язык': [
+      {num:1, name:'Аудирование', time:30},
+      {num:2, name:'Чтение', time:30},
+      {num:3, name:'Грамматика', time:25},
+      {num:4, name:'Лексика', time:25},
+      {num:5, name:'Письмо', time:40}
+    ],
+    'Физкультура': [
+      {num:1, name:'Правила безопасности', time:15},
+      {num:2, name:'Физические качества', time:20},
+      {num:3, name:'Техника упражнений', time:25},
+      {num:4, name:'История спорта', time:20},
+      {num:5, name:'Олимпийские игры', time:25}
+    ]
+  },
+  'ЕГЭ': {
+    'Математика (база)': [
+      {num:1, name:'Простейшее уравнение', time:15},
+      {num:2, name:'Теория вероятностей', time:20},
+      {num:3, name:'Стереометрия', time:30},
+      {num:4, name:'Планиметрия', time:30},
+      {num:5, name:'Вычисления', time:15},
+      {num:6, name:'Задача с практическим содержанием', time:25},
+      {num:7, name:'Исследование функции', time:30},
+      {num:8, name:'Задача на оптимизацию', time:35},
+      {num:9, name:'Текстовая задача', time:30},
+      {num:10, name:'График функции', time:25},
+      {num:11, name:'Задача на прогрессии', time:30},
+      {num:12, name:'Неравенство', time:35},
+      {num:13, name:'Уравнение (тригонометрическое)', time:40},
+      {num:14, name:'Стереометрия (доказательство)', time:45},
+      {num:15, name:'Неравенство (повышенной сложности)', time:50},
+      {num:16, name:'Планиметрия (доказательство)', time:45},
+      {num:17, name:'Экономическая задача', time:60},
+      {num:18, name:'Задача с параметром', time:90},
+      {num:19, name:'Теорема чисел', time:60},
+      {num:20, name:'Комбинаторная задача', time:50},
+      {num:21, name:'Исследовательская задача', time:90}
+    ],
+    'Математика (профиль)': [
+      {num:1, name:'Простейшее уравнение', time:15},
+      {num:2, name:'Теория вероятностей', time:20},
+      {num:3, name:'Стереометрия', time:30},
+      {num:4, name:'Планиметрия', time:30},
+      {num:5, name:'Вычисления', time:15},
+      {num:6, name:'Задача с практическим содержанием', time:25},
+      {num:7, name:'Исследование функции', time:30},
+      {num:8, name:'Задача на оптимизацию', time:35},
+      {num:9, name:'Текстовая задача', time:30},
+      {num:10, name:'График функции', time:25},
+      {num:11, name:'Задача на прогрессии', time:30},
+      {num:12, name:'Неравенство', time:35},
+      {num:13, name:'Уравнение (тригонометрическое)', time:40},
+      {num:14, name:'Стереометрия (доказательство)', time:45},
+      {num:15, name:'Неравенство (повышенной сложности)', time:50},
+      {num:16, name:'Планиметрия (доказательство)', time:45},
+      {num:17, name:'Экономическая задача', time:60},
+      {num:18, name:'Задача с параметром', time:90},
+      {num:19, name:'Теория чисел', time:60}
+    ],
+    'Русский язык': [
+      {num:1, name:'Смысловая целостность текста', time:20},
+      {num:2, name:'Средства связи предложений', time:20},
+      {num:3, name:'Лексическое значение слова', time:20},
+      {num:4, name:'Орфоэпия', time:15},
+      {num:5, name:'Лексические нормы', time:20},
+      {num:6, name:'Морфемный анализ', time:20},
+      {num:7, name:'Морфологические нормы', time:20},
+      {num:8, name:'Синтаксические нормы', time:25},
+      {num:9, name:'Орфография', time:25},
+      {num:10, name:'Орфография (приставки)', time:25},
+      {num:11, name:'Орфография (суффиксы)', time:25},
+      {num:12, name:'Орфография (окончания)', time:25},
+      {num:13, name:'Слитное/раздельное написание', time:25},
+      {num:14, name:'Слитное/раздельное написание НЕ', time:25},
+      {num:15, name:'Пунктуация', time:25},
+      {num:16, name:'Пунктуация (однородные члены)', time:25},
+      {num:17, name:'Пунктуация (обособленные члены)', time:30},
+      {num:18, name:'Пунктуация (вводные слова)', time:25},
+      {num:19, name:'Пунктуация (сложное предложение)', time:30},
+      {num:20, name:'Смысловая и композиционная целостность', time:30},
+      {num:21, name:'Информационная обработка текста', time:30},
+      {num:22, name:'Языковые средства выразительности', time:30},
+      {num:23, name:'Функционально-смысловые типы речи', time:25},
+      {num:24, name:'Лексические средства выразительности', time:30},
+      {num:25, name:'Связь предложений в тексте', time:30},
+      {num:26, name:'Сочинение', time:90}
+    ],
+    'Физика': [
+      {num:1, name:'Кинематика', time:20},
+      {num:2, name:'Динамика', time:25},
+      {num:3, name:'Законы сохранения', time:30},
+      {num:4, name:'Механические колебания', time:25},
+      {num:5, name:'Механические волны', time:25},
+      {num:6, name:'Термодинамика', time:30},
+      {num:7, name:'Молекулярная физика', time:30},
+      {num:8, name:'Электростатика', time:30},
+      {num:9, name:'Постоянный ток', time:30},
+      {num:10, name:'Магнитное поле', time:30},
+      {num:11, name:'Электромагнитная индукция', time:35},
+      {num:12, name:'Электромагнитные колебания', time:35},
+      {num:13, name:'Оптика', time:35},
+      {num:14, name:'Квантовая физика', time:30},
+      {num:15, name:'Атомная физика', time:30},
+      {num:16, name:'Ядерная физика', time:35},
+      {num:17, name:'Астрофизика', time:30},
+      {num:18, name:'Соответствие физических величин', time:25},
+      {num:19, name:'Изменение физических величин', time:25},
+      {num:20, name:'Выбор утверждений', time:20},
+      {num:21, name:'Анализ графика', time:25},
+      {num:22, name:'Обработка результатов измерений', time:30},
+      {num:23, name:'Выбор оборудования', time:30},
+      {num:24, name:'Анализ астрономической информации', time:30},
+      {num:25, name:'Качественная задача', time:40},
+      {num:26, name:'Расчётная задача', time:45},
+      {num:27, name:'Расчётная задача', time:45},
+      {num:28, name:'Расчётная задача', time:50},
+      {num:29, name:'Расчётная задача', time:50},
+      {num:30, name:'Расчётная задача', time:55},
+      {num:31, name:'Расчётная задача', time:55},
+      {num:32, name:'Расчётная задача', time:60}
+    ],
+    'Химия': [
+      {num:1, name:'Периодический закон', time:20},
+      {num:2, name:'Строение атома', time:25},
+      {num:3, name:'Ряды химических элементов', time:20},
+      {num:4, name:'Валентность', time:20},
+      {num:5, name:'Классификация веществ', time:25},
+      {num:6, name:'Химические реакции', time:30},
+      {num:7, name:'Электролитическая диссоциация', time:30},
+      {num:8, name:'Свойства кислот', time:25},
+      {num:9, name:'Свойства оснований', time:25},
+      {num:10, name:'Свойства солей', time:30},
+      {num:11, name:'Генетическая связь', time:35},
+      {num:12, name:'Расчётные задачи', time:45},
+      {num:13, name:'Эксперимент', time:40},
+      {num:14, name:'ОВР', time:40},
+      {num:15, name:'Ионные уравнения', time:35},
+      {num:16, name:'Расчёт массы', time:45},
+      {num:17, name:'Расчёт объёма', time:45},
+      {num:18, name:'Массовая доля', time:40},
+      {num:19, name:'Практическая задача', time:50},
+      {num:20, name:'Экспериментальная задача', time:60},
+      {num:21, name:'Расчётная задача', time:60},
+      {num:22, name:'Свойства веществ', time:35},
+      {num:23, name:'Генетическая связь', time:50},
+      {num:24, name:'Расчётная задача', time:60},
+      {num:25, name:'Качественная задача', time:45},
+      {num:26, name:'Эксперимент', time:50},
+      {num:27, name:'Расчётная задача', time:60},
+      {num:28, name:'Расчётная задача', time:60},
+      {num:29, name:'Расчётная задача', time:70},
+      {num:30, name:'Расчётная задача', time:70},
+      {num:31, name:'Расчётная задача', time:80},
+      {num:32, name:'Расчётная задача', time:80},
+      {num:33, name:'Расчётная задача', time:90},
+      {num:34, name:'Расчётная задача', time:90}
+    ],
+    'Биология': [
+      {num:1, name:'Методы биологии', time:20},
+      {num:2, name:'Клетка', time:25},
+      {num:3, name:'Ткани', time:25},
+      {num:4, name:'Органы', time:30},
+      {num:5, name:'Системы органов', time:30},
+      {num:6, name:'Нервная система', time:30},
+      {num:7, name:'Эндокринная система', time:25},
+      {num:8, name:'Опорно-двигательная', time:30},
+      {num:9, name:'Внутренняя среда', time:30},
+      {num:10, name:'Транспорт веществ', time:30},
+      {num:11, name:'Дыхание', time:25},
+      {num:12, name:'Пищеварение', time:30},
+      {num:13, name:'Обмен веществ', time:35},
+      {num:14, name:'Выделение', time:25},
+      {num:15, name:'Органы чувств', time:30},
+      {num:16, name:'Психология', time:30},
+      {num:17, name:'Первая помощь', time:25},
+      {num:18, name:'ЗОЖ', time:20},
+      {num:19, name:'Экология', time:30},
+      {num:20, name:'Эволюция', time:35},
+      {num:21, name:'Многообразие', time:30},
+      {num:22, name:'Биосфера', time:30},
+      {num:23, name:'Эксперимент', time:40},
+      {num:24, name:'Множественный выбор', time:25},
+      {num:25, name:'Включение терминов', time:25},
+      {num:26, name:'Соответствие', time:30},
+      {num:27, name:'Последовательность', time:25},
+      {num:28, name:'Таблица', time:30},
+      {num:29, name:'Текст', time:35},
+      {num:30, name:'Статистика', time:30},
+      {num:31, name:'Расчёт калорий', time:35},
+      {num:32, name:'Биологическая задача', time:60}
+    ],
+    'История': [
+      {num:1, name:'Исторические даты', time:15},
+      {num:2, name:'Исторические личности', time:20},
+      {num:3, name:'Термины', time:20},
+      {num:4, name:'Соответствие', time:25},
+      {num:5, name:'Причинно-следственные связи', time:30},
+      {num:6, name:'Работа с картой', time:30},
+      {num:7, name:'Работа с изображением', time:25},
+      {num:8, name:'Работа с текстом', time:30},
+      {num:9, name:'Анализ текста', time:35},
+      {num:10, name:'Точки зрения', time:30},
+      {num:11, name:'Аргументация', time:40},
+      {num:12, name:'Историческое сочинение', time:90},
+      {num:13, name:'Хронология', time:25},
+      {num:14, name:'Исторические факты', time:25},
+      {num:15, name:'Исторические процессы', time:30},
+      {num:16, name:'Исторические явления', time:30},
+      {num:17, name:'Исторические события', time:30},
+      {num:18, name:'Исторические личности (развёрнуто)', time:40},
+      {num:19, name:'Исторические документы', time:35},
+      {num:20, name:'Исторический анализ', time:40},
+      {num:21, name:'Историческая интерпретация', time:45},
+      {num:22, name:'Историческое мышление', time:40},
+      {num:23, name:'Историческое исследование', time:50},
+      {num:24, name:'Исторический проект', time:60},
+      {num:25, name:'Историческое эссе', time:90}
+    ],
+    'Обществознание': [
+      {num:1, name:'Понятия', time:20},
+      {num:2, name:'Функции институтов', time:25},
+      {num:3, name:'Соответствие', time:25},
+      {num:4, name:'Истинные/ложные суждения', time:20},
+      {num:5, name:'Множественный выбор', time:25},
+      {num:6, name:'Текст', time:35},
+      {num:7, name:'План ответа', time:30},
+      {num:8, name:'Примеры', time:25},
+      {num:9, name:'Аргументация', time:40},
+      {num:10, name:'Смысловое чтение', time:30},
+      {num:11, name:'Социальные ценности', time:25},
+      {num:12, name:'Правовые нормы', time:30},
+      {num:13, name:'Экономика', time:30},
+      {num:14, name:'Политика', time:30},
+      {num:15, name:'Социальные отношения', time:25},
+      {num:16, name:'Духовная культура', time:25},
+      {num:17, name:'Конституция', time:30},
+      {num:18, name:'Права и свободы', time:30},
+      {num:19, name:'Обязанности', time:25},
+      {num:20, name:'Органы власти', time:30},
+      {num:21, name:'Судебная система', time:30},
+      {num:22, name:'Международное право', time:30},
+      {num:23, name:'Задача', time:40},
+      {num:24, name:'Сложное задание', time:50},
+      {num:25, name:'Развёрнутый ответ', time:60}
+    ],
+    'География': [
+      {num:1, name:'Работа с картой', time:25},
+      {num:2, name:'Географические объекты', time:20},
+      {num:3, name:'Климат', time:25},
+      {num:4, name:'Природные зоны', time:25},
+      {num:5, name:'Население', time:25},
+      {num:6, name:'Хозяйство', time:30},
+      {num:7, name:'Регионы России', time:30},
+      {num:8, name:'Страны мира', time:25},
+      {num:9, name:'Экология', time:25},
+      {num:10, name:'Географические процессы', time:30},
+      {num:11, name:'Анализ данных', time:25},
+      {num:12, name:'Практическая задача', time:35},
+      {num:13, name:'Работа с графиком', time:25},
+      {num:14, name:'Работа с таблицей', time:25},
+      {num:15, name:'Соответствие', time:25},
+      {num:16, name:'Множественный выбор', time:25},
+      {num:17, name:'Текст', time:30},
+      {num:18, name:'Развёрнутый ответ', time:40},
+      {num:19, name:'Географическая задача', time:45},
+      {num:20, name:'Анализ ситуации', time:40},
+      {num:21, name:'Прогноз', time:35},
+      {num:22, name:'Исследование', time:45},
+      {num:23, name:'Проект', time:50},
+      {num:24, name:'Комплексное задание', time:60},
+      {num:25, name:'Творческое задание', time:50},
+      {num:26, name:'Практикум', time:45},
+      {num:27, name:'Экспедиция', time:40},
+      {num:28, name:'Наблюдение', time:35},
+      {num:29, name:'Эксперимент', time:45},
+      {num:30, name:'Итоговое задание', time:60},
+      {num:31, name:'Комплексная работа', time:70},
+      {num:32, name:'Проектная работа', time:80},
+      {num:33, name:'Исследовательская работа', time:90},
+      {num:34, name:'Итоговый проект', time:120}
+    ],
+    'Литература': [
+      {num:1, name:'Анализ текста', time:30},
+      {num:2, name:'Тема и идея', time:30},
+      {num:3, name:'Герои', time:35},
+      {num:4, name:'Композиция', time:30},
+      {num:5, name:'Язык и стиль', time:35},
+      {num:6, name:'Жанр и род', time:25},
+      {num:7, name:'Исторический контекст', time:30},
+      {num:8, name:'Авторская позиция', time:35},
+      {num:9, name:'Сравнительный анализ', time:45},
+      {num:10, name:'Сочинение', time:90},
+      {num:11, name:'Анализ стихотворения', time:40},
+      {num:12, name:'Анализ прозы', time:45},
+      {num:13, name:'Анализ драмы', time:45},
+      {num:14, name:'Литературные направления', time:35},
+      {num:15, name:'Литературные течения', time:35},
+      {num:16, name:'Литературные школы', time:35},
+      {num:17, name:'Литературные группы', time:30},
+      {num:18, name:'Литературные объединения', time:30},
+      {num:19, name:'Литературные журналы', time:30},
+      {num:20, name:'Литературная критика', time:40},
+      {num:21, name:'Литературоведение', time:45},
+      {num:22, name:'Теория литературы', time:40},
+      {num:23, name:'История литературы', time:45},
+      {num:24, name:'Сравнительное литературоведение', time:50},
+      {num:25, name:'Сочинение (развёрнутое)', time:120}
+    ],
+    'Информатика': [
+      {num:1, name:'Системы счисления', time:20},
+      {num:2, name:'Логика', time:25},
+      {num:3, name:'Формальные описания', time:25},
+      {num:4, name:'Файловая система', time:20},
+      {num:5, name:'Кодирование информации', time:25},
+      {num:6, name:'Электронные таблицы', time:30},
+      {num:7, name:'Графики и диаграммы', time:25},
+      {num:8, name:'Алгоритмы', time:30},
+      {num:9, name:'Программирование', time:40},
+      {num:10, name:'Поиск информации', time:20},
+      {num:11, name:'Измерение информации', time:25},
+      {num:12, name:'Линейный алгоритм', time:25},
+      {num:13, name:'Ветвление', time:30},
+      {num:14, name:'Циклы', time:35},
+      {num:15, name:'Массивы', time:40},
+      {num:16, name:'Строки', time:35},
+      {num:17, name:'Рекурсия', time:45},
+      {num:18, name:'Динамическое программирование', time:60},
+      {num:19, name:'Обработка числовой информации', time:35},
+      {num:20, name:'Теория игр', time:50},
+      {num:21, name:'Программный код', time:45},
+      {num:22, name:'Скорость передачи', time:30},
+      {num:23, name:'Комбинаторика', time:40},
+      {num:24, name:'Алгоритмы обработки', time:45},
+      {num:25, name:'Поиск делителей', time:35},
+      {num:26, name:'Сортировка', time:40},
+      {num:27, name:'Обработка данных', time:50}
+    ],
+    'Английский язык': [
+      {num:1, name:'Аудирование', time:30},
+      {num:2, name:'Чтение', time:30},
+      {num:3, name:'Грамматика', time:25},
+      {num:4, name:'Лексика', time:25},
+      {num:5, name:'Письмо', time:40},
+      {num:6, name:'Устная часть', time:30},
+      {num:7, name:'Монолог', time:30},
+      {num:8, name:'Диалог', time:25},
+      {num:9, name:'Описание', time:30},
+      {num:10, name:'Рассуждение', time:35},
+      {num:11, name:'Повествование', time:30},
+      {num:12, name:'Характеристика', time:30},
+      {num:13, name:'Сравнение', time:25},
+      {num:14, name:'Объяснение', time:30},
+      {num:15, name:'Аргументация', time:40}
+    ],
+    'Немецкий язык': [
+      {num:1, name:'Аудирование', time:30},
+      {num:2, name:'Чтение', time:30},
+      {num:3, name:'Грамматика', time:25},
+      {num:4, name:'Лексика', time:25},
+      {num:5, name:'Письмо', time:40},
+      {num:6, name:'Устная часть', time:30}
+    ],
+    'Французский язык': [
+      {num:1, name:'Аудирование', time:30},
+      {num:2, name:'Чтение', time:30},
+      {num:3, name:'Грамматика', time:25},
+      {num:4, name:'Лексика', time:25},
+      {num:5, name:'Письмо', time:40},
+      {num:6, name:'Устная часть', time:30}
+    ],
+    'Китайский язык': [
+      {num:1, name:'Аудирование', time:30},
+      {num:2, name:'Чтение', time:30},
+      {num:3, name:'Грамматика', time:25},
+      {num:4, name:'Лексика', time:25},
+      {num:5, name:'Письмо', time:40},
+      {num:6, name:'Устная часть', time:30}
+    ],
+    'Испанский язык': [
+      {num:1, name:'Аудирование', time:30},
+      {num:2, name:'Чтение', time:30},
+      {num:3, name:'Грамматика', time:25},
+      {num:4, name:'Лексика', time:25},
+      {num:5, name:'Письмо', time:40},
+      {num:6, name:'Устная часть', time:30}
+    ]
+  }
+};
 
 function todayIdx(){return (new Date().getDay()+6)%7;}
 function mondayOf(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;}
@@ -846,7 +1497,7 @@ document.addEventListener('visibilitychange', () => { document.body.classList.to
 const ONB=[
   ['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],
   ['📅','План и «Сегодня»','План соберёт твою неделю, а карточка «Сегодня» подскажет, что учить прямо сейчас.'],
-  ['🏆','XP со смыслом','XP даётся ТОЛЬКО за проход темы: тест на 80–100% = +30 XP = дневная норма для стрика 🔥. XP трать в магазине 🛒 на скины.']
+  ['','XP со смыслом','XP даётся ТОЛЬКО за проход темы: тест на 80–100% = +30 XP = дневная норма для стрика 🔥. XP трать в магазине 🛒 на скины.']
 ];
 let onbI=0;
 function onbStart(){if(localStorage.getItem('sn_onb'))return;onbI=0;document.getElementById('onb').style.display='flex';onbShow();}
@@ -904,7 +1555,7 @@ function addXP(n,reason){
     const y=new Date(Date.now()-864e5).toDateString();
     g.streak=(g.streakLast===y)?g.streak+1:1;
     g.streakLast=t;saveGame(g);
-    setTimeout(()=>toast(' Норма дня выполнена! 🔥 '+g.streak),500);
+    setTimeout(()=>toast('🎯 Норма дня выполнена! 🔥 '+g.streak),500);
   }
   renderGame();checkBadges();
 }
@@ -915,11 +1566,11 @@ function spendXP(n){
   saveGame(g); renderGame();
   return true;
 }
-function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
+function checkBadges(){const g=loadGame();const plan=loadPlan();const doneN=(plan&&plan.done)?plan.done.length:0;const cond={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:doneN>=1,done5:doneN>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(cond[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast(' Достижение: '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
 function renderGame(){
   const g=loadGame();const lvl=Math.floor(g.xp/100)+1;const prog=g.xp%100;const t=new Date().toDateString();
   const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');
-  const goalTxt='📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
+  const goalTxt=' Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':' · норма = стрик');
   const bar=document.getElementById('gameBar');
   if(!bar) return;
   bar.innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100 XP</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>'+goalTxt+'</span><span>💎 '+g.xp+' XP</span></div><div class="gb-badges">'+(em||'<span style="font-size:11px;letter-spacing:0;color:var(--muted);font-weight:800;">Тапни, чтобы открыть магазин 🛒</span>')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';
@@ -932,16 +1583,16 @@ const SHOP=[
   {id:'bg_space',cat:'bg',name:'Космос',css:'linear-gradient(135deg,#8B5CF6,#312E81)',price:90,val:'space'},
   {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
   {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
-  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'💬📅✅',price:0,val:'default'},
+  {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠💬📅✅',price:0,val:'default'},
   {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🦁',price:40,val:'zoo'},
   {id:'ic_space',cat:'icons',name:'Космос',prev:'🚀🎯',price:40,val:'space'},
   {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🌭',price:40,val:'food'},
   {id:'ic_sport',cat:'icons',name:'Спорт',prev:'⚽🏀',price:50,val:'sport'},
   {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎤',price:50,val:'music'},
-  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
+  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:''},
   {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
   {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:'🐉'},
-  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'',price:50,val:'👾'},
+  {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
   {id:'ms_cat',cat:'mascot',name:'Кот',prev:'🐱',price:60,val:'🐱'},
   {id:'ms_panda',cat:'mascot',name:'Панда',prev:'🐼',price:60,val:'🐼'},
   {id:'ac_default',cat:'acc',name:'Синий',css:'#2787F5',price:0,val:'default'},
@@ -953,14 +1604,14 @@ const SHOP=[
 ];
 const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:'🎨 Акцентный цвет'};
 const ICON_SETS={
-  default:['','💬','📅','✅',''],
-  zoo:['🐻','','','🐼','🐨'],
-  space:['🌍','','🛸','','⭐'],
-  food:['🍔','','','🍩',''],
-  sport:['⚽','','','',''],
+  default:['🏠','💬','','✅','⋯'],
+  zoo:['🐻','🐯','','','🐨'],
+  space:['','','🛸','','⭐'],
+  food:['🍔','🌭','','🍩',''],
+  sport:['','','','',''],
   music:['','','🎤','🎹','']
 };
-function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
+function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
 function applySkin(){
   const s=loadSkin();
@@ -1013,13 +1664,96 @@ function loadPlan(){try{return JSON.parse(localStorage.getItem('sn_plan')||'null
 function savePlan(p){localStorage.setItem('sn_plan',JSON.stringify(p));updateHomeStats();}
 function todayPlanItem(){const p=loadPlan();if(!p||!p.schedule)return null;return p.schedule[todayIdx()]||null;}
 
+// Получить задания для предмета и экзамена
+function getTasksForSubject(exam, subject) {
+  if (EXAM_TASKS[exam] && EXAM_TASKS[exam][subject]) {
+    return EXAM_TASKS[exam][subject];
+  }
+  return null;
+}
+
+// Сгенерировать расписание с учётом времени и номеров заданий
+function generateScheduleWithTasks(data) {
+  const { subjects, minutes, restDays, exam } = data;
+  const studyDays = 7 - restDays.length;
+  const schedule = [];
+  
+  // Создаём пул заданий для каждого предмета
+  const subjectTasks = {};
+  subjects.forEach(subj => {
+    const tasks = getTasksForSubject(exam, subj);
+    if (tasks) {
+      subjectTasks[subj] = [...tasks]; // копируем массив
+    } else {
+      // Если нет списка заданий, создаём заглушки
+      subjectTasks[subj] = [
+        {num:1, name:'Тема 1', time:Math.round(minutes/2)},
+        {num:2, name:'Тема 2', time:Math.round(minutes/2)},
+        {num:3, name:'Тема 3', time:minutes},
+        {num:4, name:'Тема 4', time:minutes},
+        {num:5, name:'Тема 5', time:minutes}
+      ];
+    }
+  });
+  
+  // Распределяем предметы по дням (чередование)
+  const subjectList = [...subjects];
+  let subjectIdx = 0;
+  let taskIdx = {};
+  subjects.forEach(s => taskIdx[s] = 0);
+  
+  for (let day = 0; day < 7; day++) {
+    const dayName = DAYS[day];
+    const isRest = restDays.includes(dayName);
+    
+    if (isRest) {
+      schedule.push({
+        day: dayName,
+        subject: 'отдых',
+        topic: 'отдых',
+        activity: 'отдых',
+        taskNum: null,
+        estimatedTime: 0,
+        done: false
+      });
+    } else {
+      // Берём следующий предмет по кругу
+      const subject = subjectList[subjectIdx % subjectList.length];
+      subjectIdx++;
+      
+      // Берём следующее задание для этого предмета
+      const tasks = subjectTasks[subject];
+      const taskIdxForSubject = taskIdx[subject] % tasks.length;
+      const task = tasks[taskIdxForSubject];
+      taskIdx[subject]++;
+      
+      schedule.push({
+        day: dayName,
+        subject: subject,
+        topic: `Задание ${task.num}: ${task.name}`,
+        activity: `${minutes} мин · разбор задания №${task.num}`,
+        taskNum: task.num,
+        estimatedTime: task.time,
+        done: false
+      });
+    }
+  }
+  
+  return schedule;
+}
+
 function renderToday(){
   const el=document.getElementById('todayCard');const p=loadPlan();
   if(!p||!p.schedule){el.innerHTML='';return;}
   const it=p.schedule[todayIdx()];
   if(!it){el.innerHTML='';return;}
   if(isRestDay(it)){el.innerHTML='<div class="puff today-card"><div class="t">Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">😴 День отдыха</div><div class="a">Восстановись — это тоже часть подготовки!</div></div>';return;}
-  el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">✏️ '+escapeHtml(it.activity)+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button></div></div>';
+  
+  // Показываем номер задания если есть
+  const taskInfo = it.taskNum ? ` (задание №${it.taskNum})` : '';
+  const timeInfo = it.estimatedTime ? ` · ~${it.estimatedTime} мин` : '';
+  
+  el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+taskInfo+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">️ '+escapeHtml(it.activity)+timeInfo+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button></div></div>';
 }
 
 const SUBJECTS_OGE = [
@@ -1089,29 +1823,105 @@ function renderPlan(data){
   if(data.examName)sch+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
   if(data.schedule&&data.schedule.length){
     const sc=data.schedule.filter(s=>!isRestDay(s)).length;
-    sch+='<div class="item ai">📆 Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
+    sch+='<div class="item ai"> Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
     const ti=todayIdx();
-    data.schedule.forEach((s,i)=>{sch+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
+    data.schedule.forEach((s,i)=>{
+      const taskInfo = s.taskNum ? ` (№${s.taskNum})` : '';
+      const timeInfo = s.estimatedTime ? ` · ~${s.estimatedTime} мин` : '';
+      const doneClass = s.done ? ' done' : '';
+      sch+='<div class="sched-row'+(i===ti?' today':'')+doneClass+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+taskInfo+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+timeInfo+'</span></div>';
+    });
     const td=data.schedule[ti];
-    if(td&&!isRestDay(td)){sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
-    else if(td){sch+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
+    if(td&&!isRestDay(td)){
+      const taskInfo = td.taskNum ? ` (задание №${td.taskNum})` : '';
+      const timeInfo = td.estimatedTime ? ` · ~${td.estimatedTime} мин` : '';
+      sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+taskInfo+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity)+timeInfo:'')+'</div>';
+      sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button>';
+      sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button>';
+      // Кнопка переноса на завтра
+      if (!td.done) {
+        sch+='<button class="btn warn" onclick="postponeTodayTask()">⏰ Перенести на завтра</button>';
+      }
+    }
+    else if(td){sch+='<div class="item ai"> Сегодня отдых по плану.</div>';}
+
     const wt=data.schedule.filter(s=>!isRestDay(s));
     if(wt.length){
-      top+='<div class="item ai"> Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
+      top+='<div class="item ai">🎯 Темы недели: тест на 80%+ = тема пройдена = +30 XP:</div>';
       wt.forEach(s=>{const key=topicKey(s);if(!key)return;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
-        top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
+        const taskInfo = s.taskNum ? ` (№${s.taskNum})` : '';
+        top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+taskInfo+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
         if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
-          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()"> Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
+          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
       if(data.done&&data.done.length)top+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
       else top+='<div class="item">Пока ничего не пройдено — выбери тему и сдай тест на 80%+ 👆</div>';
     }
   }
-  if(data.summary)top+='<div class="item ai">💡 '+escapeHtml(cleanResponse(data.summary))+'</div>';
+  if(data.summary)top+='<div class="item ai"> '+escapeHtml(cleanResponse(data.summary))+'</div>';
   if(data.text && !data.text.trim().startsWith('{') && !data.text.trim().startsWith('[') && !data.text.trim().startsWith('```')){
     sch+='<div class="item ai">'+escapeHtml(cleanResponse(data.text))+'</div>';
   }
   const bs=document.getElementById('planSched');bs.innerHTML=sch||'<div class="item">План пуст.</div>';mathIn(bs);
   const bt=document.getElementById('planTopics');bt.innerHTML=top||'<div class="item">Темы появятся после составления плана.</div>';mathIn(bt);
+}
+
+// Отметить задание как выполненное
+function markTaskDone(dayIndex) {
+  const plan = loadPlan();
+  if (!plan || !plan.schedule) return;
+  if (dayIndex >= 0 && dayIndex < plan.schedule.length) {
+    plan.schedule[dayIndex].done = true;
+    savePlan(plan);
+    renderPlan(plan);
+    renderToday();
+    toast('✅ Задание отмечено как выполненное!');
+  }
+}
+
+// Перенести задание на завтра (сдвиг расписания)
+function postponeTodayTask() {
+  const plan = loadPlan();
+  if (!plan || !plan.schedule) return;
+  
+  const ti = todayIdx();
+  const todayTask = plan.schedule[ti];
+  if (!todayTask || isRestDay(todayTask)) {
+    uiAlert('Сегодня день отдыха — нечего переносить!', '');
+    return;
+  }
+  
+  uiConfirm(
+    `Перенести "${todayTask.subject} — ${todayTask.topic}" на завтра?\n\nВсё расписание сдвинется на 1 день.`,
+    function() {
+      // Создаём новое расписание: сегодня становится завтрашним заданием, и т.д.
+      const newSchedule = [];
+      
+      // Сегодняшнее задание переносим на завтра (если завтра не отдых)
+      let postponedTask = {...todayTask, day: DAYS[(ti+1)%7]};
+      
+      // Сдвигаем все задания после сегодня
+      for (let i = ti + 1; i < plan.schedule.length; i++) {
+        const task = plan.schedule[i];
+        const newDayIndex = (i + 1) % 7;
+        newSchedule.push({...task, day: DAYS[newDayIndex]});
+      }
+      
+      // Добавляем перенесённое задание в конец (на следующий цикл)
+      // Или вставляем его на место завтрашнего дня
+      const tomorrowIdx = (ti + 1) % 7;
+      newSchedule.splice(tomorrowIdx, 0, postponedTask);
+      
+      // Обрезаем до 7 дней
+      plan.schedule = newSchedule.slice(0, 7);
+      
+      savePlan(plan);
+      renderPlan(plan);
+      renderToday();
+      toast('⏰ Задание перенесено на завтра!');
+    },
+    '⏰',
+    'Перенести'
+  );
 }
 
 function collectPlanData(){
@@ -1130,60 +1940,33 @@ function collectPlanData(){
 
 async function buildPlan(){
   const data=collectPlanData();
-  if(!data.subjects.length) return uiAlert('Выбери хотя бы один предмет!','');
+  if(!data.subjects.length) return uiAlert('Выбери хотя бы один предмет!','📚');
   const btn=document.getElementById('planBtn'); btn.disabled=true;
   planTab('view'); planView('sched');
   showLoading('planSched','GigaChat продумывает план...');
   try{
     const ei=examInfo(data.grade,data.exam);
-    const restDaysStr=data.restDays.length?data.restDays.join(', '):'нет';
-    const subjectsStr=data.subjects.join(', ');
-    const studyDays=7-data.restDays.length;
-    const minPerSubject=Math.round(data.minutes/data.subjects.length);
-
-    const prompt=`Ученик ${data.grade} класса. Сдаёт: ${data.exam||'не сдаёт экзамен'}. До экзамена ${ei.weeks} недель.
-Предметы: ${subjectsStr}.
-Цель: ${data.goal||'улучшить успеваемость'}.
-Уровень: ${data.level}.
-Слабые места: ${data.weak||'нет'}.
-Время на учёбу в день: ${data.minutes} минут.
-Дни отдыха: ${restDaysStr}.
-
-ПРАВИЛА:
-1. РОВНО 1 предмет в каждый учебный день
-2. Всё время (${data.minutes} минут) идёт на этот ОДИН предмет
-3. В activity пиши: "${data.minutes} мин · [конкретное задание]"
-4. Чередуй предметы по дням
-5. Укажи КОНКРЕТНУЮ тему для каждого предмета
-
-Составь расписание РОВНО на 7 дней (Пн-Вс).
-
-Верни СТРОГО JSON БЕЗ markdown-обёртки: {"schedule":[{"day":"Пн","subject":"Математика","topic":"Квадратные уравнения","activity":"${data.minutes} мин · решение задач"},...],"summary":"2-3 предложения общих советов"}`;
-
-    // ИСПРАВЛЕНИЕ 1: silent=true — запрос не попадает в чат
-    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки.',3000, null, true);
     
-    let plan=parseJSONObjectSafe(resp);
-    if (!plan || !plan.schedule) {
-      const schedMatch = resp.match(/"schedule"\s*:\s*(\[[\s\S]*?\])/);
-      if (schedMatch) {
-        try { plan = { schedule: JSON.parse(schedMatch[1]) }; } catch(e) {}
-      }
-      if (!plan || !plan.schedule) {
-        plan = { text: resp, schedule: [] };
-      }
-    }
-    plan.examName=data.exam||'без экзамена';
-    plan.examDate=ei.examDate.toLocaleDateString('ru-RU');
-    plan.weeks=ei.weeks;
-    plan.savedAt=new Date().toLocaleDateString('ru-RU');
-    plan.scheduleWeek=currentWeekKey();
-    plan.params=data;
-    plan.done=[];
-    plan.testPassed={};
-    plan.selectedTopic=null;
+    // Генерируем расписание локально с номерами заданий
+    const schedule = generateScheduleWithTasks(data);
+    
+    const plan = {
+      schedule: schedule,
+      examName: data.exam || 'без экзамена',
+      examDate: ei.examDate.toLocaleDateString('ru-RU'),
+      weeks: ei.weeks,
+      savedAt: new Date().toLocaleDateString('ru-RU'),
+      scheduleWeek: currentWeekKey(),
+      params: data,
+      done: [],
+      testPassed: {},
+      selectedTopic: null,
+      summary: `План составлен для ${data.grade} класса. Предметы: ${data.subjects.join(', ')}. Время в день: ${data.minutes} мин. Дни отдыха: ${data.restDays.join(', ') || 'нет'}.`
+    };
+    
     savePlan(plan); renderPlan(plan); renderToday();
     const g=loadGame(); g.plan=true; saveGame(g); checkBadges();
+    toast('✨ План составлен! Номера заданий расставлены автоматически.');
   }catch(e){ showError('planSched','Ошибка: '+e.message); }
   finally{ btn.disabled=false; }
 }
@@ -1197,49 +1980,40 @@ async function checkWeekUpdate(){
   try{
     const p=plan.params;
     const ei=examInfo(p.grade,p.exam);
-    const doneTopics=(plan.done||[]).map(d=>d.topic);
-    const allTopics=(plan.schedule||[]).filter(s=>!isRestDay(s)).map(s=>s.topic);
-    const uncompleted=allTopics.filter(t=>t && !doneTopics.includes(t));
-    const uncompletedStr=uncompleted.length ? uncompleted.join('; ') : 'все темы пройдены';
-    const restDaysStr=p.restDays&&p.restDays.length?p.restDays.join(', '):'Сб, Вс';
-    const subjectsStr=p.subjects?p.subjects.join(', '):'Математика';
-    const studyDays=7-(p.restDays?p.restDays.length:2);
-
-    const prompt=`Новая неделя. Ученик ${p.grade} кл., сдаёт ${p.exam||'не сдаёт'} (${ei.weeks} нед.).
-Предметы: ${subjectsStr}.
-Время в день: ${p.minutes} минут.
-Дни отдыха: ${restDaysStr}.
-Уровень: ${p.level}.
-Слабые: ${p.weak||'нет'}.
-НЕПРОЙДЕННЫЕ темы (ОБЯЗАТЕЛЬНО включи): ${uncompletedStr}.
-
-ПРАВИЛА:
-1. РОВНО 1 предмет в день
-2. Всё время (${p.minutes} мин) на один предмет
-3. В activity: "${p.minutes} мин · [действие]"
-4. Чередуй предметы по дням
-
-Составь расписание РОВНО на 7 дней (Пн-Вс).
-
-Верни JSON БЕЗ markdown: {"schedule":[...7 элементов]}`;
-    // ИСПРАВЛЕНИЕ 1: silent=true
-    const resp=await askGiga(prompt,'Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки.',2500, null, true);
-    const data=parseJSONObjectSafe(resp);
-    if(data&&data.schedule&&data.schedule.length>=7){
-      plan.schedule=data.schedule;
-      plan.scheduleWeek=currentWeekKey();
-      plan.selectedTopic=null;
-      plan.testPassed={};
-      savePlan(plan);
+    
+    // Находим непройденные задания
+    const uncompleted = plan.schedule.filter(s => !isRestDay(s) && !s.done);
+    
+    // Генерируем новое расписание, начиная с непройденных заданий
+    const newSchedule = generateScheduleWithTasks(p);
+    
+    // Если есть непройденные — вставляем их в начало
+    if (uncompleted.length > 0) {
+      const completedTopics = plan.schedule.filter(s => s.done).map(s => s.topic);
+      // Фильтруем новое расписание, убирая уже пройденные темы
+      const filteredSchedule = newSchedule.filter(s => 
+        isRestDay(s) || !completedTopics.includes(s.topic)
+      );
+      // Вставляем непройденные в начало
+      const finalSchedule = [...uncompleted.map(s => ({...s, done: false})), ...filteredSchedule];
+      plan.schedule = finalSchedule.slice(0, 7);
+    } else {
+      plan.schedule = newSchedule;
     }
+    
+    plan.scheduleWeek=currentWeekKey();
+    plan.selectedTopic=null;
+    plan.testPassed={};
+    savePlan(plan);
     renderPlan(plan);renderToday();
+    toast('🔄 Расписание обновлено на новую неделю!');
   }catch(e){renderPlan(plan);renderToday();}
 }
 
 function deletePlan(){uiConfirm('Удалить план и весь прогресс недель?',function(){
   localStorage.removeItem('sn_plan');document.getElementById('planSched').innerHTML='';document.getElementById('planTopics').innerHTML='';document.getElementById('todayCard').innerHTML='';updateHomeStats();planTab('form');
-},'🗑','Удалить');}
-function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня по плану отдых 😴 Восстановись!','😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');startQuiz(topicKey(it),TEST_SIZE);}
+},'','Удалить');}
+function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня по плану отдых  Восстановись!','😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');startQuiz(topicKey(it),TEST_SIZE);}
 function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня по плану отдых 😴','');return;}document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
 function selectTopic(key){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===key)?null:key;savePlan(p);renderPlan(p);}
 function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return uiAlert('Сначала выбери тему кнопкой «Выбрать».','🎯');document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
@@ -1282,8 +2056,8 @@ async function buyHint(){
   const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}
   if(!spendXP(HINT_COST))return;qHintUsed=true;
   const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');
-  const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';
-  try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML=' '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}
+  const h=document.getElementById('quizHint');h.innerHTML=' Думаю над подсказкой...';
+  try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}
 }
 async function startQuiz(pending,count){
   const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему заданий, например: дроби.','✏️');
@@ -1310,7 +2084,7 @@ async function nextQuestion(){
 }
 function finishBatch(){
   const pct=qBatchTotal?qBatchScore/qBatchTotal:0;
-  let extra='<div class="item ai">🏁 Тест завершён: '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';
+  let extra='<div class="item ai"> Тест завершён: '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';
   if(qPendingTopic){
     const key=qPendingTopic;const p=loadPlan();
     if(p&&pct>=PASS_PCT){
@@ -1321,7 +2095,7 @@ function finishBatch(){
       addXP(30,'тема пройдена');
       const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
     }else{
-      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
+      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')"> Пересдать тест</button>';
     }
     qPendingTopic=null;
   }
@@ -1383,12 +2157,11 @@ function clearGrades(){uiConfirm('Удалить все оценки и исто
 },'🗑','Удалить');}
 
 async function addGradeAI(){
-  const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши так: матан 5 4, физра 3','️');
+  const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши так: матан 5 4, физра 3','✍️');
   const btn=document.getElementById('gAddBtn');btn.disabled=true;
   document.getElementById('gAi').innerHTML='<div class="skel skel-card"></div>';
   let parsed=null;
   try{
-    // ИСПРАВЛЕНИЕ 1: silent=true
     const r=await askGiga('Ученик написал про оценки: «'+text+'». Определи ВСЕ предметы (ОБЯЗАТЕЛЬНО раскрой сленг и сокращения: матан->Математика, физра->Физкультура, ин яз->Английский язык и т.д.) и оценки (1-5) для каждого. Бери СТРОГО из текста. Верни СТРОГО JSON-массив БЕЗ markdown-обёртки: [{"subject":"...","grades":[5,4]}]','Верни только валидный JSON-массив, БЕЗ markdown.',500, null, true);
     const arr=parseJSONArraySafe(r);if(Array.isArray(arr)&&arr.length)parsed=arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);
   }catch(e){}
@@ -1400,14 +2173,11 @@ async function addGradeAI(){
   mathIn(document.getElementById('gAi'));btn.disabled=false;
 }
 async function gradesAI(){
-  const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','');
+  const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','📚');
   let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}
   const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');
-  try{
-    // ИСПРАВЛЕНИЕ 1: silent=true
-    const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.',800, null, true);
-    const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);
-  }catch(e){showError('gAi','Ошибка: '+e.message);}
+  try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.',800, null, true);const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}
+  catch(e){showError('gAi','Ошибка: '+e.message);}
   finally{btn.disabled=false;}
 }
 
@@ -1416,7 +2186,6 @@ async function buildVideo(){
   const btn=document.getElementById('vBtn');btn.disabled=true;
   showLoading('vAi','Ищу видео и готовлю объяснение...');
   try{
-    // ИСПРАВЛЕНИЕ 1: silent=true
     const [gigaResp, videoResp] = await Promise.all([
       askGiga('Кратко (5-8 предложений) подробно объясни школьнику тему «'+topic+'»: дай определение, пример и мини-вывод. Формулы пиши простым текстом или в LaTeX ($...$).', null, 800, null, true),
       fetch(PROXY_BASE+'/search_video?q='+encodeURIComponent(topic)).then(r=>r.ok?r.json():null).catch(()=>null)
@@ -1450,9 +2219,7 @@ async function motivationAI(){
   try{
     let prompt;if(sit)prompt='Школьник чувствует: '+mt+'. Ситуация: «'+sit+'». Поддержи 3-4 тёплыми предложениями как старший друг, ответь на конкретику, дай один мягкий совет. Без банальностей и Markdown.';
     else prompt='Школьник чувствует: '+mt+'. Поддержи 2-3 тёплыми предложениями как старший друг.';
-    // ИСПРАВЛЕНИЕ 1: silent=true
-    const r=await askGiga(prompt, null, 800, null, true);
-    box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);
+    const r=await askGiga(prompt, null, 800, null, true);box.textContent='';await typeWriter(box,cleanResponse(r),18);mathIn(box);
   }catch(e){box.textContent='❌ Ошибка: '+e.message;}
   finally{btn.disabled=false;}
 }
@@ -1487,7 +2254,6 @@ async function tryParseGradesViaGiga(text){
   const digits=(text.match(/\b[1-5]\b/g)||[]).length;
   if(!digits||!GRADE_TRIGGERS.test(text))return null;
   try{
-    // ИСПРАВЛЕНИЕ 1: silent=true
     const r=await askGiga('Ученик написал: «'+text+'». Если это про оценки — определи предметы (раскрой сокращения: матан->Математика, физра->Физкультура и т.д.) и оценки. Верни СТРОГО JSON-массив БЕЗ markdown: [{"subject":"...","grades":[...]}]. Если НЕ про оценки — верни [].','Верни только валидный JSON.',500, null, true);
     const arr=parseJSONArraySafe(r);
     if(Array.isArray(arr)&&arr.length)return arr.filter(x=>x.subject&&Array.isArray(x.grades)&&x.grades.length).map(x=>({subject:x.subject,grades:x.grades.filter(g=>g>=1&&g<=5)})).filter(x=>x.grades.length);
@@ -1521,7 +2287,7 @@ function restoreChatHistory(){const b=document.getElementById('chatBox');b.inner
 
 async function sendPhotoChat(input){
   const f=input.files&&input.files[0];if(!f)return;input.value='';
-  addMsg('📸 Фото задачи','user','web');
+  addMsg(' Фото задачи','user','web');
   const loading=document.createElement('div');loading.className='skel skel-msg';
   const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
   const reader=new FileReader();
@@ -1534,16 +2300,16 @@ async function sendPhotoChat(input){
       if(d.ocr)txt+='🔤 '+d.ocr+'\n';
       txt+=cleanResponse(d.solution||'');
       loading.remove();addMsg(txt,'bot','web');
-    }catch(e){loading.remove();addMsg(' Ошибка распознавания: '+e.message,'bot');}
+    }catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}
   };
   reader.readAsDataURL(f);
 }
 
-// ИСПРАВЛЕНИЕ 1: askGiga с параметром silent
+// askGiga с параметром silent
 async function askGiga(prompt, systemPrompt, maxTokens, history, silent=false){
   const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),60000);
   try{
-    // Если silent=true, используем отдельный user_id 'system' чтобы не попадать в чат
+    // Если silent=true, используем отдельный user_id чтобы не попадать в чат
     const userId = silent ? 'system_internal' : CHANNEL;
     const r=await fetch(PROXY_BASE+'/chat?user_id='+encodeURIComponent(userId),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,system:systemPrompt||MATH_SYSTEM,max_tokens:maxTokens||800}),signal:ctrl.signal});
     if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error('Chat failed: '+r.status+(d?' '+d:''));}
