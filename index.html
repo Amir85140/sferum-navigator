@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#D6E8FF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#050D1A" media="(prefers-color-scheme: dark)">
 <title>Sferum Navigator Mini</title>
+<link rel="preconnect" href="https://automatic-system-p7gg76p4wqqwf99rj-8000.app.github.dev">
+<link rel="dns-prefetch" href="https://automatic-system-p7gg76p4wqqwf99rj-8000.app.github.dev">
 <script>
 (function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('sn_theme')||'auto');var s=JSON.parse(localStorage.getItem('sn_skin')||'{}');document.documentElement.setAttribute('data-bg',s.bg||'default');document.documentElement.setAttribute('data-acc',s.acc||'default');}catch(e){}})();
 </script>
@@ -457,7 +459,7 @@
 
   <div id="chat" class="page">
     <div class="head"><div class="hi"><div class="mascot">🤖</div><div><h1>Чат с ИИ</h1><div class="sub">🔄 Синхронизирован с MAX</div></div></div></div>
-    <div class="chat-search"><input id="chatSearch" placeholder="🔍 Поиск по чату..." oninput="searchChat(this.value)"></div>
+    <div class="chat-search"><input id="chatSearch" placeholder="🔍 Поиск по чату..." oninput="searchChatDeb(this.value)"></div>
     <div class="chat-box" id="chatBox"></div>
     <div class="qchips">
       <button onclick="chipSet('Объясни тему: ')">💡 Объясни тему</button>
@@ -576,7 +578,7 @@
             <option value="Информатика">Информатика</option>
           </select>
           <div class="row2">
-            <div><label>📅 Год варианта</label><select id="vYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select></div>
+            <div><label>📅 Год варианта</label><select id="vYear"><option>2023/2024</option><option>2024/2025</option><option selected>2025/2026</option><option>2026/2027</option></select></div>
             <div><label>🔢 Номер</label><select id="vNum"></select></div>
           </div>
           <button class="btn ghost" style="margin-top:8px;" onclick="randomVariantNum()">🎲 Случайный номер</button>
@@ -661,10 +663,11 @@
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
-          <li>📝 Целые варианты ОГЭ/ЕГЭ из банка ФИПИ (2023–2026)</li>
+          <li>📝 Целые варианты ОГЭ/ЕГЭ из банка ФИПИ (2023/24–2026/27)</li>
+          <li>🎁 Подарки: каждые 15 дней стрика = +5 подсказок</li>
           <li>🏆 XP — только за первый проход варианта и темы</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 55</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 56</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -677,7 +680,7 @@
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 55</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 56</div></button>
     </div>
   </div>
 
@@ -696,6 +699,7 @@ const CODESPACE_NAME='automatic-system-p7gg76p4wqqwf99rj';
 const PROXY_BASE='https://'+CODESPACE_NAME+'-8000.app.github.dev';
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const TEST_SIZE=20, CHANNEL='main', DAILY_GOAL=30, HINT_COST=100, PASS_PCT=0.8;
+const STREAK_GIFT_DAYS=15, STREAK_GIFT_HINTS=5;
 const MATH_SYSTEM='Ты — дружелюбный ИИ-наставник для школьников. Отвечай коротко и понятно. Не используй Markdown. Формулы пиши в LaTeX: инлайн в $...$, блочные в $$...$$.';
 const EXAM_DIFF_RANGES={'ОГЭ':{'лёгкая':[1,5],'средняя':[6,15],'сложная':[16,25]},'ЕГЭ':{'лёгкая':[1,5],'средняя':[6,12],'сложная':[13,19]}};
 
@@ -708,7 +712,7 @@ function cleanResponse(t){return t.replace(/\*\*/g,'').replace(/(^|\n)#{1,3}\s*/
 function topicKey(s){return s.topic||s.subject||'';}
 function isRestDay(i){return !i||/отдых|выходной/i.test(i.subject||'');}
 function mathIn(el){if(!el||!window.renderMathInElement)return;try{renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}catch(e){}}
-window.addEventListener('load',()=>mathIn(document.body));
+window.addEventListener('load',()=>mathIn(document.body),{passive:true});
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.classList.add('out'),1900);setTimeout(()=>t.remove(),2400);}
 function examInfo(grade,examText){const now=new Date();const t=(examText||'').toLowerCase();let tg=grade,mo=4,da=25;if(t.includes('огэ')){tg=9;da=20;}else if(t.includes('егэ')){tg=11;da=25;}const yl=Math.max(0,tg-grade);let ed=new Date(now.getFullYear()+yl,mo,da);if(ed<now)ed=new Date(now.getFullYear()+yl+1,mo,da);const w=Math.max(1,Math.round((ed-now)/(7*24*3600*1000)));return{name:examText||'экзамен',examDate:ed,weeks:w};}
 function getExamFromPlan(){const p=loadPlan();if(p&&p.params&&p.params.exam)return p.params.exam;return '';}
@@ -723,12 +727,14 @@ function hideModal(){document.getElementById('modal').style.display='none';}
 function uiAlert(t,e){showModal({emoji:e||'💡',text:t,okText:'Понятно',cancelText:null});}
 function uiConfirm(t,f,e,o){showModal({emoji:e||'⚠️',text:t,okText:o||'Да',okClass:'danger',cancelText:'Отмена',onYes:f});}
 
-function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('sn_theme',t);['Light','Dark','Auto'].forEach(n=>{const b=document.getElementById('th'+n);if(b)b.classList.toggle('on',n.toLowerCase()===t);});}
+let accentCache=null;
+function getAccent(){if(!accentCache)accentCache=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2787F5';return accentCache;}
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('sn_theme',t);accentCache=null;['Light','Dark','Auto'].forEach(n=>{const b=document.getElementById('th'+n);if(b)b.classList.toggle('on',n.toLowerCase()===t);});}
 function setThemeClick(t,ev){const x=ev?ev.clientX:innerWidth/2,y=ev?ev.clientY:innerHeight/2;if(document.startViewTransition){const vt=document.startViewTransition(()=>applyTheme(t));vt.ready.then(()=>{const r=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));document.documentElement.animate({clipPath:['circle(0px at '+x+'px '+y+'px)','circle('+r+'px at '+x+'px '+y+'px)']},{duration:650,easing:'cubic-bezier(.4,0,.2,1)',pseudoElement:'::view-transition-new(root)'});}).catch(()=>{});}else{document.body.classList.add('theme-anim');applyTheme(t);setTimeout(()=>document.body.classList.remove('theme-anim'),650);}}
 applyTheme(localStorage.getItem('sn_theme')||'auto');
 document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('paused',document.hidden);});
 
-const ONB=[['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],['📝','Целые варианты','Решай полные варианты ОГЭ/ЕГЭ 2023–2026 из банка ФИПИ: все задания подряд, проверка внизу.'],['🏆','XP со смыслом','XP — за первый проход варианта и темы. Повторы — тренировка без XP.']];
+const ONB=[['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],['📝','Целые варианты','Решай полные варианты ОГЭ/ЕГЭ 2023/24–2026/27 из банка ФИПИ: все задания подряд, проверка внизу.'],['🎁','Подарки за стрик','Каждые 15 дней стрика 🔥 дарим +5 бесплатных подсказок!']];
 let onbI=0;
 function onbStart(){if(localStorage.getItem('sn_onb'))return;onbI=0;document.getElementById('onb').style.display='flex';onbShow();}
 function onbShow(){const s=ONB[onbI];document.getElementById('onbEmoji').textContent=s[0];document.getElementById('onbTitle').textContent=s[1];document.getElementById('onbText').textContent=s[2];document.getElementById('onbNext').textContent=(onbI===ONB.length-1)?'Поехали!':'Дальше';}
@@ -736,24 +742,36 @@ function onbNext(){onbI++;if(onbI>=ONB.length)onbEnd();else onbShow();}
 function onbSkip(){onbEnd();}
 function onbEnd(){localStorage.setItem('sn_onb','1');document.getElementById('onb').style.display='none';}
 
+let searchT=null;
+function searchChatDeb(v){clearTimeout(searchT);searchT=setTimeout(()=>searchChat(v),200);}
 function searchChat(q){const m=[...document.querySelectorAll('#chatBox .msg')];const s=q.trim().toLowerCase();if(!s){m.forEach(x=>x.classList.remove('dim','hit'));return;}let f=null;m.forEach(x=>{const h=x.textContent.toLowerCase().includes(s);x.classList.toggle('hit',h);x.classList.toggle('dim',!h);if(h&&!f)f=x;});if(f)f.scrollIntoView({block:'center',behavior:'smooth'});}
 function chipSet(t){const i=document.getElementById('chatInput');i.value=t;i.focus();}
 
 const confettiCv=document.getElementById('confetti');const cCtx=confettiCv.getContext('2d');let confetti=[],confettiRunning=false;
 function sizeConfetti(){confettiCv.width=innerWidth;confettiCv.height=innerHeight;}
-sizeConfetti();addEventListener('resize',sizeConfetti);
+sizeConfetti();
 function fireConfetti(x,y){const cols=['#2787F5','#00C2FF','#39FF88','#FFD60A','#7FB9FF','#FF8FA6'];for(let i=0;i<40;i++){confetti.push({x,y,vx:(Math.random()-.5)*11,vy:-Math.random()*9-4,g:.25,size:Math.random()*6+4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.4,color:cols[i%cols.length],life:0,maxLife:80+Math.random()*30});}if(!confettiRunning){confettiRunning=true;requestAnimationFrame(confettiLoop);}}
 function confettiLoop(){cCtx.clearRect(0,0,confettiCv.width,confettiCv.height);confetti=confetti.filter(c=>c.life<c.maxLife&&c.y<confettiCv.height+30);if(!confetti.length){confettiRunning=false;return;}confetti.forEach(c=>{c.x+=c.vx;c.y+=c.vy;c.vy+=c.g;c.vx*=.99;c.rot+=c.vr;c.life++;cCtx.save();cCtx.globalAlpha=Math.max(0,1-c.life/c.maxLife);cCtx.translate(c.x,c.y);cCtx.rotate(c.rot);cCtx.fillStyle=c.color;cCtx.fillRect(-c.size/2,-c.size/2,c.size,c.size*.6);cCtx.restore();});requestAnimationFrame(confettiLoop);}
 function typeWriter(el,text,speed=20){el.classList.add('typing');el.textContent='';let i=0;return new Promise(res=>{const s=()=>{if(i<=text.length){el.textContent=text.slice(0,i);i++;setTimeout(s,speed);}else{el.classList.remove('typing');res();}};s();});}
 function animateCount(el,f,t,d=700){const st=performance.now();const u=n=>{const p=Math.min((n-st)/d,1);el.textContent=(f+(t-f)*(1-Math.pow(1-p,3))).toFixed(2);if(p<1)requestAnimationFrame(u);};requestAnimationFrame(u);}
 
 const BADGES=[['step','🎬','Первый XP'],['goal1','📅','Первая норма дня'],['quiz10','🎯','Снайпер: 10 верных'],['plan','🗺️','Стратег: план'],['done','🎓','Тема закрыта'],['done5','📒','Эрудит: 5 тем'],['streak3','🔥','3 дня подряд'],['streak7','⚡','Неделя огня']];
-function loadGame(){try{const s=JSON.parse(localStorage.getItem('sn_game')||'{}');if(!s.initialized){s.xp=100000;s.initialized=true;localStorage.setItem('sn_game',JSON.stringify(s));}return Object.assign({xp:100000,correct:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false,initialized:false},s);}catch(e){return{xp:100000,correct:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false,initialized:true};}}
+/* XP обнулён для всех (миграция xpResetV56) + подарочные подсказки */
+function loadGame(){
+  try{
+    const s=JSON.parse(localStorage.getItem('sn_game')||'{}');
+    if(!s.initialized){s.xp=0;s.initialized=true;}
+    if(!s.xpResetV56){s.xp=0;s.spent=0;s.xpResetV56=true;}
+    s.hints=s.hints||0;
+    localStorage.setItem('sn_game',JSON.stringify(s));
+    return Object.assign({xp:0,correct:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false,hints:0,initialized:false},s);
+  }catch(e){return{xp:0,correct:0,streak:0,streakLast:'',dayDate:'',dayXp:0,goalDone:'',spent:0,badges:[],plan:false,hints:0,initialized:true};}
+}
 function saveGame(g){localStorage.setItem('sn_game',JSON.stringify(g));}
-function addXP(n,r){const g=loadGame();const t=new Date().toDateString();if(g.dayDate!==t){g.dayDate=t;g.dayXp=0;}g.xp+=n;g.dayXp+=n;saveGame(g);toast('+'+n+' XP · '+r);if(g.dayXp>=DAILY_GOAL&&g.goalDone!==t){g.goalDone=t;const y=new Date(Date.now()-864e5).toDateString();g.streak=(g.streakLast===y)?g.streak+1:1;g.streakLast=t;saveGame(g);setTimeout(()=>toast('🎯 Норма дня! 🔥 '+g.streak),500);}renderGame();checkBadges();}
+function addXP(n,r){const g=loadGame();const t=new Date().toDateString();if(g.dayDate!==t){g.dayDate=t;g.dayXp=0;}g.xp+=n;g.dayXp+=n;saveGame(g);toast('+'+n+' XP · '+r);if(g.dayXp>=DAILY_GOAL&&g.goalDone!==t){g.goalDone=t;const y=new Date(Date.now()-864e5).toDateString();g.streak=(g.streakLast===y)?g.streak+1:1;g.streakLast=t;if(g.streak%STREAK_GIFT_DAYS===0){g.hints=(g.hints||0)+STREAK_GIFT_HINTS;setTimeout(()=>toast('🎁 Подарок за '+g.streak+' дн. стрика: +'+STREAK_GIFT_HINTS+' подсказок!'),900);}saveGame(g);setTimeout(()=>toast('🎯 Норма дня! 🔥 '+g.streak),500);}renderGame();checkBadges();}
 function spendXP(n){const g=loadGame();if(g.xp<n)return false;g.xp-=n;g.spent=(g.spent||0)+n;saveGame(g);renderGame();return true;}
 function checkBadges(){const g=loadGame();const p=loadPlan();const dn=(p&&p.done)?p.done.length:0;const c={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:dn>=1,done5:dn>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(c[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
-function renderGame(){const g=loadGame();const lvl=Math.floor(g.xp/100)+1,prog=g.xp%100,t=new Date().toDateString();const em=g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');const bar=document.getElementById('gameBar');if(!bar)return;bar.innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':'')+'</span><span>💎 '+g.xp+'</span></div><div class="gb-badges">'+(em||'')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';}
+function renderGame(){const g=loadGame();const lvl=Math.floor(g.xp/100)+1,prog=g.xp%100,t=new Date().toDateString();const em=(g.hints?'💡×'+g.hints+' ':'')+g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');const bar=document.getElementById('gameBar');if(!bar)return;bar.innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':'')+'</span><span>💎 '+g.xp+'</span></div><div class="gb-badges">'+(em||'')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';}
 
 const SHOP=[
  {id:'bg_default',cat:'bg',name:'Классика',css:'linear-gradient(135deg,#5AA8FF,#2787F5)',price:0,val:'default'},
@@ -781,10 +799,10 @@ const SHOP=[
  {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
  {id:'ac_coral',cat:'acc',name:'Коралл',css:'#FF6B6B',price:40,val:'coral'}];
 const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки',mascot:'🐾 Маскот',acc:'🎨 Акцент'};
-const ICON_SETS={default:['🏠','💬','📅','✅','⋯'],zoo:['🐻','','🦊','',''],space:['🌍','🚀','🛸','','⭐'],food:['🍔','','','',''],sport:['','','🏈','','🏐'],music:['🎵','','🎤','🎹','🎺']};
+const ICON_SETS={default:['🏠','💬','📅','✅','⋯'],zoo:['🐻','','🦊','',''],space:['🌍','','🛸','','⭐'],food:['🍔','','','',''],sport:['','','🏈','','🏐'],music:['🎵','','🎤','🎹','🎺']};
 function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
-function applySkin(){const s=loadSkin();document.documentElement.setAttribute('data-bg',s.bg);document.documentElement.setAttribute('data-acc',s.acc);const ic=ICON_SETS[s.icons]||ICON_SETS.default;document.querySelectorAll('.dock button .ic').forEach((el,i)=>{el.textContent=ic[i]||ICON_SETS.default[i];});document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});}
+function applySkin(){const s=loadSkin();document.documentElement.setAttribute('data-bg',s.bg);document.documentElement.setAttribute('data-acc',s.acc);accentCache=null;const ic=ICON_SETS[s.icons]||ICON_SETS.default;document.querySelectorAll('.dock button .ic').forEach((el,i)=>{el.textContent=ic[i]||ICON_SETS.default[i];});document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});}
 function renderShop(){const s=loadSkin(),g=loadGame();document.getElementById('shopXpBalance').textContent=g.xp;document.getElementById('shopOwnedCount').textContent=s.owned.length;let h='';['bg','icons','mascot','acc'].forEach(cat=>{h+='<div class="shop-cat">'+CAT_NAMES[cat]+'</div><div class="shop-grid">';SHOP.filter(x=>x.cat===cat).forEach(it=>{const ow=s.owned.includes(it.id),sel=(cat==='mascot')?(s.mascot===it.val):(s[cat]===it.val);const prev=it.css?'<div class="si-prev" style="background:'+it.css+'"></div>':'<div class="si-prev'+(it.prev.length>2?' mini':'')+'">'+it.prev+'</div>';let b;if(sel)b='<button class="btn ghost" disabled>✓ Выбрано</button>';else if(ow)b='<button class="btn sky" onclick="selectSkin(\''+it.id+'\')">Выбрать</button>';else b='<button class="btn mint" '+(g.xp<it.price?'disabled':'')+' onclick="buySkin(\''+it.id+'\')">Купить · '+it.price+'</button>';h+='<div class="shop-item">'+prev+'<div class="si-name">'+it.name+'</div><div class="si-price">'+(it.price?it.price+' XP':'бесплатно')+'</div>'+b+'</div>';});h+='</div>';});document.getElementById('shopBox').innerHTML=h;}
 function buySkin(id){const it=SHOP.find(x=>x.id===id);if(!it)return;const s=loadSkin();if(s.owned.includes(id))return selectSkin(id);const g=loadGame();if(g.xp<it.price){toast('Не хватает XP');return;}if(!spendXP(it.price))return;s.owned.push(id);saveSkin(s);selectSkin(id,true);renderShop();toast('🛒 Куплено: '+it.name);}
 function selectSkin(id,silent){const it=SHOP.find(x=>x.id===id);if(!it)return;const s=loadSkin();if(it.cat==='mascot')s.mascot=it.val;else s[it.cat]=it.val;saveSkin(s);applySkin();renderShop();if(!silent)toast('✨ Применено: '+it.name);}
@@ -817,7 +835,7 @@ function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it))return;d
 function selectTopic(k){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===k)?null:k;savePlan(p);renderPlan(p);}
 function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return;document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
 
-/* ===== БАНК ФИПИ (внутри варианта) ===== */
+/* ===== БАНК ФИПИ ===== */
 const FIPI_BANK={
 'ОГЭ':{'Математика':[
  {num:1,topic:'Вычисления',text:'Найдите значение выражения (1/3 + 1/6) · 12.',answer:'6',type:'short'},
@@ -891,13 +909,13 @@ const FIPI_BANK={
  {num:16,topic:'Пунктуация',text:'Укажите цифры предложений, где нужна запятая перед «и» (однородные).',answer:'2',type:'short'},
  {num:26,topic:'Сочинение',text:'Напишите сочинение по проблеме текста (150+ слов, критерии К1–К12).',answer:'(сочинение, проверка по критериям)',type:'long'}]}};
 
-/* ===== РЕЖИМ ЦЕЛОГО ВАРИАНТА ===== */
-let variant=null, variantTimerInt=null;
+/* ===== ВАРИАНТ ===== */
+let variant=null, variantTimerInt=null, varSaveT=null;
 function varKey(v){return v.exam+'|'+v.subject+'|'+v.year+'|'+v.num;}
 function loadVarHistory(){try{return JSON.parse(localStorage.getItem('sn_var_history')||'[]');}catch(e){return[];}}
 function saveVarHistory(h){localStorage.setItem('sn_var_history',JSON.stringify(h.slice(-30)));}
 function isVariantDone(v){return loadVarHistory().some(h=>h.key===varKey(v));}
-function saveCurrentVariant(){if(variant&&!variant.checked)localStorage.setItem('sn_var_current',JSON.stringify(variant));else localStorage.removeItem('sn_var_current');}
+function saveCurrentVariant(){clearTimeout(varSaveT);if(variant&&!variant.checked){varSaveT=setTimeout(()=>{localStorage.setItem('sn_var_current',JSON.stringify(variant));},250);}else{localStorage.removeItem('sn_var_current');}}
 function loadCurrentVariant(){try{return JSON.parse(localStorage.getItem('sn_var_current')||'null');}catch(e){return null;}}
 function buildVariantTasks(exam,subject,year,num){
   const bank=(FIPI_BANK[exam]&&FIPI_BANK[exam][subject])||null;
@@ -909,13 +927,13 @@ function buildVariantTasks(exam,subject,year,num){
 function fillVariantNums(){document.getElementById('vNum').innerHTML=Array.from({length:20},(_,i)=>'<option value="'+(i+1)+'">№ '+(i+1)+'</option>').join('');}
 function randomVariantNum(){document.getElementById('vNum').value=1+Math.floor(Math.random()*20);toast('🎲 Выбран №'+document.getElementById('vNum').value);}
 function renderVarHistory(){const h=loadVarHistory().slice(-10).reverse();const el=document.getElementById('varHistory');if(!h.length){el.innerHTML='<span class="hint">Пока пусто</span>';return;}el.innerHTML=h.map((x,i)=>'<button class="var-chip done" onclick="openHistoryVariant('+i+')">'+x.year+'·№'+x.num+'·'+x.grade+' ✅</button>').join('');}
-function openHistoryVariant(i){const h=loadVarHistory().slice(-10).reverse()[i];if(!h)return;const p=h.key.split('|');launchVariant({exam:p[0],subject:p[1],year:+p[2],num:p[3]==='bank'?'bank':+p[3],timerMin:0});}
+function openHistoryVariant(i){const h=loadVarHistory().slice(-10).reverse()[i];if(!h)return;const p=h.key.split('|');launchVariant({exam:p[0],subject:p[1],year:p[2],num:p[3]==='bank'?'bank':+p[3],timerMin:0});}
 function quizTab(t){['Test','Variant'].forEach(n=>{const b=document.getElementById('tab'+n),x=document.getElementById('quiz'+n+'Box');if(b)b.classList.toggle('on',n.toLowerCase()===t);if(x)x.style.display=n.toLowerCase()===t?'block':'none';});if(t==='variant'){renderVarHistory();const cur=loadCurrentVariant();if(cur&&!cur.checked&&!variant){variant=cur;showVariantActive();}}}
 async function startVariant(){
   launchVariant({
     exam:document.getElementById('vExam').value,
     subject:document.getElementById('vSubject').value,
-    year:+document.getElementById('vYear').value,
+    year:document.getElementById('vYear').value,
     num:+document.getElementById('vNum').value,
     timerMin:+document.getElementById('vTimer').value
   });
@@ -928,7 +946,7 @@ async function launchVariant(cfg){
   document.getElementById('variantFooter').style.display='block';
   let tasks=buildVariantTasks(cfg.exam,cfg.subject,cfg.year,cfg.num);
   if(!tasks){
-    try{const r=await fetch(PROXY_BASE+'/fipi_bank?exam='+encodeURIComponent(cfg.exam)+'&subject='+encodeURIComponent(cfg.subject)+'&year='+cfg.year+'&num='+cfg.num);if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)tasks=d;}}catch(e){}
+    try{const r=await fetch(PROXY_BASE+'/fipi_bank?exam='+encodeURIComponent(cfg.exam)+'&subject='+encodeURIComponent(cfg.subject)+'&year='+encodeURIComponent(cfg.year)+'&num='+cfg.num);if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)tasks=d;}}catch(e){}
   }
   if(!tasks){
     try{const resp=await askGiga('Сгенерируй полный вариант '+cfg.exam+' '+cfg.year+' года №'+cfg.num+' по предмету «'+cfg.subject+'» СТРОГО в формате открытого банка ФИПИ: реальные номера заданий по спецификации, типовые формулировки. Верни JSON-массив БЕЗ markdown: [{"num":1,"topic":"...","text":"...","answer":"...","type":"short|long"}]','Ты — составитель КИМ ФИПИ. Верни только JSON.',3500,null,true);tasks=parseJSONArraySafe(resp);}catch(e){}
@@ -1030,8 +1048,17 @@ async function fetchBatch(topic,diff,n,grade,type,exam){
 }
 function updateNextLabel(){document.getElementById('nextBtn').textContent='➡️ Дальше ('+qQueue.length+')';}
 function updateProgress(){const p=qBatchTotal?(qBatchAnswered/qBatchTotal)*100:0;document.getElementById('quizProgress').style.width=p+'%';document.getElementById('quizProgressWrap').style.display=qBatchTotal?'block':'none';}
-function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=document.getElementById('quizQ');q.innerHTML=escapeHtml(o.question);mathIn(q);document.getElementById('quizHint').innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=g.xp<HINT_COST;document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';updateNextLabel();updateProgress();}
-async function buyHint(){if(qHintUsed||!qCurrent)return;const g=loadGame();if(g.xp<HINT_COST||!spendXP(HINT_COST))return toast('Не хватает XP');qHintUsed=true;document.getElementById('buyHintBtn').disabled=true;const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю...';try{const r=await askGiga('Дай намёк к заданию «'+qCurrent.question+'», не называя ответ.','Только текст намёка.',100,null,true);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));}catch(e){h.innerHTML='💡 Недоступно';}}
+function showQuestion(o){qCurrent=o;qAnswered=false;qHintUsed=false;const q=document.getElementById('quizQ');q.innerHTML=escapeHtml(o.question);mathIn(q);document.getElementById('quizHint').innerHTML=o.hint?'💡 '+escapeHtml(o.hint):'';const bb=document.getElementById('buyHintBtn');bb.style.display='block';const g=loadGame();bb.disabled=!((g.hints||0)>0||g.xp>=HINT_COST);bb.textContent=(g.hints||0)>0?('💡 Подсказка (подарков: '+g.hints+')'):('💡 Купить подсказку (−'+HINT_COST+' XP)');document.getElementById('quizResult').innerHTML='';document.getElementById('quizAnswerBox').style.display='flex';document.getElementById('nextBtn').style.display='none';document.getElementById('quizAnswer').value='';updateNextLabel();updateProgress();}
+async function buyHint(){
+  if(qHintUsed||!qCurrent)return;
+  const g=loadGame();let free=false;
+  if((g.hints||0)>0){g.hints--;free=true;saveGame(g);renderGame();}
+  else{if(g.xp<HINT_COST||!spendXP(HINT_COST))return toast('Не хватает XP');}
+  qHintUsed=true;document.getElementById('buyHintBtn').disabled=true;
+  toast(free?'💡 Бесплатная подсказка (осталось: '+g.hints+')':'−'+HINT_COST+' XP · подсказка');
+  const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю...';
+  try{const r=await askGiga('Дай намёк к заданию «'+qCurrent.question+'», не называя ответ.','Только текст намёка.',100,null,true);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));}catch(e){h.innerHTML='💡 Недоступно';}
+}
 async function startQuiz(pending,count){const topic=document.getElementById('qTopic').value.trim();if(!topic)return uiAlert('Напиши тему!','✏️');qLastTopic=topic;qPendingTopic=pending||null;const n=count||10,d=document.getElementById('qDiff').value,g=document.getElementById('qGrade').value,t=document.getElementById('qType').value,e=document.getElementById('qExam').value;document.getElementById('quizBtn').disabled=true;qQueue=[];qBatchTotal=0;qBatchAnswered=0;qBatchScore=0;document.getElementById('quizQ').textContent='⏳ Генерирую...';try{const arr=await fetchBatch(topic,d,n,g,t,e);qQueue=arr.slice(1);qBatchTotal=arr.length;showQuestion(arr[0]);}catch(err){document.getElementById('quizQ').textContent='❌ '+err.message;}finally{document.getElementById('quizBtn').disabled=false;}}
 async function nextQuestion(){const b=document.getElementById('nextBtn');b.disabled=true;if(qQueue.length){showQuestion(qQueue.shift());b.disabled=false;return;}const d=document.getElementById('qDiff').value,g=document.getElementById('qGrade').value,t=document.getElementById('qType').value,e=document.getElementById('qExam').value;document.getElementById('quizQ').textContent='⏳ Ещё 10...';try{const arr=await fetchBatch(qLastTopic||'математика',d,10,g,t,e);qQueue=arr.slice(1);qBatchTotal=arr.length;qBatchAnswered=0;qBatchScore=0;qPendingTopic=null;showQuestion(arr[0]);}catch(err){document.getElementById('quizQ').textContent='❌ '+err.message;}finally{b.disabled=false;updateNextLabel();}}
 function finishBatch(){const pct=qBatchTotal?qBatchScore/qBatchTotal:0;let ex='<div class="item ai">🏁 '+qBatchScore+' / '+qBatchTotal+' ('+Math.round(pct*100)+'%)</div>';if(qPendingTopic){const k=qPendingTopic,p=loadPlan();if(p&&pct>=PASS_PCT){if(!p.done)p.done=[];if(!p.done.some(d=>d.topic===k))p.done.push({date:new Date().toLocaleDateString('ru-RU'),topic:k,score:qBatchScore+'/'+qBatchTotal});p.selectedTopic=null;savePlan(p);renderPlan(p);ex+='<div class="item ai">🎓 Тема пройдена! +30 XP</div>';addXP(30,'тема');fireConfetti(innerWidth/2,innerHeight/2);}else ex+='<div class="item" style="border-left:4px solid #FF6B6B;">Нужно 80%+ для прохода темы.</div>';qPendingTopic=null;}document.getElementById('quizResult').innerHTML+=ex;}
@@ -1044,7 +1071,7 @@ function addGradeToStorage(p){const g=loadG();if(!g[p.subject])g[p.subject]=[];g
 function delG(s){const g=loadG();delete g[s];saveG(g);renderG();pushHist();}
 let gHist=[];try{gHist=JSON.parse(localStorage.getItem('sn_g_hist')||'[]');}catch(e){gHist=[];}
 function pushHist(){const g=loadG();let all=[];for(const s in g)all=all.concat(g[s]);if(!all.length)return;const avg=all.reduce((a,b)=>a+b,0)/all.length;const d=new Date().toLocaleDateString('ru-RU');const l=gHist[gHist.length-1];if(l&&l.d===d)l.v=+avg.toFixed(2);else{gHist.push({d,v:+avg.toFixed(2)});if(gHist.length>30)gHist.shift();}localStorage.setItem('sn_g_hist',JSON.stringify(gHist));drawGraph();}
-function drawGraph(){const cv=document.getElementById('gGraph');if(!cv)return;const hint=document.getElementById('gGraphHint');const dpr=devicePixelRatio||1,W=cv.clientWidth,H=96;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,W,H);if(gHist.length<2){hint.style.display='block';return;}hint.style.display='none';const vs=gHist.map(p=>p.v),mn=Math.min(...vs)-.3,mx=Math.max(...vs)+.3;const px=i=>10+i*(W-20)/(gHist.length-1),py=v=>H-12-(v-mn)*(H-24)/(mx-mn);const acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2787F5';c.beginPath();c.moveTo(px(0),py(vs[0]));for(let i=1;i<vs.length;i++)c.lineTo(px(i),py(vs[i]));c.strokeStyle=acc;c.lineWidth=2.5;c.stroke();c.lineTo(px(vs.length-1),H-4);c.lineTo(px(0),H-4);c.closePath();const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,acc+'55');gr.addColorStop(1,acc+'00');c.fillStyle=gr;c.fill();vs.forEach((v,i)=>{c.beginPath();c.arc(px(i),py(v),3.2,0,7);c.fillStyle=acc;c.fill();});}
+function drawGraph(){const cv=document.getElementById('gGraph');if(!cv)return;const hint=document.getElementById('gGraphHint');const dpr=devicePixelRatio||1,W=cv.clientWidth,H=96;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,W,H);if(gHist.length<2){hint.style.display='block';return;}hint.style.display='none';const vs=gHist.map(p=>p.v),mn=Math.min(...vs)-.3,mx=Math.max(...vs)+.3;const px=i=>10+i*(W-20)/(gHist.length-1),py=v=>H-12-(v-mn)*(H-24)/(mx-mn);const acc=getAccent();c.beginPath();c.moveTo(px(0),py(vs[0]));for(let i=1;i<vs.length;i++)c.lineTo(px(i),py(vs[i]));c.strokeStyle=acc;c.lineWidth=2.5;c.stroke();c.lineTo(px(vs.length-1),H-4);c.lineTo(px(0),H-4);c.closePath();const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,acc+'55');gr.addColorStop(1,acc+'00');c.fillStyle=gr;c.fill();vs.forEach((v,i)=>{c.beginPath();c.arc(px(i),py(v),3.2,0,7);c.fillStyle=acc;c.fill();});}
 function renderG(){const g=loadG();let h='',all=[];for(const s in g){const a=g[s];all=all.concat(a);h+='<div class="grade-row"><span><b>'+s+'</b>: '+a.join(' ')+' ('+(a.reduce((x,y)=>x+y,0)/a.length).toFixed(2)+')</span><button onclick="delG(\''+s.replace(/'/g,'')+'\')">✕</button></div>';}document.getElementById('gList').innerHTML=h||'<div class="item">Напиши: матан 5 4 👆</div>';const el=document.getElementById('gAvg');const nv=all.length?all.reduce((a,b)=>a+b,0)/all.length:null;if(nv!==null)animateCount(el,parseFloat(el.textContent)||0,nv);else el.textContent='—';document.getElementById('statAvg').textContent=nv!==null?nv.toFixed(2):'—';drawGraph();}
 function clearGrades(){uiConfirm('Удалить все оценки?',function(){localStorage.removeItem('g');gHist=[];localStorage.removeItem('sn_g_hist');renderG();},'🗑','Удалить');}
 const SUBJ_ALIASES=[['Физкультура',['физр','физкульт','физра']],['Физика',['физик']],['Математика',['матан','матем','алгебр','геометр']],['Информатика',['информ','инфа','инф']],['Английский язык',['англ','ин яз']],['Русский язык',['русск','рус']],['Литература',['литер','лит']],['Химия',['хим']],['Биология',['био']],['История',['истор','ист']],['Обществознание',['обществ','общ']],['География',['географ','гео']]];
@@ -1053,17 +1080,17 @@ function extractGradesLocal(t){const s=localSubject(t);const g=(t.match(/\b[1-5]
 async function addGradeAI(){const text=document.getElementById('gText').value.trim();if(!text)return uiAlert('Напиши: матан 5 4','✍️');const b=document.getElementById('gAddBtn');b.disabled=true;let p=null;try{const r=await askGiga('Определи предметы (раскрой сокращения) и оценки (1-5) из: «'+text+'». JSON-массив БЕЗ markdown: [{"subject","grades"}]','Только JSON.',500,null,true);p=parseJSONArraySafe(r).filter(x=>x.subject&&x.grades&&x.grades.length);}catch(e){}if(!p||!p.length)p=extractGradesLocal(text);if(!p||!p.length){b.disabled=false;return uiAlert('Не нашёл оценок.','❌');}p.forEach(addGradeToStorage);document.getElementById('gText').value='';document.getElementById('gAi').innerHTML='<div class="item ai">✅ '+p.map(x=>escapeHtml(x.subject)+': '+x.grades.join(', ')).join('\n')+'</div>';b.disabled=false;}
 async function gradesAI(){const g=loadG();if(!Object.keys(g).length)return uiAlert('Сначала добавь оценки.','📚');let d='';for(const s in g)d+=s+': '+g[s].join(', ')+'\n';const b=document.getElementById('gBtn');b.disabled=true;showLoading('gAi');try{const r=await askGiga(d+'\nПроанализируй: сильное, слабое, 3 совета. Без markdown.','Ты — педагог.',800,null,true);document.getElementById('gAi').innerHTML='<div class="item ai">'+escapeHtml(cleanResponse(r))+'</div>';}catch(e){showError('gAi',e.message);}finally{b.disabled=false;}}
 
-/* ===== ВИДЕО (с редиректом в поиск) ===== */
+/* ===== ВИДЕО (1500 токенов на объяснение + редирект в поиск) ===== */
 async function buildVideo(){
   const topic=document.getElementById('vTopic').value.trim()||'математика';
   const btn=document.getElementById('vBtn');btn.disabled=true;
-  showLoading('vAi','Ищу видео и готовлю объяснение...');
+  showLoading('vAi');
   const rq=encodeURIComponent(topic);
   const rutubeSearch='https://rutube.ru/search/?q='+rq;
   const vkSearch='https://vk.com/video?q='+rq;
   try{
     const[g,v]=await Promise.all([
-      askGiga('Объясни школьнику тему «'+topic+'» в 5-8 предложениях с примером.',null,800,null,true),
+      askGiga('Объясни школьнику тему «'+topic+'» подробно: определение, 2 примера, разбор, мини-вывод. Без markdown.',null,1500,null,true),
       fetch(PROXY_BASE+'/search_video?q='+rq).then(r=>r.ok?r.json():null).catch(()=>null)
     ]);
     let parts=[];
@@ -1099,10 +1126,11 @@ let chatHistory=[];try{chatHistory=JSON.parse(localStorage.getItem('sn_chat')||'
 let syncInFlight=false;
 function msgKey(m){return(m.role||'')+'|'+(m.timestamp||'')+'|'+(m.content||'');}
 async function syncChatHistory(){if(document.hidden||syncInFlight)return;syncInFlight=true;try{const r=await fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL));if(!r.ok)return;const s=await r.json();if(!Array.isArray(s))return;const k=new Set(chatHistory.map(msgKey));let ch=false;s.forEach(m=>{const x=msgKey(m);if(!k.has(x)){chatHistory.push(m);ch=true;}});if(ch){chatHistory.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(chatHistory.length>50)chatHistory=chatHistory.slice(-50);localStorage.setItem('sn_chat',JSON.stringify(chatHistory));if(document.getElementById('chat').classList.contains('active'))restoreChatHistory();}}catch(e){}finally{syncInFlight=false;}}
-function addMsg(t,c,s){const b=document.getElementById('chatBox');const d=document.createElement('div');d.className='msg '+c;if(s==='max'&&c==='user')t='📱 MAX: '+t;d.innerHTML=escapeHtml(t);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
+function mkMsg(t,c,s){const d=document.createElement('div');d.className='msg '+c;if(s==='max'&&c==='user')t='📱 MAX: '+t;d.innerHTML=escapeHtml(t);return d;}
+function addMsg(t,c,s){const b=document.getElementById('chatBox');const d=mkMsg(t,c,s);b.appendChild(d);mathIn(d);b.scrollTop=b.scrollHeight;return d;}
 async function sendChat(){const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;i.value='';addMsg(t,'user','web');const loc=extractGradesLocal(t);if(loc){loc.forEach(addGradeToStorage);addMsg('📒 В дневник: '+loc.map(p=>p.subject+' '+p.grades.join(',')).join('; '),'sys');}const l=document.createElement('div');l.className='skel skel-msg';document.getElementById('chatBox').appendChild(l);document.getElementById('chatBtn').disabled=true;try{await syncChatHistory();const r=await askGiga(t,MATH_SYSTEM+' Помни весь предыдущий разговор.',800);l.remove();addMsg(cleanResponse(r),'bot','web');await syncChatHistory();}catch(e){l.remove();addMsg(/fetch|Network/.test(e.message)?'😴 Сервер спит, попробуй через 5 сек.':'❌ '+e.message,'bot');}finally{document.getElementById('chatBtn').disabled=false;}}
 function clearChat(){uiConfirm('Удалить общий чат?',function(){chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';addMsg('Чат очищен 🎓','bot');fetch(PROXY_BASE+'/chat_history?user_id='+CHANNEL,{method:'POST',headers:{'Content-Type':'application/json'},body:'[]'}).catch(()=>{});},'🗑','Удалить');}
-function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';const l=chatHistory.slice(-30);if(!l.length)addMsg('Привет! Я GigaChat 🔄','bot');else{l.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Чат загружен','sys');}}
+function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';const l=chatHistory.slice(-30);const frag=document.createDocumentFragment();const nodes=[];if(!l.length){nodes.push(mkMsg('Привет! Я GigaChat 🔄','bot'));}else{l.forEach(m=>{if(m.role==='user')nodes.push(mkMsg(m.content,'user',m.source));else if(m.role==='assistant')nodes.push(mkMsg(m.content,'bot',m.source));});nodes.push(mkMsg('💾 Чат загружен','sys'));}nodes.forEach(n=>frag.appendChild(n));b.appendChild(frag);nodes.forEach(n=>mathIn(n));b.scrollTop=b.scrollHeight;}
 async function sendPhotoChat(inp){const f=inp.files&&inp.files[0];if(!f)return;inp.value='';addMsg('📸 Фото задачи','user','web');const l=document.createElement('div');l.className='skel skel-msg';document.getElementById('chatBox').appendChild(l);const r=new FileReader();r.onload=async function(){try{const res=await fetch(PROXY_BASE+'/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:r.result,prompt:'Реши задачу по фото пошагово. Формулы в LaTeX.',latex:true})});if(!res.ok)throw new Error(res.status);const d=await res.json();l.remove();addMsg('📸 Решение:\n'+cleanResponse(d.solution||''),'bot','web');}catch(e){l.remove();addMsg('❌ Ошибка: '+e.message,'bot');}};r.readAsDataURL(f);}
 
 async function askGiga(prompt,system,max,history,silent=false){const c=new AbortController();const t=setTimeout(()=>c.abort(),60000);try{const r=await fetch(PROXY_BASE+'/chat?user_id='+encodeURIComponent(silent?'system_internal':CHANNEL),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,system:system||MATH_SYSTEM,max_tokens:max||800}),signal:c.signal});if(!r.ok){let d='';try{d=(await r.json()).detail||'';}catch(e){}throw new Error(r.status+' '+d);}const j=await r.json();return j.reply;}finally{clearTimeout(t);}}
@@ -1115,12 +1143,16 @@ function setTab(id){const m={home:'home',chat:'chat',plan:'plan',quiz:'quiz',gra
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');setTab(id);if(id==='plan'){checkWeekUpdate();planTab(loadPlan()?'view':'form');}if(id==='chat')syncChatHistory().then(restoreChatHistory);if(id==='grades')renderG();if(id==='shop')renderShop();if(id==='quiz'){const pe=getExamFromPlan();if(pe){const q=document.getElementById('qExam');if(q&&!q.value)q.value=pe;const v=document.getElementById('vExam');if(v)v.value=pe;updateExamHint();}}if(id==='home')updateHomeStats();scrollTo({top:0,behavior:'smooth'});}
 function updateHomeStats(){const p=loadPlan();document.getElementById('statWeeks').textContent=p?p.weeks||'—':'—';document.getElementById('statDone').textContent=p?(p.done||[]).length:0;renderToday();renderGame();}
 
+/* ===== ИНИЦИАЛИЗАЦИЯ (оптимизирована: фоновые задачи через idle) ===== */
 applySkin();updateSubjects();updateExamHint();fillVariantNums();renderVarHistory();
 const sp2=loadPlan();if(sp2)renderPlan(sp2);
 renderG();updateHomeStats();setTab('home');renderGame();renderToday();drawGraph();
-syncChatHistory().then(restoreChatHistory);checkWeekUpdate();
-setInterval(syncChatHistory,30000);setTimeout(onbStart,700);
-addEventListener('resize',()=>{if(document.getElementById('grades').classList.contains('active'))drawGraph();});
+const ric=window.requestIdleCallback||(f=>setTimeout(f,250));
+ric(()=>{syncChatHistory().then(restoreChatHistory);checkWeekUpdate();});
+setInterval(syncChatHistory,30000);
+setTimeout(onbStart,700);
+let rzT=null;
+addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{sizeConfetti();if(document.getElementById('grades').classList.contains('active'))drawGraph();},150);},{passive:true});
 </script>
 </body>
 </html>
