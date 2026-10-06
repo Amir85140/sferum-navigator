@@ -352,9 +352,9 @@
   .dock button.active .ic { animation: bob 2s ease-in-out infinite; }
 
   .theme-pill { position: fixed; top: 14px; right: 14px; z-index: 95; display: flex; gap: 2px; padding: 5px; background: var(--dock-bg); backdrop-filter: blur(14px); border: 1px solid var(--dock-bd); border-radius: 999px; box-shadow: 0 10px 26px rgba(0,40,90,.15); }
-  .theme-pill button { border: none; background: transparent; font-size: 18px; padding: 6px 9px; border-radius: 999px; cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1); font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
-  .theme-pill button:hover { transform: scale(1.3) rotate(15deg); }
-  .theme-pill button.on { background: var(--c1-bg); box-shadow: var(--c1-sh); }
+  .theme-pill button { border: none; background: transparent; font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 999px; cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s; font-family: 'Nunito', sans-serif; color: var(--muted); }
+  .theme-pill button:hover { transform: scale(1.05); background: var(--c0-bg); color: var(--ink); }
+  .theme-pill button.on { background: var(--c1-bg); color: var(--c1-c); box-shadow: var(--c1-sh); }
 
   .onb { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; animation: popIn .3s both; }
   .onb-card { max-width: 340px; width: 100%; text-align: center; }
@@ -471,7 +471,7 @@
     .head .mascot{width:44px;height:44px;font-size:22px;}
     .head .sub{font-size:11px;}
     .theme-pill{top:8px;right:8px;padding:3px;}
-    .theme-pill button{font-size:13px;padding:4px 7px;}
+    .theme-pill button{font-size:11px;padding:4px 7px;}
     .btn{padding:12px;font-size:15px;margin-top:10px;}
     .cloud{padding:12px;border-radius:18px;}
     .cloud .em{width:38px;height:38px;font-size:20px;margin-bottom:8px;}
@@ -553,9 +553,9 @@
 </div>
 
 <div class="theme-pill">
-  <button id="thLight" onclick="setThemeClick('light', event)" title="Светлая">️</button>
-  <button id="thDark" onclick="setThemeClick('dark', event)" title="Тёмная">🌙</button>
-  <button id="thAuto" onclick="setThemeClick('auto', event)" title="Системная">💻</button>
+  <button id="thLight" onclick="setThemeClick('light', event)" title="Светлая">Светлая</button>
+  <button id="thDark" onclick="setThemeClick('dark', event)" title="Тёмная">Тёмная</button>
+  <button id="thAuto" onclick="setThemeClick('auto', event)" title="Системная">Авто</button>
 </div>
 
 <div class="wrap">
@@ -593,7 +593,7 @@
       <button class="cloud" onclick="go('plan')"><div class="em">📅</div><div class="t">План</div><div class="d">Подготовка к экзамену</div></button>
       <button class="cloud" onclick="go('quiz')"><div class="em">✅</div><div class="t">Тренажёр</div><div class="d">Тесты</div></button>
       <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
-      <button class="cloud" onclick="go('video')"><div class="em"></div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
+      <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
     </div>
@@ -618,17 +618,17 @@
     <div class="qchips">
       <button onclick="chipSet('Объясни тему: ')">💡 Объясни тему</button>
       <button onclick="chipSet('Придумай пример: ')">✏️ Придумай пример</button>
-      <button onclick="chipSet('Я получил оценку: ')"> Запиши оценку</button>
-      <button onclick="chipSet('Поддержи меня, мне тяжело')">💪 Поддержи</button>
+      <button onclick="chipSet('Я получил оценку: ')">📚 Запиши оценку</button>
+      <button onclick="chipSet('Поддержи меня, мне тяжело')"> Поддержи</button>
     </div>
     <div class="chat-input">
       <button class="btn ghost" style="width:44px;margin:0;padding:0;height:50px;flex-shrink:0;font-size:20px;" onclick="clearChat()" title="Очистить общий чат">⋯</button>
       <input id="chatInput" placeholder="Твой вопрос..." onkeydown="if(event.key==='Enter')sendChat()">
       <input type="file" id="chatPhoto" accept="image/*" style="display:none" onchange="sendPhotoChat(this)">
-      <button class="btn sky" id="photoBtn" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()"></button>
-      <button class="btn" id="chatBtn" onclick="sendChat()"></button>
+      <button class="btn sky" id="photoBtn" style="width:54px;margin:0;padding:0;height:50px;flex-shrink:0;" onclick="document.getElementById('chatPhoto').click()">📷</button>
+      <button class="btn" id="chatBtn" onclick="sendChat()">➤</button>
     </div>
-    <button class="btn ghost" onclick="clearChat()"> Очистить общий чат</button>
+    <button class="btn ghost" onclick="clearChat()">🗑 Очистить общий чат</button>
   </div>
 
   <div id="plan" class="page">
@@ -639,7 +639,7 @@
     </div>
     <div id="planFormBox">
       <div class="puff">
-        <label> Твой класс</label>
+        <label>🎓 Твой класс</label>
         <select id="pGrade"><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select>
         
         <label>🎯 Что сдаёшь</label>
@@ -652,7 +652,7 @@
         <label>📚 Выбери предметы</label>
         <div class="subject-grid" id="subjectGrid"></div>
         
-        <label> Цель</label>
+        <label>🏆 Цель</label>
         <input type="text" id="pGoal" placeholder="сдать на 90+, подтянуть оценки...">
         
         <label>⏰ Минут в день на учёбу</label>
@@ -699,7 +699,7 @@
       </div>
       <div id="planSched"></div>
       <div id="planTopics" style="display:none;"></div>
-      <button class="btn ghost" onclick="deletePlan()"> Удалить план</button>
+      <button class="btn ghost" onclick="deletePlan()">🗑 Удалить план</button>
     </div>
   </div>
 
@@ -729,7 +729,7 @@
   </div>
 
   <div id="grades" class="page">
-    <div class="head"><div class="hi"><div class="mascot"></div><div><h1>Дневник</h1><div class="sub">Пиши словами — ИИ разберёт</div></div></div></div>
+    <div class="head"><div class="hi"><div class="mascot">📚</div><div><h1>Дневник</h1><div class="sub">Пиши словами — ИИ разберёт</div></div></div></div>
     <div class="puff" style="margin-bottom:12px;">
       <canvas id="gGraph" style="width:100%;height:96px;display:block;"></canvas>
       <div class="hint" id="gGraphHint" style="margin-top:6px;">Добавь оценки в два разных дня — появится график прогресса</div>
@@ -766,7 +766,7 @@
       <textarea id="mText" rows="3" placeholder="необязательно"></textarea>
       <button class="btn" id="mBtn" onclick="motivationAI()">🤖 Поддержи меня</button>
     </div>
-    <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку </div>
+    <div class="quote" id="quoteBox">Выбери настроение и нажми кнопку 👆</div>
   </div>
 
   <div id="about" class="page">
@@ -776,11 +776,11 @@
         <b>Sferum Navigator</b> — ИИ-наставник в MAX на базе GigaChat.
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
-          <li>🔐 Ключи GigaChat хранятся только на сервере</li>
-          <li>🏆 XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
+          <li> Ключи GigaChat хранятся только на сервере</li>
+          <li> XP — только за проход темы (тест 80%+); 🛒 тратятся на скины</li>
           <li>💬 Все диалоги и подтверждения — в стиле приложения</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 45</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 46</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -789,11 +789,11 @@
   <div id="more" class="page">
     <div class="head"><div class="hi"><div class="mascot">⋯</div><div><h1>Ещё разделы</h1></div></div></div>
     <div class="cloud-grid">
-      <button class="cloud" onclick="go('grades')"><div class="em">📚</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
+      <button class="cloud" onclick="go('grades')"><div class="em"></div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 45</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 46</div></button>
     </div>
   </div>
 
@@ -834,7 +834,7 @@ window.addEventListener('load',()=>mathIn(document.body));
 
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.classList.add('out'),1900);setTimeout(()=>t.remove(),2400);}
 
-// ========== examInfo (определена ДО использования) ==========
+// ========== examInfo ==========
 function examInfo(grade,examText){
   const now=new Date();
   const t=(examText||'').toLowerCase();
@@ -848,16 +848,14 @@ function examInfo(grade,examText){
   return{name:examText||'экзамен',examDate:ed,weeks:w};
 }
 
-// ========== УЛУЧШЕННЫЙ ПАРСИНГ JSON ==========
+// ========== ПАРСИНГ JSON ==========
 function extractJSON(text) {
   if (!text) return null;
-  // Удаляем markdown-обёртку ```json ... ``` или ``` ... ```
   let cleaned = text;
   const jsonBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (jsonBlockMatch) {
     cleaned = jsonBlockMatch[1].trim();
   }
-  // Ищем первый { или [
   const firstBrace = cleaned.indexOf('{');
   const firstBracket = cleaned.indexOf('[');
   let start = -1;
@@ -904,7 +902,7 @@ function parseJSONArraySafe(text) {
 // ========== МОДАЛКИ ==========
 function showModal(o){
   const m=document.getElementById('modal');
-  document.getElementById('modalEmoji').textContent=o.emoji||'🤖';
+  document.getElementById('modalEmoji').textContent=o.emoji||'';
   document.getElementById('modalText').textContent=o.text||'';
   const btns=document.getElementById('modalBtns');
   btns.innerHTML='';
@@ -979,10 +977,10 @@ function animateCount(el,from,to,dur=700){const st=performance.now();const up=no
 // ========== ДОСТИЖЕНИЯ ==========
 const BADGES=[
   ['step','🎬','Первый XP'],
-  ['goal1','','Первая норма дня'],
+  ['goal1','📅','Первая норма дня'],
   ['quiz10','🎯','Снайпер: 10 верных'],
   ['plan','🗺️','Стратег: план составлен'],
-  ['done','🎓','Тема закрыта'],
+  ['done','','Тема закрыта'],
   ['done5','📚','Эрудит: 5 тем'],
   ['streak3','🔥','3 дня подряд'],
   ['streak7','⚡','Неделя огня'],
@@ -1038,12 +1036,12 @@ const SHOP=[
   {id:'bg_ocean',cat:'bg',name:'Океан',css:'linear-gradient(135deg,#6BC9A0,#4A90E2)',price:70,val:'ocean'},
   {id:'bg_neon',cat:'bg',name:'Неон',css:'linear-gradient(135deg,#FF6B9D,#C06C84)',price:80,val:'neon'},
   {id:'ic_default',cat:'icons',name:'Стандарт',prev:'🏠💬📅✅',price:0,val:'default'},
-  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻🦁',price:40,val:'zoo'},
+  {id:'ic_zoo',cat:'icons',name:'Зверушки',prev:'🐻',price:40,val:'zoo'},
   {id:'ic_space',cat:'icons',name:'Космос',prev:'🚀🎯',price:40,val:'space'},
   {id:'ic_food',cat:'icons',name:'Фастфуд',prev:'🍔🌭🍩',price:40,val:'food'},
-  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'🏀🏈🎾',price:50,val:'sport'},
-  {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎵🎤',price:50,val:'music'},
-  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:'🤖'},
+  {id:'ic_sport',cat:'icons',name:'Спорт',prev:'🏈🎾',price:50,val:'sport'},
+  {id:'ic_music',cat:'icons',name:'Музыка',prev:'🎤',price:50,val:'music'},
+  {id:'ms_robot',cat:'mascot',name:'Робот',prev:'🤖',price:0,val:''},
   {id:'ms_unicorn',cat:'mascot',name:'Единорог',prev:'🦄',price:50,val:'🦄'},
   {id:'ms_dragon',cat:'mascot',name:'Дракон',prev:'🐉',price:50,val:'🐉'},
   {id:'ms_alien',cat:'mascot',name:'Пришелец',prev:'👾',price:50,val:'👾'},
@@ -1056,16 +1054,16 @@ const SHOP=[
   {id:'ac_pink',cat:'acc',name:'Розовый',css:'#EC4899',price:40,val:'pink'},
   {id:'ac_coral',cat:'acc',name:'Коралловый',css:'#FF6B6B',price:40,val:'coral'},
 ];
-const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:'🎨 Акцентный цвет'};
+const CAT_NAMES={bg:'🖼 Фоны',icons:'🎛 Иконки вкладок',mascot:'🐾 Маскот',acc:' Акцентный цвет'};
 const ICON_SETS={
-  default:['🏠','','📅','✅','⋯'],
+  default:['🏠','💬','📅','✅','⋯'],
   zoo:['🐻','🐯','','🐼','🐨'],
   space:['🌍','','🛸','','⭐'],
-  food:['🍔','🌭','🍕','🍩',''],
-  sport:['⚽','','','🎾',''],
+  food:['🍔','','🍕','🍩',''],
+  sport:['⚽','','','',''],
   music:['','','🎤','🎹','']
 };
-function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
+function loadSkin(){try{return Object.assign({bg:'default',icons:'default',mascot:'🤖',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']},JSON.parse(localStorage.getItem('sn_skin')||'{}'));}catch(e){return{bg:'default',icons:'default',mascot:'',acc:'default',owned:['bg_default','ic_default','ms_robot','ac_default']};}}
 function saveSkin(s){localStorage.setItem('sn_skin',JSON.stringify(s));}
 function applySkin(){
   const s=loadSkin();
@@ -1073,7 +1071,7 @@ function applySkin(){
   document.documentElement.setAttribute('data-acc',s.acc);
   const icons=ICON_SETS[s.icons]||ICON_SETS.default;
   document.querySelectorAll('.dock button .ic').forEach((el,i)=>{ el.textContent = icons[i] || ICON_SETS.default[i] || el.textContent; });
-  document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'🤖';});
+  document.querySelectorAll('.mascot, .hero .orb').forEach(el=>{el.textContent=s.mascot||'';});
 }
 function renderShop(){
   const s=loadSkin();const g=loadGame();
@@ -1104,7 +1102,7 @@ function buySkin(id){
   if(!spendXP(it.price)){toast('Ошибка при списании XP');return;}
   s.owned.push(id);saveSkin(s);
   selectSkin(id,true); renderShop();
-  toast(' Куплено: '+it.name+' (−'+it.price+' XP)');
+  toast('🛒 Куплено: '+it.name+' (−'+it.price+' XP)');
 }
 function selectSkin(id,silent){
   const it=SHOP.find(x=>x.id===id);if(!it)return;
@@ -1125,7 +1123,7 @@ function renderToday(){
   const it=p.schedule[todayIdx()];
   if(!it){el.innerHTML='';return;}
   if(isRestDay(it)){el.innerHTML='<div class="puff today-card"><div class="t">Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">😴 День отдыха</div><div class="a">Восстановись — это тоже часть подготовки!</div></div>';return;}
-  el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">✏️ '+escapeHtml(it.activity)+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания</button><button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button></div></div>';
+  el.innerHTML='<div class="puff today-card"><div class="t">🎯 Сегодня · '+DAYS[todayIdx()]+'</div><div class="s">'+escapeHtml(it.subject||'')+' — '+escapeHtml(it.topic||'')+'</div>'+(it.activity?'<div class="a">️ '+escapeHtml(it.activity)+'</div>':'')+'<div class="row2"><button class="btn mint" onclick="startTodayFromPlan()"> Задания</button><button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео</button></div></div>';
 }
 
 const SUBJECTS_OGE = [
@@ -1192,14 +1190,14 @@ function planView(t){
 
 function renderPlan(data){
   let sch='', top='';
-  if(data.examName)sch+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n📆 Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
+  if(data.examName)sch+='<div class="item ai">🎯 Сдаёшь: '+escapeHtml(data.examName)+'\n Дата: '+data.examDate+' · недель: '+data.weeks+(data.savedAt?'\n💾 Сохранён: '+data.savedAt:'')+'</div>';
   if(data.schedule&&data.schedule.length){
     const sc=data.schedule.filter(s=>!isRestDay(s)).length;
     sch+='<div class="item ai">📆 Неделя '+data.scheduleWeek+' · учебных дней: '+sc+':</div>';
     const ti=todayIdx();
     data.schedule.forEach((s,i)=>{sch+='<div class="sched-row'+(i===ti?' today':'')+'" style="animation-delay:'+i*60+'ms;"><span class="day">'+(s.day||DAYS[i])+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(s.topic||'')+(s.activity?' · '+escapeHtml(s.activity):'')+'</span></div>';});
     const td=data.schedule[ti];
-    if(td&&!isRestDay(td)){sch+='<div class="item ai"> Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()"> Видео по теме дня</button>';}
+    if(td&&!isRestDay(td)){sch+='<div class="item ai">🎯 Сегодня ('+DAYS[ti]+'): '+escapeHtml(td.subject)+'\n📖 Тема: '+escapeHtml(td.topic||'по плану')+(td.activity?'\n✏️ '+escapeHtml(td.activity):'')+'</div>';sch+='<button class="btn mint" onclick="startTodayFromPlan()">🎯 Задания на сегодня</button>';sch+='<button class="btn sky" onclick="videoTodayFromPlan()">🎥 Видео по теме дня</button>';}
     else if(td){sch+='<div class="item ai">😴 Сегодня отдых по плану.</div>';}
 
     const wt=data.schedule.filter(s=>!isRestDay(s));
@@ -1208,13 +1206,12 @@ function renderPlan(data){
       wt.forEach(s=>{const key=topicKey(s);if(!key)return;const done=(data.done||[]).some(d=>d.topic===key);const sel=data.selectedTopic===key;
         top+='<div class="sched-row'+(sel?' today':'')+'"><span class="day">'+(s.day||'')+'</span><b>'+escapeHtml(s.subject||'')+'</b><span class="act">'+escapeHtml(key)+(done?'\n🎓 пройдено':'')+'</span></div>';
         if(!done){top+='<button class="btn '+(sel?'mint':'ghost')+'" onclick="selectTopic(\''+attr(key)+'\')">'+(sel?'✔ Выбрано: ':'Выбрать: ')+escapeHtml(key)+'</button>';
-          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()">🎯 Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
-      if(data.done&&data.done.length)top+='<div class="item"> Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
-      else top+='<div class="item">Пока ничего не пройдено — выбери тему и сдай тест на 80%+ 👆</div>';
+          if(sel)top+='<button class="btn sky" onclick="testSelectedTopic()"> Тест по теме ('+TEST_SIZE+') · 80%+ = проход</button>';}});
+      if(data.done&&data.done.length)top+='<div class="item">🎓 Пройдено тем: '+data.done.length+' (посл.: '+escapeHtml(data.done[data.done.length-1].topic)+', тест '+data.done[data.done.length-1].score+')</div>';
+      else top+='<div class="item">Пока ничего не пройдено — выбери тему и сдай тест на 80%+ </div>';
     }
   }
   if(data.summary)top+='<div class="item ai">💡 '+escapeHtml(cleanResponse(data.summary))+'</div>';
-  // НЕ показываем data.text если это JSON или markdown
   if(data.text && !data.text.trim().startsWith('{') && !data.text.trim().startsWith('[') && !data.text.trim().startsWith('```')){
     sch+='<div class="item ai">'+escapeHtml(cleanResponse(data.text))+'</div>';
   }
@@ -1236,9 +1233,10 @@ function collectPlanData(){
   return {grade,exam,subjects,goal,minutes,level,weak,restDays};
 }
 
+// ИСПРАВЛЕНИЕ: Промпт теперь чётко указывает общее время в день
 async function buildPlan(){
   const data=collectPlanData();
-  if(!data.subjects.length) return uiAlert('Выбери хотя бы один предмет!','📚');
+  if(!data.subjects.length) return uiAlert('Выбери хотя бы один предмет!','');
   const btn=document.getElementById('planBtn'); btn.disabled=true;
   planTab('view'); planView('sched');
   showLoading('planSched','GigaChat продумывает план...');
@@ -1252,37 +1250,38 @@ async function buildPlan(){
     const prompt=`Ученик ${data.grade} класса. Сдаёт: ${data.exam||'не сдаёт экзамен'}. До экзамена ${ei.weeks} недель.
 Предметы: ${subjectsStr}.
 Цель: ${data.goal||'улучшить успеваемость'}.
-Время на учёбу в день: ${data.minutes} минут.
-Дни отдыха: ${restDaysStr} (в эти дни НЕ ставить учёбу, subject="отдых").
 Уровень: ${data.level}.
 Слабые места: ${data.weak||'нет'}.
 
+ВАЖНОЕ ПРАВИЛО ПО ВРЕМЕНИ:
+- Всего на учёбу в день: РОВНО ${data.minutes} минут
+- Дни отдыха: ${restDaysStr} (в эти дни НЕ ставить учёбу, subject="отдых", topic="отдых", activity="отдых")
+- В учебные дни (${studyDays} дней) ОБЯЗАТЕЛЬНО заполнить все ${data.minutes} минут
+- Если предметов несколько в день — распредели время между ними так, чтобы в сумме было РОВНО ${data.minutes} минут
+- Например, если 2 предмета по ${data.minutes} мин в день — каждый по ${minPerSubject} мин
+- Если 1 предмет в день — он занимает все ${data.minutes} мин
+
 Составь расписание РОВНО на 7 дней (Пн-Вс):
-- В дни отдыха (${restDaysStr}) ставь subject="отдых", topic="отдых", activity="отдых"
-- В учебные дни (${studyDays} дней) МОЖНО ставить НЕСКОЛЬКО предметов в один день
-- На каждый предмет выделяй ~${minPerSubject} мин (итого ${data.minutes} мин в день)
+- В дни отдыха (${restDaysStr}) ставь subject="отдых"
+- В учебные дни распределяй предметы ${subjectsStr}
 - Чередуй сложные и лёгкие предметы
 - Укажи КОНКРЕТНУЮ тему для каждого предмета
-- В activity укажи время: "Математика 30 мин · задачи"
+- В activity ОБЯЗАТЕЛЬНО укажи время так, чтобы сумма за день = ${data.minutes} мин. Пример: "Математика ${minPerSubject} мин · задачи" или если один предмет: "${data.minutes} мин · решение задач"
 
-Верни СТРОГО JSON БЕЗ markdown-обёртки (без \`\`\`json): {"schedule":[{"day":"Пн","subject":"Математика","topic":"Квадратные уравнения","activity":"30 мин · решение задач"},{"day":"Пн","subject":"Русский язык","topic":"Грамматические ошибки","activity":"30 мин · разбор ошибок"},...],"summary":"2-3 предложения общих советов"}`;
+Верни СТРОГО JSON БЕЗ markdown-обёртки (без \`\`\`json): {"schedule":[{"day":"Пн","subject":"Математика","topic":"Квадратные уравнения","activity":"${minPerSubject} мин · решение задач"},{"day":"Пн","subject":"Русский язык","topic":"Грамматические ошибки","activity":"${minPerSubject} мин · разбор ошибок"},...],"summary":"2-3 предложения общих советов"}`;
 
-    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки (без ```json и ```), без пояснений.',3000);
+    const resp=await askGiga(prompt,'Ты — эксперт по подготовке к экзаменам. Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки (без ```json и ```), без пояснений. ВАЖНО: сумма минут в activity за каждый учебный день должна быть РОВНО '+data.minutes+' минут.',3000);
     
     let plan=parseJSONObjectSafe(resp);
-    
-    // Если парсинг не удался, пробуем найти schedule напрямую
     if (!plan || !plan.schedule) {
       const schedMatch = resp.match(/"schedule"\s*:\s*(\[[\s\S]*?\])/);
       if (schedMatch) {
         try { plan = { schedule: JSON.parse(schedMatch[1]) }; } catch(e) {}
       }
+      if (!plan || !plan.schedule) {
+        plan = { text: resp, schedule: [] };
+      }
     }
-    
-    if(!plan||!plan.schedule){
-      plan={text:resp,schedule:[]};
-    }
-    
     plan.examName=data.exam||'без экзамена';
     plan.examDate=ei.examDate.toLocaleDateString('ru-RU');
     plan.weeks=ei.weeks;
@@ -1318,19 +1317,24 @@ async function checkWeekUpdate(){
 
     const prompt=`Новая неделя. Ученик ${p.grade} кл., сдаёт ${p.exam||'не сдаёт'} (${ei.weeks} нед.).
 Предметы: ${subjectsStr}.
-Время на учёбу в день: ${p.minutes} минут (~${minPerSubject} мин на предмет).
-Дни отдыха: ${restDaysStr} (в эти дни НЕ ставить учёбу).
 Уровень: ${p.level}.
 Слабые: ${p.weak||'нет'}.
 НЕПРОЙДЕННЫЕ темы (ОБЯЗАТЕЛЬНО включи): ${uncompletedStr}.
 
+ВАЖНОЕ ПРАВИЛО ПО ВРЕМЕНИ:
+- Всего на учёбу в день: РОВНО ${p.minutes} минут
+- Дни отдыха: ${restDaysStr} (в эти дни НЕ ставить учёбу)
+- В учебные дни (${studyDays} дней) ОБЯЗАТЕЛЬНО заполнить все ${p.minutes} минут
+- Если предметов несколько в день — распредели время так, чтобы в сумме было РОВНО ${p.minutes} минут
+- В activity ОБЯЗАТЕЛЬНО укажи время так, чтобы сумма за день = ${p.minutes} мин
+
 Составь расписание РОВНО на 7 дней (Пн-Вс):
 - В дни отдыха ставь subject="отдых"
-- В учебные дни МОЖНО ставить НЕСКОЛЬКО предметов
 - Включи непройденные темы и добавь новые
+- Чередуй сложные и лёгкие предметы
 
 Верни СТРОГО JSON БЕЗ markdown-обёртки: {"schedule":[...7+ элементов {"day","subject","topic","activity"}]}`;
-    const resp=await askGiga(prompt,'Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки (без ```json и ```), без пояснений.',2500);
+    const resp=await askGiga(prompt,'Верни ТОЛЬКО валидный JSON, БЕЗ markdown-обёртки. Сумма минут в activity за каждый учебный день = '+p.minutes+' минут.',2500);
     const data=parseJSONObjectSafe(resp);
     if(data&&data.schedule&&data.schedule.length>=7){
       plan.schedule=data.schedule;
@@ -1349,7 +1353,7 @@ function deletePlan(){uiConfirm('Удалить план и весь прогр�
 function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня по плану отдых 😴 Восстановись!','😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', тема: '+it.topic:'');go('quiz');startQuiz(topicKey(it),TEST_SIZE);}
 function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня по плану отдых ','');return;}document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
 function selectTopic(key){const p=loadPlan();if(!p)return;p.selectedTopic=(p.selectedTopic===key)?null:key;savePlan(p);renderPlan(p);}
-function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return uiAlert('Сначала выбери тему кнопкой «Выбрать».','🎯');document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
+function testSelectedTopic(){const p=loadPlan();const k=p&&p.selectedTopic;if(!k)return uiAlert('Сначала выбери тему кнопкой «Выбрать».','');document.getElementById('qTopic').value=k;go('quiz');startQuiz(k,TEST_SIZE);}
 function retryTopicTest(key){document.getElementById('qTopic').value=key;go('quiz');startQuiz(key,TEST_SIZE);}
 
 // ========== ТРЕНАЖЁР ==========
@@ -1390,7 +1394,7 @@ async function buyHint(){
   const g=loadGame();if(g.xp<HINT_COST){toast('Не хватает XP на подсказку');return;}
   if(!spendXP(HINT_COST))return;qHintUsed=true;
   const bb=document.getElementById('buyHintBtn');bb.disabled=true;bb.textContent='💡 Подсказка куплена';toast('−'+HINT_COST+' XP · подсказка');
-  const h=document.getElementById('quizHint');h.innerHTML='⏳ Думаю над подсказкой...';
+  const h=document.getElementById('quizHint');h.innerHTML=' Думаю над подсказкой...';
   try{const r=await askGiga('Вопрос: «'+qCurrent.question+'». Дай ОДНО короткое предложение-намёк, которое подводит к ответу, НЕ называя ответ.','Ты — учитель. Верни только текст намёка.',100);h.innerHTML='💡 '+escapeHtml(cleanResponse(r));mathIn(h);}catch(e){h.innerHTML='💡 Подсказка недоступна: '+e.message;}
 }
 async function startQuiz(pending,count){
@@ -1429,7 +1433,7 @@ function finishBatch(){
       addXP(30,'тема пройдена');
       const r2=document.getElementById('quizResult').getBoundingClientRect();fireConfetti(r2.left+r2.width/2,r2.top);
     }else{
-      extra+='<div class="item" style="border-left:4px solid #FF6B6B;"> Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
+      extra+='<div class="item" style="border-left:4px solid #FF6B6B;">😕 Для прохода темы и +30 XP нужно 80%+ (сейчас '+Math.round(pct*100)+'%). XP не начислен. Пересдай!</div><button class="btn sky" onclick="retryTopicTest(\''+attr(key)+'\')">🔁 Пересдать тест</button>';
     }
     qPendingTopic=null;
   }
@@ -1505,7 +1509,7 @@ async function addGradeAI(){
   mathIn(document.getElementById('gAi'));btn.disabled=false;
 }
 async function gradesAI(){
-  const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','📚');
+  const g=loadG();const k=Object.keys(g);if(!k.length)return uiAlert('Сначала добавь оценки — тогда смогу проанализировать.','');
   let desc='Оценки ученика:\n';for(const s in g){const a=g[s].reduce((x,y)=>x+y,0)/g[s].length;desc+=s+': '+g[s].join(', ')+' (ср. '+a.toFixed(2)+')\n';}
   const btn=document.getElementById('gBtn');btn.disabled=true;showLoading('gAi','GigaChat анализирует...');
   try{const r=await askGiga(desc+'\nПроанализируй: сильные стороны, слабые предметы, 3 совета.','Ты — педагог-эксперт. Без Markdown. Формулы в $...$.');const box=document.getElementById('gAi');box.innerHTML='<div class="item ai">🤖 Анализ оценок:\n'+escapeHtml(cleanResponse(r))+'</div>';mathIn(box);}
@@ -1526,7 +1530,7 @@ async function buildVideo(){
     let vhtml = '<div class="item ai" style="margin-bottom:12px;">🔗 <b>Полезные ссылки:</b><br>';
     let parts = [];
     if(videoResp){
-      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">📺 '+(v.title||('RuTube '+(idx+1)))+'</a>'));
+      (videoResp.rutube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'"> '+(v.title||('RuTube '+(idx+1)))+'</a>'));
       (videoResp.vk||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">🎬 VK '+(idx+1)+'</a>'));
       (videoResp.youtube||[]).forEach((v,idx)=>parts.push('<a class="mini-link" target="_blank" href="'+v.url+'">▶️ YouTube '+(idx+1)+'</a>'));
     }
@@ -1581,7 +1585,7 @@ async function sendChat(){
   const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
   i.value='';addMsg(t,'user','web');
   const local=extractGradesLocal(t);
-  if(local){local.forEach(p=>addGradeToStorage(p));addMsg('📚 Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
+  if(local){local.forEach(p=>addGradeToStorage(p));addMsg(' Записал в дневник: '+local.map(p=>p.subject+' → '+p.grades.join(', ')).join('; '),'sys');}
   const loading=document.createElement('div');loading.className='skel skel-msg';
   const box=document.getElementById('chatBox');box.appendChild(loading);box.scrollTop=box.scrollHeight;
   document.getElementById('chatBtn').disabled=true;
@@ -1590,7 +1594,7 @@ async function sendChat(){
     const resp=await askGiga(t,MATH_SYSTEM+' Помни ВЕСЬ предыдущий разговор, включая сообщения из MAX. Если ученик рассказывает про оценки — порадуйся или поддержи.',800);
     const cl=cleanResponse(resp);loading.remove();addMsg(cl,'bot','web');
     await syncChatHistory();
-    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg(' Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
+    if(!local){const p=await tryParseGradesViaGiga(t);if(p&&p.length){p.forEach(x=>addGradeToStorage(x));addMsg('📚 Записал в дневник: '+p.map(x=>x.subject+' → '+x.grades.join(', ')).join('; '),'sys');}}
   }catch(e){loading.remove();addMsg(/Failed to fetch|NetworkError/.test(e.message)?'😴 Сервер просыпается — попробуй ещё раз через 5 секунд.':'❌ Ошибка: '+e.message,'bot');}
   finally{document.getElementById('chatBtn').disabled=false;}
 }
@@ -1598,7 +1602,7 @@ function clearChat(){uiConfirm('Удалить общий чат?\nОн исче
   chatHistory=[];localStorage.removeItem('sn_chat');document.getElementById('chatBox').innerHTML='';document.getElementById('chatSearch').value='';addMsg('Общий чат очищен. Начнём заново! 🎓','bot');
   fetch(PROXY_BASE+'/chat_history?user_id='+encodeURIComponent(CHANNEL),{method:'POST',headers:{'Content-Type':'application/json'},body:'[]'}).catch(()=>{});
 },'🗑','Удалить');}
-function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';const list=chatHistory.slice(-30);if(!list.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX ','bot');}else{list.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
+function restoreChatHistory(){const b=document.getElementById('chatBox');b.innerHTML='';const list=chatHistory.slice(-30);if(!list.length){addMsg('Привет! Я GigaChat. Чат общий с ботом MAX 🔄','bot');}else{list.forEach(m=>{if(m.role==='user')addMsg(m.content,'user',m.source);else if(m.role==='assistant')addMsg(m.content,'bot',m.source);});addMsg('💾 Общий чат загружен. Продолжаем?','sys');}}
 
 // ========== ФОТО В ЧАТЕ ==========
 async function sendPhotoChat(input){
@@ -1616,7 +1620,7 @@ async function sendPhotoChat(input){
       if(d.ocr)txt+=' '+d.ocr+'\n';
       txt+=cleanResponse(d.solution||'');
       loading.remove();addMsg(txt,'bot','web');
-    }catch(e){loading.remove();addMsg(' Ошибка распознавания: '+e.message,'bot');}
+    }catch(e){loading.remove();addMsg('❌ Ошибка распознавания: '+e.message,'bot');}
   };
   reader.readAsDataURL(f);
 }
