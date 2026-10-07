@@ -315,7 +315,6 @@
   .task-card { background: var(--card); border: var(--card-bd); border-radius: 22px; padding: 18px; box-shadow: var(--card-sh); margin-bottom: 12px; animation: cardIn .35s ease both; letter-spacing: normal; word-spacing: normal; }
   .task-card .tc-num { display: inline-block; background: var(--c3-bg); color: var(--c3-c); border: var(--c3-bd); border-radius: 999px; padding: 3px 12px; font-size: 12px; font-weight: 900; margin-bottom: 10px; }
   .task-card .tc-text { font-size: 15px; font-weight: 700; line-height: 1.6; color: var(--ink); margin-bottom: 12px; letter-spacing: normal !important; word-spacing: normal !important; white-space: pre-wrap; }
-  .task-card textarea { min-height: 100px; resize: vertical; }
   .tc-status { margin-top: 10px; padding: 10px 14px; border-radius: 12px; font-size: 14px; font-weight: 800; letter-spacing: normal; word-spacing: normal; }
   .tc-status.ok { background: var(--ok-bg); color: #22C55E; }
   .tc-status.ok::before { content: '✅ Верно! '; }
@@ -328,8 +327,7 @@
   .vr-xp { font-size: 14px; font-weight: 900; margin: 6px 0; }
   .vr-xp.no { color: var(--muted); }
   .vr-xp.yes { color: var(--c2-c); }
-  #variantFooter { position: fixed; bottom: calc(84px + env(safe-area-inset-bottom,0px)); left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; z-index: 89; }
-  #variantFooter .btn { margin-top: 0; box-shadow: 0 16px 40px rgba(0,40,90,.35); }
+  .finish-bar { margin: 18px 0 90px; }
   @keyframes toastIn { from{opacity:0;transform:translate(-50%,20px) scale(.8)} to{opacity:1;transform:translate(-50%,0) scale(1)} }
   @keyframes toastOut { to{opacity:0;transform:translate(-50%,-10px) scale(.9)} }
   @keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
@@ -376,7 +374,6 @@
     input,select,textarea{min-height:48px;}
     .gamebar{padding:12px;}
     .hero{padding:18px;}
-    #variantFooter{bottom:calc(76px + env(safe-area-inset-bottom,0px));}
   }
   @media (min-width:768px){ .wrap{max-width:720px;} .cloud-grid{grid-template-columns:repeat(3,1fr);} .dock{max-width:560px;} }
   @media (min-width:1200px){ .wrap{max-width:980px;} .dock{max-width:640px;} .head h1{font-size:28px;} }
@@ -384,6 +381,11 @@
   .chat-search{display:none;}
   #chat > .btn.ghost{display:none;}
   .photo-fab{display:none !important;}
+  /* УВЕЛИЧЕННЫЙ ЧАТ: новая формула высоты */
+  #chat .chat-box{height:clamp(380px, 52vh + 16vw, 90vh) !important;width:min(100%, calc(420px + 22vw)) !important;max-width:none !important;margin:0 auto !important;}
+  #chat .chat-input,#chat .qchips{width:min(100%, calc(420px + 22vw)) !important;max-width:none !important;margin-left:auto !important;margin-right:auto !important;}
+  #chat .chat-box{margin-top:48px !important;}
+  @media (max-width:430px){#chat .chat-box{margin-top:44px !important;}}
 </style>
 </head>
 <body>
@@ -590,7 +592,7 @@
             <option value="60">60 мин</option>
           </select>
           <button class="btn mint" onclick="startVariant()">📝 Получить вариант</button>
-          <div class="hint" style="margin-top:8px;">Задания из банка ФИПИ. Все подряд, проверка — кнопкой внизу. Выход из вкладки = автозавершение. Подсказки: −100 XP или подарочные.</div>
+          <div class="hint" style="margin-top:8px;">Задания из банка ФИПИ. Все подряд, проверка — кнопкой внизу страницы. Пока вариант не завершён — выйти из вкладки нельзя.</div>
           <label>📜 Пройденные варианты (тап = перерешать, без XP)</label>
           <div class="var-chips" id="varHistory"><span class="hint">Пока пусто</span></div>
         </div>
@@ -608,12 +610,11 @@
         </div>
         <div id="variantResult" style="display:none;"></div>
         <div id="variantTasks"></div>
+        <div class="finish-bar" id="finishBar">
+          <button class="btn mint" id="finishVarBtn" onclick="finishVariant()">🏁 Завершить вариант и проверить</button>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div id="variantFooter" style="display:none;">
-    <button class="btn mint" onclick="finishVariant()">🏁 Завершить вариант и проверить</button>
   </div>
 
   <div id="grades" class="page">
@@ -664,10 +665,10 @@
         <ul>
           <li>🔄 Чат синхронизирован с ботом MAX</li>
           <li>📝 Целые варианты ОГЭ/ЕГЭ из банка ФИПИ (2023/24–2026/27)</li>
-          <li>🚪 Выход из вкладки = вариант завершается сам</li>
+          <li>🔒 Пока вариант не завершён — выход из вкладки заблокирован</li>
           <li>💡 Подсказки: −100 XP или подарочные (каждые 15 дней стрика)</li>
         </ul>
-        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 57</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:13px;">Версия 58</p>
       </div>
       <div class="legal"><a href="terms.html">Соглашение</a><a href="privacy.html">Конфиденциальность</a></div>
     </div>
@@ -680,7 +681,7 @@
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
       <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
-      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 57</div></button>
+      <button class="cloud" onclick="go('about')"><div class="em">ℹ️</div><div class="t">О боте</div><div class="d">Версия 58</div></button>
     </div>
   </div>
 
@@ -734,7 +735,7 @@ function setThemeClick(t,ev){const x=ev?ev.clientX:innerWidth/2,y=ev?ev.clientY:
 applyTheme(localStorage.getItem('sn_theme')||'auto');
 document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('paused',document.hidden);});
 
-const ONB=[['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],['📝','Целые варианты','Полные варианты ОГЭ/ЕГЭ 2023/24–2026/27 из банка ФИПИ. Выход из вкладки = автозавершение.'],['🎁','Подарки за стрик','Каждые 15 дней стрика 🔥 дарим +5 подсказок! Подсказки также можно купить за 100 XP.']];
+const ONB=[['🤖','Чат с ИИ','Спрашивай что угодно — GigaChat ответит. Чат общий с ботом MAX.'],['📝','Целые варианты','Полные варианты ОГЭ/ЕГЭ из банка ФИПИ. Пока не завершишь вариант — выйти нельзя.'],['🎁','Подарки за стрик','Каждые 15 дней стрика 🔥 дарим +5 подсказок!']];
 let onbI=0;
 function onbStart(){if(localStorage.getItem('sn_onb'))return;onbI=0;document.getElementById('onb').style.display='flex';onbShow();}
 function onbShow(){const s=ONB[onbI];document.getElementById('onbEmoji').textContent=s[0];document.getElementById('onbTitle').textContent=s[1];document.getElementById('onbText').textContent=s[2];document.getElementById('onbNext').textContent=(onbI===ONB.length-1)?'Поехали!':'Дальше';}
@@ -772,18 +773,13 @@ function spendXP(n){const g=loadGame();if(g.xp<n)return false;g.xp-=n;g.spent=(g
 function checkBadges(){const g=loadGame();const p=loadPlan();const dn=(p&&p.done)?p.done.length:0;const c={step:g.xp>0||g.spent>0,goal1:g.goalDone!=='',quiz10:g.correct>=10,plan:g.plan,done:dn>=1,done5:dn>=5,streak3:g.streak>=3,streak7:g.streak>=7};let ch=false;BADGES.forEach(b=>{if(c[b[0]]&&!g.badges.includes(b[0])){g.badges.push(b[0]);ch=true;setTimeout(()=>toast('🏆 '+b[2]),350);}});if(ch){saveGame(g);renderGame();}}
 function renderGame(){const g=loadGame();const lvl=Math.floor(g.xp/100)+1,prog=g.xp%100,t=new Date().toDateString();const em=(g.hints?'💡×'+g.hints+' ':'')+g.badges.map(id=>{const b=BADGES.find(x=>x[0]===id);return b?b[1]:'';}).join(' ');const bar=document.getElementById('gameBar');if(!bar)return;bar.innerHTML='<div class="gb-lvl">'+lvl+'</div><div class="gb-mid"><div class="gb-top"><span>Уровень '+lvl+'</span><span>'+prog+'/100</span></div><div class="xpbar"><i style="width:'+prog+'%"></i></div><div class="gb-top" style="margin-top:6px;margin-bottom:0;"><span>📅 Сегодня '+Math.min(g.dayXp,DAILY_GOAL)+'/'+DAILY_GOAL+' XP'+(g.goalDone===t?' ✅':'')+'</span><span>💎 '+g.xp+'</span></div><div class="gb-badges">'+(em||'')+'</div></div><div class="gb-streak">🔥 '+g.streak+'</div>';}
 
-/* ===== ОПЛАТА ПОДСКАЗКИ: подарочные первыми, иначе −100 XP ===== */
 function payHintCost(){
   const g=loadGame();
   if((g.hints||0)>0){g.hints--;saveGame(g);renderGame();return{ok:true,free:true,left:g.hints};}
   if(g.xp>=HINT_COST&&spendXP(HINT_COST)){return{ok:true,free:false};}
   return{ok:false};
 }
-function refundHint(pay){
-  const g=loadGame();
-  if(pay&&pay.free){g.hints=(g.hints||0)+1;}else{g.xp+=HINT_COST;}
-  saveGame(g);renderGame();
-}
+function refundHint(pay){const g=loadGame();if(pay&&pay.free){g.hints=(g.hints||0)+1;}else{g.xp+=HINT_COST;}saveGame(g);renderGame();}
 function hintBtnLabel(){const g=loadGame();return (g.hints||0)>0?('💡 Подсказка (подарков: '+g.hints+')'):('💡 Подсказка (−'+HINT_COST+' XP)');}
 
 const SHOP=[
@@ -839,9 +835,38 @@ function renderPlan(d){let sch='',top='';if(d.examName)sch+='<div class="item ai
  document.getElementById('planSched').innerHTML=sch||'<div class="item">План пуст.</div>';document.getElementById('planTopics').innerHTML=top||'<div class="item">Темы появятся после плана.</div>';mathIn(document.getElementById('planSched'));mathIn(document.getElementById('planTopics'));}
 function collectPlanData(){const subjects=[];document.querySelectorAll('#subjectGrid input:checked').forEach(c=>subjects.push(c.value));const restDays=[];document.querySelectorAll('.day-check input:checked').forEach(c=>restDays.push(c.value));return{grade:+document.getElementById('pGrade').value,exam:document.getElementById('pExam').value,goal:document.getElementById('pGoal').value.trim(),minutes:+document.getElementById('pMinutes').value,level:document.getElementById('pLevel').value,weak:document.getElementById('pWeak').value.trim(),subjects,restDays};}
 function generateScheduleWithTasks(data){const{subjects,minutes,restDays,exam}=data;const sch=[];const st={};subjects.forEach(s=>{const t=(EXAM_TASKS[exam]&&EXAM_TASKS[exam][s])||null;st[s]=t?[...t]:[{num:1,name:'Тема 1',time:minutes},{num:2,name:'Тема 2',time:minutes},{num:3,name:'Тема 3',time:minutes},{num:4,name:'Тема 4',time:minutes},{num:5,name:'Тема 5',time:minutes}];});const idx={};subjects.forEach(s=>idx[s]=0);let si=0;for(let d=0;d<7;d++){const dn=DAYS[d];if(restDays.includes(dn)){sch.push({day:dn,subject:'отдых',topic:'отдых',activity:'отдых',taskNum:null,estimatedTime:0,done:false});}else{const subj=subjects[si%subjects.length];si++;const arr=st[subj];const t=arr[idx[subj]%arr.length];idx[subj]++;sch.push({day:dn,subject:subj,topic:'Задание '+t.num+': '+t.name,activity:minutes+' мин · разбор задания №'+t.num,taskNum:t.num,estimatedTime:t.time,done:false});}}return sch;}
-async function buildPlan(){const data=collectPlanData();if(!data.subjects.length)return uiAlert('Выбери хотя бы один предмет!','📚');const btn=document.getElementById('planBtn');btn.disabled=true;planTab('view');planView('sched');showLoading('planSched');try{const ei=examInfo(data.grade,data.exam);const plan={schedule:generateScheduleWithTasks(data),examName:data.exam||'без экзамена',examDate:ei.examDate.toLocaleDateString('ru-RU'),weeks:ei.weeks,savedAt:new Date().toLocaleDateString('ru-RU'),scheduleWeek:currentWeekKey(),params:data,done:[],selectedTopic:null,summary:'План: '+data.subjects.join(', ')+'. '+data.minutes+' мин/день на один предмет.'};savePlan(plan);renderPlan(plan);renderToday();const g=loadGame();g.plan=true;saveGame(g);checkBadges();toast('✨ План готов!');}catch(e){showError('planSched',e.message);}finally{btn.disabled=false;}}
-function postponeTodayTask(){const p=loadPlan();if(!p||!p.schedule)return;const ti=todayIdx(),td=p.schedule[ti];if(!td||isRestDay(td))return uiAlert('Сегодня отдых.','😴');uiConfirm('Перенести "'+td.subject+'" на завтра? Расписание сдвинется.',function(){const ns=[];const post={...td,day:DAYS[(ti+1)%7],done:false};for(let i=ti+1;i<p.schedule.length;i++)ns.push({...p.schedule[i],day:DAYS[(i+1)%7]});ns.splice((ti+1)%7,0,post);p.schedule=ns.slice(0,7);savePlan(p);renderPlan(p);renderToday();toast('⏰ Перенесено!');},'⏰','Перенести');}
-async function checkWeekUpdate(){const p=loadPlan();if(!p||!p.params||!p.schedule||p.scheduleWeek===currentWeekKey())return;const done=(p.done||[]).map(d=>d.topic);const unc=p.schedule.filter(s=>!isRestDay(s)&&!s.done&&!done.includes(s.topic));const ns=generateScheduleWithTasks(p.params);p.schedule=(unc.length?[...unc,...ns.filter(s=>isRestDay(s)||!unc.some(u=>u.topic===s.topic))]:ns).slice(0,7);p.scheduleWeek=currentWeekKey();p.selectedTopic=null;savePlan(p);renderPlan(p);renderToday();}
+/* 🆕 Неделя из списка заданий + дней отдыха */
+function buildWeekFromTasks(tasks,restDays){const sch=[];let k=0;for(let d=0;d<7;d++){const dn=DAYS[d];if(restDays.includes(dn)){sch.push({day:dn,subject:'отдых',topic:'отдых',activity:'отдых',taskNum:null,estimatedTime:0,done:false});}else{const t=tasks[k++];sch.push(t?{...t,day:dn,done:false}:{day:dn,subject:'отдых',topic:'отдых',activity:'отдых',taskNum:null,estimatedTime:0,done:false});}}return sch;}
+async function buildPlan(){const data=collectPlanData();if(!data.subjects.length)return uiAlert('Выбери хотя бы один предмет!','📚');const btn=document.getElementById('planBtn');btn.disabled=true;planTab('view');planView('sched');showLoading('planSched');try{const ei=examInfo(data.grade,data.exam);const plan={schedule:generateScheduleWithTasks(data),examName:data.exam||'без экзамена',examDate:ei.examDate.toLocaleDateString('ru-RU'),weeks:ei.weeks,savedAt:new Date().toLocaleDateString('ru-RU'),scheduleWeek:currentWeekKey(),params:data,done:[],selectedTopic:null,overflow:[],summary:'План: '+data.subjects.join(', ')+'. '+data.minutes+' мин/день на один предмет.'};savePlan(plan);renderPlan(plan);renderToday();const g=loadGame();g.plan=true;saveGame(g);checkBadges();toast('✨ План готов!');}catch(e){showError('planSched',e.message);}finally{btn.disabled=false;}}
+/* 🆕 СДВИГ ЦЕПОЧКОЙ: всё на 1 день вперёд, хвост — на след. неделю */
+function postponeTodayTask(){
+  const p=loadPlan();if(!p||!p.schedule)return;
+  const ti=todayIdx(),td=p.schedule[ti];
+  if(!td||isRestDay(td))return uiAlert('Сегодня отдых.','😴');
+  uiConfirm('Сдвинуть всё на 1 день вперёд?\n\nСегодня: отдых.\nЗавтра: '+td.subject+'.\nДальше — по цепочке. Последнее задание уйдёт на следующую неделю.',function(){
+    const dropped=p.schedule[6];
+    for(let i=6;i>ti;i--){p.schedule[i]={...p.schedule[i-1],day:DAYS[i]};}
+    p.schedule[ti]={day:DAYS[ti],subject:'отдых',topic:'отдых',activity:'отдых',taskNum:null,estimatedTime:0,done:false};
+    if(dropped&&!isRestDay(dropped)){p.overflow=p.overflow||[];p.overflow.push({...dropped});}
+    savePlan(p);renderPlan(p);renderToday();
+    toast('⏰ Сдвинуто на 1 день вперёд!');
+  },'⏰','Сдвинуть');
+}
+async function checkWeekUpdate(){
+  const p=loadPlan();if(!p||!p.params||!p.schedule||p.scheduleWeek===currentWeekKey())return;
+  const done=(p.done||[]).map(d=>d.topic);
+  const unc=p.schedule.filter(s=>!isRestDay(s)&&!s.done&&!done.includes(s.topic));
+  const overflow=(p.overflow||[]).filter(t=>!done.includes(t.topic));
+  const fresh=generateScheduleWithTasks(p.params).filter(s=>!isRestDay(s));
+  const pool=[...overflow,...unc];
+  const seq=[...pool];
+  fresh.forEach(f=>{if(!seq.some(s=>s.topic===f.topic))seq.push(f);});
+  const studyDays=7-(p.params.restDays||[]).length;
+  p.schedule=buildWeekFromTasks(seq.slice(0,studyDays),p.params.restDays||[]);
+  p.overflow=seq.slice(studyDays);
+  p.scheduleWeek=currentWeekKey();p.selectedTopic=null;
+  savePlan(p);renderPlan(p);renderToday();
+}
 function deletePlan(){uiConfirm('Удалить план?',function(){localStorage.removeItem('sn_plan');document.getElementById('planSched').innerHTML='';document.getElementById('planTopics').innerHTML='';document.getElementById('todayCard').innerHTML='';updateHomeStats();planTab('form');},'🗑','Удалить');}
 function startTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it)){uiAlert('Сегодня отдых 😴','😴');go('quiz');return;}document.getElementById('qTopic').value=(it.subject||'')+(it.topic?', '+it.topic:'');go('quiz');startQuiz(topicKey(it),TEST_SIZE);}
 function videoTodayFromPlan(){const it=todayPlanItem();if(isRestDay(it))return;document.getElementById('vTopic').value=it.topic||it.subject||'';go('video');buildVideo();}
@@ -941,8 +966,10 @@ function fillVariantNums(){document.getElementById('vNum').innerHTML=Array.from(
 function randomVariantNum(){document.getElementById('vNum').value=1+Math.floor(Math.random()*20);toast('🎲 Выбран №'+document.getElementById('vNum').value);}
 function renderVarHistory(){const h=loadVarHistory().slice(-10).reverse();const el=document.getElementById('varHistory');if(!h.length){el.innerHTML='<span class="hint">Пока пусто</span>';return;}el.innerHTML=h.map((x,i)=>'<button class="var-chip done" onclick="openHistoryVariant('+i+')">'+x.year+'·№'+x.num+'·'+x.grade+' ✅</button>').join('');}
 function openHistoryVariant(i){const h=loadVarHistory().slice(-10).reverse()[i];if(!h)return;const p=h.key.split('|');launchVariant({exam:p[0],subject:p[1],year:p[2],num:p[3]==='bank'?'bank':+p[3],timerMin:0});}
+/* 🔒 БЛОКИРОВКА ВЫХОДА: пока вариант не завершён */
+function variantLockActive(){return !!(variant&&!variant.checked&&document.getElementById('variantActive').style.display!=='none');}
 function quizTab(t){
-  if(t==='test'&&variant&&!variant.checked&&document.getElementById('variantActive').style.display!=='none'){finishVariant();}
+  if(t==='test'&&variantLockActive()){uiAlert('Сначала заверши вариант! 📝\n\nНажми «🏁 Завершить вариант и проверить» внизу страницы или «✖ Сбросить вариант».','🔒');return;}
   ['Test','Variant'].forEach(n=>{const b=document.getElementById('tab'+n),x=document.getElementById('quiz'+n+'Box');if(b)b.classList.toggle('on',n.toLowerCase()===t);if(x)x.style.display=n.toLowerCase()===t?'block':'none';});
   if(t==='variant'){renderVarHistory();const cur=loadCurrentVariant();if(cur&&!cur.checked&&!variant){variant=cur;showVariantActive();}}
 }
@@ -960,7 +987,7 @@ async function launchVariant(cfg){
   document.getElementById('variantActive').style.display='block';
   document.getElementById('variantResult').style.display='none';
   document.getElementById('variantTasks').innerHTML='<div class="skel skel-card"></div><div class="skel skel-card"></div><div class="skel skel-card"></div>';
-  document.getElementById('variantFooter').style.display='block';
+  document.getElementById('finishBar').style.display='block';
   let tasks=buildVariantTasks(cfg.exam,cfg.subject,cfg.year,cfg.num);
   if(!tasks){
     try{const r=await fetch(PROXY_BASE+'/fipi_bank?exam='+encodeURIComponent(cfg.exam)+'&subject='+encodeURIComponent(cfg.subject)+'&year='+encodeURIComponent(cfg.year)+'&num='+cfg.num);if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)tasks=d;}}catch(e){}
@@ -968,7 +995,7 @@ async function launchVariant(cfg){
   if(!tasks){
     try{const resp=await askGiga('Сгенерируй полный вариант '+cfg.exam+' '+cfg.year+' года №'+cfg.num+' по предмету «'+cfg.subject+'» СТРОГО в формате открытого банка ФИПИ: реальные номера заданий по спецификации, типовые формулировки. Верни JSON-массив БЕЗ markdown: [{"num":1,"topic":"...","text":"...","answer":"...","type":"short|long"}]','Ты — составитель КИМ ФИПИ. Верни только JSON.',3500,null,true);tasks=parseJSONArraySafe(resp);}catch(e){}
   }
-  if(!tasks||!tasks.length){document.getElementById('variantTasks').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Не удалось собрать вариант. Попробуй Математику или Русский.</div>';document.getElementById('variantFooter').style.display='none';return;}
+  if(!tasks||!tasks.length){document.getElementById('variantTasks').innerHTML='<div class="item" style="border-left:4px solid #FF6B6B;">❌ Не удалось собрать вариант. Попробуй Математику или Русский.</div>';document.getElementById('finishBar').style.display='none';return;}
   variant={...cfg,tasks,answers:new Array(tasks.length).fill(''),results:null,checked:false,hintText:{},noXp:isVariantDone(cfg)||cfg.noXp,startTime:Date.now(),timeLeft:cfg.timerMin>0?cfg.timerMin*60:-1};
   saveCurrentVariant();showVariantActive();
   if(variant.timeLeft>0)startVarTimer();
@@ -978,20 +1005,20 @@ function startVarTimer(){if(variantTimerInt)clearInterval(variantTimerInt);const
 function showVariantActive(){
   document.getElementById('variantSetup').style.display='none';
   document.getElementById('variantActive').style.display='block';
-  document.getElementById('variantFooter').style.display=variant.checked?'none':'block';
+  document.getElementById('finishBar').style.display=variant.checked?'none':'block';
   document.getElementById('variantTitle').textContent='📝 '+variant.exam+' · '+variant.subject+' · '+variant.year+' · №'+variant.num+(variant.noXp?' · 🔁 без XP':'');
   if(variant.timeLeft<0)document.getElementById('variantTimer').textContent='без таймера';
   renderVariantTasks();updateVarProgress();
 }
 function updateVarProgress(){if(!variant)return;const a=variant.answers.filter(x=>x&&x.trim()).length;document.getElementById('variantProgBar').style.width=(a/variant.tasks.length*100)+'%';document.getElementById('variantProgTxt').textContent='отвечено '+a+' / '+variant.tasks.length;}
+/* ✍️ Все задания — только поле ответа; развёрнутые проверяются после завершения */
 function renderVariantTasks(){
   const box=document.getElementById('variantTasks');
   box.innerHTML=variant.tasks.map((t,i)=>{
     const ans=variant.answers[i]||'';
     const res=variant.results?variant.results[i]:null;
-    const inp=t.type==='long'
-      ?'<textarea oninput="saveVarAnswer('+i+', this.value)" placeholder="Развёрнутое решение...">'+escapeHtml(ans)+'</textarea>'
-      :'<input type="text" oninput="saveVarAnswer('+i+', this.value)" placeholder="Короткий ответ..." value="'+escapeHtml(ans)+'">';
+    const ph=t.type==='long'?'Напиши ответ (решение проверим после завершения)...':'Короткий ответ...';
+    const inp='<input type="text" oninput="saveVarAnswer('+i+', this.value)" placeholder="'+ph+'" value="'+escapeHtml(ans)+'">';
     let st='';
     if(res==='ok')st='<div class="tc-status ok">1 балл</div>';
     else if(res==='bad')st='<div class="tc-status bad">'+escapeHtml(t.answer)+'</div>';
@@ -1000,9 +1027,8 @@ function renderVariantTasks(){
       extra='<button class="btn ghost" style="padding:8px;font-size:12px;margin-top:8px;" onclick="showTaskSolution('+i+')">📖 Показать решение</button><div class="tc-sol" id="sol'+i+'" style="display:none;"></div>';
     }else{
       const used=variant.hintText&&variant.hintText[i];
-      extra='<button class="btn ghost" style="padding:8px;font-size:12px;margin-top:8px;" id="vhb'+i+'" onclick="variantHint('+i+')">'+(used?'💡 Подсказка использована':hintBtnLabel())+'</button>'+
+      extra='<button class="btn ghost" style="padding:8px;font-size:12px;margin-top:8px;" id="vhb'+i+'" onclick="variantHint('+i+')'"'+(used?' disabled':'')+'>'+(used?'💡 Подсказка использована':hintBtnLabel())+'</button>'+
             '<div class="tc-sol" id="vhint'+i+'" style="display:'+(used?'block':'none')+';">'+(used?'💡 '+escapeHtml(variant.hintText[i]):'')+'</div>';
-      if(used)extra=extra.replace('id="vhb'+i+'" onclick="variantHint('+i+')">'+ '💡 Подсказка использована','id="vhb'+i+'" disabled>💡 Подсказка использована');
     }
     return '<div class="task-card" id="task'+i+'"><span class="tc-num">Задание '+t.num+' · '+escapeHtml(t.topic||'')+'</span><div class="tc-text">'+escapeHtml(t.text)+'</div>'+inp+st+extra+'</div>';
   }).join('');
@@ -1033,24 +1059,25 @@ async function variantHint(i){
   }
 }
 async function showTaskSolution(i){const el=document.getElementById('sol'+i);if(!el)return;el.style.display='block';el.textContent='⏳ Думаю...';try{const r=await askGiga('Задание: '+variant.tasks[i].text+' Правильный ответ: '+variant.tasks[i].answer+'. Объясни решение кратко, по шагам, без markdown.','Ты — учитель. Только текст решения.',600,null,true);el.textContent=cleanResponse(r);mathIn(el);}catch(e){el.textContent='Решение недоступно.';}}
-function discardVariant(){uiConfirm('Сбросить текущий вариант? Ответы удалятся.',function(){variant=null;variantTimerInt&&clearInterval(variantTimerInt);localStorage.removeItem('sn_var_current');document.getElementById('variantActive').style.display='none';document.getElementById('variantSetup').style.display='block';document.getElementById('variantFooter').style.display='none';renderVarHistory();},'🗑','Сбросить');}
+function discardVariant(){uiConfirm('Сбросить текущий вариант? Ответы удалятся, и можно будет выйти.',function(){variant=null;variantTimerInt&&clearInterval(variantTimerInt);localStorage.removeItem('sn_var_current');document.getElementById('variantActive').style.display='none';document.getElementById('variantSetup').style.display='block';document.getElementById('finishBar').style.display='none';renderVarHistory();},'🗑','Сбросить');}
 async function finishVariant(){
   if(!variant||variant.checked)return;
   variantTimerInt&&clearInterval(variantTimerInt);
-  const btn=document.querySelector('#variantFooter .btn');if(btn){btn.disabled=true;btn.textContent='⏳ Проверяю...';}
+  const btn=document.getElementById('finishVarBtn');if(btn){btn.disabled=true;btn.textContent='⏳ Проверяю...';}
   const results=new Array(variant.tasks.length).fill(null);
   const longIdx=[];
   variant.tasks.forEach((t,i)=>{
     if(t.type==='long'){longIdx.push(i);}
     else{const u=normalize(variant.answers[i]||''),r=normalize(t.answer);results[i]=(u&&r&&(u===r||r.includes(u)||u.includes(r)))?'ok':'bad';}
   });
+  /* Сравнение развёрнутых ответов — ТОЛЬКО сейчас, после завершения */
   if(longIdx.length){
     try{
-      const list=longIdx.map((gi,k)=>(k+1)+') '+variant.tasks[gi].text+' | ЭТАЛОН: '+variant.tasks[gi].answer+' | ОТВЕТ: '+(variant.answers[gi]||'(пусто)')).join('\n');
-      const resp=await askGiga('Оцени развёрнутые ответы по критериям ФИПИ (зачёт/незачёт). Верни JSON-массив БЕЗ markdown из '+longIdx.length+' элементов: [true/false,...] по порядку.\n'+list,'Ты — эксперт ФИПИ. Верни только JSON-массив булевых.',1200,null,true);
+      const list=longIdx.map((gi,k)=>(k+1)+') Задание: '+variant.tasks[gi].text+' | ЭТАЛОННЫЙ ответ: '+variant.tasks[gi].answer+' | Ответ ученика: '+(variant.answers[gi]||'(пусто)')).join('\n');
+      const resp=await askGiga('Сравни ответы по смыслу (ответ ученика может быть кратким или с другими обозначениями). Верни JSON-массив БЕЗ markdown из '+longIdx.length+' элементов: [true/false,...] по порядку.\n'+list,'Ты — эксперт ФИПИ. Верни только JSON-массив булевых.',1200,null,true);
       const arr=parseJSONArraySafe(resp);
       longIdx.forEach((gi,k)=>{results[gi]=(arr&&arr[k])?'ok':'bad';});
-    }catch(e){longIdx.forEach(gi=>{results[gi]=(variant.answers[gi]||'').trim().length>20?'ok':'bad';});}
+    }catch(e){longIdx.forEach(gi=>{const u=normalize(variant.answers[gi]||''),r=normalize(variant.tasks[gi].answer);results[gi]=(u&&r&&(u===r||r.includes(u)||u.includes(r)))?'ok':'bad';});}
   }
   variant.results=results;variant.checked=true;
   const correct=results.filter(r=>r==='ok').length,total=variant.tasks.length,pct=Math.round(correct/total*100);
@@ -1068,7 +1095,7 @@ async function finishVariant(){
   document.getElementById('variantResult').style.display='block';
   renderVariantTasks();
   localStorage.removeItem('sn_var_current');
-  document.getElementById('variantFooter').style.display='none';
+  document.getElementById('finishBar').style.display='none';
   if(btn){btn.disabled=false;btn.textContent='🏁 Завершить вариант и проверить';}
   window.scrollTo({top:0,behavior:'smooth'});
   if(pct>=70)fireConfetti(innerWidth/2,innerHeight/3);
@@ -1079,10 +1106,10 @@ function retryMistakes(){
   if(!wrong.length)return;
   variant={...variant,tasks:wrong,answers:new Array(wrong.length).fill(''),results:null,checked:false,hintText:{},noXp:true,startTime:Date.now(),timeLeft:-1};
   document.getElementById('variantResult').style.display='none';
-  document.getElementById('variantFooter').style.display='block';
+  document.getElementById('finishBar').style.display='block';
   showVariantActive();toast('🔁 Решаем только ошибки (без XP)');
 }
-function newVariant(){variant=null;variantTimerInt&&clearInterval(variantTimerInt);document.getElementById('variantActive').style.display='none';document.getElementById('variantSetup').style.display='block';document.getElementById('variantFooter').style.display='none';renderVarHistory();}
+function newVariant(){variant=null;variantTimerInt&&clearInterval(variantTimerInt);document.getElementById('variantActive').style.display='none';document.getElementById('variantSetup').style.display='block';document.getElementById('finishBar').style.display='none';renderVarHistory();}
 
 /* ===== ТЕСТ ===== */
 let qC=0,qT=0,qCurrent=null,qAnswered=false,qQueue=[],qLastTopic='',qPendingTopic=null,qBatchTotal=0,qBatchAnswered=0,qBatchScore=0,qHintUsed=false;
@@ -1190,9 +1217,10 @@ function updateGreeting(){const h=new Date().getHours();let g='Доброй но
 updateGreeting();setInterval(updateGreeting,60000);
 function setTab(id){const m={home:'home',chat:'chat',plan:'plan',quiz:'quiz',grades:'more',video:'more',motivation:'more',about:'more',more:'more',shop:'more'};document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.tab===m[id]));}
 function go(id){
-  /* 🚪 АВТОЗАВЕРШЕНИЕ ВАРИАНТА ПРИ ВЫХОДЕ ИЗ ВКЛАДКИ ТЕСТ */
-  if(id!=='quiz'&&variant&&!variant.checked&&document.getElementById('variantActive').style.display!=='none'){
-    finishVariant();
+  /* 🔒 ПОКА ВАРИАНТ НЕ ЗАВЕРШЁН — ВЫЙТИ НЕЛЬЗЯ */
+  if(id!=='quiz'&&variantLockActive()){
+    uiAlert('Сначала заверши вариант! 📝\n\nКнопка «🏁 Завершить вариант и проверить» — внизу страницы.\nИли «✖ Сбросить вариант», чтобы выйти без сохранения.','🔒');
+    return;
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');setTab(id);
