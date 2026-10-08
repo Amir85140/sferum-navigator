@@ -32,3 +32,4 @@ task*.png
 test.png
 *.log
 navigator.db*
+proxy_server_backup.py
