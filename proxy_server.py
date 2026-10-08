@@ -470,5 +470,11 @@ async def bank_tasks(subject: str = "", topic: str = ""):
     return JSONResponse(content=[], headers={"Access-Control-Allow-Origin": "*"})
 
 
+
+# --- раздача мини-аппа (статика) ---
+import os as _os
+from fastapi.staticfiles import StaticFiles
+app.mount('/', StaticFiles(directory=_os.path.dirname(_os.path.abspath(__file__)), html=True), name='web')
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
