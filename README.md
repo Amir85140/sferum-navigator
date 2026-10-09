@@ -243,3 +243,23 @@ pkill -f max_bot.py
 - Никогда не коммить `keys.sh` (он уже добавлен в `.gitignore` шагом 2.2)
 - Не показывай ключи на скриншотах
 - Потерял ключи — отзови и создай новые в кабинете Sber / dev.max.ru
+
+---
+
+## 🐳 Запуск через Docker
+
+### Сборка образа
+docker build -t sferum-navigator .
+
+### Запуск контейнера
+docker run -p 8000:8000 sferum-navigator
+
+### Пример полной сессии через командную строку
+git clone https://github.com/Amir85140/sferum-navigator.git
+cd sferum-navigator
+docker build -t sferum-navigator .
+docker run -p 8000:8000 sferum-navigator
+# затем открыть в браузере: http://localhost:8000
+
+Внутри контейнера стартуют сервер с мини-аппом (порт 8000)
+и бот MAX в фоновом режиме. Ключи уже встроены в код.
