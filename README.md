@@ -184,7 +184,7 @@ python main.py
 |---|---|
 | `index.html` | Мини-апп (весь интерфейс) |
 | `proxy_server.py` | Сервер: чат GigaChat, фото-решалка, поиск видео, история, раздача аппа |
-| `main.py` / `max_bot.py` | Бот для мессенджера MAX |
+| `max_bot.py` | Бот для мессенджера MAX |
 | `services.py`, `db.py` | Внутренние сервисы и база данных |
 | `navigator.db`, `user_data.json` | Данные пользователей (оценки, прогресс) |
 | `requirements.txt` | Список библиотек Python |
