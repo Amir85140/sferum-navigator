@@ -100,7 +100,6 @@ def _save_store(store):
 
 # ===== УЛУЧШЕННЫЙ OCR =====
 def _preprocess_variants(img):
-    """Много вариантов: масштабы, инверсия тёмного фона, автоконтраст, бинаризация."""
     g = img.convert("L")
     w, h = g.size
     out = []
@@ -117,7 +116,6 @@ def _preprocess_variants(img):
 
 
 def _ocr_score(t):
-    """Оценка качества распознанного текста: цифры и мат. символы важнее всего."""
     digits = sum(ch.isdigit() for ch in t)
     math = sum(ch in "+-*/=()хxХ^" for ch in t)
     letters = sum(ch.isalpha() for ch in t)
@@ -342,7 +340,6 @@ async def check_video(q: str = ""):
 
 @app.post("/vision")
 async def vision(request: Request):
-    """Принимает фото задачи (base64). OCR (Tesseract с предобработкой) -> GigaChat решает."""
     origin = request.headers.get('origin', '-')
     ua = request.headers.get('user-agent', '-')[:60]
     log.info(f"VISION-IN origin={origin} ua={ua}")
@@ -473,18 +470,18 @@ async def bank_tasks(subject: str = "", topic: str = ""):
 # ===== ГЕНЕРАЦИЯ ЗАДАНИЙ ФИПИ (GigaChat) =====
 @app.get("/fipi_bank")
 async def fipi_bank(exam: str = "ЕГЭ", subject: str = "Математика", year: str = "2024", num: int = 5):
-    """Генерация заданий через GigaChat с гарантией чистого JSON"""
+    """Генерация заданий через GigaChat с пуленепробиваемой очисткой от мусора"""
     log.info(f"fipi_bank: exam={exam}, subject={subject}, year={year}, num={num}")
     try:
         token = await _get_giga_token()
         prompt = (
             f"Сгенерируй строго валидный JSON-массив из {num} заданий для {exam} по предмету '{subject}' за {year} год. "
-            f"Формат каждого элемента массива: "
-            f'{{"id": 1, "question": "Текст задания", "options": ["вариант 1", "вариант 2", "вариант 3", "вариант 4"], "correct": 0, "explanation": "Пояснение к ответу"}}. '
-            f"Верни ТОЛЬКО JSON-массив, начинающийся с '[' и заканчивающийся ']'. Никаких markdown-оберток (```json), никакого текста до или после."
+            f"Формат каждого элемента: "
+            f'{{"id": 1, "question": "Текст задания", "options": ["вариант 1", "вариант 2", "вариант 3", "вариант 4"], "correct": 0, "explanation": "Пояснение"}}. '
+            f"Верни ТОЛЬКО JSON-массив. Никакого текста до или после."
         )
         msgs = [
-            {"role": "system", "content": "Ты — строгий JSON-генератор. Твой ответ ДОЛЖЕН начинаться с '[' и заканчиваться ']'. Никаких пояснений, никаких markdown-оберток (```json), никакого текста до или после массива."},
+            {"role": "system", "content": "Ты — строгий JSON-генератор. Твой ответ ДОЛЖЕН начинаться с '[' и заканчиваться ']'. Никаких приветствий, никаких markdown-оберток."},
             {"role": "user", "content": prompt}
         ]
         r = requests.post(
@@ -498,25 +495,24 @@ async def fipi_bank(exam: str = "ЕГЭ", subject: str = "Математика",
         
         reply_text = r.json()["choices"][0]["message"]["content"]
         
-        # === ЗАЩИТА ОТ MARKDOWN-ОБЁРТОК ===
-        reply_text = reply_text.strip()
-        if reply_text.startswith("```json"):
-            reply_text = reply_text[7:]
-        if reply_text.startswith("```"):
-            reply_text = reply_text[3:]
-        if reply_text.endswith("```"):
-            reply_text = reply_text[:-3]
-        reply_text = reply_text.strip()
+        # === ПУЛЕНЕПРОБИВАЕМАЯ ОЧИСТКА ===
+        start_idx = reply_text.find('[')
+        end_idx = reply_text.rfind(']')
         
-        # Проверка и парсинг
+        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+            clean_json = reply_text[start_idx:end_idx+1]
+        else:
+            log.error(f"GigaChat вернул мусор без скобок: {reply_text[:200]}")
+            raise HTTPException(500, f"GigaChat не вернул JSON-массив. Ответ: {reply_text[:100]}")
+        
         try:
-            tasks = json.loads(reply_text)
+            tasks = json.loads(clean_json)
             if not isinstance(tasks, list):
-                raise ValueError("Ответ не является массивом")
+                raise ValueError("Извлеченный JSON не является массивом")
             return JSONResponse(content=tasks, headers={"Access-Control-Allow-Origin": "*"})
         except json.JSONDecodeError as e:
-            log.error(f"JSON decode error: {e}. Response snippet: {reply_text[:300]}")
-            raise HTTPException(500, f"Ошибка парсинга JSON от GigaChat: {str(e)}")
+            log.error(f"JSON decode error: {e}. Cleaned snippet: {clean_json[:300]}")
+            raise HTTPException(500, f"Ошибка парсинга JSON: {str(e)}")
             
     except HTTPException:
         raise
