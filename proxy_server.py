@@ -5,16 +5,16 @@ import re
 import time
 import uuid
 import urllib.parse
+import os
 from pathlib import Path
 from io import BytesIO
 
 import requests
 import urllib3
-
-import db as navigator_db
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 try:
@@ -23,6 +23,8 @@ try:
     OCR_OK = True
 except Exception:
     OCR_OK = False
+
+import db as navigator_db
 
 urllib3.disable_warnings()
 logging.basicConfig(level=logging.INFO)
@@ -149,8 +151,6 @@ def _ocr_from_base64(image_b64: str) -> str:
     return best
 
 
-
-
 def _load_bank():
     if BANK_FILE.exists():
         try:
@@ -158,6 +158,7 @@ def _load_bank():
         except Exception:
             return {}
     return {}
+
 
 @app.api_route("/proxy", methods=["GET", "POST", "OPTIONS"])
 async def proxy(request: Request, url: str = ""):
@@ -402,7 +403,6 @@ async def health():
     return {"status": "ok", "chat_sync": CHAT_FILE.exists(), "ocr": OCR_OK}
 
 
-
 # ===== PER-USER ДАННЫЕ (SQLite) =====
 @app.get("/api/state")
 async def api_state_get(user_id: str = "main"):
@@ -470,11 +470,63 @@ async def bank_tasks(subject: str = "", topic: str = ""):
     return JSONResponse(content=[], headers={"Access-Control-Allow-Origin": "*"})
 
 
+# ===== ГЕНЕРАЦИЯ ЗАДАНИЙ ФИПИ (GigaChat) =====
+@app.get("/fipi_bank")
+async def fipi_bank(exam: str = "ЕГЭ", subject: str = "Математика", year: str = "2024", num: int = 5):
+    """Генерация заданий через GigaChat с гарантией чистого JSON"""
+    log.info(f"fipi_bank: exam={exam}, subject={subject}, year={year}, num={num}")
+    try:
+        token = await _get_giga_token()
+        prompt = (
+            f"Сгенерируй строго валидный JSON-массив из {num} заданий для {exam} по предмету '{subject}' за {year} год. "
+            f"Формат каждого элемента массива: "
+            f'{{"id": 1, "question": "Текст задания", "options": ["вариант 1", "вариант 2", "вариант 3", "вариант 4"], "correct": 0, "explanation": "Пояснение к ответу"}}. '
+            f"Верни ТОЛЬКО JSON-массив, начинающийся с '[' и заканчивающийся ']'. Никаких markdown-оберток (```json), никакого текста до или после."
+        )
+        msgs = [
+            {"role": "system", "content": "Ты — строгий JSON-генератор. Твой ответ ДОЛЖЕН начинаться с '[' и заканчиваться ']'. Никаких пояснений, никаких markdown-оберток (```json), никакого текста до или после массива."},
+            {"role": "user", "content": prompt}
+        ]
+        r = requests.post(
+            GIGA_URL,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={"model": "GigaChat:latest", "messages": msgs, "max_tokens": 4000, "temperature": 0.7},
+            timeout=60, verify=False,
+        )
+        if not r.ok:
+            raise HTTPException(r.status_code, f"GigaChat error: {r.text[:200]}")
+        
+        reply_text = r.json()["choices"][0]["message"]["content"]
+        
+        # === ЗАЩИТА ОТ MARKDOWN-ОБЁРТОК ===
+        reply_text = reply_text.strip()
+        if reply_text.startswith("```json"):
+            reply_text = reply_text[7:]
+        if reply_text.startswith("```"):
+            reply_text = reply_text[3:]
+        if reply_text.endswith("```"):
+            reply_text = reply_text[:-3]
+        reply_text = reply_text.strip()
+        
+        # Проверка и парсинг
+        try:
+            tasks = json.loads(reply_text)
+            if not isinstance(tasks, list):
+                raise ValueError("Ответ не является массивом")
+            return JSONResponse(content=tasks, headers={"Access-Control-Allow-Origin": "*"})
+        except json.JSONDecodeError as e:
+            log.error(f"JSON decode error: {e}. Response snippet: {reply_text[:300]}")
+            raise HTTPException(500, f"Ошибка парсинга JSON от GigaChat: {str(e)}")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"fipi_bank error: {e}")
+        raise HTTPException(500, f"Ошибка генерации заданий: {str(e)}")
+
 
 # --- раздача мини-аппа (статика) ---
-import os as _os
-from fastapi.staticfiles import StaticFiles
-app.mount('/', StaticFiles(directory=_os.path.dirname(_os.path.abspath(__file__)), html=True), name='web')
+app.mount('/', StaticFiles(directory=os.path.dirname(os.path.abspath(__file__)), html=True), name='web')
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
