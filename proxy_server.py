@@ -214,7 +214,7 @@ async def chat(request: Request, user_id: str = ""):
         payload = await request.json()
         prompt = payload.get("prompt", "")
         system = payload.get("system") or MATH_SYSTEM_DEFAULT
-        max_tokens = int(payload.get("max_tokens") or 800)
+        max_tokens = int(payload.get("max_tokens") or 4000)
         client_history = payload.get("history") or []
         use_store = bool(user_id)
         store_hist = []
@@ -381,7 +381,7 @@ async def vision(request: Request):
         r = requests.post(
             GIGA_URL,
             headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-            json={"model": "GigaChat:latest", "messages": msgs, "max_tokens": 1500, "temperature": 0.3},
+            json={"model": "GigaChat:latest", "messages": msgs, "max_tokens": 3000, "temperature": 0.3},
             timeout=60, verify=False,
         )
         if not r.ok:
