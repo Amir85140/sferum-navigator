@@ -1229,5 +1229,25 @@ setTimeout(onbStart,700);
 let rzT=null;
 addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{sizeConfetti();if(document.getElementById('grades').classList.contains('active'))drawGraph();},150);},{passive:true});
 </script>
+<script>
+function parseJSONArraySafe(t){
+  var e=extractJSON(t);
+  if(Array.isArray(e))return e;
+  var m=t.match(/\[[\s\S]*\]/);
+  if(!m)throw new Error('Не JSON');
+  var r=m[0];
+  var fixed=r.replace(/\\(?![\\"\/bfnrtu])/g,'\\\\');
+  try{return JSON.parse(fixed);}catch(err){}
+  fixed=fixed.replace(/,\s*([}\]])/g,'$1');
+  try{return JSON.parse(fixed);}catch(err){}
+  var lc=fixed.lastIndexOf('}');
+  while(lc>0){
+    var cand=fixed.slice(0,lc+1).replace(/,\s*$/,'')+']';
+    try{return JSON.parse(cand);}catch(err){}
+    lc=fixed.lastIndexOf('}',lc-1);
+  }
+  throw new Error('JSON обрезан');
+}
+</script>
 </body>
 </html>
