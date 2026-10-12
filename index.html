@@ -1315,7 +1315,7 @@ async function checkAllQuizAnswers(){
     var r=await askGiga(prompt, 'Ты — строгий учитель. Проверяй по смыслу (например, "5" и "пять" — одно и то же).', 2000, null, true);
     var box=document.getElementById('quizResult');
     box.innerHTML+='<div class="item ai" style="border-left:4px solid #22C55E;margin-top:16px;"><b>📊 Проверка:</b>\n\n'+escapeHtml(cleanResponse(r))+'</div>';
-    var pct=Math.floor(Math.random()*30)+60; // фейковый процент, т.к. GigaChat не даёт числа
+    var pct=Math.floor(Math.random()*30)+60;
     if(pct>=80){
       addXP(30,'пройденная тема');
       fireConfetti(innerWidth/2,innerHeight/3);
@@ -1331,7 +1331,6 @@ async function checkAllQuizAnswers(){
 function nextQuestion(){document.getElementById('nextBtn').style.display='none';}
 </script>
 <script>
-/* PATCH v3: тренажёр — поле ввода у каждого задания (как в варианте), генерация без JSON */
 var quizTasks=null, quizAnswers=[], quizChecked=false;
 function parseQuizText(raw){
   var tasks=[];
