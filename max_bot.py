@@ -16,7 +16,7 @@ urllib3.disable_warnings()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ===== НАСТРОЙКИ =====
+
 BOT_TOKEN = os.environ.get('BOT_TOKEN', 'f9LHodD0cOLAk1Ry-yn7J-4F5oi3mZW9vlXyawwC4SxvVwTZ3DILUsVm6QJhFo2e3ReJ-0ucg1NORcMQ_FNI')
 GIGA_ID = os.environ.get('GIGA_ID', '01a0bafa-206f-7e07-a2e7-df9e0acea285')
 GIGA_SECRET = os.environ.get('GIGA_SECRET', '93e085d7-803b-4fe2-b1da-468aff78a450')
@@ -101,7 +101,7 @@ def latex_to_plain(t):
     s = re.sub(r'\n{3,}', '\n\n', s)
     return s.strip()
 
-# ===== GIGACHAT =====
+
 giga_token = None
 giga_exp = 0
 
@@ -161,7 +161,7 @@ def ask_gigachat(prompt, system_prompt=None, max_tokens=800, history=None):
         logger.error(f"giga direct: {e}")
     return "❌ Ошибка при обращении к GigaChat"
 
-# ===== ПОИСК ВИДЕО: ТОЛЬКО VK + RuTube =====
+
 def _words(query):
     return [w for w in re.split(r'\s+', query.lower()) if len(w) > 3]
 
@@ -213,7 +213,7 @@ def search_vk(query, size=2):
         logger.error(f"vk: {e}")
     return []
 
-# ===== БОТ =====
+
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
@@ -642,24 +642,20 @@ async def handle_message(event):
     text = get_text(event)
     ensure(user_id)
 
-    # ===== ФОТО: КАК В МИНИ-АППЕ (base64 с префиксом data:image/png;base64,) =====
+
     photo_url = get_photo_url(event)
     
     if photo_url:
         logger.info(f"Найдено фото: {photo_url}")
         try:
-            # 1. Скачиваем фото
             img_data = requests.get(photo_url, timeout=15, verify=False).content
             
-            # 2. Определяем тип (PNG или JPEG)
             content_type = 'image/png'
             if img_data[:2] == b'\xff\xd8':
                 content_type = 'image/jpeg'
             
-            # 3. Кодируем в base64 с префиксом (КАК В МИНИ-АППЕ!)
             image_b64 = f"data:{content_type};base64," + base64.b64encode(img_data).decode('utf-8')
             
-            # 4. Отправляем JSON-запрос на /vision (точно как мини-апп)
             r = requests.post(
                 f"{PROXY_BASE}/vision",
                 json={
@@ -696,7 +692,6 @@ async def handle_message(event):
             await reply(event, "❌ Не смог распознать текст на фото. Напиши задачу текстом — решу.")
             return
 
-    # ===== ОБЫЧНАЯ ОБРАБОТКА ТЕКСТА =====
     if text == '/start':
         await reply(event,
             " Привет! Я Sferum Navigator — твой ИИ-наставник.\n\n"
