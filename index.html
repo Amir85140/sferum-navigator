@@ -1110,7 +1110,7 @@ async function fetchBatch(topic,diff,n,grade,type,exam){
   let prompt;
   if(exam&&EXAM_DIFF_RANGES[exam]){const r=EXAM_DIFF_RANGES[exam][diff];prompt='Придумай '+n+' заданий СТРОГО в стиле '+exam+' (банк ФИПИ 2025/2026), номера №'+r[0]+'–'+r[1]+', по теме «'+topic+'». Формулы в LaTeX, "answer" простым текстом. Верни JSON-массив БЕЗ markdown: [{"question","answer","alternatives":[],"hint"}]';}
   else prompt='Придумай '+n+' заданий для '+grade+' класса по «'+topic+'». Тип: '+type+'. Сложность: '+diff+'. "answer" простым текстом. Верни JSON-массив БЕЗ markdown: [{"question","answer","alternatives":[],"hint"}]';
-  let err;for(let a=0;a<2;a++){try{const r=await askGiga(prompt,'Ты — учитель. Только JSON-массив.',4000,null,true);const arr=parseJSONArraySafe(r);const out=arr.filter(o=>o&&o.question&&o.answer);if(!out.length)throw new Error('Пусто');return out;}catch(e){err=e;}}throw err;
+  let err;for(let a=0;a<2;a++){try{const r=await askGiga(prompt,'Ты — учитель. Только JSON-массив.',1000,null,true);const arr=parseJSONArraySafe(r);const out=arr.filter(o=>o&&o.question&&o.answer);if(!out.length)throw new Error('Пусто');return out;}catch(e){err=e;}}throw err;
 }
 function updateNextLabel(){document.getElementById('nextBtn').textContent='➡️ Дальше ('+qQueue.length+')';}
 function updateProgress(){const p=qBatchTotal?(qBatchAnswered/qBatchTotal)*100:0;document.getElementById('quizProgress').style.width=p+'%';document.getElementById('quizProgressWrap').style.display=qBatchTotal?'block':'none';}
