@@ -1,7 +1,5 @@
-# Переменные окружения (НИКОГДА не коммитим токены!)
 .env
 
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -12,18 +10,18 @@ ENV/
 env/
 .venv
 
-# IDE
+
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
+
 .DS_Store
 Thumbs.db
 
-# Logs
+
 *.log
 chat_sync.json
 user_data.json
