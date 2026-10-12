@@ -213,7 +213,7 @@ async def chat(request: Request, user_id: str = ""):
         payload = await request.json()
         prompt = payload.get("prompt", "")
         system = payload.get("system") or MATH_SYSTEM_DEFAULT
-        max_tokens = int(payload.get("max_tokens") or 4000)
+        max_tokens = min(int(payload.get("max_tokens") or 2048), 2048)
         client_history = payload.get("history") or []
         use_store = bool(user_id)
         store_hist = []
@@ -225,14 +225,19 @@ async def chat(request: Request, user_id: str = ""):
             messages.append({"role": m.get("role"), "content": str(m.get("content", ""))})
         messages.append({"role": "user", "content": prompt})
         token = await _get_giga_token()
-        r = requests.post(
-            GIGA_URL,
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-            json={"model": "GigaChat:latest", "messages": messages, "max_tokens": max_tokens, "temperature": 0.7},
-            timeout=60,
-            verify=False,
-        )
-        log.info("CHAT -> %s (user_id=%s)", r.status_code, user_id or "-")
+        r = None
+        for _attempt in range(3):
+            r = requests.post(
+                GIGA_URL,
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json={"model": "GigaChat:latest", "messages": messages, "max_tokens": max_tokens, "temperature": 0.7},
+                timeout=60,
+                verify=False,
+            )
+            log.info("CHAT -> %s (user_id=%s, attempt=%d)", r.status_code, user_id or "-", _attempt+1)
+            if r.status_code == 200 or r.status_code < 500:
+                break
+            time.sleep(1.5 * (_attempt + 1))
         if r.status_code != 200:
             raise HTTPException(r.status_code, f"GigaChat error: {r.text[:200]}")
         reply_text = r.json()["choices"][0]["message"]["content"]
