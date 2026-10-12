@@ -1249,5 +1249,31 @@ function parseJSONArraySafe(t){
   throw new Error('JSON обрезан');
 }
 </script>
+<script>
+/* PATCH: тренажёр как чат — GigaChat отвечает простым текстом, без JSON */
+async function startQuiz(pending,count){
+  var topic=document.getElementById('qTopic').value.trim();
+  if(!topic)return uiAlert('Напиши тему!','✏️');
+  var n=count||10;
+  var d=document.getElementById('qDiff').value,g=document.getElementById('qGrade').value,t=document.getElementById('qType').value,e=document.getElementById('qExam').value;
+  var btn=document.getElementById('quizBtn');btn.disabled=true;
+  var q=document.getElementById('quizQ');q.textContent='⏳ Генерирую...';
+  document.getElementById('quizResult').innerHTML='';
+  document.getElementById('quizHint').innerHTML='';
+  document.getElementById('quizAnswerBox').style.display='none';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('buyHintBtn').style.display='none';
+  try{
+    var prompt='Составь '+n+' тренировочных заданий по теме «'+topic+'»'+(e?' (сложность как на '+e+')':' для '+g+' класса')+', тип: '+t+', сложность: '+d+'. По каждому заданию напиши: текст задания, затем строку «Ответ: ...», затем строку «Пояснение: ...». Простым текстом, без JSON и без markdown.';
+    var raw=await askGiga(prompt, MATH_SYSTEM+' Отвечай как в чате: простым текстом.', 3000, null, true);
+    q.textContent='🎲 Задания по теме «'+topic+'»:';
+    document.getElementById('quizResult').innerHTML='<div class="item ai">'+escapeHtml(cleanResponse(raw))+'</div>';
+    mathIn(document.getElementById('quizResult'));
+  }catch(err){
+    q.textContent='❌ '+err.message;
+  }finally{btn.disabled=false;}
+}
+async function nextQuestion(){document.getElementById('nextBtn').style.display='none';}
+</script>
 </body>
 </html>
