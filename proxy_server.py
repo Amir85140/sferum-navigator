@@ -98,7 +98,6 @@ def _save_store(store):
     CHAT_FILE.write_text(json.dumps(store, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-# ===== УЛУЧШЕННЫЙ OCR =====
 def _preprocess_variants(img):
     g = img.convert("L")
     w, h = g.size
@@ -405,7 +404,6 @@ async def health():
     return {"status": "ok", "chat_sync": CHAT_FILE.exists(), "ocr": OCR_OK}
 
 
-# ===== PER-USER ДАННЫЕ (SQLite) =====
 @app.get("/api/state")
 async def api_state_get(user_id: str = "main"):
     navigator_db.ensure_user(user_id)
@@ -432,7 +430,6 @@ async def api_chat_post(request: Request, user_id: str = "main"):
     return JSONResponse(content={"status": "ok"}, headers={"Access-Control-Allow-Origin": "*"})
 
 
-# ===== ПРОГРЕСС ПО БАНКУ =====
 @app.post("/api/progress")
 async def api_progress_post(request: Request, user_id: str = "main"):
     m = await request.json()
@@ -445,7 +442,6 @@ async def api_progress_get(user_id: str = "main"):
     return JSONResponse(content=navigator_db.get_progress(user_id), headers={"Access-Control-Allow-Origin": "*"})
 
 
-# ===== БАНК ЗАДАНИЙ (ФИПИ) =====
 @app.get("/api/bank/subjects")
 async def bank_subjects():
     bank = _load_bank()
@@ -472,7 +468,6 @@ async def bank_tasks(subject: str = "", topic: str = ""):
     return JSONResponse(content=[], headers={"Access-Control-Allow-Origin": "*"})
 
 
-# ===== ГЕНЕРАЦИЯ ЗАДАНИЙ ФИПИ (GigaChat) =====
 @app.get("/fipi_bank")
 async def fipi_bank(exam: str = "ЕГЭ", subject: str = "Математика", year: str = "2024", num: int = 5):
     """Генерация заданий через GigaChat с пуленепробиваемой очисткой от мусора"""
@@ -500,7 +495,6 @@ async def fipi_bank(exam: str = "ЕГЭ", subject: str = "Математика",
         
         reply_text = r.json()["choices"][0]["message"]["content"]
         
-        # === ПУЛЕНЕПРОБИВАЕМАЯ ОЧИСТКА ===
         start_idx = reply_text.find('[')
         end_idx = reply_text.rfind(']')
         
@@ -526,7 +520,6 @@ async def fipi_bank(exam: str = "ЕГЭ", subject: str = "Математика",
         raise HTTPException(500, f"Ошибка генерации заданий: {str(e)}")
 
 
-# --- раздача мини-аппа (статика) ---
 app.mount('/', StaticFiles(directory=os.path.dirname(os.path.abspath(__file__)), html=True), name='web')
 
 if __name__ == "__main__":
