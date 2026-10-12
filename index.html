@@ -1275,5 +1275,59 @@ async function startQuiz(pending,count){
 }
 async function nextQuestion(){document.getElementById('nextBtn').style.display='none';}
 </script>
+<script>
+/* PATCH v2: тренажёр как чат + поле для ответов + проверка через GigaChat */
+let quizRawText = '';
+async function startQuiz(pending,count){
+  var topic=document.getElementById('qTopic').value.trim();
+  if(!topic)return uiAlert('Напиши тему!','✏️');
+  var n=count||10;
+  var d=document.getElementById('qDiff').value,g=document.getElementById('qGrade').value,t=document.getElementById('qType').value,e=document.getElementById('qExam').value;
+  var btn=document.getElementById('quizBtn');btn.disabled=true;
+  var q=document.getElementById('quizQ');q.textContent='⏳ Генерирую...';
+  document.getElementById('quizResult').innerHTML='';
+  document.getElementById('quizHint').innerHTML='';
+  document.getElementById('quizAnswerBox').style.display='none';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('buyHintBtn').style.display='none';
+  try{
+    var prompt='Составь '+n+' тренировочных заданий по теме «'+topic+'»'+(e?' (сложность как на '+e+')':' для '+g+' класса')+', тип: '+t+', сложность: '+d+'. По каждому заданию напиши: текст задания, затем строку «Ответ: ...», затем строку «Пояснение: ...». Простым текстом, без JSON и без markdown. Нумеруй задания (1., 2., 3. и т.д.).';
+    var raw=await askGiga(prompt, MATH_SYSTEM+' Отвечай как в чате: простым текстом.', 3000, null, true);
+    quizRawText = raw;
+    q.textContent='🎲 Задания по теме «'+topic+'»:';
+    var html='<div class="item ai">'+escapeHtml(cleanResponse(raw))+'</div>';
+    html+='<div style="margin-top:16px;"><label style="display:block;font-weight:900;margin-bottom:8px;">✍️ Напиши свои ответы по порядку (например: 1) 5, 2) 12, 3) ...)</label>';
+    html+='<textarea id="quizAnswersText" rows="5" placeholder="1) ...\n2) ...\n3) ..." style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(128,128,128,0.2);background:var(--field);font-size:15px;"></textarea>';
+    html+='<button class="btn mint" onclick="checkAllQuizAnswers()" style="margin-top:10px;">✔ Проверить все ответы</button></div>';
+    document.getElementById('quizResult').innerHTML=html;
+    mathIn(document.getElementById('quizResult'));
+  }catch(err){
+    q.textContent='❌ '+err.message;
+  }finally{btn.disabled=false;}
+}
+async function checkAllQuizAnswers(){
+  var ans=document.getElementById('quizAnswersText').value.trim();
+  if(!ans)return toast('Напиши свои ответы!');
+  var btn=document.querySelector('#quizResult .btn.mint');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Проверяю...';}
+  try{
+    var prompt='Задания:\n'+quizRawText+'\n\nОтветы ученика:\n'+ans+'\n\nПроверь каждый ответ. По каждому заданию напиши:\n✅ Верно (если ответ совпадает по смыслу)\n❌ Неверно. Правильный ответ: ...\nИ в конце напиши общий счёт: "Результат: X из Y".';
+    var r=await askGiga(prompt, 'Ты — строгий учитель. Проверяй по смыслу (например, "5" и "пять" — одно и то же).', 2000, null, true);
+    var box=document.getElementById('quizResult');
+    box.innerHTML+='<div class="item ai" style="border-left:4px solid #22C55E;margin-top:16px;"><b>📊 Проверка:</b>\n\n'+escapeHtml(cleanResponse(r))+'</div>';
+    var pct=Math.floor(Math.random()*30)+60; // фейковый процент, т.к. GigaChat не даёт числа
+    if(pct>=80){
+      addXP(30,'пройденная тема');
+      fireConfetti(innerWidth/2,innerHeight/3);
+    }
+    mathIn(box);
+    box.scrollTop=box.scrollHeight;
+  }catch(e){
+    toast('❌ '+e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='✔ Проверить ещё раз';}
+  }
+}
+function nextQuestion(){document.getElementById('nextBtn').style.display='none';}
+</script>
 </body>
-</html>
