@@ -1330,4 +1330,78 @@ async function checkAllQuizAnswers(){
 }
 function nextQuestion(){document.getElementById('nextBtn').style.display='none';}
 </script>
+<script>
+/* PATCH v3: тренажёр — поле ввода у каждого задания (как в варианте), генерация без JSON */
+var quizTasks=null, quizAnswers=[], quizChecked=false;
+function parseQuizText(raw){
+  var tasks=[];
+  var blocks=raw.split(/(?:^|\n)\s*(?:Задание\s*\d+|\d+)\s*[.):]\s*/i).filter(function(b){return b.trim().length>5;});
+  blocks.forEach(function(b,i){
+    var am=b.match(/Ответ\s*:\s*([^\n]+)/i);
+    var hm=b.match(/Пояснение\s*:\s*([^\n]+)/i);
+    var text=b.replace(/Ответ\s*:[^\n]*/i,'').replace(/Пояснение\s*:[^\n]*/i,'').trim();
+    if(text&&am)tasks.push({num:i+1,text:text,answer:am[1].trim(),hint:hm?hm[1].trim():''});
+  });
+  return tasks;
+}
+async function startQuiz(pending,count){
+  var topic=document.getElementById('qTopic').value.trim();
+  if(!topic)return uiAlert('Напиши тему!','✏️');
+  var n=count||10,d=document.getElementById('qDiff').value,g=document.getElementById('qGrade').value,t=document.getElementById('qType').value,e=document.getElementById('qExam').value;
+  var btn=document.getElementById('quizBtn');btn.disabled=true;
+  document.getElementById('quizQ').textContent='⏳ Генерирую...';
+  document.getElementById('quizResult').innerHTML='';
+  document.getElementById('quizHint').innerHTML='';
+  document.getElementById('quizAnswerBox').style.display='none';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('buyHintBtn').style.display='none';
+  try{
+    var prompt='Составь '+n+' тренировочных заданий по теме «'+topic+'»'+(e?' (сложность как на '+e+')':' для '+g+' класса')+', тип: '+t+', сложность: '+d+'. По каждому заданию пиши СТРОГО в формате, разделяя задания пустой строкой:\nЗадание 1. <текст задания>\nОтвет: <короткий точный ответ>\nПояснение: <одно предложение>\nБез JSON, без markdown, без лишних слов.';
+    var raw=await askGiga(prompt, MATH_SYSTEM+' Отвечай простым текстом строго в заданном формате.', 3000, null, true);
+    quizTasks=parseQuizText(raw);
+    if(!quizTasks.length)throw new Error('GigaChat не вернул задания в нужном формате');
+    quizAnswers=new Array(quizTasks.length).fill('');
+    quizChecked=false;
+    document.getElementById('quizQ').textContent='🎲 Задания по теме «'+topic+'»: '+quizTasks.length;
+    renderQuizTasks();
+  }catch(err){
+    document.getElementById('quizQ').textContent='❌ '+err.message;
+  }finally{btn.disabled=false;}
+}
+function renderQuizTasks(){
+  var box=document.getElementById('quizResult');
+  box.innerHTML=quizTasks.map(function(t,i){
+    return '<div class="task-card" id="qtask'+i+'"><span class="tc-num">Задание '+t.num+'</span><div class="tc-text">'+escapeHtml(t.text)+'</div><input type="text" id="qans'+i+'" placeholder="Твой ответ..." oninput="quizAnswers['+i+']=this.value" value=""><div id="qst'+i+'"></div></div>';
+  }).join('')+'<button class="btn mint" id="checkQuizBtn" onclick="checkQuizAll()">🏁 Завершить и проверить</button>';
+  mathIn(box);
+}
+async function checkQuizAll(){
+  if(!quizTasks||quizChecked)return;
+  quizChecked=true;
+  var btn=document.getElementById('checkQuizBtn');if(btn){btn.disabled=true;btn.textContent='⏳ Проверяю...';}
+  var correct=0;
+  for(var i=0;i<quizTasks.length;i++){
+    var u=(quizAnswers[i]||'').trim(), c=quizTasks[i].answer;
+    var ok=false;
+    var nu=parseFloat(String(u).replace(',','.')), nc=parseFloat(String(c).replace(',','.'));
+    if(!isNaN(nu)&&!isNaN(nc)&&Math.abs(nu-nc)<1e-6)ok=true;
+    else{var a=normalize(u),b=normalize(c);if(a&&b&&Math.min(a.length,b.length)>=2&&(a===b||b.includes(a)||a.includes(b)))ok=true;}
+    if(!ok&&u){try{ok=await semanticCheck(quizTasks[i].text,c,u);}catch(e){}}
+    var st=document.getElementById('qst'+i);
+    if(ok){correct++;if(st)st.innerHTML='<div class="tc-status ok">1 балл</div>';}
+    else if(st)st.innerHTML='<div class="tc-status bad">'+escapeHtml(c)+'</div>';
+    var inp=document.getElementById('qans'+i);if(inp)inp.disabled=true;
+  }
+  var total=quizTasks.length,pct=Math.round(correct/total*100);
+  var grade=pct>=90?'5':pct>=70?'4':pct>=50?'3':'2';
+  var html='<div class="variant-result"><div style="font-size:40px;">🏁</div><div class="vr-score">'+correct+' / '+total+'</div><div class="hint">'+pct+'%</div><div class="vr-grade">Оценка: '+grade+'</div>';
+  html+=pct>=80?'<div class="vr-xp yes">🎓 Тема пройдена: +30 XP</div>':'<div class="vr-xp no">Нужно 80%+ для прохода темы</div>';
+  html+='</div><button class="btn sky" onclick="quizReset()">🎲 Новые задания</button>';
+  document.getElementById('quizResult').insertAdjacentHTML('afterbegin',html);
+  if(pct>=80){addXP(30,'тема');fireConfetti(innerWidth/2,innerHeight/3);}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function quizReset(){quizTasks=null;quizAnswers=[];quizChecked=false;document.getElementById('quizResult').innerHTML='';document.getElementById('quizQ').textContent='Введи тему и жми кнопку 👆';}
+function nextQuestion(){document.getElementById('nextBtn').style.display='none';}
+</script>
 </body>
