@@ -385,7 +385,39 @@
   #chat .chat-input,#chat .qchips{width:min(100%, calc(420px + 22vw)) !important;max-width:none !important;margin-left:auto !important;margin-right:auto !important;}
   #chat .chat-box{margin-top:48px !important;}
   @media (max-width:430px){#chat .chat-box{margin-top:44px !important;}}
-</style>
+
+  .theme-bottom {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 24px auto 0;
+    padding: 6px;
+    background: var(--dock-bg);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--dock-bd);
+    border-radius: 999px;
+    box-shadow: 0 10px 26px rgba(0,40,90,.15);
+    width: fit-content;
+  }
+  .theme-bottom button {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    color: var(--muted);
+    transition: all .2s;
+  }
+  .theme-bottom button:hover { color: var(--ink); }
+  .theme-bottom button.on {
+    background: var(--c1-bg);
+    color: var(--c1-c);
+    box-shadow: var(--c1-sh);
+  }
+  </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
@@ -412,9 +444,7 @@
   </div>
 </div>
 
-<div class="theme-pill">
-  
-</div>
+
 
 <div class="wrap">
 
@@ -443,13 +473,7 @@
       <button class="cloud" onclick="go('grades')"><div class="em">📒</div><div class="t">Дневник</div><div class="d">Оценки и график</div></button>
       <button class="cloud" onclick="go('video')"><div class="em">🎥</div><div class="t">Видео</div><div class="d">Уроки и ссылки</div></button>
       <button class="cloud" onclick="go('motivation')"><div class="em">💪</div><div class="t">Мотивация</div><div class="d">Поддержка ИИ</div></button>
-      <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(128,128,128,0.1);display:flex;gap:8px;justify-content:center;">
-        <button id="thLight" onclick="setThemeClick('light', event)">Светлая</button>
-  <button id="thDark" onclick="setThemeClick('dark', event)">Тёмная</button>
-  <button id="thAuto" onclick="setThemeClick('auto', event)">Авто</button>
-      </div>
-</div><div class="d">Скины за XP</div></button>
+      <button class="cloud" onclick="go('shop')"><div class="em">🛒</div><div class="t">Магазин</div><div class="d">Скины за XP</div></button>
     </div>
   </div>
 
